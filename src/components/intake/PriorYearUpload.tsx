@@ -81,35 +81,55 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     }
 
     setWorking(true);
+    setPhase("parsing");
+    setOcrProgress(null);
     try {
       // 1) Lokale Text-Extraktion (PDF verlässt das Gerät nicht)
-      const text = await extractTextFromPdf(file);
+      let text = await extractTextFromPdf(file);
+      let usedOcr = false;
 
-      if (hasUsableTextLayer(text)) {
-        const localScan = extractItemsFromText(text);
-
-        if (isLocalResultSufficient(localScan)) {
-          await persistChecklist(localScan, "local");
-          toast.success("Checkliste erstellt – ganz ohne Upload deiner Datei.");
-          onScanStarted?.();
-          return;
+      // 2) Wenn kein Text-Layer vorhanden: lokales OCR (immer noch auf dem Gerät)
+      if (!hasUsableTextLayer(text)) {
+        setPhase("ocr");
+        try {
+          text = await ocrPdfLocally(file, {
+            maxPages: 6,
+            onProgress: (p) => setOcrProgress(p),
+          });
+          usedOcr = true;
+        } catch (ocrErr: any) {
+          console.error("[PriorYearUpload] OCR failed", ocrErr);
         }
+      }
 
-        // 2) Fallback: nur anonymisierter Text an Edge Function (kein PDF, keine PII)
-        const safeText = pseudonymize(text);
-        const { data, error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
-          body: { taxFilerId, taxYear, text: safeText },
-        });
-        if (fnErr) throw fnErr;
-        toast.success("Checkliste erstellt – nur anonymisierter Text wurde verarbeitet.");
+      if (!hasUsableTextLayer(text)) {
+        toast.error(
+          "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Bitte fülle die Angaben manuell aus.",
+        );
+        return;
+      }
+
+      const localScan = extractItemsFromText(text);
+      if (isLocalResultSufficient(localScan)) {
+        await persistChecklist(localScan, "local");
+        toast.success(
+          usedOcr
+            ? "Checkliste per lokalem OCR erstellt – ohne Upload deiner Datei."
+            : "Checkliste erstellt – ganz ohne Upload deiner Datei.",
+        );
         onScanStarted?.();
         return;
       }
 
-      // 3) Kein Text-Layer (gescanntes PDF) – wir können hier nicht ohne Upload weiter.
-      toast.error(
-        "Dieses PDF enthält keinen lesbaren Text (vermutlich ein Scan). Bitte gib die Positionen manuell ein.",
-      );
+      // 3) Fallback: nur anonymisierter Text an Edge Function (kein PDF, keine PII)
+      setPhase("structuring");
+      const safeText = pseudonymize(text);
+      const { error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
+        body: { taxFilerId, taxYear, text: safeText },
+      });
+      if (fnErr) throw fnErr;
+      toast.success("Checkliste erstellt – nur anonymisierter Text wurde verarbeitet.");
+      onScanStarted?.();
     } catch (e: any) {
       console.error(e);
       toast.error(`Analyse fehlgeschlagen: ${e?.message ?? "unbekannt"}`);
