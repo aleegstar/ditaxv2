@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight } from "lucide-react";
+import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight, Replace } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  AppDialog,
+  AppDialogContent,
+  AppDialogHeader,
+  AppDialogTitle,
+  AppDialogDescription,
+} from "@/components/ui/app-dialog";
 import { PriorYearUpload } from "./PriorYearUpload";
 import {
   usePriorYearChecklist, type ChangeStatus, type ItemCategory, type ChecklistItem,
