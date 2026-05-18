@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import paymentVisa from '@/assets/payment-visa.png';
 import paymentMastercard from '@/assets/payment-mastercard.png';
 import paymentTwint from '@/assets/payment-twint.png';
-import expressIllustration from '@/assets/express-service-illustration.webp';
+import paymentHero from '@/assets/payment-hero.webp';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -330,21 +330,45 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   ];
 
   const cardClass =
-    "rounded-[28px] bg-white/[0.88] backdrop-blur-xl border border-white/70 shadow-[0_8px_30px_rgba(15,23,42,0.06)]";
+    "rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]";
 
   return (
     <div className="min-h-screen flex flex-col text-foreground">
       <SubpageHeader title="Zahlung" onBack={() => navigate(-1)} />
 
-      <main className="flex-grow pt-2 sm:pt-6 pb-20 px-4 sm:px-6">
-        <div className="max-w-[640px] mx-auto space-y-4">
+      <main className="flex-grow pt-2 sm:pt-6 pb-20 px-5 sm:px-8">
+        <div className="max-w-xl mx-auto space-y-5">
+
+          {/* Hero card — matches main design (dashboard mode switcher) */}
+          <div className={`relative overflow-hidden ${cardClass}`}>
+            <div className="relative h-32 w-full overflow-hidden bg-muted">
+              <img
+                src={paymentHero}
+                alt="Lächelnde Person mit Tablet"
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+                <span className="text-[11px] font-medium text-foreground">Sichere Zahlung</span>
+              </div>
+            </div>
+            <div className="p-4">
+              <h2 className="text-[15px] font-semibold text-foreground tracking-tight">
+                {isUpgrade ? 'Express-Service freischalten' : `Steuererklärung ${year} abschließen`}
+              </h2>
+              <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">
+                Wähle deine Zahlungsmethode – verschlüsselt und sicher über Stripe.
+              </p>
+            </div>
+          </div>
 
           {/* Aktionswoche Banner */}
           {isPromoWeekActive() && (
-            <div className="rounded-2xl p-4 bg-gradient-to-r from-[#2563FF]/10 to-[#7C3AED]/10 border border-[#2563FF]/20 backdrop-blur-xl">
+            <div className="rounded-2xl p-4 bg-gradient-to-r from-[#2563FF]/10 to-[#7C3AED]/10 border border-primary/20 backdrop-blur-xl">
               <div className="flex items-start gap-3">
-                <div className="p-1.5 rounded-full bg-[#2563FF]/15 shrink-0">
-                  <Sparkles className="w-4 h-4 text-[#2563FF]" />
+                <div className="p-1.5 rounded-full bg-primary/15 shrink-0">
+                  <Sparkles className="w-4 h-4 text-primary" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-slate-900">Aktionswoche bis 17.05.2026</p>
@@ -364,22 +388,20 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               className={`relative w-full overflow-hidden p-4 text-left transition-all active:scale-[0.995] ${cardClass}`}
             >
               <div className="relative flex items-center gap-4">
-                <img
-                  src={expressIllustration}
-                  alt=""
-                  className="w-16 h-16 object-contain shrink-0"
-                />
+                <div className="w-11 h-11 rounded-xl bg-primary/[0.07] border border-primary/15 flex items-center justify-center shrink-0">
+                  <Zap className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-[15px] leading-tight font-semibold text-slate-900 tracking-tight">
+                  <h3 className="text-[14.5px] leading-tight font-semibold text-foreground tracking-tight">
                     Express-Service
                   </h3>
-                  <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
+                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">
                     Innert 10 Tagen · +CHF {isPromoWeekActive() ? '29.00' : '100.00'}
                   </p>
                 </div>
                 <div
                   className={`w-11 h-[26px] rounded-full transition-colors relative shadow-inner shrink-0 ${
-                    expressService ? 'bg-[#2563FF]' : 'bg-slate-200/80'
+                    expressService ? 'bg-primary' : 'bg-muted'
                   }`}
                 >
                   <div
@@ -425,8 +447,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 return (
                   <div key={idx} className="flex items-center justify-between py-2.5 gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-xl bg-[#2563FF]/8 flex items-center justify-center shrink-0">
-                        <Icon className="w-4 h-4 text-[#2563FF]" strokeWidth={2} />
+                      <div className="w-8 h-8 rounded-xl bg-primary/[0.08] flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-primary" strokeWidth={2} />
                       </div>
                       <span className="text-slate-900 font-medium text-[13px] truncate">
                         {item.label}
@@ -488,7 +510,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   >
                     <div className="scale-[0.85]">{m.render}</div>
                     {active && (
-                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#2563FF] flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,255,0.5)] ring-2 ring-white">
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,255,0.5)] ring-2 ring-white">
                         <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                       </span>
                     )}
