@@ -18,6 +18,8 @@ interface SubpageHeaderProps {
   mode?: 'page' | 'overlay';
   /** Optional right-side action slot */
   rightAction?: React.ReactNode;
+  /** Override the inner container classes (e.g. to widen max-width) */
+  innerClassName?: string;
 }
 
 export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
