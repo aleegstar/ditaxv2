@@ -38,7 +38,20 @@ interface Props {
   taxYear: string;
 }
 
-export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => {
+export interface PriorYearProgress {
+  done: number;
+  total: number;
+  ready: boolean;
+  status: "pending" | "scanning" | "ready" | "failed" | "loading";
+  items: ChecklistItem[];
+}
+
+interface BodyProps extends Props {
+  onProgress?: (p: PriorYearProgress) => void;
+  hideHeader?: boolean;
+}
+
+export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYear, onProgress, hideHeader }) => {
   const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
     usePriorYearChecklist(taxFilerId, taxYear);
   const [replaceOpen, setReplaceOpen] = useState(false);
@@ -64,6 +77,26 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
     })();
   }, [checklist?.id]);
 
+  // Compute progress
+  const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
+    if (it.category === "contact") return acc;
+    (acc[it.category] ||= []).push(it); return acc;
+  }, { contact: [], income: [], assets: [], deductions: [], other: [] });
+  const categories = (Object.keys(grouped) as ItemCategory[]).filter(c => c !== "contact" && grouped[c].length > 0);
+  const ready = checklist?.status === "ready";
+  const totalCats = ready ? categories.length + 1 : 0;
+  const doneCats = ready
+    ? categories.filter(c => grouped[c].every(it => it.completed)).length + (contactState.confirmed ? 1 : 0)
+    : 0;
+
+  useEffect(() => {
+    const status: PriorYearProgress["status"] =
+      loading && !checklist ? "loading"
+      : !checklist ? "pending"
+      : (checklist.status as any);
+    onProgress?.({ done: doneCats, total: totalCats, ready, status, items });
+  }, [doneCats, totalCats, ready, loading, checklist?.status, items, onProgress]);
+
   const persistContact = async (next: { confirmed: boolean; note: string }) => {
     setContactState(next);
     if (!checklist?.id) return;
@@ -78,9 +111,9 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
 
   if (loading && !checklist) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6 flex items-center gap-3">
-        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Lädt …</span>
+      <div className="flex items-center gap-3 text-muted-foreground">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span className="text-sm">Lädt …</span>
       </div>
     );
   }
@@ -91,7 +124,7 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
 
   if (checklist.status === "scanning") {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6 text-center space-y-3">
+      <div className="text-center space-y-3 py-4">
         <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
         <h3 className="text-base font-semibold text-foreground">Analyse läuft …</h3>
         <p className="text-sm text-muted-foreground">
@@ -103,8 +136,8 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
 
   if (checklist.status === "failed") {
     return (
-      <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 space-y-4">
-        <div className="flex items-start gap-3">
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
           <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
           <div>
             <h3 className="text-base font-semibold text-foreground">Analyse fehlgeschlagen</h3>
@@ -118,57 +151,29 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
     );
   }
 
-  // ready – grouped, summary-first. Contact is handled separately (no OCR extraction).
-  const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
-    if (it.category === "contact") return acc;
-    (acc[it.category] ||= []).push(it); return acc;
-  }, { contact: [], income: [], assets: [], deductions: [], other: [] });
-
-  const categories = (Object.keys(grouped) as ItemCategory[]).filter(c => c !== "contact" && grouped[c].length > 0);
-  const totalCats = categories.length + 1; // +1 for contact card
-  const doneCats =
-    categories.filter(c => grouped[c].every(it => it.completed)).length +
-    (contactState.confirmed ? 1 : 0);
-
   return (
-    <div className="space-y-5">
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+    <div className="space-y-4">
+      {!hideHeader && (
         <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
-              Deine persönliche Checkliste
-            </h3>
-            <p className="text-[13px] text-muted-foreground mt-0.5">
-              {doneCats} von {totalCats} Bereichen bestätigt
-            </p>
-          </div>
+          <p className="text-[13px] text-muted-foreground">
+            {doneCats} von {totalCats} Bereichen bestätigt
+          </p>
           <div className="flex items-center gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setReplaceOpen(true)}
-              title="Vorjahres-PDF ersetzen"
-              className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={() => setReplaceOpen(true)} title="Vorjahres-PDF ersetzen" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground">
               <Replace className="w-4 h-4" strokeWidth={1.75} />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={reload}
-              title="Neu generieren"
-              className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground">
               <RefreshCw className="w-4 h-4" strokeWidth={1.75} />
             </Button>
           </div>
         </div>
-        <div className="mt-4 h-1.5 w-full rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all rounded-full"
-            style={{ width: totalCats ? `${(doneCats / totalCats) * 100}%` : "0%" }}
-          />
-        </div>
+      )}
+
+      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-primary transition-all rounded-full"
+          style={{ width: totalCats ? `${(doneCats / totalCats) * 100}%` : "0%" }}
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -183,15 +188,6 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
           />
         ))}
       </div>
-
-      {totalCats > 0 && (
-        <DocumentsNextStep
-          taxYear={taxYear}
-          items={items}
-          locked={doneCats < totalCats}
-          remaining={totalCats - doneCats}
-        />
-      )}
 
       <AppDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
         <AppDialogContent size="default">
@@ -216,6 +212,11 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
     </div>
   );
 };
+
+// Backward-compat wrapper (kept for any legacy import)
+export const PriorYearChecklist: React.FC<Props> = (props) => (
+  <PriorYearChecklistBody {...props} />
+);
 
 const CompactCategoryCard: React.FC<{
   category: ItemCategory;
