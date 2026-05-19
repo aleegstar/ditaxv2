@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight, Replace, Lock } from "lucide-react";
+import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ChevronRight, Replace, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -448,7 +448,7 @@ const DocumentsNextStep: React.FC<{
         ) : (
           <>
             Zur Dokumenten-Checkliste
-            <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
+            <ChevronRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
           </>
         )}
       </Button>
