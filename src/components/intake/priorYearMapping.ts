@@ -18,7 +18,9 @@ const INCOME_RULES: Array<{ kw: RegExp; flag: Flag }> = [
 
 const ASSETS_RULES: Array<{ kw: RegExp; flag: Flag }> = [
   { kw: /liegenschaft|immobil|haus|wohnung|grundst/i, flag: "hasProperty" },
-  { kw: /bank|konto|raiffeisen|sparkonto|guthaben|wertschrift|depot/i, flag: "hasDepositAccount" },
+  // Wertschriften/Depot zuerst — sonst greift die allgemeine Bank-Regel
+  { kw: /wertschrift|depot/i, flag: "hasSecuritiesAccount" },
+  { kw: /bank|konto|raiffeisen|sparkonto|guthaben/i, flag: "hasDepositAccount" },
   { kw: /krypto|bitcoin|ethereum|crypto/i, flag: "hasCrypto" },
   { kw: /hypothek|mortgage/i, flag: "hasMortgage" },
   { kw: /schuld|darlehen|kredit/i, flag: "hasDebt" },
