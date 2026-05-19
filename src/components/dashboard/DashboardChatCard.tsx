@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, FolderOpen, Sparkles, Headphones, ArrowUpRight, Paperclip, User, ArrowUp } from 'lucide-react';
-import assistantAvatar from '@/assets/assistant-avatar.webp';
+import ditaxLogo from '@/assets/ditax-logo-icon.png';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 const SUGGESTIONS = [
@@ -33,7 +33,7 @@ export const DashboardChatCard: React.FC = () => {
         {/* Header */}
         <div className="flex items-center gap-3 px-6 pt-6 pb-5">
           <div className="w-11 h-11 rounded-full ring-1 ring-border bg-muted flex items-center justify-center flex-shrink-0">
-            <img src={assistantAvatar} alt="Steuer-Assistent" className="w-7 h-7 object-contain" />
+            <img src={ditaxLogo} alt="Ditax" className="w-7 h-7 object-contain" />
           </div>
           <div className="min-w-0">
             <p className="text-[16px] font-semibold text-foreground tracking-[-0.012em] leading-tight">
