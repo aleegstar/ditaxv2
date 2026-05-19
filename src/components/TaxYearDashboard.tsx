@@ -261,19 +261,16 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       >
         <div className={cn('flex items-start gap-6', !isDone && 'opacity-70')}>
           <div className={cn(
-            'w-12 h-12 rounded-full flex items-center justify-center shrink-0',
+            'w-11 h-11 rounded-full flex items-center justify-center shrink-0',
             isDone
-              ? 'bg-emerald-50/50 border border-emerald-100/50 text-emerald-600'
+              ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
               : 'bg-slate-100/80 border border-slate-200/60 text-slate-400'
           )}>
-            {isDone ? <Check className="w-6 h-6" strokeWidth={2} /> : <span className="text-xl font-medium">{n}</span>}
+            {isDone ? <Check className="w-5 h-5" strokeWidth={2} /> : <Lock className="w-4 h-4" strokeWidth={1.75} />}
           </div>
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{n}</span>
-              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
-            </div>
-            <p className="text-base text-slate-500">{desc}</p>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
+            <p className="text-[15px] text-slate-500 leading-relaxed">{desc}</p>
             <div className="flex items-center gap-2 pt-1">
               <span className={cn('w-2 h-2 rounded-full', dotCls)} />
               <span className="text-sm text-slate-600 font-medium">{statusLabel}</span>
