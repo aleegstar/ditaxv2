@@ -108,11 +108,9 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
   const displayName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || 'User';
   const initial = profile?.first_name?.charAt(0)?.toUpperCase() || 'U';
-  const filerName = activeTaxFiler
-    ? [activeTaxFiler.first_name, activeTaxFiler.last_name].filter(Boolean).join(' ')
-    : displayName;
-  const filerInitial = (activeTaxFiler?.first_name || displayName).charAt(0).toUpperCase();
-  const currentYear = new Date().getFullYear() - 1;
+  const filerName = activeTaxFiler?.first_name || profile?.first_name || 'Profil';
+  const filerInitial = (activeTaxFiler?.first_name || profile?.first_name || 'U').charAt(0).toUpperCase();
+
 
   const isActiveRoute = (path: string) => {
     if (path === '/') return location.pathname === '/';
