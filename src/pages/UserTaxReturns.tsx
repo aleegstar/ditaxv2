@@ -399,7 +399,7 @@ const UserTaxReturns = () => {
         </motion.div>
 
         {/* Desktop blog posts */}
-        <DesktopBlogCards />
+        <DashboardChatCard />
         </div>
       </main>
 
