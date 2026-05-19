@@ -95,241 +95,327 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   navigate,
   location
 }) => {
-  const {
-    profile
-  } = useProfile();
-  const {
-    forceTour: startOnboardingTour
-  } = useOnboardingTour();
-  const {
-    forceTour: startDocumentsTour
-  } = useDocumentsTour();
+  const { profile } = useProfile();
+  const { forceTour: startOnboardingTour } = useOnboardingTour();
+  const { forceTour: startDocumentsTour } = useDocumentsTour();
   const formTourContext = useFormTourSafe();
   const startFormTour = formTourContext?.forceTour;
   const { t } = useI18n();
-  const [navigationOpen, setNavigationOpen] = useState(true);
-  const [helpOpen, setHelpOpen] = useState(true);
-  const [legalOpen, setLegalOpen] = useState(false);
+  const { unreadCount } = useUnreadMessages();
+  const { activeTaxFiler, hasMultipleFilers } = useTaxFiler();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const navigationItems = [{
-    label: t.menu.taxes,
-    icon: CustomHomeIcon,
-    route: '/'
-  }, {
-    label: t.menu.documents,
-    icon: CustomFolderIcon,
-    route: '/documents'
-  }, {
-    label: t.menu.chat,
-    icon: CustomSendIcon,
-    route: '/chat'
-  }, {
-    label: t.menu.managePeople,
-    icon: Users,
-    route: '/tax-filers'
-  }];
-  const helpItems = [{
-    label: t.menu.knowledgeBase,
-    icon: HelpCircle,
-    route: '/help'
-  }, {
-    label: t.menu.startGuide,
-    icon: CustomSettingsIcon,
-    action: () => {
-      onOpenChange(false);
-      setTimeout(() => startOnboardingTour(), 300);
-    }
-  }, {
-    label: t.menu.startDocumentsGuide,
-    icon: Folder,
-    action: () => {
-      onOpenChange(false);
-      navigate('/documents');
-      setTimeout(() => startDocumentsTour(), 500);
-    }
-  }, {
-    label: t.menu.startFormGuide,
-    icon: FileText,
-    action: () => {
-      onOpenChange(false);
-      // Navigate to /form with startTour param — FormTourContext handles it on load
-      navigate('/form?startTour=true');
-    }
-  }, {
-    label: t.menu.feedback,
-    icon: MessageSquare,
-    route: '/feedback'
-  }];
-  const legalItems = [{
-    label: t.menu.privacy,
-    icon: Shield,
-    route: '/privacy'
-  }, {
-    label: t.menu.terms,
-    icon: FileCheck,
-    route: '/terms'
-  }, {
-    label: t.menu.cookiePolicy,
-    icon: Cookie,
-    route: '/cookies'
-  }, {
-    label: t.menu.cookieSettings,
-    icon: Cookie,
-    action: () => {
-      onOpenChange(false);
-    }
-  }, {
-    label: t.menu.privacySettings,
-    icon: Settings,
-    route: '/privacy-settings'
-  }];
-  const handleNavigation = (item: {
-    route?: string;
-    action?: () => void;
-  }) => {
-    if (item.action) {
-      item.action();
-    } else if (item.route) {
+  const [legalOpen, setLegalOpen] = useState(false);
+
+  const displayName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || 'User';
+  const initial = profile?.first_name?.charAt(0)?.toUpperCase() || 'U';
+  const filerName = activeTaxFiler
+    ? [activeTaxFiler.first_name, activeTaxFiler.last_name].filter(Boolean).join(' ')
+    : displayName;
+  const filerInitial = (activeTaxFiler?.first_name || displayName).charAt(0).toUpperCase();
+  const currentYear = new Date().getFullYear() - 1;
+
+  const isActiveRoute = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
+
+  const workItems = [
+    { label: t.menu.taxes, icon: Home, route: '/' },
+    { label: t.menu.documents, icon: Folder, route: '/documents' },
+    { label: t.menu.chat, icon: MessageSquare, route: '/chat', badge: unreadCount },
+    { label: t.menu.managePeople, icon: Users, route: '/tax-filers' },
+  ];
+
+  const supportItems = [
+    { label: t.menu.knowledgeBase, icon: BookOpen, route: '/help' },
+    { label: t.menu.feedback, icon: Star, route: '/feedback' },
+    {
+      label: t.menu.startGuide,
+      icon: HelpCircle,
+      action: () => {
+        onOpenChange(false);
+        setTimeout(() => startOnboardingTour(), 300);
+      },
+    },
+    {
+      label: t.menu.startDocumentsGuide,
+      icon: Folder,
+      action: () => {
+        onOpenChange(false);
+        navigate('/documents');
+        setTimeout(() => startDocumentsTour(), 500);
+      },
+    },
+    {
+      label: t.menu.startFormGuide,
+      icon: FileText,
+      action: () => {
+        onOpenChange(false);
+        navigate('/form?startTour=true');
+      },
+    },
+  ];
+
+  const legalItems = [
+    { label: t.menu.privacy, icon: Shield, route: '/privacy' },
+    { label: t.menu.terms, icon: FileCheck, route: '/terms' },
+    { label: t.menu.cookiePolicy, icon: Cookie, route: '/cookies' },
+  ];
+
+  const handleNav = (item: { route?: string; action?: () => void }) => {
+    if (item.action) item.action();
+    else if (item.route) {
       navigate(item.route);
       onOpenChange(false);
     }
   };
-  const MenuItem = ({
-    item,
-    isActive
-  }: {
-    item: {
-      label: string;
-      icon: React.ElementType;
-      route?: string;
-      action?: () => void;
-    };
-    isActive?: boolean;
-  }) => {
-    const IconComponent = item.icon;
-    return <button onClick={() => handleNavigation(item)} className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl transition-all text-left ${isActive ? 'bg-primary/10 text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
-        <IconComponent className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/70'}`} />
-        <span className="text-[15px]">{item.label}</span>
-      </button>;
+
+  const NavRow = ({ item }: { item: { label: string; icon: React.ElementType; route?: string; action?: () => void; badge?: number } }) => {
+    const Icon = item.icon;
+    const active = item.route ? isActiveRoute(item.route) : false;
+    return (
+      <button
+        onClick={() => handleNav(item)}
+        className={cn(
+          'group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left',
+          active
+            ? 'bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] border border-slate-200/60 text-slate-900'
+            : 'text-slate-500 hover:bg-slate-100/50 hover:text-slate-900'
+        )}
+      >
+        <Icon
+          className={cn('w-5 h-5 flex-shrink-0', active ? 'text-blue-600' : '')}
+          strokeWidth={1.75}
+        />
+        <span className="truncate">{item.label}</span>
+        {!!item.badge && item.badge > 0 && (
+          <span
+            className={cn(
+              'ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold tabular-nums',
+              active ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'
+            )}
+          >
+            {item.badge > 9 ? '9+' : item.badge}
+          </span>
+        )}
+      </button>
+    );
   };
-  const SectionHeader = ({
-    title,
-    isOpen,
-    onToggle
-  }: {
-    title: string;
-    isOpen: boolean;
-    onToggle: () => void;
-  }) => <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 text-[11px] font-semibold text-muted-foreground/60 tracking-[0.08em] uppercase">
-      {title}
-      {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-    </button>;
-  return <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col bg-background/95 backdrop-blur-2xl border-r border-border/40">
+
+  const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+    <div className="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3 px-3">
+      {children}
+    </div>
+  );
+
+  return (
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="left"
+        className="w-[85%] max-w-[320px] p-0 flex flex-col bg-[#F8F9FB] border-r border-slate-200/50"
+      >
         {/* Header with Logo */}
-        <div className="flex items-center justify-between px-5 py-4">
-          <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
-          <button onClick={() => onOpenChange(false)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors">
-            <X className="w-[18px] h-[18px] text-muted-foreground" strokeWidth={1.5} />
+        <div className="flex items-center justify-between px-6 pt-6 pb-2">
+          <img alt="Ditax" className="h-6 w-auto" src="/ditax-logo-new.svg" />
+          <button
+            onClick={() => onOpenChange(false)}
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100/70 transition-colors"
+          >
+            <X className="w-[18px] h-[18px] text-slate-500" strokeWidth={1.75} />
           </button>
         </div>
 
-        {/* Scrollable Menu Content */}
-        <div className="flex-1 overflow-y-auto px-3">
-          {/* Navigation Section */}
-          <div className="pt-1">
-            <SectionHeader title={t.menu.navigation} isOpen={navigationOpen} onToggle={() => setNavigationOpen(!navigationOpen)} />
-            {navigationOpen && <div className="space-y-0.5 pb-2">
-                {navigationItems.map(item => <MenuItem key={item.label} item={item} isActive={location.pathname === item.route} />)}
-              </div>}
-          </div>
-
-          <div className="mx-1 border-t border-border/30" />
-
-          {/* Help Section */}
-          <div className="pt-1">
-            <SectionHeader title={t.menu.help} isOpen={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
-            {helpOpen && <div className="space-y-0.5 pb-2">
-                {helpItems.map(item => <MenuItem key={item.label} item={item} />)}
-              </div>}
-          </div>
-
-          <div className="mx-1 border-t border-border/30" />
-
-          {/* Legal Section */}
-          <div className="pt-1">
-            <SectionHeader title={t.menu.legal} isOpen={legalOpen} onToggle={() => setLegalOpen(!legalOpen)} />
-            {legalOpen && <div className="space-y-0.5 pb-2">
-                {legalItems.map(item => <MenuItem key={item.label} item={item} />)}
-              </div>}
-          </div>
-
-          {/* Referral Banner */}
-          <div className="py-4">
-            <button
-              onClick={() => {
-                navigate('/invite-friends');
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-4 space-y-8">
+          {/* Context Selector */}
+          <button
+            onClick={() => {
+              if (hasMultipleFilers) {
+                navigate('/select-person');
                 onOpenChange(false);
-              }}
-              className="w-full relative overflow-hidden rounded-2xl p-4 text-primary-foreground shadow-md hover:shadow-lg transition-all hover:translate-y-[-1px] active:translate-y-0"
-              style={{
-                background: 'linear-gradient(135deg, hsl(222, 100%, 60%), hsl(222, 100%, 47%))'
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/20">
-                  <Gift className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-semibold text-[15px] text-white">{t.menu.inviteFriends}</div>
-                  <div className="text-xs text-white/75 mt-0.5">CHF 20 für dich & deine Freunde</div>
-                </div>
-                <div className="flex-shrink-0 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center">
-                  <ChevronDown className="w-3.5 h-3.5 text-white -rotate-90" />
+              }
+            }}
+            className={cn(
+              'w-full bg-white border border-slate-200/60 rounded-2xl p-3 flex items-center justify-between shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] transition-all',
+              hasMultipleFilers && 'cursor-pointer hover:shadow-md hover:border-slate-200'
+            )}
+            aria-label="Aktiver Steuerpflichtiger"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 font-medium text-sm flex-shrink-0">
+                {filerInitial}
+              </div>
+              <div className="min-w-0 text-left">
+                <div className="text-sm font-semibold text-slate-900 truncate">{filerName}</div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Steuerjahr {currentYear}
                 </div>
               </div>
-            </button>
-          </div>
+            </div>
+            {hasMultipleFilers && (
+              <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" strokeWidth={1.75} />
+            )}
+          </button>
+
+          {/* Navigation */}
+          <nav className="space-y-6">
+            <div>
+              <SectionLabel>Arbeitsbereich</SectionLabel>
+              <ul className="space-y-1">
+                {workItems.map((item) => (
+                  <li key={item.route}>
+                    <NavRow item={item} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <SectionLabel>{t.menu.help}</SectionLabel>
+              <ul className="space-y-1">
+                {supportItems.map((item) => (
+                  <li key={item.label}>
+                    <NavRow item={item} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <button
+                onClick={() => setLegalOpen((v) => !v)}
+                className="w-full flex items-center justify-between mb-3 px-3 text-xs font-semibold tracking-wider text-slate-400 uppercase"
+              >
+                <span>{t.menu.legal}</span>
+                {legalOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {legalOpen && (
+                <ul className="space-y-1">
+                  {legalItems.map((item) => (
+                    <li key={item.label}>
+                      <NavRow item={item} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </nav>
 
           {/* Language Selector */}
-          <div className="pb-4">
+          <div>
             <LanguageDropdown />
           </div>
         </div>
 
-        {/* User Profile Section */}
-        <div className="border-t border-border/30 mx-3">
-          <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="w-full flex items-center gap-3 px-2 py-3.5 hover:bg-muted/40 rounded-xl transition-colors">
-            {profile?.avatar_url ? <img src={profile.avatar_url} alt={profile.first_name || 'User'} className="w-10 h-10 rounded-full object-cover ring-1 ring-border/30" /> : <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground font-medium ring-1 ring-border/30">
-                {profile?.first_name?.charAt(0) || 'U'}
-              </div>}
-            <div className="flex-1 min-w-0 text-left">
-              <div className="font-medium text-foreground text-[15px]">{profile?.first_name || 'User'}</div>
-              <div className="text-[13px] text-muted-foreground truncate">{profile?.email}</div>
+        {/* Bottom Section: Invite + User */}
+        <div className="px-6 pb-6 pt-2 space-y-4 border-t border-slate-200/50 bg-[#F8F9FB]">
+          {/* Invite Card */}
+          <button
+            onClick={() => {
+              navigate('/invite-friends');
+              onOpenChange(false);
+            }}
+            className="group relative w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/70 transition-all text-left"
+          >
+            <div className="relative h-20 overflow-hidden">
+              <img
+                src={inviteFriendsImage}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover object-[center_30%] group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#0F1B3D]/85 via-[#1E3A5F]/55 to-transparent" />
+              <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#0F1B3D] shadow-sm">
+                <Gift className="w-3 h-3" strokeWidth={2} />
+                20 CHF
+              </div>
             </div>
-            {userMenuOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            <div className="px-4 py-3">
+              <div className="text-sm font-semibold text-slate-900 leading-tight">Freunde einladen</div>
+              <div className="text-xs text-slate-500 mt-0.5">Guthaben für euch beide</div>
+            </div>
           </button>
-          
-          {userMenuOpen && <div className="pb-2 space-y-0.5">
-              <button onClick={() => {
-            navigate('/profile');
-            onOpenChange(false);
-          }} className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors">
-                <User className="w-5 h-5 text-muted-foreground/70" />
-                <span className="text-[15px]">{t.menu.profile}</span>
-              </button>
-              <button onClick={async () => {
-            await supabase.auth.signOut();
-            onOpenChange(false);
-            navigate('/auth');
-          }} className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-destructive hover:bg-destructive/10 transition-colors">
-                <LogOut className="w-5 h-5" />
-                <span className="text-[15px] font-medium">{t.menu.logout}</span>
-              </button>
-            </div>}
+
+          {/* User Profile */}
+          <div>
+            <button
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className={cn(
+                'w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl transition-colors group',
+                userMenuOpen
+                  ? 'bg-white border border-slate-200/70 shadow-[0_2px_8px_-4px_rgba(15,27,61,0.08)]'
+                  : 'hover:bg-slate-100/60'
+              )}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={displayName}
+                    className="w-9 h-9 rounded-full object-cover border border-slate-200 flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-sm font-semibold text-slate-700 flex-shrink-0">
+                    {initial}
+                  </div>
+                )}
+                <div className="min-w-0 text-left">
+                  <div className="text-sm font-semibold text-slate-900 truncate leading-tight">{displayName}</div>
+                  <div className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">{profile?.email}</div>
+                </div>
+              </div>
+              <ChevronUp
+                className={cn(
+                  'w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform flex-shrink-0',
+                  userMenuOpen && 'rotate-180'
+                )}
+                strokeWidth={1.75}
+              />
+            </button>
+
+            {userMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.15 }}
+                className="mt-2 rounded-xl border border-slate-200/70 bg-white shadow-[0_4px_16px_-6px_rgba(15,27,61,0.08)] overflow-hidden"
+              >
+                <button
+                  onClick={() => {
+                    navigate('/profile');
+                    onOpenChange(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <User className="w-4 h-4 text-slate-500 flex-shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">{t.menu.profile}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/privacy-settings');
+                    onOpenChange(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-100"
+                >
+                  <Settings className="w-4 h-4 text-slate-500 flex-shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">{t.menu.privacySettings}</span>
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    onOpenChange(false);
+                    navigate('/auth');
+                  }}
+                  className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-rose-600 hover:bg-rose-50 transition-colors border-t border-slate-100"
+                >
+                  <LogOut className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">{t.menu.logout}</span>
+                </button>
+              </motion.div>
+            )}
+          </div>
         </div>
       </SheetContent>
-    </Sheet>;
+    </Sheet>
+  );
 };
 const defaultItems: InteractiveMenuItem[] = [{
   label: 'Steuern',
