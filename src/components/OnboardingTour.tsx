@@ -20,7 +20,7 @@ interface OnboardingStep {
   position: 'top' | 'bottom' | 'left' | 'right';
 }
 
-const getOnboardingSteps = (): OnboardingStep[] => [
+const getOnboardingSteps = (isMobile: boolean): OnboardingStep[] => [
   {
     id: 'welcome',
     titleKey: null,
@@ -53,15 +53,15 @@ const getOnboardingSteps = (): OnboardingStep[] => [
     id: 'documents',
     titleKey: 'documentsTitle',
     descriptionKey: 'documentsDescription',
-    targetElement: '[data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
-    position: 'top'
+    targetElement: '[data-tour="sidebar-nav-documents"], [data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
+    position: isMobile ? 'top' : 'right'
   },
   {
     id: 'chat',
     titleKey: 'chatTitle',
     descriptionKey: 'chatDescription',
-    targetElement: '[data-tour="bottom-nav-chat"]',
-    position: 'top'
+    targetElement: '[data-tour="sidebar-nav-chat"], [data-tour="bottom-nav-chat"]',
+    position: isMobile ? 'top' : 'right'
   }
 ];
 
@@ -73,7 +73,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   const navigate = useNavigate();
   const { t } = useI18n();
   
-  const onboardingSteps = getOnboardingSteps();
+  const onboardingSteps = getOnboardingSteps(isMobile);
 
   // Load user's first name
   useEffect(() => {
