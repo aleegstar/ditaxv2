@@ -139,6 +139,9 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     }
   }, [allAngabenComplete]);
 
+  const _pyStep1DoneEarly = priorYearProgress.ready && priorYearProgress.total > 0 && priorYearProgress.done === priorYearProgress.total;
+  useEffect(() => { if (_pyStep1DoneEarly) setStep1Expanded(false); }, [_pyStep1DoneEarly]);
+
   // Show nothing while loading
   if (isDataLoading || !isReady || !formDataLoaded) {
     return null;
@@ -378,7 +381,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   // ─── Prior-year mode derived state ───
   const py = priorYearProgress;
   const pyStep1Done = py.ready && py.total > 0 && py.done === py.total;
-  useEffect(() => { if (pyStep1Done) setStep1Expanded(false); }, [pyStep1Done]);
   const pyCanSubmit = pyStep1Done && isDocumentsComplete;
   const pyRemaining =
     (pyStep1Done ? 0 : 1) +
