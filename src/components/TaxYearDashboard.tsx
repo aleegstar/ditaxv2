@@ -82,6 +82,24 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     loadTaxReturn();
   }, [taxYear, activeTaxFilerId]);
 
+  // Detect whether the previous year already has Ditax data → skip PDF upload
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      if (!activeTaxFilerId || !taxYear) { setHasInternalPriorYear(false); return; }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const has = await hasInternalPriorYearData({
+        userId: user.id,
+        taxFilerId: activeTaxFilerId,
+        taxYear,
+      });
+      if (!cancelled) setHasInternalPriorYear(has);
+    };
+    check();
+    return () => { cancelled = true; };
+  }, [activeTaxFilerId, taxYear]);
+
   const handleSelectMode = async (mode: IntakeMode) => {
     if (!activeTaxFilerId || !taxYear) return;
     const { data: { user } } = await supabase.auth.getUser();
@@ -100,6 +118,22 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         intake_mode: mode, intake_mode_chosen_at: nowIso,
       } as any).eq('id', existing.id);
     }
+
+    // If user picked the prior-year flow and we already have Ditax data for
+    // last year, seed the checklist server-side so they land directly in the
+    // confirmation step — no upload needed.
+    if (mode === 'prior_year_upload' && hasInternalPriorYear) {
+      try {
+        await seedPriorYearChecklistFromInternal({
+          userId: user.id,
+          taxFilerId: activeTaxFilerId,
+          taxYear,
+        });
+      } catch (e) {
+        console.warn('[TaxYearDashboard] seed prior-year checklist failed', e);
+      }
+    }
+
     setIntakeMode(mode);
     setModeSheetOpen(false);
     toast.success('Modus aktualisiert – deine Daten bleiben erhalten.');
