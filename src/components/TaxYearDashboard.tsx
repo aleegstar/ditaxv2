@@ -241,7 +241,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const handleSubmitClick = () => {
     const documentsComplete = isCompleted('documents');
-    if (allAngabenComplete && documentsComplete) {
+    const angabenReady = allAngabenComplete || (priorYearProgress.ready && priorYearProgress.total > 0 && priorYearProgress.done === priorYearProgress.total);
+    if (angabenReady && documentsComplete) {
       navigate(`/payment?year=${taxYear}`);
     }
   };
