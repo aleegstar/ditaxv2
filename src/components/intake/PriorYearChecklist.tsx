@@ -146,7 +146,7 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
             </p>
           </div>
         </div>
-        <PriorYearUpload taxFilerId={taxFilerId} taxYear={taxYear} onScanStarted={reload} />
+        <PriorYearUpload taxFilerId={taxFilerId} taxYear={taxYear} onScanStarted={reload} compact={hideHeader} />
       </div>
     );
   }
