@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2, FileUp, Pencil } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
 import documentsMessageImg from '@/assets/documents-message.svg';
@@ -140,7 +140,13 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   }, [allAngabenComplete]);
 
   const _pyStep1DoneEarly = priorYearProgress.ready && priorYearProgress.total > 0 && priorYearProgress.done === priorYearProgress.total;
-  useEffect(() => { if (_pyStep1DoneEarly) setStep1Expanded(false); }, [_pyStep1DoneEarly]);
+  const _pyAutoCollapsedRef = useRef(false);
+  useEffect(() => {
+    if (_pyStep1DoneEarly && !_pyAutoCollapsedRef.current) {
+      _pyAutoCollapsedRef.current = true;
+      setStep1Expanded(false);
+    }
+  }, [_pyStep1DoneEarly]);
 
   // Show nothing while loading
   if (isDataLoading || !isReady || !formDataLoaded) {
