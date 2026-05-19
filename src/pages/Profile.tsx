@@ -13,6 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MfaSettings } from '@/components/auth/MfaSettings';
 import { LoginHistory } from '@/components/ui/login-history';
 import { useI18n } from '@/contexts/I18nContext';
+import profileHero from '@/assets/profile-hero.webp';
+
 
 const Profile = () => {
   const navigate = useNavigate();
