@@ -23,7 +23,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 auto-rows-fr items-stretch" data-tour="intake-mode-picker">
+      <div className="grid gap-4 sm:grid-cols-2 sm:auto-rows-fr items-stretch" data-tour="intake-mode-picker">
         <div data-tour="intake-upload-card" className="h-full">
         <ModeCard
           rainbow
@@ -76,24 +76,24 @@ const ModeCard: React.FC<{
         <div className="absolute -inset-x-8 -bottom-12 h-16 rainbow-gradient animate-rainbow opacity-[0.18] blur-[56px]" />
       </div>
     )}
-    <div className="relative h-24 sm:h-36 w-full overflow-hidden bg-muted">
+    <div className="relative h-36 w-full overflow-hidden bg-muted">
       <img
         src={image}
         alt={imageAlt}
         loading="lazy"
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
-      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+      <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
         {icon}
-        <span className="text-[10px] sm:text-[11px] font-medium text-foreground hidden sm:inline">{badge}</span>
+        <span className="text-[11px] font-medium text-foreground">{badge}</span>
       </div>
     </div>
-    <div className="relative p-3 sm:p-5 flex flex-col flex-1">
-      <h3 className="text-[13.5px] sm:text-[16px] font-semibold text-foreground tracking-tight leading-snug">{title}</h3>
-      <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-1 sm:mt-1.5 leading-relaxed flex-1 line-clamp-3 sm:line-clamp-none">{desc}</p>
-      <div className="mt-3 sm:mt-4 inline-flex items-center gap-1.5 text-[12px] sm:text-[13px] font-medium text-primary">
-        <span className="truncate">{cta}</span>
-        <ArrowRight className="w-3.5 h-3.5 shrink-0 transition-transform group-hover:translate-x-0.5" />
+    <div className="relative p-5 flex flex-col flex-1">
+      <h3 className="text-[16px] font-semibold text-foreground tracking-tight">{title}</h3>
+      <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed flex-1">{desc}</p>
+      <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
+        {cta}
+        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
       </div>
     </div>
   </button>
