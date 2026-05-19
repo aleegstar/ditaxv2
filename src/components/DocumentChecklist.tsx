@@ -391,7 +391,7 @@ return <div className="min-h-screen">
   }
 
   return <div className="min-h-screen flex flex-col items-center bg-background">
-      <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full" />
+      <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full" innerClassName="max-w-[880px]" />
 
       <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-4 px-4 pb-24">
 
