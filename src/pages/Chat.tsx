@@ -150,9 +150,6 @@ const Chat: React.FC = () => {
                 <h1 className="text-[14px] font-semibold tracking-[-0.01em] text-foreground leading-tight truncate">
                   {escalatedMode ? 'Support-Team' : 'Steuer-Assistent'}
                 </h1>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-primary/80 bg-primary/[0.07] px-1.5 py-0.5 rounded-md tabular-nums">
-                  {currentTaxYear}
-                </span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="relative flex w-1.5 h-1.5">
