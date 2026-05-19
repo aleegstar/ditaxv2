@@ -23,7 +23,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:auto-rows-fr items-stretch" data-tour="intake-mode-picker">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 auto-rows-fr items-stretch" data-tour="intake-mode-picker">
         <div data-tour="intake-upload-card" className="h-full">
         <ModeCard
           rainbow
