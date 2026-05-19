@@ -62,8 +62,20 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
       return;
     }
 
+    const findVisibleElement = (): Element | null => {
+      const selectors = currentStepData.targetElement.split(',').map(s => s.trim()).filter(Boolean);
+      for (const sel of selectors) {
+        const candidates = Array.from(document.querySelectorAll(sel));
+        for (const el of candidates) {
+          const rect = el.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) return el;
+        }
+      }
+      return null;
+    };
+
     const updateSpotlight = () => {
-      const element = document.querySelector(currentStepData.targetElement);
+      const element = findVisibleElement();
       if (element) {
         const rect = element.getBoundingClientRect();
         const padding = 12;
@@ -92,7 +104,7 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
     const retryInterval = 150;
 
     const tryUpdateSpotlight = () => {
-      const element = document.querySelector(currentStepData.targetElement);
+      const element = findVisibleElement();
       if (element) {
         updateSpotlight();
       } else if (attempts < maxAttempts) {
@@ -103,6 +115,7 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
         debug.error(`❌ Documents Tour: Could not find element after ${maxAttempts} attempts: ${currentStepData.targetElement}`);
       }
     };
+
 
     tryUpdateSpotlight();
 
