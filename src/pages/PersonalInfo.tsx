@@ -231,34 +231,34 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
       </main>
 
       <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
-        <DrawerContent variant="bottom-sheet" className="p-0 overflow-hidden bg-card">
-          <div className="px-5 pt-4 pb-6 sm:px-6 sm:pb-7">
+        <DrawerContent variant="bottom-sheet" className="p-0 overflow-hidden bg-card max-w-md mx-auto">
+          <div className="px-4 pt-3 pb-5">
             {/* Hero card */}
             <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] bg-card">
-              <div className="relative aspect-[16/9] w-full overflow-hidden">
+              <div className="relative aspect-[21/9] w-full overflow-hidden">
                 <img
                   src={completeHero}
                   alt=""
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent" />
-                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-emerald-700 shadow-sm">
-                  <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2 py-0.5 text-[11px] font-medium text-emerald-700 shadow-sm">
+                  <CheckCircle2 className="w-3 h-3" strokeWidth={2} />
                   Geschafft
                 </div>
               </div>
-              <div className="px-5 py-4 sm:px-6 sm:py-5">
-                <DrawerTitle className="text-[18px] sm:text-[20px] font-semibold tracking-[-0.012em] text-foreground">
+              <div className="px-4 py-3">
+                <DrawerTitle className="text-[16px] font-semibold tracking-[-0.012em] text-foreground">
                   Alle Angaben vollständig!
                 </DrawerTitle>
-                <DrawerDescription className="text-[13px] sm:text-[14px] text-muted-foreground mt-1 leading-relaxed">
-                  Du hast alle persönlichen Angaben erfasst. Möchtest du jetzt mit deinen Unterlagen fortfahren?
+                <DrawerDescription className="text-[13px] text-muted-foreground mt-0.5 leading-relaxed">
+                  Du hast alle persönlichen Angaben erfasst. Weiter zu deinen Unterlagen?
                 </DrawerDescription>
               </div>
             </div>
 
             {/* Action */}
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-3 flex flex-col gap-1">
               <Button
                 className="w-full"
                 onClick={handleGoToDocuments}
@@ -269,7 +269,8 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
               </Button>
               <Button
                 variant="ghost"
-                className="w-full text-muted-foreground hover:text-foreground"
+                size="sm"
+                className="w-full text-muted-foreground hover:text-foreground h-9"
                 onClick={closeSheet}
               >
                 Später
