@@ -3,10 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Download, Trash2, Shield, AlertTriangle } from 'lucide-react';
+import { Download, Trash2, Shield, AlertTriangle, Sparkles } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from 'react-router-dom';
 import { Json } from '@/integrations/supabase/types';
+import privacyHero from '@/assets/privacy-hero.webp';
 import {
   Drawer,
   DrawerContent,
