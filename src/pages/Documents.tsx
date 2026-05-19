@@ -531,7 +531,7 @@ const DocumentsContent: React.FC<{
         {/* Hero card */}
         <div className="px-5 md:px-8 pb-3">
           <div className="max-w-[960px] mx-auto w-full">
-            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+            <div data-tour="documents-hero" className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
               <div className="relative h-40 sm:h-48 w-full overflow-hidden">
                 <img
                   src={documentsHero}
@@ -745,6 +745,7 @@ const DocumentsContent: React.FC<{
             <button
               onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
               aria-label={t.documentsPage.upload}
+              data-tour="document-upload-floating"
               className="pointer-events-auto w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)',

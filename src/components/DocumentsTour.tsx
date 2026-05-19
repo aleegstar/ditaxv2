@@ -11,23 +11,30 @@ interface DocumentsTourProps {
 const documentsTourSteps = [
   {
     id: 'welcome',
-    title: 'Dokumente',
-    description: 'Hier kannst du während des ganzen Jahres wichtige Unterlagen speichern.\nWenn du später deine Steuererklärung ausfüllst, erstellen wir automatisch eine persönliche Checkliste. Dort kannst du neue Dokumente hochladen oder bereits gespeicherte einfach zuordnen.',
+    title: 'Deine Dokumente',
+    description: 'Hier sammelst du das ganze Jahr über alle Belege an einem sicheren Ort. Beim Ausfüllen deiner Steuererklärung ordnet Ditax sie automatisch zu.',
     targetElement: '',
     position: 'bottom' as const
   },
   {
     id: 'year-selector',
-    title: 'Steuerjahr wechseln',
-    description: 'Wechsle zwischen verschiedenen Steuerjahren, um Dokumente jahresweise zu verwalten.',
+    title: 'Steuerjahr wählen',
+    description: 'Wechsle hier zwischen den Steuerjahren – jedes Jahr hat seinen eigenen Ordner.',
     targetElement: '[data-tour="documents-year-selector"]',
+    position: 'bottom' as const
+  },
+  {
+    id: 'hero',
+    title: 'Sicher verschlüsselt',
+    description: 'Alle Dokumente werden Ende-zu-Ende verschlüsselt gespeichert – nur du hast Zugriff.',
+    targetElement: '[data-tour="documents-hero"]',
     position: 'bottom' as const
   },
   {
     id: 'upload-card',
     title: 'Dokumente hochladen',
-    description: 'Lade neue Dokumente hoch – per Kamera oder Dateiauswahl.',
-    targetElement: '[data-tour="document-upload-card"]',
+    description: 'Tippe hier, um Belege per Kamera, Galerie oder Datei hochzuladen.',
+    targetElement: '[data-tour="document-upload-floating"], [data-tour="document-upload-card"]',
     position: 'top' as const
   }
 ];

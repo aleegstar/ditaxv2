@@ -36,10 +36,17 @@ const getOnboardingSteps = (): OnboardingStep[] => [
     position: 'bottom'
   },
   {
-    id: 'continue-card',
-    titleKey: 'continueCardTitle',
-    descriptionKey: 'continueCardDescription',
-    targetElement: '[data-tour="form-step-1"]',
+    id: 'intake-upload',
+    titleKey: 'intakeUploadTitle',
+    descriptionKey: 'intakeUploadDescription',
+    targetElement: '[data-tour="intake-upload-card"]',
+    position: 'bottom'
+  },
+  {
+    id: 'intake-manual',
+    titleKey: 'intakeManualTitle',
+    descriptionKey: 'intakeManualDescription',
+    targetElement: '[data-tour="intake-manual-card"]',
     position: 'bottom'
   },
   {

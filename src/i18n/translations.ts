@@ -1004,6 +1004,10 @@ export interface Translation {
     documentsDescription: string;
     continueCardTitle: string;
     continueCardDescription: string;
+    intakeUploadTitle: string;
+    intakeUploadDescription: string;
+    intakeManualTitle: string;
+    intakeManualDescription: string;
     skip: string;
     back: string;
     next: string;
@@ -2590,6 +2594,10 @@ export const translations: Record<'de' | 'en', Translation> = {
       documentsDescription: 'Im Dokumente-Tab lädst du Belege und Unterlagen hoch.',
       continueCardTitle: 'Deine Schritte',
       continueCardDescription: 'Hier siehst du deinen Fortschritt – Angaben, Unterlagen und Einreichen.',
+      intakeUploadTitle: 'Vorjahr hochladen',
+      intakeUploadDescription: 'Hast du letztes Jahr schon eine Steuererklärung gemacht? Lade sie hoch – Ditax erstellt daraus automatisch eine persönliche Checkliste. So sparst du dir viel Tipparbeit.',
+      intakeManualTitle: 'Manuell erfassen',
+      intakeManualDescription: 'Oder starte von Grund auf: Wir führen dich Schritt für Schritt durch alle Bereiche – ideal beim ersten Mal oder wenn sich vieles geändert hat.',
       skip: 'Überspringen',
       back: 'Zurück',
       next: 'Weiter',
@@ -4026,6 +4034,10 @@ export const translations: Record<'de' | 'en', Translation> = {
       documentsDescription: 'Use the Documents tab to upload your receipts and paperwork.',
       continueCardTitle: 'Your Steps',
       continueCardDescription: 'Track your progress here – details, documents and submission.',
+      intakeUploadTitle: 'Upload last year',
+      intakeUploadDescription: 'Already filed last year? Upload that return and Ditax builds a personal checklist automatically – saving you a lot of typing.',
+      intakeManualTitle: 'Enter manually',
+      intakeManualDescription: 'Or start from scratch: we guide you step by step through every section – ideal for first-timers or after big changes.',
       skip: 'Skip',
       back: 'Back',
       next: 'Next',
