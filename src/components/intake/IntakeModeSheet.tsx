@@ -80,7 +80,7 @@ const ModeCard: React.FC<{
   >
     {rainbow && (
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -inset-x-10 -bottom-20 h-44 rainbow-gradient animate-rainbow opacity-20 blur-[48px]" />
+        <div className="absolute -inset-x-10 -bottom-20 h-44 rainbow-gradient animate-rainbow opacity-[0.12] blur-[64px]" />
       </div>
     )}
     <div className="relative h-32 w-full overflow-hidden bg-muted">
