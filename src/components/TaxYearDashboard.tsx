@@ -19,6 +19,10 @@ import { IntakeModeSheet, type IntakeMode } from '@/components/intake/IntakeMode
 import { IntakeModePicker } from '@/components/intake/IntakeModePicker';
 import { PriorYearChecklistBody, type PriorYearProgress } from '@/components/intake/PriorYearChecklist';
 import { mapPriorYearToFormFlags } from '@/components/intake/priorYearMapping';
+import {
+  hasInternalPriorYearData,
+  seedPriorYearChecklistFromInternal,
+} from '@/services/seedPriorYearChecklistFromInternal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
