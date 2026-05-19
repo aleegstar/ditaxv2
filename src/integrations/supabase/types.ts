@@ -2540,6 +2540,8 @@ export type Database = {
       prior_year_checklists: {
         Row: {
           ai_consent_at: string | null
+          contact_changes_confirmed_at: string | null
+          contact_changes_note: string | null
           created_at: string
           error_message: string | null
           generated_at: string | null
@@ -2554,6 +2556,8 @@ export type Database = {
         }
         Insert: {
           ai_consent_at?: string | null
+          contact_changes_confirmed_at?: string | null
+          contact_changes_note?: string | null
           created_at?: string
           error_message?: string | null
           generated_at?: string | null
@@ -2568,6 +2572,8 @@ export type Database = {
         }
         Update: {
           ai_consent_at?: string | null
+          contact_changes_confirmed_at?: string | null
+          contact_changes_note?: string | null
           created_at?: string
           error_message?: string | null
           generated_at?: string | null
