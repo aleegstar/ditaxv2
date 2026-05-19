@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, FolderOpen, Sparkles, Headphones, ArrowUpRight, Paperclip, User, ArrowUp } from 'lucide-react';
-import assistantAvatar from '@/assets/assistant-avatar.webp';
+import ditaxLogo from '@/assets/ditax-logo-icon.png';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 const SUGGESTIONS = [
