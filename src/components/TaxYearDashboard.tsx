@@ -51,6 +51,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
   const [intakeMode, setIntakeMode] = useState<IntakeMode | null>(null);
   const [modeSheetOpen, setModeSheetOpen] = useState(false);
+  const [priorYearProgress, setPriorYearProgress] = useState<PriorYearProgress>({ done: 0, total: 0, ready: false, status: 'loading', items: [] });
+  const [step1Expanded, setStep1Expanded] = useState(true);
   const [tipDismissed, setTipDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('dashboard-tip-dismissed') === 'true';
