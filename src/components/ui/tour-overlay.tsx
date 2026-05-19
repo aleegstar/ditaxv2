@@ -59,8 +59,9 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
 
   const getTooltipPosition = (): React.CSSProperties => {
     const padding = isMobile ? 16 : 24;
-    const tooltipWidth = isMobile ? 280 : 340;
-    const tooltipHeight = isMobile ? 180 : 220;
+    const hasHero = !!currentStepData.heroImage;
+    const tooltipWidth = isMobile ? 300 : 360;
+    const tooltipHeight = isMobile ? (hasHero ? 320 : 200) : (hasHero ? 380 : 240);
 
     if (!currentStepData.targetElement || spotlightPosition.width === 0) {
       return {
