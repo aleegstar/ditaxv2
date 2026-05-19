@@ -14,7 +14,22 @@ const documentsTourSteps = [
     title: 'Deine Dokumente',
     description: 'Hier sammelst du das ganze Jahr über alle Belege an einem sicheren Ort. Beim Ausfüllen deiner Steuererklärung ordnet Ditax sie automatisch zu.',
     targetElement: '',
-    position: 'bottom' as const
+    position: 'bottom' as const,
+    heroImage: true,
+    heroBadge: 'Kurze Tour',
+  } as any,
+  // sentinel removed below
+] as any;
+const _replaceMarker = null; // not used
+documentsTourSteps.length; // noop
+
+// Re-declare with hero on welcome step
+const _fixed = [
+  {
+    id: 'welcome',
+    title: 'Deine Dokumente',
+    description: 'Hier sammelst du das ganze Jahr über alle Belege an einem sicheren Ort. Beim Ausfüllen deiner Steuererklärung ordnet Ditax sie automatisch zu.',
+    targetElement: '',
   },
   {
     id: 'year-selector',
