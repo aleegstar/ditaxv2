@@ -119,7 +119,7 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
   }
 
   if (!checklist || checklist.status === "pending") {
-    return <PriorYearUpload taxFilerId={taxFilerId} taxYear={taxYear} onScanStarted={reload} />;
+    return <PriorYearUpload taxFilerId={taxFilerId} taxYear={taxYear} onScanStarted={reload} compact={hideHeader} />;
   }
 
   if (checklist.status === "scanning") {
