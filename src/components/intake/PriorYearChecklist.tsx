@@ -404,7 +404,7 @@ const DocumentsNextStep: React.FC<{
 
   return (
     <div
-      className={`rounded-2xl border p-5 sm:p-6 space-y-4 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] transition-opacity lg:relative lg:left-1/2 lg:-translate-x-1/2 lg:w-[min(96vw,1100px)] lg:max-w-none ${
+      className={`rounded-2xl border p-5 sm:p-6 space-y-4 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] transition-opacity ${
         locked
           ? "border-border bg-muted/30 opacity-80"
           : "border-border bg-card"
