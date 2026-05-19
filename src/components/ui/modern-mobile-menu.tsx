@@ -108,11 +108,9 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
   const displayName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || 'User';
   const initial = profile?.first_name?.charAt(0)?.toUpperCase() || 'U';
-  const filerName = activeTaxFiler
-    ? [activeTaxFiler.first_name, activeTaxFiler.last_name].filter(Boolean).join(' ')
-    : displayName;
-  const filerInitial = (activeTaxFiler?.first_name || displayName).charAt(0).toUpperCase();
-  const currentYear = new Date().getFullYear() - 1;
+  const filerName = activeTaxFiler?.first_name || profile?.first_name || 'Profil';
+  const filerInitial = (activeTaxFiler?.first_name || profile?.first_name || 'U').charAt(0).toUpperCase();
+
 
   const isActiveRoute = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -230,15 +228,10 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
           {/* Context Selector */}
           <button
             onClick={() => {
-              if (hasMultipleFilers) {
-                navigate('/select-person');
-                onOpenChange(false);
-              }
+              navigate('/select-person');
+              onOpenChange(false);
             }}
-            className={cn(
-              'w-full bg-white border border-slate-200/60 rounded-2xl p-3 flex items-center justify-between shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] transition-all',
-              hasMultipleFilers && 'cursor-pointer hover:shadow-md hover:border-slate-200'
-            )}
+            className="w-full bg-white border border-slate-200/60 rounded-2xl p-3 flex items-center justify-between shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] transition-all cursor-pointer hover:shadow-md hover:border-slate-200"
             aria-label="Aktiver Steuerpflichtiger"
           >
             <div className="flex items-center gap-3 min-w-0">
@@ -247,15 +240,10 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
               </div>
               <div className="min-w-0 text-left">
                 <div className="text-sm font-semibold text-slate-900 truncate">{filerName}</div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Steuerjahr {currentYear}
-                </div>
+                <div className="text-xs text-slate-500 mt-0.5 truncate">Profil wechseln</div>
               </div>
             </div>
-            {hasMultipleFilers && (
-              <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" strokeWidth={1.75} />
-            )}
+            <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" strokeWidth={1.75} />
           </button>
 
           {/* Navigation */}
