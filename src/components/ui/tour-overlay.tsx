@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import tourHero from '@/assets/tour-hero.webp';
 
 export interface TourStep {
   id: string;
@@ -11,6 +12,8 @@ export interface TourStep {
   description: string;
   targetElement: string;
   position: 'top' | 'bottom' | 'left' | 'right';
+  heroImage?: boolean;
+  heroBadge?: string;
 }
 
 export interface SpotlightPosition {
