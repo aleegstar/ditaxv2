@@ -540,37 +540,44 @@ return <div className="min-h-screen">
                   return (
                     <div
                       key={item.id}
-                      className="rounded-3xl bg-white/60 border border-slate-200 p-5 flex flex-col items-center text-center"
+                      className="rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]"
                     >
-                      
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-[15px] font-semibold text-slate-900 leading-snug">
-                          {item.title}
-                        </h3>
-                        <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium border border-amber-100">
-                          Offen
-                        </span>
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center shrink-0">
+                          <FileCheck className="w-5 h-5 text-muted-foreground" strokeWidth={1.75} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em] leading-snug">
+                              {item.title}
+                            </h3>
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-medium border border-amber-100">
+                              Offen
+                            </span>
+                          </div>
+                          <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
+                            Lade dieses Dokument hoch, um fortzufahren.
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-slate-500 mb-4">
-                        Lade dieses Dokument hoch, um fortzufahren.
-                      </p>
-                      <div className="flex items-center gap-2 w-full justify-center">
+                      <div className="flex items-center gap-2">
                         {hasUnassignedDocs && (
-                          <button
+                          <Button
                             type="button"
+                            variant="outline"
                             onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
-                            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-5 py-2.5 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
+                            className="flex-1"
                           >
                             {t.documentChecklist.assign}
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                          className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
+                          className="flex-1"
                         >
                           Hochladen
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   );
