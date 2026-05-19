@@ -615,7 +615,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
                 }
               }} whileTap={{
             scale: 0.9
-          }} data-tour="documents-nav bottom-nav-documents" data-tour-documents-nav className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/documents' ? { color: 'hsl(222, 100%, 56%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'rgba(100,110,130,0.7)' }}>
+          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/documents' ? { color: 'hsl(222, 100%, 56%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'rgba(100,110,130,0.7)' }}>
                 <CustomFolderIcon className="w-[21px] h-[21px]" />
               </motion.button>
 
