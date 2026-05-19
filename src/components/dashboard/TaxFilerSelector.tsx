@@ -4,6 +4,9 @@ import { useProfile } from '@/hooks/useProfile';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import ditaxLogo from '@/assets/ditax-logo-icon.png';
+
+
 
 interface TaxFilerSelectorProps {
   className?: string;
