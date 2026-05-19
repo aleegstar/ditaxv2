@@ -45,6 +45,10 @@ const BulkUploadContent: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const year = searchParams.get('year') || new Date().getFullYear().toString();
+  const from = searchParams.get('from');
+  const backTarget = from === 'checklist'
+    ? `/form?section=unterlagen&year=${year}`
+    : `/documents?year=${year}`;
   const { toast } = useToast();
   const { checklistItems, generateChecklist, formDataLoaded } = useFormContext();
   const { activeTaxFilerId } = useTaxFiler();
