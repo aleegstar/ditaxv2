@@ -95,33 +95,40 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold text-foreground tracking-tight">
+          <div className="min-w-0">
+            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
               Deine persönliche Checkliste
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground mt-0.5">
               {doneCats} von {totalCats} Bereichen bestätigt
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setReplaceOpen(true)}
               title="Vorjahres-PDF ersetzen"
+              className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
             >
-              <Replace className="w-4 h-4" />
+              <Replace className="w-4 h-4" strokeWidth={1.75} />
             </Button>
-            <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren">
-              <RefreshCw className="w-4 h-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={reload}
+              title="Neu generieren"
+              className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className="w-4 h-4" strokeWidth={1.75} />
             </Button>
           </div>
         </div>
-        <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
+        <div className="mt-4 h-1.5 w-full rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-primary transition-all"
+            className="h-full bg-primary transition-all rounded-full"
             style={{ width: totalCats ? `${(doneCats / totalCats) * 100}%` : "0%" }}
           />
         </div>
@@ -184,7 +191,7 @@ const CompactCategoryCard: React.FC<{
   const rest = items.length - visible.length;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 flex flex-col">
+    <div className="rounded-2xl border border-border bg-card p-4 flex flex-col shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="text-[14px] font-semibold text-foreground tracking-tight">
           {CATEGORY_LABEL[category]}
@@ -354,35 +361,37 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> =
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <FileText className="w-5 h-5 text-primary" />
+          <FileText className="w-[18px] h-[18px] text-primary" strokeWidth={1.75} />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold text-foreground tracking-tight">
+          <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
             Nächster Schritt: Dokumente hochladen
           </h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-[13px] sm:text-[14px] text-muted-foreground mt-1 leading-relaxed">
             Auf Basis deiner Vorjahres-Steuererklärung haben wir die passende Dokumenten-Checkliste vorbereitet.
           </p>
         </div>
       </div>
 
       {cats.length > 0 && (
-        <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-2">
+        <div className="rounded-xl bg-muted/40 px-4 py-1 divide-y divide-border/60">
           {cats.map(c => (
-            <div key={c} className="flex items-baseline justify-between gap-3 text-[13px]">
+            <div key={c} className="flex items-center justify-between gap-3 py-2.5 text-[13px]">
               <span className="text-muted-foreground">{CATEGORY_LABEL[c]}</span>
-              <span className="font-medium text-foreground">{grouped[c].length} Positionen</span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {grouped[c].length} {grouped[c].length === 1 ? "Position" : "Positionen"}
+              </span>
             </div>
           ))}
         </div>
       )}
 
-      <Button onClick={handleProceed} className="w-full sm:w-auto">
+      <Button onClick={handleProceed} className="w-full">
         Zur Dokumenten-Checkliste
-        <ArrowRight className="w-4 h-4 ml-1" />
+        <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
       </Button>
     </div>
   );
