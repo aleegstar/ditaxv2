@@ -23,7 +23,8 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2" data-tour="intake-mode-picker">
+        <div data-tour="intake-upload-card">
         <ModeCard
           rainbow
           image={uploadImg}
@@ -35,7 +36,9 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
           cta="Vorjahr hochladen"
           onClick={() => onSelect("prior_year_upload")}
         />
+        </div>
 
+        <div data-tour="intake-manual-card">
         <ModeCard
           image={manualImg}
           imageAlt="Person denkt über die Steuererklärung nach"
@@ -46,6 +49,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
           cta="Manuell starten"
           onClick={() => onSelect("guided")}
         />
+        </div>
       </div>
     </div>
   );
