@@ -419,28 +419,49 @@ return <div className="min-h-screen">
           </div>
         </div>
 
-        {/* Bulk uploader entry */}
-        <button
-          type="button"
-          onClick={() => navigate(`/documents/bulk?year=${taxYear}&from=checklist`)}
-          className="group w-full text-left rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(15,27,61,0.06)] transition-all p-4 sm:p-5 flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}>
-            <Upload className="w-5 h-5 text-white" strokeWidth={1.75} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-[15px] font-semibold text-foreground">Alle Unterlagen auf einmal hochladen</h3>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10">
-                <Sparkles className="w-2.5 h-2.5" /> Auto
-              </span>
+        {/* Bulk uploader entry — schneller Weg */}
+        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Upload className="w-5 h-5 text-primary" strokeWidth={1.75} />
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Zieh alle Dateien rein – wir erkennen die Kategorie automatisch.
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
+                  Alle Unterlagen auf einmal hochladen
+                </h3>
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10">
+                  <Sparkles className="w-2.5 h-2.5" /> Auto
+                </span>
+              </div>
+              <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
+                Zieh alle Dateien rein – wir erkennen die Kategorie automatisch und ordnen sie zu.
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            onClick={() => navigate(`/documents/bulk?year=${taxYear}&from=checklist`)}
+            className="w-full"
+          >
+            Dateien auswählen
+          </Button>
+          <div className="mt-3 flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5">
+            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+            <p className="text-[12px] text-muted-foreground leading-[1.45]">
+              KI-Erkennung verteilt deine Dokumente automatisch auf die richtige Kategorie.
             </p>
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-        </button>
+        </div>
+
+        {/* Divider between bulk and single upload */}
+        <div className="flex items-center gap-3 pt-1">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Oder einzeln hochladen
+          </span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
 
         {/* Compact Progress */}
         {checklistItems.length > 0 && (() => {
