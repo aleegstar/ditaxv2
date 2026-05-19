@@ -86,10 +86,10 @@ export const UserSidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  const workItems: NavItem[] = [
+  const workItems: (NavItem & { tourId?: string })[] = [
     { label: t.menu.taxes, icon: Home, route: '/' },
-    { label: t.menu.documents, icon: Folder, route: '/documents' },
-    { label: t.menu.chat, icon: MessageSquare, route: '/chat', badge: unreadCount },
+    { label: t.menu.documents, icon: Folder, route: '/documents', tourId: 'sidebar-nav-documents' },
+    { label: t.menu.chat, icon: MessageSquare, route: '/chat', badge: unreadCount, tourId: 'sidebar-nav-chat' },
   ];
 
   const supportItems: NavItem[] = [
