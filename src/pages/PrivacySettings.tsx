@@ -3,10 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Download, Trash2, Shield, AlertTriangle } from 'lucide-react';
+import { Download, Trash2, Shield, AlertTriangle, Sparkles } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from 'react-router-dom';
 import { Json } from '@/integrations/supabase/types';
+import privacyHero from '@/assets/privacy-hero.webp';
 import {
   Drawer,
   DrawerContent,
@@ -256,15 +257,39 @@ const PrivacySettings = () => {
       />
 
       {/* Main Content */}
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 space-y-6">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-6">
+        {/* Hero Card */}
+        <section className="rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] overflow-hidden">
+          <div className="relative h-44 sm:h-56 bg-muted overflow-hidden">
+            <img
+              src={privacyHero}
+              alt=""
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-xs font-medium text-foreground shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+              {t.privacySettingsPage.title}
+            </div>
+          </div>
+          <div className="px-6 py-5 sm:px-7 sm:py-6">
+            <h1 className="text-[17px] sm:text-lg font-semibold text-foreground tracking-tight">
+              {t.privacySettingsPage.title}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+              {t.privacySettingsPage.dataPortabilityDescription}
+            </p>
+          </div>
+        </section>
+
         {/* Card 1: Privacy Preferences */}
-        <section className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border/60 shadow-sm overflow-hidden">
-          <div className="p-6 sm:p-8">
-            <div className="flex items-center gap-3.5 mb-6">
-              <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-primary/10 text-primary">
+        <section className="rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] overflow-hidden">
+          <div className="p-6 sm:p-7">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary">
                 <Shield className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <h2 className="text-[17px] tracking-tight text-foreground font-semibold">
+              <h2 className="text-[16px] tracking-tight text-foreground font-semibold">
                 {t.privacySettingsPage.privacyPreferences}
               </h2>
             </div>
@@ -290,61 +315,59 @@ const PrivacySettings = () => {
             </div>
 
             <div className="pt-6">
-              <button
-                onClick={savePreferences}
-                className="w-full inline-flex items-center justify-center rounded-2xl px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-110 active:scale-[0.97] transition-all"
-              >
+              <Button onClick={savePreferences} className="w-full">
                 {t.privacySettingsPage.saveSettings}
-              </button>
+              </Button>
             </div>
           </div>
         </section>
 
         {/* Card 2: Data Portability */}
-        <section className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border/60 shadow-sm overflow-hidden">
-          <div className="p-6 sm:p-8">
-            <div className="flex items-center gap-3.5 mb-4">
-              <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-primary/10 text-primary">
+        <section className="rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] overflow-hidden">
+          <div className="p-6 sm:p-7">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary">
                 <Download className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <h2 className="text-[17px] tracking-tight text-foreground font-semibold">
+              <h2 className="text-[16px] tracking-tight text-foreground font-semibold">
                 {t.privacySettingsPage.dataPortability}
               </h2>
             </div>
 
-            <p className="text-[13px] text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-[13px] text-muted-foreground mb-5 leading-relaxed">
               {t.privacySettingsPage.dataPortabilityDescription}
             </p>
 
-            <button
+            <Button
+              variant="outline"
               onClick={downloadUserData}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-foreground bg-muted/50 border border-border/60 hover:bg-muted active:scale-[0.97] transition-all"
+              className="w-full"
             >
-              <Download className="w-4 h-4" strokeWidth={1.75} />
+              <Download className="w-4 h-4 mr-2" strokeWidth={1.75} />
               {t.privacySettingsPage.downloadMyData}
-            </button>
+            </Button>
           </div>
         </section>
 
         {/* Card 3: Delete Account (Danger Zone) */}
-        <section className="rounded-3xl bg-card/60 backdrop-blur-xl border border-destructive/20 shadow-sm overflow-hidden">
-          <div className="p-6 sm:p-8">
-            <div className="flex items-center gap-3.5 mb-4">
-              <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-destructive/10 text-destructive">
+        <section className="rounded-2xl bg-card border border-destructive/20 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] overflow-hidden">
+          <div className="p-6 sm:p-7">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-destructive/10 text-destructive">
                 <Trash2 className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <h2 className="text-[17px] tracking-tight text-destructive font-semibold">
+              <h2 className="text-[16px] tracking-tight text-destructive font-semibold">
                 {t.privacySettingsPage.deleteAccount}
               </h2>
             </div>
 
-            <p className="text-[13px] text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-[13px] text-muted-foreground mb-5 leading-relaxed">
               {t.privacySettingsPage.deleteAccountDescription}
             </p>
 
             <button
               onClick={handleStartDeletion}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-white bg-destructive hover:brightness-110 active:scale-[0.97] transition-all"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl h-12 px-6 text-sm font-semibold text-white bg-destructive hover:brightness-110 active:scale-[0.98] transition-all"
             >
               <Trash2 className="w-4 h-4" strokeWidth={1.75} />
               {t.privacySettingsPage.deleteAccountButton}
