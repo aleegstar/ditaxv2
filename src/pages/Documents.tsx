@@ -469,11 +469,11 @@ const DocumentsContent: React.FC<{
           <div className="max-w-[960px] mx-auto w-full pb-4">
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2.5 flex-wrap mb-1.5" data-tour="documents-year-selector">
+                <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
                   <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1]">
                     Dokumente
                   </h1>
-                  <div className="relative">
+                  <div className="relative" data-tour="documents-year-selector">
                     <button
                       onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
                       className="inline-flex items-center gap-1 h-6 px-2 rounded-md hover:bg-muted text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors tabular-nums"
