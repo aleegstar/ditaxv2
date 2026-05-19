@@ -164,10 +164,33 @@ const SelectPerson: React.FC = () => {
               />
             </button>
 
+            {/* Profil verwalten — link to /profile */}
+            <button
+              onClick={() => navigate('/profile')}
+              className="w-full mt-3 group flex items-center gap-4 md:gap-5 px-5 py-4 md:py-5 bg-white border border-black/[0.07] rounded-2xl transition-all duration-150 hover:bg-foreground/[0.022] active:bg-foreground/[0.04] focus:outline-none focus-visible:bg-foreground/[0.03]"
+            >
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/[0.04] border border-black/[0.05] group-hover:bg-foreground/[0.06] transition-colors">
+                <UserCog className="w-4 h-4 md:w-5 md:h-5 text-foreground/70" strokeWidth={1.75} />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <h3 className="text-[14.5px] md:text-base font-medium text-foreground tracking-[-0.005em]">
+                  Profil & Einstellungen
+                </h3>
+                <p className="text-[12px] md:text-[13px] text-muted-foreground/65 mt-0.5 truncate">
+                  Konto, Sicherheit, Rechnungen
+                </p>
+              </div>
+              <ChevronRight
+                className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
+                strokeWidth={2}
+              />
+            </button>
+
             {/* Trust footnote */}
             <p className="text-center text-[11px] text-muted-foreground/45 mt-8 tracking-tight">
               Alle Daten werden Ende-zu-Ende verschlüsselt gespeichert.
             </p>
+
           </>
         )}
       </div>
