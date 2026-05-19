@@ -116,7 +116,7 @@ const ASSETS_RULES: Rule[] = [
 
 const DEDUCTIONS_RULES: Rule[] = [
   { label: "Berufsauslagen-Belege", patterns: [/\bberufsauslagen\b/i, /\bfahrkosten\b/i, /\bverpflegung\b/i, /\bweiterbildung\b/i] },
-  { label: "Säule 3a-Einzahlungsbestätigung", patterns: [/\beinzahlung\b[^\n]{0,30}\b3a\b/i, /\bbeitrag\b[^\n]{0,30}\b3a\b/i] },
+  { label: "Säule 3a-Einzahlungsbestätigung", patterns: [/\beinzahlung\b[^\n]{0,30}\b3a\b/i, /\bbeitrag\b[^\n]{0,30}\b3a\b/i, /\bs[aä]ule\s*3a\b/i, /\bgebundene\s+vorsorge\b/i] },
   { label: "PK-Einkauf-Beleg", patterns: [/\beinkauf\b[^\n]{0,30}\bpensionskasse\b/i, /\bPK[- ]?einkauf\b/i] },
   { label: "Belege Krankheits-/Unfallkosten", patterns: [/\bkrankheitskosten\b/i, /\bunfallkosten\b/i, /\bselbstbehalt\b/i] },
   { label: "Krankenkassen-Prämienrechnung", patterns: [/\bkrankenkassenpr[aä]mien\b/i, /\bgrundversicherung\b/i, /\bKVG\b/i] },
