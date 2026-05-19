@@ -231,21 +231,50 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
       </main>
 
       <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
-        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
-          <div className="mb-6" />
-          <div className="text-center space-y-2 mb-6">
-            <img src={completeIllustration} alt="" className="w-28 h-28 object-contain mx-auto mb-2" />
-            <DrawerTitle className="text-xl font-bold text-foreground">
-              Alle Angaben vollständig!
-            </DrawerTitle>
-            <DrawerDescription className="text-sm text-muted-foreground">
-              Du hast alle persönlichen Angaben erfasst. Möchtest du jetzt mit deinen Unterlagen fortfahren?
-            </DrawerDescription>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Button className="w-full" onClick={handleGoToDocuments} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-              Ja, weiter zu Unterlagen
-            </Button>
+        <DrawerContent variant="bottom-sheet" className="p-0 overflow-hidden bg-card">
+          <div className="px-5 pt-4 pb-6 sm:px-6 sm:pb-7">
+            {/* Hero card */}
+            <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] bg-card">
+              <div className="relative aspect-[16/9] w-full overflow-hidden">
+                <img
+                  src={completeHero}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent" />
+                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-emerald-700 shadow-sm">
+                  <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                  Geschafft
+                </div>
+              </div>
+              <div className="px-5 py-4 sm:px-6 sm:py-5">
+                <DrawerTitle className="text-[18px] sm:text-[20px] font-semibold tracking-[-0.012em] text-foreground">
+                  Alle Angaben vollständig!
+                </DrawerTitle>
+                <DrawerDescription className="text-[13px] sm:text-[14px] text-muted-foreground mt-1 leading-relaxed">
+                  Du hast alle persönlichen Angaben erfasst. Möchtest du jetzt mit deinen Unterlagen fortfahren?
+                </DrawerDescription>
+              </div>
+            </div>
+
+            {/* Action */}
+            <div className="mt-5 flex flex-col gap-2">
+              <Button
+                className="w-full"
+                onClick={handleGoToDocuments}
+                style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+              >
+                Ja, weiter zu Unterlagen
+                <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full text-muted-foreground hover:text-foreground"
+                onClick={closeSheet}
+              >
+                Später
+              </Button>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
