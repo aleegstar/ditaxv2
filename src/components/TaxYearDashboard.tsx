@@ -139,6 +139,9 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     }
   }, [allAngabenComplete]);
 
+  const _pyStep1DoneEarly = priorYearProgress.ready && priorYearProgress.total > 0 && priorYearProgress.done === priorYearProgress.total;
+  useEffect(() => { if (_pyStep1DoneEarly) setStep1Expanded(false); }, [_pyStep1DoneEarly]);
+
   // Show nothing while loading
   if (isDataLoading || !isReady || !formDataLoaded) {
     return null;
