@@ -170,77 +170,98 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
   );
 };
 
-const CategoryCard: React.FC<{
+const CompactCategoryCard: React.FC<{
   category: ItemCategory;
   items: ChecklistItem[];
   onBulk: (patch: Partial<ChecklistItem>) => void;
   onItem: (id: string, patch: Partial<ChecklistItem>) => void;
 }> = ({ category, items, onBulk, onItem }) => {
-  const allUnchanged = items.every(i => i.change_status === "unchanged");
-  const anyChanged = items.some(i => i.change_status === "changed" || i.change_status === "removed");
+  const [editOpen, setEditOpen] = useState(false);
   const allDone = items.every(i => i.completed);
-  const [expanded, setExpanded] = useState(false);
+  const allUnchanged = items.every(i => i.change_status === "unchanged");
 
-  // Auto-expand when user picked "Geändert" on the category
-  const showDetails = expanded || anyChanged;
-
-  const preview = items
-    .map(i => i.label)
-    .slice(0, 4)
-    .join(" · ") + (items.length > 4 ? ` · +${items.length - 4}` : "");
+  const visible = items.slice(0, 5);
+  const rest = items.length - visible.length;
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="p-5 space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {CATEGORY_LABEL[category]}
-            </div>
-            <h4 className="text-[15px] font-semibold text-foreground mt-0.5">
-              {CATEGORY_QUESTION[category]}
-            </h4>
-            <p className="text-[13px] text-muted-foreground mt-1 line-clamp-2">
-              {preview}
-            </p>
+    <div className="rounded-2xl border border-border bg-card p-4 flex flex-col">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h4 className="text-[14px] font-semibold text-foreground tracking-tight">
+          {CATEGORY_LABEL[category]}
+        </h4>
+        {allDone && (
+          <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+            <Check className="w-3 h-3 text-emerald-600" strokeWidth={2.5} />
           </div>
-          {allDone && (
-            <div className="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-              <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={2.5} />
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Chip
-            active={allUnchanged}
-            label="Ja, alles unverändert"
-            onClick={() => { onBulk({ change_status: "unchanged", completed: true }); setExpanded(false); }}
-          />
-          <Chip
-            active={anyChanged && !allUnchanged}
-            label="Es gab Änderungen"
-            onClick={() => { setExpanded(true); }}
-          />
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setExpanded(e => !e)}
-          className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDetails ? "rotate-180" : ""}`} />
-          {showDetails ? "Details ausblenden" : "Details anzeigen"}
-        </button>
+        )}
       </div>
 
-      {showDetails && (
-        <div className="border-t border-border divide-y divide-border bg-muted/20">
-          {items.map(it => (
-            <ItemRow key={it.id} item={it} onChange={(patch) => onItem(it.id, patch)} />
-          ))}
-        </div>
-      )}
+      <ul className="space-y-1 mb-4 flex-1">
+        {visible.map(it => (
+          <li
+            key={it.id}
+            className="text-[13px] text-muted-foreground leading-snug flex gap-1.5"
+          >
+            <span className="text-muted-foreground/60">–</span>
+            <span className="truncate">{it.label}</span>
+          </li>
+        ))}
+        {rest > 0 && (
+          <li className="text-[12px] text-muted-foreground/70 pl-3">
+            +{rest} weitere
+          </li>
+        )}
+      </ul>
+
+      <div className="flex gap-2">
+        {allUnchanged ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-9 text-[13px]"
+            onClick={() => setEditOpen(true)}
+          >
+            Bearbeiten
+          </Button>
+        ) : (
+          <>
+            <Button
+              size="sm"
+              className="flex-1 h-9 text-[13px]"
+              onClick={() => onBulk({ change_status: "unchanged", completed: true })}
+            >
+              Bestätigen
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 text-[13px] px-3"
+              onClick={() => setEditOpen(true)}
+            >
+              Bearbeiten
+            </Button>
+          </>
+        )}
+      </div>
+
+      <AppDialog open={editOpen} onOpenChange={setEditOpen}>
+        <AppDialogContent size="default">
+          <AppDialogHeader>
+            <AppDialogTitle>{CATEGORY_LABEL[category]} bearbeiten</AppDialogTitle>
+            <AppDialogDescription>
+              Markiere einzelne Positionen als unverändert, geändert oder entfallen.
+            </AppDialogDescription>
+          </AppDialogHeader>
+          <div className="divide-y divide-border max-h-[60vh] overflow-y-auto -mx-2">
+            {items.map(it => (
+              <ItemRow key={it.id} item={it} onChange={(patch) => onItem(it.id, patch)} />
+            ))}
+          </div>
+          <div className="flex justify-end pt-3">
+            <Button onClick={() => setEditOpen(false)}>Fertig</Button>
+          </div>
+        </AppDialogContent>
+      </AppDialog>
     </div>
   );
 };
