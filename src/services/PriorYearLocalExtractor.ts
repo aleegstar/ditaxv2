@@ -105,7 +105,9 @@ const INCOME_RULES: Rule[] = [
 const ASSETS_RULES: Rule[] = [
   { label: "Bankkontoauszug per 31.12.", patterns: [/\bbankkonto\b/i, /\bsparkonto\b/i, /\bprivatkonto\b/i, /\bkontokorrent\b/i, /\bpostfinance\b/i, /\braiffeisen\b/i, /\bkantonalbank\b/i] },
   { label: "Depotauszug per 31.12.", patterns: [/\bwertschriften\b/i, /\bdepot\b/i, /\baktien\b/i, /\bfonds\b/i, /\bobligationen\b/i] },
-  { label: "Säule 3a-Saldobestätigung", patterns: [/\bs[aä]ule\s*3a\b/i, /\bgebundene\s+vorsorge\b/i] },
+  // Säule 3a wird bewusst NICHT als Vermögen geführt — siehe DEDUCTIONS_RULES
+  // (in den allermeisten Fällen handelt es sich um eine Einzahlung = Abzug,
+  // nicht um eine Kapitalauszahlung).
   { label: "Rückkaufswert Lebensversicherung", patterns: [/\blebensversicherung\b/i, /\br[uü]ckkaufswert\b/i] },
   { label: "Liegenschaftsbeleg", patterns: [/\bliegenschaft\b/i, /\beigentumswohnung\b/i, /\beinfamilienhaus\b/i, /\bgrundst[uü]ck\b/i] },
   { label: "Fahrzeugausweis / Eurotax", patterns: [/\bmotorfahrzeug\b/i, /\bpersonenwagen\b/i] },
@@ -114,7 +116,7 @@ const ASSETS_RULES: Rule[] = [
 
 const DEDUCTIONS_RULES: Rule[] = [
   { label: "Berufsauslagen-Belege", patterns: [/\bberufsauslagen\b/i, /\bfahrkosten\b/i, /\bverpflegung\b/i, /\bweiterbildung\b/i] },
-  { label: "Säule 3a-Einzahlungsbestätigung", patterns: [/\beinzahlung\b[^\n]{0,30}\b3a\b/i, /\bbeitrag\b[^\n]{0,30}\b3a\b/i] },
+  { label: "Säule 3a-Einzahlungsbestätigung", patterns: [/\beinzahlung\b[^\n]{0,30}\b3a\b/i, /\bbeitrag\b[^\n]{0,30}\b3a\b/i, /\bs[aä]ule\s*3a\b/i, /\bgebundene\s+vorsorge\b/i] },
   { label: "PK-Einkauf-Beleg", patterns: [/\beinkauf\b[^\n]{0,30}\bpensionskasse\b/i, /\bPK[- ]?einkauf\b/i] },
   { label: "Belege Krankheits-/Unfallkosten", patterns: [/\bkrankheitskosten\b/i, /\bunfallkosten\b/i, /\bselbstbehalt\b/i] },
   { label: "Krankenkassen-Prämienrechnung", patterns: [/\bkrankenkassenpr[aä]mien\b/i, /\bgrundversicherung\b/i, /\bKVG\b/i] },
