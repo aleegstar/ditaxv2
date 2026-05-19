@@ -213,7 +213,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
             </div>
             <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-widest">
-              Schritt {n}
+              Aktueller Schritt
             </span>
           </div>
 
