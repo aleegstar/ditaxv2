@@ -37,10 +37,26 @@ interface Props {
   taxYear: string;
 }
 
+const CONTACT_STORAGE_KEY = (taxFilerId: string, taxYear: string) =>
+  `prior-year-contact-${taxFilerId}-${taxYear}`;
+
 export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => {
   const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
     usePriorYearChecklist(taxFilerId, taxYear);
   const [replaceOpen, setReplaceOpen] = useState(false);
+  const [contactState, setContactState] = useState<{ confirmed: boolean; note: string }>(() => {
+    try {
+      const raw = localStorage.getItem(CONTACT_STORAGE_KEY(taxFilerId, taxYear));
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return { confirmed: false, note: "" };
+  });
+  const persistContact = (next: { confirmed: boolean; note: string }) => {
+    setContactState(next);
+    try {
+      localStorage.setItem(CONTACT_STORAGE_KEY(taxFilerId, taxYear), JSON.stringify(next));
+    } catch {}
+  };
 
   if (loading && !checklist) {
     return (
