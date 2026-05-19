@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, Plus, MessageCircle, Menu, X, FileText, User, HelpCircle, MessageSquare, Settings, LogOut, ChevronUp, ChevronDown, Shield, FileCheck, Cookie, MapPin, Send, Folder, LifeBuoy, Gift, Globe, Users } from 'lucide-react';
+import { Home, Plus, MessageCircle, Menu, X, FileText, User, HelpCircle, MessageSquare, Settings, LogOut, ChevronUp, ChevronDown, ChevronRight, Shield, FileCheck, Cookie, MapPin, Send, Folder, LifeBuoy, Gift, Globe, Users, BookOpen, Star } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,12 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
 import { useFormTourSafe } from '@/contexts/FormTourContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { LanguageDropdown } from '@/components/ui/language-dropdown';
+import { cn } from '@/lib/utils';
+import inviteFriendsImage from '@/assets/invite-friends-couple.jpg';
 type IconComponentType = React.ElementType<{
   className?: string;
 }>;
