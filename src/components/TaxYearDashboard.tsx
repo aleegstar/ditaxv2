@@ -61,6 +61,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('dashboard-tip-dismissed') === 'true';
   });
+  const [hasInternalPriorYear, setHasInternalPriorYear] = useState(false);
 
   const { activeTaxFilerId } = useTaxFiler();
   const formTour = useFormTourSafe();
