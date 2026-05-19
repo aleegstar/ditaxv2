@@ -422,7 +422,7 @@ return <div className="min-h-screen">
         {/* Bulk uploader entry */}
         <button
           type="button"
-          onClick={() => navigate(`/documents/bulk?year=${taxYear}`)}
+          onClick={() => navigate(`/documents/bulk?year=${taxYear}&from=checklist`)}
           className="group w-full text-left rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(15,27,61,0.06)] transition-all p-4 sm:p-5 flex items-center gap-4"
         >
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}>

@@ -45,6 +45,10 @@ const BulkUploadContent: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const year = searchParams.get('year') || new Date().getFullYear().toString();
+  const from = searchParams.get('from');
+  const backTarget = from === 'checklist'
+    ? `/form?section=unterlagen&year=${year}`
+    : `/documents?year=${year}`;
   const { toast } = useToast();
   const { checklistItems, generateChecklist, formDataLoaded } = useFormContext();
   const { activeTaxFilerId } = useTaxFiler();
@@ -640,9 +644,9 @@ const BulkUploadContent: React.FC = () => {
         </Button>
         <Button
           className="flex-1"
-          onClick={() => navigate(`/documents?year=${year}`)}
+          onClick={() => navigate(backTarget)}
         >
-          Zur Übersicht
+          {from === 'checklist' ? 'Zurück zur Checkliste' : 'Zur Übersicht'}
         </Button>
       </div>
     </>
@@ -653,7 +657,7 @@ const BulkUploadContent: React.FC = () => {
       <div className="min-h-screen bg-background pb-24">
         <SubpageHeader
           title={`Unterlagen hochladen · ${year}`}
-          onBack={() => navigate(`/documents?year=${year}`)}
+          onBack={() => navigate(backTarget)}
         />
         <div className="max-w-4xl mx-auto px-4 md:px-6 pt-4 md:pt-6">
           {stage === 'drop' && renderDrop()}
@@ -666,6 +670,7 @@ const BulkUploadContent: React.FC = () => {
     </AnimatedPageContainer>
   );
 };
+
 
 const BulkDocumentUpload: React.FC = () => {
   const [searchParams] = useSearchParams();
