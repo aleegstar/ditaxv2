@@ -32,6 +32,7 @@ import {
 import { ensurePdfJsLoaded } from '@/utils/loadPdfJs';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
+import bulkUploadHero from '@/assets/bulk-upload-hero.jpg';
 
 type Stage = 'drop' | 'analyzing' | 'review' | 'uploading' | 'missing';
 
