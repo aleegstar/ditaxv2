@@ -184,8 +184,13 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
         ))}
       </div>
 
-      {doneCats === totalCats && totalCats > 0 && (
-        <DocumentsNextStep taxYear={taxYear} items={items} />
+      {totalCats > 0 && (
+        <DocumentsNextStep
+          taxYear={taxYear}
+          items={items}
+          locked={doneCats < totalCats}
+          remaining={totalCats - doneCats}
+        />
       )}
 
       <AppDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
