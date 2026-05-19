@@ -139,6 +139,30 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     toast.success('Modus aktualisiert – deine Daten bleiben erhalten.');
   };
 
+  // Auto-seed prior-year checklist from Ditax data if user already picked
+  // 'prior_year_upload' previously and we have internal prior-year data.
+  // Idempotent — does nothing if a checklist already exists.
+  useEffect(() => {
+    if (intakeMode !== 'prior_year_upload') return;
+    if (!hasInternalPriorYear) return;
+    if (!activeTaxFilerId || !taxYear) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      try {
+        await seedPriorYearChecklistFromInternal({
+          userId: user.id,
+          taxFilerId: activeTaxFilerId,
+          taxYear,
+        });
+      } catch (e) {
+        console.warn('[TaxYearDashboard] auto-seed prior-year failed', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [intakeMode, hasInternalPriorYear, activeTaxFilerId, taxYear]);
+
   // Mark component as ready after initial data load
   useEffect(() => {
     if (!isDataLoading && formDataLoaded) {
