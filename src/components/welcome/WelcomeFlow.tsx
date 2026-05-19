@@ -12,6 +12,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/contexts/I18nContext';
 import welcomeIllustration from '@/assets/welcome-illustration.webp';
+import welcomeHero from '@/assets/welcome-hero.webp';
+import { Sparkles } from 'lucide-react';
 
 const TAX_YEARS = Array.from({
   length: 3
