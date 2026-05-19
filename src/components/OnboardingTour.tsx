@@ -53,15 +53,15 @@ const getOnboardingSteps = (): OnboardingStep[] => [
     id: 'documents',
     titleKey: 'documentsTitle',
     descriptionKey: 'documentsDescription',
-    targetElement: '[data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
-    position: 'top'
+    targetElement: '[data-tour="sidebar-nav-documents"], [data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
+    position: 'right'
   },
   {
     id: 'chat',
     titleKey: 'chatTitle',
     descriptionKey: 'chatDescription',
-    targetElement: '[data-tour="bottom-nav-chat"]',
-    position: 'top'
+    targetElement: '[data-tour="sidebar-nav-chat"], [data-tour="bottom-nav-chat"]',
+    position: 'right'
   }
 ];
 
