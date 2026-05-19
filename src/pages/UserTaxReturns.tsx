@@ -34,7 +34,7 @@ import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import { FormProvider } from '@/contexts/form/FormContext';
 import { DesktopHero } from '@/components/dashboard/DesktopHero';
 import { DesktopUtilityPanel } from '@/components/dashboard/DesktopUtilityPanel';
-import { DesktopBlogCards } from '@/components/dashboard/DesktopBlogCards';
+import { DashboardChatCard } from '@/components/dashboard/DashboardChatCard';
 
 interface TaxReturn {
   id: string;
