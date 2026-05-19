@@ -375,8 +375,191 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   );
 
 
-  const priorYearContent = activeTaxFilerId ? (
-    <PriorYearChecklist taxFilerId={activeTaxFilerId} taxYear={taxYear} />
+  // ─── Prior-year mode derived state ───
+  const py = priorYearProgress;
+  const pyStep1Done = py.ready && py.total > 0 && py.done === py.total;
+  const pyCanSubmit = pyStep1Done && isDocumentsComplete;
+  const pyRemaining =
+    (pyStep1Done ? 0 : 1) +
+    (isDocumentsComplete ? 0 : 1) +
+    (paymentStatus === 'paid' ? 0 : 1);
+  const pyStepsDone = 3 - pyRemaining;
+  const pyPct = Math.round((pyStepsDone / 3) * 100);
+  const pyNextStep: 1 | 2 | 3 = !pyStep1Done ? 1 : !isDocumentsComplete ? 2 : 3;
+  const pyCtaHeadline =
+    pyPct >= 67 ? 'Du bist fast fertig!'
+    : pyPct >= 33 ? 'Bleib dran'
+    : 'Gleich loslegen';
+  const pyCtaSubline =
+    pyPct >= 67 ? 'Lade jetzt deine Belege hoch, damit wir deine Steuererklärung fertigstellen können.'
+    : pyPct >= 33 ? 'Weiter geht\'s — lade jetzt deine Dokumente hoch.'
+    : 'Bestätige zuerst die Daten aus deiner Vorjahres-Steuererklärung.';
+
+  const handlePriorYearDocsClick = async () => {
+    if (!pyStep1Done) return;
+    formTour?.skipTour();
+    try {
+      const flags = mapPriorYearToFormFlags(py.items);
+      for (const section of ['income', 'assets', 'deductions'] as const) {
+        const merged = { ...(formData?.[section] ?? {}), ...flags[section], _completed: true };
+        await saveSection(section as any, merged, true);
+      }
+    } catch (e) {
+      // non-blocking
+    }
+    handleDocumentsClick();
+  };
+
+  const handlePyCtaClick = () => {
+    if (pyNextStep === 1) { setStep1Expanded(true); window?.scrollTo({ top: 0, behavior: 'smooth' }); }
+    else if (pyNextStep === 2) handlePriorYearDocsClick();
+    else if (pyCanSubmit) handleSubmitClick();
+  };
+
+  const priorYearBranch = activeTaxFilerId ? (
+    <>
+      {/* ═══════════ Step 1: Vorjahres-Daten ═══════════ */}
+      {(!pyStep1Done || step1Expanded) ? (
+        <div className="group relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[2rem] p-6 md:p-8 mb-5">
+          <div className="flex items-center justify-between gap-3 mb-5">
+            <div className="flex items-center gap-2">
+              {pyStep1Done ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[11px] font-semibold text-emerald-600 uppercase tracking-widest">Abgeschlossen</span>
+                </>
+              ) : (
+                <>
+                  <div className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-widest">Aktueller Schritt</span>
+                </>
+              )}
+            </div>
+            {pyStep1Done && (
+              <button
+                onClick={() => setStep1Expanded(false)}
+                className="text-[12px] font-medium text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                Einklappen
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-2 max-w-xl mb-6">
+            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
+              Deine persönliche Checkliste
+            </h3>
+            <p className="text-base text-slate-500 leading-relaxed">
+              Bestätige die Bereiche aus deiner Vorjahres-Steuererklärung – so wissen wir, welche Belege du dieses Jahr brauchst.
+            </p>
+          </div>
+
+          <PriorYearChecklistBody
+            taxFilerId={activeTaxFilerId}
+            taxYear={taxYear}
+            onProgress={setPriorYearProgress}
+          />
+        </div>
+      ) : (
+        <div
+          onClick={() => setStep1Expanded(true)}
+          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] rounded-[1.25rem] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-5 transition-all"
+        >
+          <div className="flex items-start gap-6">
+            <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-emerald-50 border border-emerald-100 text-emerald-600">
+              <Check className="w-5 h-5" strokeWidth={2} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Vorjahres-Daten bestätigt</h3>
+              <p className="text-[15px] text-slate-500 leading-relaxed">Alle Bereiche aus deiner Vorjahres-Steuererklärung sind bestätigt.</p>
+              <div className="flex items-center gap-2 pt-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-sm text-slate-600 font-medium">{py.done} von {py.total} Bereichen bestätigt</span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setStep1Expanded(true); }}
+            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
+          >
+            Bearbeiten
+            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+          </button>
+        </div>
+      )}
+
+      {/* ═══════════ Steps 2 & 3 ═══════════ */}
+      <div className="space-y-5">
+        <StepRow
+          n={2}
+          state={!pyStep1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
+          title="Belege & Unterlagen"
+          desc="Lade deine Dokumente passend zur Vorjahres-Checkliste hoch."
+          statusLabel={
+            !pyStep1Done ? 'Noch nicht gestartet'
+            : isDocumentsComplete ? 'Abgeschlossen'
+            : 'Dokumente ausstehend'
+          }
+          statusTone={!pyStep1Done ? 'slate' : isDocumentsComplete ? 'green' : 'orange'}
+          actionLabel={isDocumentsComplete ? 'Ansehen' : 'Jetzt hochladen'}
+          onAction={handlePriorYearDocsClick}
+        />
+
+        <StepRow
+          n={3}
+          state={!pyCanSubmit ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
+          title="Prüfung & Versand"
+          desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
+          statusLabel={
+            !pyCanSubmit ? 'Noch nicht gestartet'
+            : paymentStatus === 'paid' ? 'Abgeschlossen'
+            : 'Bereit zur Einreichung'
+          }
+          statusTone={!pyCanSubmit ? 'slate' : paymentStatus === 'paid' ? 'green' : 'orange'}
+          actionLabel={paymentStatus === 'paid' ? 'Ansehen' : 'Einreichen'}
+          onAction={handleSubmitClick}
+        />
+      </div>
+
+      {/* Resume CTA */}
+      {pyRemaining > 0 && py.ready && (
+        <div
+          onClick={handlePyCtaClick}
+          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] rounded-[1.25rem] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 mt-5 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] transition-all"
+        >
+          <div className="flex items-center gap-5">
+            <div className="relative w-16 h-16 flex items-center justify-center shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-slate-100" />
+                <circle
+                  cx="32" cy="32" r="28"
+                  stroke="currentColor" strokeWidth="5" fill="transparent"
+                  strokeDasharray={2 * Math.PI * 28}
+                  strokeDashoffset={2 * Math.PI * 28 * (1 - pyPct / 100)}
+                  className="text-[#1E3A5F] transition-all duration-1000 ease-in-out"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="absolute text-sm font-semibold text-slate-900 tabular-nums">{pyPct}%</span>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{pyCtaHeadline}</h3>
+              <p className="text-base text-slate-500">{pyCtaSubline}</p>
+            </div>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); handlePyCtaClick(); }}
+            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
+          >
+            Fortsetzen
+            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+          </button>
+        </div>
+      )}
+    </>
   ) : null;
 
   const stepsContent = (
@@ -386,7 +569,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       ) : (
         <>
       {modeSwitcher}
-      {intakeMode === 'prior_year_upload' ? priorYearContent : (
+      {intakeMode === 'prior_year_upload' ? priorYearBranch : (
         <>
       <DashboardPriorYearBanner taxYear={taxYear} />
 
