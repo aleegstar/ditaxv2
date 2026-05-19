@@ -298,36 +298,43 @@ const BulkUploadContent: React.FC = () => {
   const renderAnalyzing = () => {
     const done = files.filter((f) => f.status === 'done' || f.status === 'error').length;
     const currentAnalyzing = files.find((f) => f.status === 'analyzing');
+    const pct = files.length ? (done / files.length) * 100 : 0;
     return (
-      <div className="rounded-3xl border border-border bg-card p-6 md:p-10">
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-[#1E3A5F] animate-pulse" />
-          <div className="text-sm font-medium">
-            <span className="shimmer-text">KI prüft Deine Unterlagen…</span>
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <Sparkles className="w-[18px] h-[18px] animate-pulse" strokeWidth={1.75} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
+              <span className="shimmer-text">KI prüft Deine Unterlagen…</span>
+            </h3>
+            <p className="text-[13px] text-muted-foreground mt-0.5 truncate">
+              {done} / {files.length} analysiert
+              {currentAnalyzing && (
+                <>
+                  <span className="mx-1.5">·</span>
+                  <span className="shimmer-text font-medium">{currentAnalyzing.file.name}</span>
+                </>
+              )}
+            </p>
           </div>
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          {done} / {files.length} analysiert
-          {currentAnalyzing && (
-            <>
-              <span className="mx-1.5">·</span>
-              <span className="shimmer-text font-medium">{currentAnalyzing.file.name}</span>
-            </>
-          )}
-        </div>
-        <div className="mt-4 h-1.5 rounded-full bg-muted overflow-hidden">
+
+        <div className="mt-4 h-1.5 w-full rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-[#1E3A5F] transition-all"
-            style={{ width: `${files.length ? (done / files.length) * 100 : 0}%` }}
+            className="h-full bg-primary transition-all rounded-full"
+            style={{ width: `${pct}%` }}
           />
         </div>
-        <ul className="mt-6 space-y-2">
+
+        <ul className="mt-5 space-y-2.5">
           {files.map((f) => (
-            <li key={f.id} className="flex items-center gap-3 text-sm">
-              {f.status === 'analyzing' && <Loader2 className="w-4 h-4 animate-spin text-[#1E3A5F]" />}
-              {f.status === 'pending' && <div className="w-4 h-4 rounded-full border border-border" />}
-              {f.status === 'done' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-              {f.status === 'error' && <AlertCircle className="w-4 h-4 text-rose-600" />}
+            <li key={f.id} className="flex items-center gap-3 text-[13px]">
+              {f.status === 'analyzing' && <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />}
+              {f.status === 'pending' && <div className="w-4 h-4 rounded-full border border-border shrink-0" />}
+              {f.status === 'done' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+              {f.status === 'error' && <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
               <span
                 className={cn(
                   'truncate',
@@ -346,6 +353,7 @@ const BulkUploadContent: React.FC = () => {
       </div>
     );
   };
+
 
   const renderReview = () => {
     if (files.length === 0) return null;
