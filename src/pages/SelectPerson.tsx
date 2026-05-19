@@ -49,7 +49,7 @@ const SelectPerson: React.FC = () => {
     <div className="min-h-screen antialiased relative bg-white">
       <div className="relative z-10 max-w-[440px] md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto px-6 md:px-10 pt-10 pb-16">
         {/* Logo */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 md:hidden">
           <img src={ditaxLogoFull} alt="Ditax" className="h-6 opacity-90" />
         </div>
 
