@@ -100,14 +100,17 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
     );
   }
 
-  // ready – grouped, summary-first
+  // ready – grouped, summary-first. Contact is handled separately (no OCR extraction).
   const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
+    if (it.category === "contact") return acc;
     (acc[it.category] ||= []).push(it); return acc;
   }, { contact: [], income: [], assets: [], deductions: [], other: [] });
 
-  const categories = (Object.keys(grouped) as ItemCategory[]).filter(c => grouped[c].length > 0);
-  const totalCats = categories.length;
-  const doneCats = categories.filter(c => grouped[c].every(it => it.completed)).length;
+  const categories = (Object.keys(grouped) as ItemCategory[]).filter(c => c !== "contact" && grouped[c].length > 0);
+  const totalCats = categories.length + 1; // +1 for contact card
+  const doneCats =
+    categories.filter(c => grouped[c].every(it => it.completed)).length +
+    (contactState.confirmed ? 1 : 0);
 
   return (
     <div className="space-y-5">
@@ -151,6 +154,7 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <PersonalDataCard state={contactState} onChange={persistContact} />
         {categories.map(cat => (
           <CompactCategoryCard
             key={cat}
@@ -163,10 +167,7 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
       </div>
 
       {doneCats === totalCats && totalCats > 0 && (
-        <DocumentsNextStep
-          items={items.filter(i => i.change_status === "unchanged" || i.change_status === "changed")}
-          taxYear={taxYear}
-        />
+        <DocumentsNextStep taxYear={taxYear} items={items} />
       )}
 
       <AppDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
