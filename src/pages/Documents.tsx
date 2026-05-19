@@ -739,21 +739,20 @@ const DocumentsContent: React.FC<{
         {/* Sticky bottom upload bar — mobile only, sits above bottom nav */}
         {!isLocked && createPortal(
           <div
-            className="fixed left-0 right-0 z-[10005] px-4 md:hidden pointer-events-none"
-            style={{ bottom: 'calc(72px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
+            className="fixed right-5 z-[10005] md:hidden pointer-events-none"
+            style={{ bottom: 'calc(88px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
           >
             <button
               onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
               aria-label={t.documentsPage.upload}
               data-tour="document-upload-floating"
-              className="pointer-events-auto w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98]"
+              className="pointer-events-auto w-14 h-14 rounded-full flex items-center justify-center text-white transition-all active:scale-[0.94]"
               style={{
                 background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)',
-                boxShadow: '0 12px 28px -8px rgba(15,27,61,0.45), 0 2px 6px rgba(0,0,0,0.08)',
+                boxShadow: '0 14px 32px -8px rgba(15,27,61,0.5), 0 2px 6px rgba(0,0,0,0.1)',
               }}
             >
-              <Plus className="w-4 h-4" strokeWidth={2.5} />
-              Dokument hochladen
+              <Plus className="w-6 h-6" strokeWidth={2.5} />
             </button>
           </div>,
           document.body
