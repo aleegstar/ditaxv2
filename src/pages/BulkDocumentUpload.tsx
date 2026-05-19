@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   SkipForward,
+  Check,
+  ShieldCheck,
 } from 'lucide-react';
 import { BulkPreviewCard } from '@/components/documents/BulkPreviewCard';
 import { SubpageHeader } from '@/components/ui/subpage-header';
