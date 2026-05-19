@@ -32,6 +32,7 @@ import {
 import { ensurePdfJsLoaded } from '@/utils/loadPdfJs';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
+import bulkUploadHero from '@/assets/bulk-upload-hero.jpg';
 
 type Stage = 'drop' | 'analyzing' | 'review' | 'uploading' | 'missing';
 
@@ -260,48 +261,82 @@ const BulkUploadContent: React.FC = () => {
 
   // ─────────────────────────────── render helpers ──────────────────────
   const renderDrop = () => (
-    <div
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragOver(true);
-      }}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={onDrop}
-      onClick={() => fileInputRef.current?.click()}
-      className={cn(
-        'rounded-3xl border-2 border-dashed bg-card transition-all cursor-pointer',
-        'flex flex-col items-center justify-center text-center px-6 py-16 md:py-24',
-        dragOver
-          ? 'border-[#1E3A5F] bg-[#1E3A5F]/[0.04]'
-          : 'border-border hover:border-foreground/30',
-      )}
-    >
-      <div className="w-14 h-14 rounded-2xl bg-[#1E3A5F]/5 flex items-center justify-center mb-5">
-        <Upload className="w-6 h-6 text-[#1E3A5F]" strokeWidth={1.75} />
+    <div className="space-y-5">
+      {/* Hero card — matches dashboard mode-switcher style */}
+      <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+        <div className="relative h-28 sm:h-36 w-full overflow-hidden bg-muted">
+          <img
+            src={bulkUploadHero}
+            alt="Zwei Personen freuen sich über erledigte Steuerunterlagen"
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+            <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+            <span className="text-[11px] font-medium text-foreground">In Minuten erledigt</span>
+          </div>
+        </div>
+        <div className="p-4 sm:p-5">
+          <h2 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
+            Unterlagen für {year} hochladen
+          </h2>
+          <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
+            Lade alle Belege auf einmal hoch. Wir analysieren jedes Dokument lokal
+            auf deinem Gerät und schlagen die passende Kategorie vor.
+          </p>
+        </div>
       </div>
-      <h2 className="text-lg md:text-xl font-semibold tracking-tight text-foreground">
-        Zieh alle Unterlagen hierher
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground max-w-md">
-        Wir analysieren jedes Dokument und schlagen die passende Kategorie vor.
-        Nicht erkannte Dateien kannst Du im nächsten Schritt einfach per Drag &amp; Drop
-        zuordnen.
-      </p>
-      <Button className="mt-6" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-        Dateien auswählen
-      </Button>
-      <p className="mt-4 text-xs text-muted-foreground">PDF · JPG · PNG · HEIC – bis 25 MB pro Datei</p>
-      {!pdfReady && (
-        <p className="mt-2 text-[11px] text-muted-foreground/80">PDF-Erkennung wird vorbereitet…</p>
-      )}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept={ACCEPT}
-        hidden
-        onChange={(e) => e.target.files && handleFiles(e.target.files)}
-      />
+
+      {/* Dropzone */}
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={onDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={cn(
+          'rounded-2xl border-2 border-dashed bg-card transition-all cursor-pointer',
+          'flex flex-col items-center justify-center text-center px-6 py-12 md:py-16',
+          dragOver
+            ? 'border-primary bg-primary/[0.04]'
+            : 'border-border hover:border-foreground/30',
+        )}
+      >
+        <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4">
+          <Upload className="w-5 h-5 text-primary" strokeWidth={1.75} />
+        </div>
+        <h3 className="text-[15px] font-semibold tracking-tight text-foreground">
+          Zieh deine Unterlagen hierher
+        </h3>
+        <p className="mt-1.5 text-[13px] text-muted-foreground max-w-md">
+          PDF · JPG · PNG · HEIC – bis 25 MB pro Datei
+        </p>
+        <Button className="mt-5" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
+          Dateien auswählen
+        </Button>
+        {!pdfReady && (
+          <p className="mt-3 text-[11px] text-muted-foreground/80">PDF-Erkennung wird vorbereitet…</p>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={ACCEPT}
+          hidden
+          onChange={(e) => e.target.files && handleFiles(e.target.files)}
+        />
+      </div>
+
+      {/* Privacy note — same style as analyzing card */}
+      <div className="flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5">
+        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+        <p className="text-[12px] text-muted-foreground leading-[1.45]">
+          Deine Dokumente werden verschlüsselt gespeichert. Nur Du und unser
+          Steuer-Team haben Zugriff. Die Analyse erfolgt lokal auf deinem Gerät.
+        </p>
+      </div>
     </div>
   );
 
