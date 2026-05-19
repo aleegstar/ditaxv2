@@ -55,7 +55,7 @@ const SelectPerson: React.FC = () => {
 
         {/* Hero card — same pattern as dashboard mode switcher */}
         <div className="mb-6 relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
-          <div className="relative h-32 w-full overflow-hidden bg-muted">
+          <div className="relative h-32 md:h-48 w-full overflow-hidden bg-muted">
             <img
               src={selectPersonHero}
               alt="Personen arbeiten gemeinsam an der Steuererklärung"
@@ -67,11 +67,11 @@ const SelectPerson: React.FC = () => {
               <span className="text-[11px] font-medium text-foreground">Profil wählen</span>
             </div>
           </div>
-          <div className="p-4">
-            <h1 className="text-[15px] font-semibold text-foreground tracking-tight">
+          <div className="p-4 md:p-6">
+            <h1 className="text-[15px] md:text-lg font-semibold text-foreground tracking-tight">
               {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
             </h1>
-            <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">
+            <p className="text-[12.5px] md:text-sm text-muted-foreground mt-1 leading-relaxed">
               {t.taxFilers?.addPersonHint || 'Wähle ein Profil aus, um fortzufahren.'}
             </p>
           </div>
@@ -98,16 +98,16 @@ const SelectPerson: React.FC = () => {
                   <button
                     key={filer.id}
                     onClick={() => handleSelectPerson(filer)}
-                    className="w-full group relative text-left cursor-pointer flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-foreground/[0.022] active:bg-foreground/[0.04] focus:outline-none focus-visible:bg-foreground/[0.03]"
+                    className="w-full group relative text-left cursor-pointer flex items-center gap-4 md:gap-5 px-5 py-4 md:py-5 transition-colors duration-150 hover:bg-foreground/[0.022] active:bg-foreground/[0.04] focus:outline-none focus-visible:bg-foreground/[0.03]"
                   >
-                    <Avatar className="w-10 h-10 ring-1 ring-black/[0.06] flex-shrink-0">
+                    <Avatar className="w-10 h-10 md:w-12 md:h-12 ring-1 ring-black/[0.06] flex-shrink-0">
                       <AvatarImage
                         src={getAvatarUrl(filer)}
                         alt={`${filer.first_name} ${filer.last_name}`}
                         className="object-cover"
                       />
                       <AvatarFallback
-                        className="text-[13px] font-semibold tracking-tight"
+                        className="text-[13px] md:text-sm font-semibold tracking-tight"
                         style={{
                           background: 'hsla(var(--primary) / 0.07)',
                           color: 'hsl(var(--primary))',
@@ -119,22 +119,22 @@ const SelectPerson: React.FC = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="truncate text-[14.5px] font-medium text-foreground tracking-[-0.005em]">
+                        <h3 className="truncate text-[14.5px] md:text-base font-medium text-foreground tracking-[-0.005em]">
                           {filer.first_name} {filer.last_name}
                         </h3>
                         {filer.is_primary && (
-                          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary/80 bg-primary/[0.07] px-1.5 py-0.5 rounded-md">
+                          <span className="shrink-0 text-[10px] md:text-xs font-semibold uppercase tracking-[0.08em] text-primary/80 bg-primary/[0.07] px-1.5 py-0.5 rounded-md">
                             {t.taxFilers?.primary || 'Primär'}
                           </span>
                         )}
                       </div>
-                      <p className="text-[12px] text-muted-foreground/65 truncate mt-0.5">
+                      <p className="text-[12px] md:text-[13px] text-muted-foreground/65 truncate mt-0.5">
                         {relationshipLabel}
                       </p>
                     </div>
 
                     <ChevronRight
-                      className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
+                      className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
                       strokeWidth={2}
                     />
                   </button>
@@ -145,21 +145,21 @@ const SelectPerson: React.FC = () => {
             {/* Add Person — secondary action card */}
             <button
               onClick={handleAddPerson}
-              className="w-full mt-3 group flex items-center gap-4 px-5 py-4 bg-white border border-dashed border-black/[0.14] rounded-2xl transition-all duration-150 hover:border-foreground/30 hover:bg-foreground/[0.018] active:scale-[0.995] focus:outline-none focus-visible:border-foreground/30"
+              className="w-full mt-3 group flex items-center gap-4 md:gap-5 px-5 py-4 md:py-5 bg-white border border-dashed border-black/[0.14] rounded-2xl transition-all duration-150 hover:border-foreground/30 hover:bg-foreground/[0.018] active:scale-[0.995] focus:outline-none focus-visible:border-foreground/30"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/[0.04] border border-black/[0.05] group-hover:bg-foreground/[0.06] transition-colors">
-                <Plus className="w-4 h-4 text-foreground/70" strokeWidth={2} />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/[0.04] border border-black/[0.05] group-hover:bg-foreground/[0.06] transition-colors">
+                <Plus className="w-4 h-4 md:w-5 md:h-5 text-foreground/70" strokeWidth={2} />
               </div>
               <div className="flex-1 text-left min-w-0">
-                <h3 className="text-[14.5px] font-medium text-foreground tracking-[-0.005em]">
+                <h3 className="text-[14.5px] md:text-base font-medium text-foreground tracking-[-0.005em]">
                   {t.taxFilers?.addPerson || 'Person hinzufügen'}
                 </h3>
-                <p className="text-[12px] text-muted-foreground/65 mt-0.5 truncate">
+                <p className="text-[12px] md:text-[13px] text-muted-foreground/65 mt-0.5 truncate">
                   Für Partner, Kinder oder Angehörige
                 </p>
               </div>
               <ChevronRight
-                className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
+                className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
                 strokeWidth={2}
               />
             </button>
