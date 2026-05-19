@@ -626,7 +626,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const stepsContent = (
     <>
       {intakeMode === null ? (
-        <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} />
+        <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} hasInternalPriorYear={hasInternalPriorYear} />
       ) : (
         <>
       {modeSwitcher}
