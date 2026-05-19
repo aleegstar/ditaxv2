@@ -46,8 +46,8 @@ const SelectPerson: React.FC = () => {
   // No fullscreen spinner — avoids flash between PageTransition and content.
   // Cards render once taxFilers is available; empty state during initial load.
   return (
-    <div className="min-h-screen antialiased relative bg-white">
-      <div className="relative z-10 max-w-[440px] mx-auto px-6 pt-10 pb-16">
+    <div className="min-h-screen antialiased relative bg-white md:bg-[#F8F9FB]">
+      <div className="relative z-10 max-w-[440px] md:max-w-xl lg:max-w-2xl mx-auto px-6 pt-10 pb-16">
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src={ditaxLogoFull} alt="Ditax" className="h-6 opacity-90" />
