@@ -73,7 +73,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   const navigate = useNavigate();
   const { t } = useI18n();
   
-  const onboardingSteps = getOnboardingSteps();
+  const onboardingSteps = getOnboardingSteps(isMobile);
 
   // Load user's first name
   useEffect(() => {
