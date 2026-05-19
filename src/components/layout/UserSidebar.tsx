@@ -155,7 +155,7 @@ export const UserSidebar: React.FC = () => {
             <SectionLabel>Arbeitsbereich</SectionLabel>
             <ul className="space-y-1">
               {workItems.map((item) => (
-                <li key={item.route}>
+                <li key={item.route} data-tour={item.tourId}>
                   <NavRow
                     item={item}
                     isActive={isActive(item.route)}
