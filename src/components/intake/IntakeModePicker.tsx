@@ -69,7 +69,7 @@ const ModeCard: React.FC<{
   <button
     type="button"
     onClick={onClick}
-    className="group relative text-left rounded-2xl border border-border bg-card overflow-hidden transition-all hover:shadow-[0_8px_24px_rgba(15,27,61,0.08)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col"
+    className="group relative h-full w-full text-left rounded-2xl border border-border bg-card overflow-hidden transition-all hover:shadow-[0_8px_24px_rgba(15,27,61,0.08)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col"
   >
     {rainbow && (
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 overflow-hidden">
