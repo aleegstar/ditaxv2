@@ -363,10 +363,6 @@ const MiniChip: React.FC<{ active: boolean; label: string; onClick: () => void }
 const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> = ({ items, taxYear }) => {
   const navigate = useNavigate();
   const { saveSection, formData } = useFormContext();
-  const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
-    (acc[it.category] ||= []).push(it); return acc;
-  }, { contact: [], income: [], assets: [], deductions: [], other: [] });
-  const cats = (Object.keys(grouped) as ItemCategory[]).filter(c => grouped[c].length > 0);
 
   const handleProceed = async () => {
     const flags = mapPriorYearToFormFlags(items);
@@ -378,7 +374,7 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> =
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
           <FileText className="w-[18px] h-[18px] text-primary" strokeWidth={1.75} />
@@ -393,23 +389,94 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> =
         </div>
       </div>
 
-      {cats.length > 0 && (
-        <div className="rounded-xl bg-muted/40 px-4 py-1 divide-y divide-border/60">
-          {cats.map(c => (
-            <div key={c} className="flex items-center justify-between gap-3 py-2.5 text-[13px]">
-              <span className="text-muted-foreground">{CATEGORY_LABEL[c]}</span>
-              <span className="font-semibold text-foreground tabular-nums">
-                {grouped[c].length} {grouped[c].length === 1 ? "Position" : "Positionen"}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
       <Button onClick={handleProceed} className="w-full">
         Zur Dokumenten-Checkliste
         <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
       </Button>
+    </div>
+  );
+};
+
+const PersonalDataCard: React.FC<{
+  state: { confirmed: boolean; note: string };
+  onChange: (next: { confirmed: boolean; note: string }) => void;
+}> = ({ state, onChange }) => {
+  const [editOpen, setEditOpen] = useState(false);
+  const [noteDraft, setNoteDraft] = useState(state.note);
+  const hasNote = state.note.trim().length > 0;
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 flex flex-col shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h4 className="text-[14px] font-semibold text-foreground tracking-tight">
+          Persönliche Daten
+        </h4>
+        {state.confirmed && (
+          <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+            <Check className="w-3 h-3 text-emerald-600" strokeWidth={2.5} />
+          </div>
+        )}
+      </div>
+
+      <p className="text-[13px] text-muted-foreground leading-snug mb-4 flex-1">
+        {hasNote
+          ? state.note
+          : "Gab es Änderungen zum Vorjahr (Adresse, Zivilstand, Kinder)?"}
+      </p>
+
+      <div className="flex gap-2">
+        {state.confirmed ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-9 text-[13px]"
+            onClick={() => { setNoteDraft(state.note); setEditOpen(true); }}
+          >
+            Bearbeiten
+          </Button>
+        ) : (
+          <>
+            <Button
+              size="sm"
+              className="flex-1 h-9 text-[13px]"
+              onClick={() => onChange({ confirmed: true, note: "" })}
+            >
+              Bestätigen
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 text-[13px] px-3"
+              onClick={() => { setNoteDraft(state.note); setEditOpen(true); }}
+            >
+              Änderungen
+            </Button>
+          </>
+        )}
+      </div>
+
+      <AppDialog open={editOpen} onOpenChange={setEditOpen}>
+        <AppDialogContent size="default">
+          <AppDialogHeader>
+            <AppDialogTitle>Änderungen zu deinen persönlichen Daten</AppDialogTitle>
+            <AppDialogDescription>
+              Notiere kurz, was sich gegenüber dem Vorjahr geändert hat (z. B. Umzug, Heirat, neues Kind). Falls nichts geändert hat, lasse das Feld leer.
+            </AppDialogDescription>
+          </AppDialogHeader>
+          <textarea
+            value={noteDraft}
+            onChange={(e) => setNoteDraft(e.target.value)}
+            placeholder="z. B. Umzug nach Zürich per 01.05., zweites Kind geboren …"
+            className="w-full text-[13px] rounded-lg border border-border bg-background p-3 focus:outline-none focus:ring-2 focus:ring-primary/30 min-h-[120px]"
+          />
+          <div className="flex justify-end gap-2 pt-3">
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Abbrechen</Button>
+            <Button onClick={() => { onChange({ confirmed: true, note: noteDraft.trim() }); setEditOpen(false); }}>
+              Speichern
+            </Button>
+          </div>
+        </AppDialogContent>
+      </AppDialog>
     </div>
   );
 };
