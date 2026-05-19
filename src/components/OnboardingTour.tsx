@@ -54,14 +54,14 @@ const getOnboardingSteps = (isMobile: boolean): OnboardingStep[] => [
     titleKey: 'documentsTitle',
     descriptionKey: 'documentsDescription',
     targetElement: '[data-tour="sidebar-nav-documents"], [data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
-    position: 'right'
+    position: isMobile ? 'top' : 'right'
   },
   {
     id: 'chat',
     titleKey: 'chatTitle',
     descriptionKey: 'chatDescription',
     targetElement: '[data-tour="sidebar-nav-chat"], [data-tour="bottom-nav-chat"]',
-    position: 'right'
+    position: isMobile ? 'top' : 'right'
   }
 ];
 
