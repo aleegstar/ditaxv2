@@ -20,7 +20,7 @@ interface OnboardingStep {
   position: 'top' | 'bottom' | 'left' | 'right';
 }
 
-const getOnboardingSteps = (): OnboardingStep[] => [
+const getOnboardingSteps = (isMobile: boolean): OnboardingStep[] => [
   {
     id: 'welcome',
     titleKey: null,
