@@ -1004,6 +1004,10 @@ export interface Translation {
     documentsDescription: string;
     continueCardTitle: string;
     continueCardDescription: string;
+    intakeUploadTitle: string;
+    intakeUploadDescription: string;
+    intakeManualTitle: string;
+    intakeManualDescription: string;
     skip: string;
     back: string;
     next: string;
