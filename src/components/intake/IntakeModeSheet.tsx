@@ -14,10 +14,19 @@ interface Props {
   currentMode?: IntakeMode | null;
   onSelect: (mode: IntakeMode) => void;
   taxYear: string;
+  hasInternalPriorYear?: boolean;
 }
 
-export const IntakeModeSheet: React.FC<Props> = ({ open, onOpenChange, currentMode, onSelect, taxYear }) => {
+export const IntakeModeSheet: React.FC<Props> = ({ open, onOpenChange, currentMode, onSelect, taxYear, hasInternalPriorYear }) => {
   const prev = Number(taxYear) - 1;
+  const priorTitle = hasInternalPriorYear
+    ? `Vorjahres-Daten aus Ditax übernehmen`
+    : `Steuererklärung ${prev} hochladen`;
+  const priorDesc = hasInternalPriorYear
+    ? `Wir kennen deine Steuererklärung ${prev} schon. Du musst nur noch bestätigen, was sich geändert hat – kein Upload nötig.`
+    : "Lade deine letzte Steuererklärung hoch. Wir erstellen daraus eine persönliche Checkliste – du bestätigst nur Änderungen.";
+  const priorBadge = hasInternalPriorYear ? "In Sekunden" : "In Minuten";
+  const priorCta = hasInternalPriorYear ? "Daten übernehmen" : "Vorjahr hochladen";
   return (
     <AppDialog open={open} onOpenChange={onOpenChange}>
       <AppDialogContent size="lg" className="p-6">
@@ -35,10 +44,10 @@ export const IntakeModeSheet: React.FC<Props> = ({ open, onOpenChange, currentMo
             image={uploadImg}
             imageAlt="Zwei Personen am Laptop bei der Steuererklärung"
             icon={<FileUp className="w-4 h-4 text-primary" strokeWidth={1.75} />}
-            badge="In Minuten"
-            title={`Steuererklärung ${prev} hochladen`}
-            desc="Lade deine letzte Steuererklärung hoch. Wir erstellen daraus eine persönliche Checkliste – du bestätigst nur Änderungen."
-            cta="Vorjahr hochladen"
+            badge={priorBadge}
+            title={priorTitle}
+            desc={priorDesc}
+            cta={priorCta}
             onClick={() => onSelect("prior_year_upload")}
           />
 

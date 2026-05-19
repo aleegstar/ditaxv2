@@ -19,6 +19,10 @@ import { IntakeModeSheet, type IntakeMode } from '@/components/intake/IntakeMode
 import { IntakeModePicker } from '@/components/intake/IntakeModePicker';
 import { PriorYearChecklistBody, type PriorYearProgress } from '@/components/intake/PriorYearChecklist';
 import { mapPriorYearToFormFlags } from '@/components/intake/priorYearMapping';
+import {
+  hasInternalPriorYearData,
+  seedPriorYearChecklistFromInternal,
+} from '@/services/seedPriorYearChecklistFromInternal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -57,6 +61,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('dashboard-tip-dismissed') === 'true';
   });
+  const [hasInternalPriorYear, setHasInternalPriorYear] = useState(false);
 
   const { activeTaxFilerId } = useTaxFiler();
   const formTour = useFormTourSafe();
@@ -77,6 +82,24 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     loadTaxReturn();
   }, [taxYear, activeTaxFilerId]);
 
+  // Detect whether the previous year already has Ditax data → skip PDF upload
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      if (!activeTaxFilerId || !taxYear) { setHasInternalPriorYear(false); return; }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const has = await hasInternalPriorYearData({
+        userId: user.id,
+        taxFilerId: activeTaxFilerId,
+        taxYear,
+      });
+      if (!cancelled) setHasInternalPriorYear(has);
+    };
+    check();
+    return () => { cancelled = true; };
+  }, [activeTaxFilerId, taxYear]);
+
   const handleSelectMode = async (mode: IntakeMode) => {
     if (!activeTaxFilerId || !taxYear) return;
     const { data: { user } } = await supabase.auth.getUser();
@@ -95,10 +118,50 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         intake_mode: mode, intake_mode_chosen_at: nowIso,
       } as any).eq('id', existing.id);
     }
+
+    // If user picked the prior-year flow and we already have Ditax data for
+    // last year, seed the checklist server-side so they land directly in the
+    // confirmation step — no upload needed.
+    if (mode === 'prior_year_upload' && hasInternalPriorYear) {
+      try {
+        await seedPriorYearChecklistFromInternal({
+          userId: user.id,
+          taxFilerId: activeTaxFilerId,
+          taxYear,
+        });
+      } catch (e) {
+        console.warn('[TaxYearDashboard] seed prior-year checklist failed', e);
+      }
+    }
+
     setIntakeMode(mode);
     setModeSheetOpen(false);
     toast.success('Modus aktualisiert – deine Daten bleiben erhalten.');
   };
+
+  // Auto-seed prior-year checklist from Ditax data if user already picked
+  // 'prior_year_upload' previously and we have internal prior-year data.
+  // Idempotent — does nothing if a checklist already exists.
+  useEffect(() => {
+    if (intakeMode !== 'prior_year_upload') return;
+    if (!hasInternalPriorYear) return;
+    if (!activeTaxFilerId || !taxYear) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      try {
+        await seedPriorYearChecklistFromInternal({
+          userId: user.id,
+          taxFilerId: activeTaxFilerId,
+          taxYear,
+        });
+      } catch (e) {
+        console.warn('[TaxYearDashboard] auto-seed prior-year failed', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [intakeMode, hasInternalPriorYear, activeTaxFilerId, taxYear]);
 
   // Mark component as ready after initial data load
   useEffect(() => {
@@ -587,7 +650,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const stepsContent = (
     <>
       {intakeMode === null ? (
-        <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} />
+        <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} hasInternalPriorYear={hasInternalPriorYear} />
       ) : (
         <>
       {modeSwitcher}
@@ -684,6 +747,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         currentMode={intakeMode}
         onSelect={handleSelectMode}
         taxYear={taxYear}
+        hasInternalPriorYear={hasInternalPriorYear}
       />
     </>
   );
