@@ -95,33 +95,40 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold text-foreground tracking-tight">
+          <div className="min-w-0">
+            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
               Deine persönliche Checkliste
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground mt-0.5">
               {doneCats} von {totalCats} Bereichen bestätigt
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setReplaceOpen(true)}
               title="Vorjahres-PDF ersetzen"
+              className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
             >
-              <Replace className="w-4 h-4" />
+              <Replace className="w-4 h-4" strokeWidth={1.75} />
             </Button>
-            <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren">
-              <RefreshCw className="w-4 h-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={reload}
+              title="Neu generieren"
+              className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className="w-4 h-4" strokeWidth={1.75} />
             </Button>
           </div>
         </div>
-        <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
+        <div className="mt-4 h-1.5 w-full rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-primary transition-all"
+            className="h-full bg-primary transition-all rounded-full"
             style={{ width: totalCats ? `${(doneCats / totalCats) * 100}%` : "0%" }}
           />
         </div>
