@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight, Replace } from "lucide-react";
+import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight, Replace, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -184,8 +184,13 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
         ))}
       </div>
 
-      {doneCats === totalCats && totalCats > 0 && (
-        <DocumentsNextStep taxYear={taxYear} items={items} />
+      {totalCats > 0 && (
+        <DocumentsNextStep
+          taxYear={taxYear}
+          items={items}
+          locked={doneCats < totalCats}
+          remaining={totalCats - doneCats}
+        />
       )}
 
       <AppDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
@@ -378,11 +383,17 @@ const MiniChip: React.FC<{ active: boolean; label: string; onClick: () => void }
   </button>
 );
 
-const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> = ({ items, taxYear }) => {
+const DocumentsNextStep: React.FC<{
+  items: ChecklistItem[];
+  taxYear: string;
+  locked?: boolean;
+  remaining?: number;
+}> = ({ items, taxYear, locked = false, remaining = 0 }) => {
   const navigate = useNavigate();
   const { saveSection, formData } = useFormContext();
 
   const handleProceed = async () => {
+    if (locked) return;
     const flags = mapPriorYearToFormFlags(items);
     for (const section of ['income', 'assets', 'deductions'] as const) {
       const merged = { ...(formData?.[section] ?? {}), ...flags[section], _completed: true };
@@ -392,24 +403,54 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> =
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+    <div
+      className={`rounded-2xl border p-5 sm:p-6 space-y-4 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] transition-opacity ${
+        locked
+          ? "border-border bg-muted/30 opacity-80"
+          : "border-border bg-card"
+      }`}
+    >
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <FileText className="w-[18px] h-[18px] text-primary" strokeWidth={1.75} />
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+            locked ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
+          }`}
+        >
+          {locked ? (
+            <Lock className="w-[18px] h-[18px]" strokeWidth={1.75} />
+          ) : (
+            <FileText className="w-[18px] h-[18px]" strokeWidth={1.75} />
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
             Nächster Schritt: Dokumente hochladen
           </h3>
           <p className="text-[13px] sm:text-[14px] text-muted-foreground mt-1 leading-relaxed">
-            Auf Basis deiner Vorjahres-Steuererklärung haben wir die passende Dokumenten-Checkliste vorbereitet.
+            {locked
+              ? `Noch ${remaining} ${remaining === 1 ? "Bereich" : "Bereiche"} zu bestätigen, danach kannst du mit dem Dokumenten-Upload starten.`
+              : "Auf Basis deiner Vorjahres-Steuererklärung haben wir die passende Dokumenten-Checkliste vorbereitet."}
           </p>
         </div>
       </div>
 
-      <Button onClick={handleProceed} className="w-full">
-        Zur Dokumenten-Checkliste
-        <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
+      <Button
+        onClick={handleProceed}
+        className="w-full"
+        disabled={locked}
+        aria-disabled={locked}
+      >
+        {locked ? (
+          <>
+            <Lock className="w-4 h-4 mr-1.5" strokeWidth={2} />
+            Gesperrt
+          </>
+        ) : (
+          <>
+            Zur Dokumenten-Checkliste
+            <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
+          </>
+        )}
       </Button>
     </div>
   );
