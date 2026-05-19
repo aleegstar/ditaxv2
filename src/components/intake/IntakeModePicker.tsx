@@ -7,10 +7,21 @@ import manualImg from "@/assets/intake-manual.webp";
 interface Props {
   taxYear: string;
   onSelect: (mode: IntakeMode) => void;
+  /** When true, the prior-year tile carries Ditax-internal data over without an upload. */
+  hasInternalPriorYear?: boolean;
 }
 
-export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
+export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasInternalPriorYear }) => {
   const prev = Number(taxYear) - 1;
+
+  const priorTitle = hasInternalPriorYear
+    ? `Vorjahres-Daten aus Ditax übernehmen`
+    : `Steuererklärung ${prev} hochladen`;
+  const priorDesc = hasInternalPriorYear
+    ? `Wir kennen deine Steuererklärung ${prev} schon. Du musst nur noch bestätigen, was sich geändert hat – kein Upload nötig.`
+    : "Lade deine letzte Steuererklärung hoch. Wir erstellen daraus eine persönliche Checkliste – du bestätigst nur Änderungen.";
+  const priorBadge = hasInternalPriorYear ? "In Sekunden" : "In Minuten";
+  const priorCta = hasInternalPriorYear ? "Daten übernehmen" : "Vorjahr hochladen";
 
   return (
     <div className="space-y-5">
@@ -30,10 +41,10 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
           image={uploadImg}
           imageAlt="Zwei Personen am Laptop bei der Steuererklärung"
           icon={<FileUp className="w-4 h-4 text-primary" strokeWidth={1.75} />}
-          badge="In Minuten"
-          title={`Steuererklärung ${prev} hochladen`}
-          desc="Lade deine letzte Steuererklärung hoch. Wir erstellen daraus eine persönliche Checkliste – du bestätigst nur Änderungen."
-          cta="Vorjahr hochladen"
+          badge={priorBadge}
+          title={priorTitle}
+          desc={priorDesc}
+          cta={priorCta}
           onClick={() => onSelect("prior_year_upload")}
         />
         </div>
