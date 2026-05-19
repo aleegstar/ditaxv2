@@ -1,91 +1,60 @@
-# Vorjahr aus Ditax übernehmen — ohne Upload
+# Fehlender Depotauszug im Preis – Ursache & Fix
 
-## Ziel
+## Diagnose
 
-Wenn der/die Nutzer:in das Vorjahr (z.B. 2024) bereits bei Ditax gemacht hat, soll der Upload entfallen. Stattdessen wird automatisch eine `prior_year_checklists`-Checkliste aus den vorhandenen `form_data` generiert, und der/die Nutzer:in landet direkt im bekannten Bestätigungs-Flow (`PriorYearChecklistBody`) — genau gleich wie nach einem PDF-Upload und OCR-Scan.
+Bei diesem Nutzer ist in `form_data` (assets) gesetzt:
+- `hasDepositAccount: true`
+- `hasSecuritiesAccount: null` ← müsste `true` sein
 
-## Verhalten
+Der Preisrechner (`src/utils/priceCalculator.ts`) berechnet die Position **„Depotkonto · CHF 20.00"** ausschliesslich aus `formData.assets.hasSecuritiesAccount`. `hasDepositAccount` wird im Preis gar nicht berücksichtigt.
 
-**Erkennung (Dashboard, beim Laden der Tax-Year-Karte):**
-- Für `taxYear - 1`, gleicher `tax_filer_id`, gleicher `user_id`: prüfen ob in `form_data` mindestens eine Sektion mit `_completed: true` existiert (income / assets / deductions / contactInfo).
-- Flag `hasInternalPriorYear` in State setzen.
+Der Mapper, der aus der bestätigten Vorjahres-Checkliste die `has*`-Flags ableitet (`src/components/intake/priorYearMapping.ts`), wirft jedoch **alle** Bank-/Depot-/Wertschriften-Begriffe in **einen** Topf:
 
-**IntakeModePicker / IntakeModeSheet (`prior_year_upload`-Kachel):**
-- Wenn `hasInternalPriorYear === true`:
-  - Titel: „Vorjahres-Daten aus Ditax übernehmen"
-  - Beschreibung: „Wir kennen deine Steuererklärung {prev} schon. Du musst nur noch bestätigen, was sich geändert hat — kein Upload nötig."
-  - Badge: „In Sekunden"
-  - CTA: „Daten übernehmen"
-- Sonst: bisherige „Steuererklärung {prev} hochladen"-Variante unverändert.
-
-**Auswahl der Kachel (`handleSelectMode('prior_year_upload')`):**
-1. `tax_returns.intake_mode = 'prior_year_upload'` setzen (wie heute).
-2. Wenn `hasInternalPriorYear`: vor dem Anzeigen des `PriorYearChecklistBody` einmalig eine neue Hilfsfunktion `seedChecklistFromInternalPriorYear({ userId, taxFilerId, taxYear })` aufrufen, die idempotent eine `prior_year_checklists`-Zeile mit `status = 'ready'`, `source = 'ditax_prior_year'` anlegt + dazugehörige `prior_year_checklist_items` einfügt.
-3. Anschliessend rendert die bestehende Checklist-UI unverändert — Nutzer:in bestätigt Kategorien und tippt Beträge.
-
-**Idempotenz / Re-Run:**
-- `seedChecklistFromInternalPriorYear` läuft nur wenn keine `prior_year_checklists`-Zeile für (`tax_filer_id`, `tax_year`) existiert. Bestehende Checklisten (z.B. nach Upload) werden nie überschrieben.
-- „Daten neu laden"-Aktion in der Checklist-Card: zusätzlicher Button „Aus Vorjahres-Daten neu erzeugen", der nach Bestätigung die Checklist + Items löscht und neu seedet.
-
-## Mapping form_data → Checklist-Items
-
-Die Hilfsfunktion liest die drei Sektionen `income`, `assets`, `deductions` aus `form_data` (Vorjahr) und erzeugt Items analog zur OCR-Logik:
-
-```text
-income
-  - jeder Eintrag in `employers[]`      → "Lohnausweis – {employerName}"
-  - `rentalIncomes[]`                   → "Mieteinnahmen – {address}"
-  - `dividends[]`                       → "Wertschriften – {institution}"
-  - `freelanceIncome[]`                 → "Selbständige Tätigkeit – {description}"
-  - Boolean-Flags (AHV, IV, ALV, …)     → je ein Item mit Standard-Label
-
-assets
-  - `properties[]`                       → "Liegenschaft – {address}"
-  - `vehicles[]`                         → "Fahrzeug – {make} {model}"
-  - `debts[]`                            → "Schuldnachweis – {creditor}"
-  - Bankkonten-Flag                      → "Bankauszüge per 31.12."
-
-deductions
-  - `supportedPersons[]`                 → "Unterstützungs-Nachweis – {name}"
-  - `maintenancePayments[]`              → "Alimente – {recipient}"
-  - Berufskosten-Flag                    → "Berufskosten-Belege"
-  - Versicherungs-Flag                   → "Versicherungsprämien-Nachweis"
-  - Säule-3a-Flag                        → "Säule-3a-Bescheinigung"
-  - Krankheitskosten-Flag                → "Krankheitskosten-Belege"
-
-contact
-  - Wird über die bestehende `contact_changes_confirmed_at`-Logik abgehandelt; Items sind nicht nötig.
+```ts
+{ kw: /bank|konto|raiffeisen|sparkonto|guthaben|wertschrift|depot/i,
+  flag: "hasDepositAccount" }
 ```
 
-Mapping-Tabelle wird zentral in `src/components/intake/internalPriorYearMapping.ts` definiert und ist erweiterbar.
+Dadurch wird "Depotauszug per 31.12." als reines Bankkonto klassifiziert → `hasSecuritiesAccount` bleibt `false` → fehlende CHF 20 im Total. Genau das Symptom, das du siehst.
 
-## Bestätigungs-Flow
+## Fix
 
-Unverändert: `PriorYearChecklistBody` zeigt pro Kategorie die Frage „Brauchst du diese Belege wieder?" mit den generierten Items. Quelle (`raw_scan._source = 'ditax_prior_year'`) wird im Header dezent angezeigt: „Aus deiner Steuererklärung {prev} übernommen".
+### 1. `src/components/intake/priorYearMapping.ts`
+Die Assets-Regel splitten, damit Wertschriften/Depot dem korrekten Preis-Flag zugeordnet werden:
 
-Der „Datei ersetzen / hochladen"-Button im Checklist-Header wird ausgeblendet, wenn `source = 'ditax_prior_year'` und kein PDF in `source_storage_path` liegt. Stattdessen: „PDF stattdessen hochladen" — öffnet das bestehende Upload-Sheet.
+```ts
+const ASSETS_RULES = [
+  { kw: /liegenschaft|immobil|haus|wohnung|grundst/i, flag: "hasProperty" },
+  // NEU: zuerst Wertschriften/Depot — bevor die allgemeine Bank-Regel greift
+  { kw: /wertschrift|depot/i,                         flag: "hasSecuritiesAccount" },
+  { kw: /bank|konto|raiffeisen|sparkonto|guthaben/i,  flag: "hasDepositAccount" },
+  { kw: /krypto|bitcoin|ethereum|crypto/i,            flag: "hasCrypto" },
+  { kw: /hypothek|mortgage/i,                         flag: "hasMortgage" },
+  { kw: /schuld|darlehen|kredit/i,                    flag: "hasDebt" },
+  { kw: /fahrzeug|auto\b|schmuck|sammlung|andere\s*verm/i, flag: "hasOtherAssets" },
+];
+```
 
-## Technische Details
+Beide Flags dürfen gleichzeitig true sein (Bankkonto + Depot). `hasDepositAccount` bleibt erhalten — es löst die Dokumenten-Checkliste für Kontosaldi aus.
 
-**Neue Dateien**
-- `src/components/intake/internalPriorYearMapping.ts` — Mapping form_data → Items.
-- `src/services/seedPriorYearChecklistFromInternal.ts` — Idempotente Seed-Funktion (rein client-seitig, nutzt `supabase.from('form_data')` lesend und `prior_year_checklists` / `prior_year_checklist_items` schreibend; bestehende RLS reicht).
+### 2. Bestehenden Datensatz dieses Nutzers nachziehen
+Migration (idempotent), die für `tax_filer_id = 917cd261-ab79-4b36-8a20-ec07e327746d`, `tax_year='2024'`, `form_type='assets'` den fehlenden Wert ergänzt – aber nur, wenn `hasDepositAccount=true` und `hasSecuritiesAccount` noch nicht gesetzt ist. So muss der Nutzer **nicht** durch den Bestätigungs-Flow erneut.
 
-**Änderungen**
-- `src/components/TaxYearDashboard.tsx`
-  - State `hasInternalPriorYear` + Effect (Query auf `form_data`, taxYear-1, gleicher Filer).
-  - In `handleSelectMode('prior_year_upload')`: wenn Flag gesetzt → `seedPriorYearChecklistFromInternal` aufrufen, dann `setIntakeMode('prior_year_upload')`.
-  - Prop `hasInternalPriorYear` an `IntakeModePicker` / `IntakeModeSheet` weiterreichen.
-- `src/components/intake/IntakeModePicker.tsx` & `IntakeModeSheet.tsx`
-  - Neue Prop `hasInternalPriorYear?: boolean` — Titel/Desc/Badge/CTA der ersten Kachel umschalten.
-- `src/components/intake/PriorYearChecklist.tsx`
-  - Header-Subtitle dynamisch je nach `raw_scan._source`.
-  - „Ersetzen"-Button konditional umlabeln.
+```sql
+UPDATE form_data
+SET data = jsonb_set(data, '{hasSecuritiesAccount}', 'true'::jsonb, true)
+WHERE tax_filer_id = '917cd261-ab79-4b36-8a20-ec07e327746d'
+  AND tax_year = '2024'
+  AND form_type = 'assets'
+  AND (data->>'hasDepositAccount')::boolean = true
+  AND (data->'hasSecuritiesAccount') IS NULL;
+```
 
-**Keine Schema-Änderung nötig** — `prior_year_checklists.source_storage_path` bleibt nullable, `raw_scan` (jsonb) trägt `_source: 'ditax_prior_year'`.
+### 3. Verifikation
+- `/payment?year=2024` neu öffnen → Kostenaufstellung muss zusätzlich **„Depotkonto · CHF 20.00"** anzeigen, Total **CHF 200.00**.
+- Neuer Test-Nutzer mit Vorjahres-Flow (Depotauszug im Vorjahr) → bekommt `hasSecuritiesAccount=true` automatisch.
 
-## Out of Scope
-
-- Keine Übernahme von CHF-Beträgen — Nutzer:in trägt aktuelle Werte neu ein (wie heute bei Upload-Flow).
-- Keine Änderung an `importFromPreviousYear`-Logik in `FormContext` — die bestehende „Strukturen übernehmen"-Funktion bleibt für die manuelle Sektion-Bearbeitung.
-- Keine neue Edge Function.
+## Out of scope
+- Keine Änderung an der Dokumenten-Checkliste (Depotauszug wird bereits korrekt verlangt – siehe Screenshot 2 „Depotauszug ✓").
+- Keine Änderung am Preis-Modell selbst (CHF 20 Depotkonto bleibt unverändert).
+- Andere Mapping-Regeln werden nicht angefasst.
