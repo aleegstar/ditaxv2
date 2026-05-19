@@ -361,35 +361,37 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> =
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <FileText className="w-5 h-5 text-primary" />
+          <FileText className="w-[18px] h-[18px] text-primary" strokeWidth={1.75} />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold text-foreground tracking-tight">
+          <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
             Nächster Schritt: Dokumente hochladen
           </h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-[13px] sm:text-[14px] text-muted-foreground mt-1 leading-relaxed">
             Auf Basis deiner Vorjahres-Steuererklärung haben wir die passende Dokumenten-Checkliste vorbereitet.
           </p>
         </div>
       </div>
 
       {cats.length > 0 && (
-        <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-2">
+        <div className="rounded-xl bg-muted/40 px-4 py-1 divide-y divide-border/60">
           {cats.map(c => (
-            <div key={c} className="flex items-baseline justify-between gap-3 text-[13px]">
+            <div key={c} className="flex items-center justify-between gap-3 py-2.5 text-[13px]">
               <span className="text-muted-foreground">{CATEGORY_LABEL[c]}</span>
-              <span className="font-medium text-foreground">{grouped[c].length} Positionen</span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {grouped[c].length} {grouped[c].length === 1 ? "Position" : "Positionen"}
+              </span>
             </div>
           ))}
         </div>
       )}
 
-      <Button onClick={handleProceed} className="w-full sm:w-auto">
+      <Button onClick={handleProceed} className="w-full">
         Zur Dokumenten-Checkliste
-        <ArrowRight className="w-4 h-4 ml-1" />
+        <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
       </Button>
     </div>
   );
