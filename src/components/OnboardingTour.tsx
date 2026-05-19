@@ -132,18 +132,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         }
       }
       
-      const fallbackSelectors = [
-        '[data-tour="year-selector"]',
-        '[data-tour="form-step-1"]',
-        '[data-tour="bottom-nav-documents"]',
-        '[data-tour="documents-nav"]',
-        '[data-tour="bottom-nav-chat"]',
-      ];
-      
-      for (const fb of fallbackSelectors) {
-        const el = document.querySelector(fb);
-        if (el) return { element: el, foundSelector: fb };
-      }
       return { element: null, foundSelector: '' };
     };
     
