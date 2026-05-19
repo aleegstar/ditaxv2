@@ -723,6 +723,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         currentMode={intakeMode}
         onSelect={handleSelectMode}
         taxYear={taxYear}
+        hasInternalPriorYear={hasInternalPriorYear}
       />
     </>
   );
