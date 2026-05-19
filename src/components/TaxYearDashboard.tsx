@@ -17,7 +17,8 @@ import { useFormTourSafe } from '@/contexts/FormTourContext';
 import { DashboardPriorYearBanner } from '@/components/forms/DashboardPriorYearBanner';
 import { IntakeModeSheet, type IntakeMode } from '@/components/intake/IntakeModeSheet';
 import { IntakeModePicker } from '@/components/intake/IntakeModePicker';
-import { PriorYearChecklist } from '@/components/intake/PriorYearChecklist';
+import { PriorYearChecklistBody, type PriorYearProgress } from '@/components/intake/PriorYearChecklist';
+import { mapPriorYearToFormFlags } from '@/components/intake/priorYearMapping';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
