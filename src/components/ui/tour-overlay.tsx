@@ -171,9 +171,9 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
                 style={{ backdropFilter: 'blur(4px)' }}
               />
             </svg>
-            {/* Subtle spotlight border */}
+            {/* Subtle spotlight border (navy primary) */}
             <motion.div
-              className="absolute pointer-events-none rounded-2xl border border-[#1D64FF]/40 shadow-[0_0_0_1px_rgba(29,100,255,0.15),0_0_20px_rgba(29,100,255,0.1)]"
+              className="absolute pointer-events-none rounded-2xl border border-[#1E3A5F]/50 shadow-[0_0_0_1px_rgba(30,58,95,0.18),0_0_24px_rgba(30,58,95,0.18)]"
               animate={{
                 left: spotlightPosition.x - 12,
                 top: spotlightPosition.y - 12,
@@ -188,18 +188,21 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
         )}
 
         {/* Progress pills */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex gap-1.5 items-center">
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 flex gap-1.5 items-center"
+          style={{ top: 'calc(16px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
+        >
           {steps.map((_, index) => (
             <motion.div
               key={index}
               animate={{
                 width: index === currentStep ? 24 : 6,
-                opacity: index <= currentStep ? 1 : 0.4,
+                opacity: index <= currentStep ? 1 : 0.5,
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className={cn(
                 "h-1.5 rounded-full",
-                index <= currentStep ? "bg-[#1D64FF]" : "bg-white/60"
+                index <= currentStep ? "bg-white" : "bg-white/40"
               )}
             />
           ))}
@@ -208,10 +211,11 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
         {/* Close button */}
         <button
           onClick={onSkip}
-          className="absolute top-4 right-4 z-[10002] w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+          className="absolute right-4 z-[10002] w-9 h-9 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 backdrop-blur-sm"
+          style={{ top: 'calc(12px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
           aria-label="Tour schließen"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" strokeWidth={2} />
         </button>
 
         {/* Tooltip */}
@@ -225,60 +229,81 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
             layout
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             className={cn(
-              "bg-white border border-slate-100 rounded-2xl shadow-xl relative",
-              isMobile ? "p-4 mx-2 max-w-[280px]" : "p-5 mx-4 max-w-[340px]"
+              "bg-card border border-border rounded-2xl shadow-[0_20px_50px_-12px_rgba(15,27,61,0.35),0_8px_20px_-8px_rgba(15,27,61,0.18)] relative overflow-hidden",
+              isMobile ? "mx-2 w-[300px]" : "mx-4 w-[360px]"
             )}
           >
-            <div className="text-center">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
-                >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+              >
+                {currentStepData.heroImage && (
+                  <div className={cn(
+                    "relative w-full overflow-hidden bg-muted",
+                    isMobile ? "h-32" : "h-40"
+                  )}>
+                    <img
+                      src={tourHero}
+                      alt=""
+                      loading="eager"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/95 backdrop-blur-sm border border-border/60">
+                      <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+                      <span className="text-[11px] font-medium text-foreground">
+                        {currentStepData.heroBadge ?? 'Kurze Tour'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div className={cn(isMobile ? "p-5" : "p-6")}>
                   <h3 className={cn(
-                    "font-semibold text-slate-900 mb-1.5",
-                    isMobile ? "text-sm" : "text-base"
+                    "font-semibold text-foreground tracking-tight mb-2",
+                    isMobile ? "text-[16px]" : "text-[17px]"
                   )}>
                     {currentStepData.title}
                   </h3>
                   <p className={cn(
-                    "text-slate-400 mb-4 whitespace-pre-line leading-relaxed",
-                    isMobile ? "text-xs" : "text-sm"
+                    "text-muted-foreground whitespace-pre-line leading-relaxed",
+                    isMobile ? "text-[13px]" : "text-[13.5px]"
                   )}>
                     {currentStepData.description}
                   </p>
-                </motion.div>
-              </AnimatePresence>
 
-              <div className="flex gap-2 justify-center">
-                {currentStep === 0 ? (
-                  <Button
-                    variant="outline"
-                    size={isMobile ? "sm" : "default"}
-                    onClick={onSkip}
-                  >
-                    {skipLabel}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size={isMobile ? "sm" : "default"}
-                    onClick={onBack || (() => {})}
-                  >
-                    {backLabel}
-                  </Button>
-                )}
-                <Button
-                  size={isMobile ? "sm" : "default"}
-                  onClick={onNext}
-                >
-                  {isLastStep ? finishLabel : nextLabel}
-                </Button>
-              </div>
-            </div>
+                  <div className="flex items-center gap-2 mt-5">
+                    {currentStep === 0 ? (
+                      <button
+                        type="button"
+                        onClick={onSkip}
+                        className="flex-1 h-11 rounded-2xl border border-border bg-white hover:bg-muted text-[13.5px] font-medium text-foreground transition-colors"
+                      >
+                        {skipLabel}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={onBack || (() => {})}
+                        className="flex-1 h-11 rounded-2xl border border-border bg-white hover:bg-muted text-[13.5px] font-medium text-foreground transition-colors"
+                      >
+                        {backLabel}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={onNext}
+                      className="flex-1 h-11 rounded-2xl text-white text-[13.5px] font-semibold shadow-[0_4px_14px_-4px_rgba(15,27,61,0.4)] hover:shadow-[0_8px_20px_-4px_rgba(15,27,61,0.5)] transition-all"
+                      style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}
+                    >
+                      {isLastStep ? finishLabel : nextLabel}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       </motion.div>
