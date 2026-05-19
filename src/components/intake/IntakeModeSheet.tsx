@@ -88,9 +88,24 @@ const ModeCard: React.FC<{
     }`}
   >
     {rainbow && (
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 overflow-hidden">
-        <div className="absolute -inset-x-8 -bottom-12 h-16 rainbow-gradient animate-rainbow opacity-[0.18] blur-[56px]" />
-      </div>
+      <>
+        {/* Outer halo around the entire card */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -inset-[2px] rounded-[18px] rainbow-gradient animate-rainbow opacity-60 blur-2xl"
+        />
+        {/* Inner edge glow — bright at borders, fading toward center (Apple Intelligence style) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-2xl rainbow-gradient animate-rainbow opacity-50 blur-2xl"
+          style={{
+            WebkitMaskImage:
+              "radial-gradient(ellipse at center, transparent 35%, black 100%)",
+            maskImage:
+              "radial-gradient(ellipse at center, transparent 35%, black 100%)",
+          }}
+        />
+      </>
     )}
     <div className="relative h-32 w-full overflow-hidden bg-muted">
       <img
