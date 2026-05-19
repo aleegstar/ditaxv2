@@ -56,14 +56,11 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({ className }) => {
           className="object-cover"
         />
         <AvatarFallback
-          className="text-[9.5px] font-semibold"
-          style={{
-            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.08) 100%)',
-            color: 'hsl(var(--primary))'
-          }}
+          className="text-[9.5px] font-semibold bg-muted"
         >
-          {activeTaxFiler.first_name.charAt(0)}{activeTaxFiler.last_name.charAt(0)}
+          <img src={ditaxLogo} alt="Ditax" className="w-3.5 h-3.5 object-contain" />
         </AvatarFallback>
+
       </Avatar>
     </button>
   );
