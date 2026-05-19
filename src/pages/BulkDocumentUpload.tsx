@@ -309,48 +309,56 @@ const BulkUploadContent: React.FC = () => {
     const pct = files.length ? (done / files.length) * 100 : 0;
     return (
       <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <Sparkles className="w-[18px] h-[18px] animate-pulse" strokeWidth={1.75} />
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 relative">
+            <Sparkles className="w-5 h-5 text-primary" strokeWidth={1.75} />
+            <span className="absolute inset-0 rounded-xl border border-primary/20 animate-pulse" />
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
-              <span className="shimmer-text">KI prüft Deine Unterlagen…</span>
+              Ditax prüft Deine Unterlagen
             </h3>
-            <p className="text-[13px] text-muted-foreground mt-0.5 truncate">
-              {done} / {files.length} analysiert
+            <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1 truncate">
+              {done} von {files.length} analysiert
               {currentAnalyzing && (
                 <>
                   <span className="mx-1.5">·</span>
-                  <span className="shimmer-text font-medium">{currentAnalyzing.file.name}</span>
+                  <span className="text-foreground/80">{currentAnalyzing.file.name}</span>
                 </>
               )}
             </p>
           </div>
+          <span className="text-[12px] font-medium text-primary tabular-nums shrink-0">
+            {Math.round(pct)}%
+          </span>
         </div>
 
-        <div className="mt-4 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-primary transition-all rounded-full"
+            className="h-full bg-primary transition-all duration-500 rounded-full"
             style={{ width: `${pct}%` }}
           />
         </div>
 
-        <ul className="mt-5 space-y-2.5">
+        <ul className="mt-5 space-y-2">
           {files.map((f) => (
-            <li key={f.id} className="flex items-center gap-3 text-[13px]">
+            <li key={f.id} className="flex items-center gap-2.5 text-[13px]">
               {f.status === 'analyzing' && <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />}
               {f.status === 'pending' && <div className="w-4 h-4 rounded-full border border-border shrink-0" />}
-              {f.status === 'done' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+              {f.status === 'done' && (
+                <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center shrink-0">
+                  <Check className="w-2.5 h-2.5 text-primary-foreground" strokeWidth={3} />
+                </div>
+              )}
               {f.status === 'error' && <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
               <span
                 className={cn(
                   'truncate',
-                  f.status === 'analyzing'
-                    ? 'shimmer-text font-medium'
-                    : f.status === 'pending'
-                      ? 'text-muted-foreground/70'
-                      : 'text-foreground/80',
+                  f.status === 'pending'
+                    ? 'text-muted-foreground/60'
+                    : f.status === 'analyzing'
+                      ? 'text-foreground font-medium'
+                      : 'text-muted-foreground',
                 )}
               >
                 {f.file.name}
@@ -358,9 +366,17 @@ const BulkUploadContent: React.FC = () => {
             </li>
           ))}
         </ul>
+
+        <div className="mt-4 flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5">
+          <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+          <p className="text-[12px] text-muted-foreground leading-[1.45]">
+            Analyse erfolgt lokal auf deinem Gerät. Der Inhalt verlässt es nicht.
+          </p>
+        </div>
       </div>
     );
   };
+
 
 
   const renderReview = () => {
