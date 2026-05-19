@@ -179,6 +179,12 @@ Abzüge: "Berufsauslagen-Belege", "Säule 3a-Einzahlungsbestätigung",
 "Schuldzinsen-Bescheinigung", "Kinderbetreuungs-Beleg",
 "Beleg Unterhaltszahlung", "Beleg Liegenschaftsunterhalt", "Parteibeitrags-Beleg".
 
+Sonderregel Säule 3a: Standardmässig als "Säule 3a-Einzahlungsbestätigung"
+(Abzug) klassifizieren. Nur wenn das PDF explizit einen Bezug/Auszahlung
+nennt (z. B. "Kapitalleistung", "Bezug Säule 3a", "Pensionierung"), als
+"Bescheinigung Säule 3a-Bezug" (Einkommen) klassifizieren. NICHT als
+"Säule 3a-Saldobestätigung" einordnen.
+
 Gib nur Labels zurück, deren Kategorie tatsächlich im PDF vorkommt. Keine
 Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
 
