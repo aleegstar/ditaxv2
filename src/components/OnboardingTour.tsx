@@ -107,6 +107,8 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     description: t.tour[step.descriptionKey],
     targetElement: step.targetElement,
     position: step.position,
+    heroImage: step.id === 'welcome',
+    heroBadge: step.id === 'welcome' ? 'Willkommen' : undefined,
   }));
 
   const updateSpotlight = (targetElement: string, attempt = 0) => {

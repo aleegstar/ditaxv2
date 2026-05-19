@@ -14,29 +14,31 @@ const documentsTourSteps = [
     title: 'Deine Dokumente',
     description: 'Hier sammelst du das ganze Jahr über alle Belege an einem sicheren Ort. Beim Ausfüllen deiner Steuererklärung ordnet Ditax sie automatisch zu.',
     targetElement: '',
-    position: 'bottom' as const
+    position: 'bottom' as const,
+    heroImage: true,
+    heroBadge: 'Kurze Tour',
   },
   {
     id: 'year-selector',
     title: 'Steuerjahr wählen',
     description: 'Wechsle hier zwischen den Steuerjahren – jedes Jahr hat seinen eigenen Ordner.',
     targetElement: '[data-tour="documents-year-selector"]',
-    position: 'bottom' as const
+    position: 'bottom' as const,
   },
   {
     id: 'hero',
     title: 'Sicher verschlüsselt',
     description: 'Alle Dokumente werden Ende-zu-Ende verschlüsselt gespeichert – nur du hast Zugriff.',
     targetElement: '[data-tour="documents-hero"]',
-    position: 'bottom' as const
+    position: 'bottom' as const,
   },
   {
     id: 'upload-card',
     title: 'Dokumente hochladen',
     description: 'Tippe hier, um Belege per Kamera, Galerie oder Datei hochzuladen.',
     targetElement: '[data-tour="document-upload-floating"], [data-tour="document-upload-card"]',
-    position: 'top' as const
-  }
+    position: 'top' as const,
+  },
 ];
 
 export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip }) => {
