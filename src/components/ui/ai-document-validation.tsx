@@ -1,20 +1,15 @@
 /**
  * Ditax Document Validation Component
- * 
- * Scanner-style OCR validation UI with step-based progress.
- * Matches premium fintech bottom-sheet aesthetic.
+ *
+ * Calm fintech card — matches main design language
+ * (rounded-2xl, semantic tokens, navy primary, subtle progress).
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Loader2 } from 'lucide-react';
-import documentCheckImg from '@/assets/document-check.webp';
+import { Check, Sparkles, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ValidationProgress } from '@/types/documentProfile';
-
-// ============================================================================
-// Types
-// ============================================================================
 
 interface AIDocumentValidationProps {
   progress: ValidationProgress;
@@ -23,115 +18,71 @@ interface AIDocumentValidationProps {
   foundKeywords?: string[];
 }
 
-// ============================================================================
-// Status Messages by Document Type
-// ============================================================================
-
 const STATUS_MESSAGES_BY_DOCTYPE: Record<string, string> = {
-  'employment-income': 'Arbeitgeber wird erkannt, bitte warten Sie einen Moment…',
-  'pillar3a-certificate': 'Anbieter wird erkannt, bitte warten Sie einen Moment…',
-  'pillar2-statement': 'Vorsorgeeinrichtung wird erkannt, bitte warten Sie einen Moment…',
-  'rental-income': 'Liegenschaft wird erkannt, bitte warten Sie einen Moment…',
-  'insurance-premium': 'Versicherung wird erkannt, bitte warten Sie einen Moment…',
-  'bank-statement': 'Bank wird erkannt, bitte warten Sie einen Moment…',
-  'tax-assessment': 'Steuerbehörde wird erkannt, bitte warten Sie einen Moment…',
-  'default': 'Daten werden analysiert, bitte warten Sie einen Moment…'
+  'employment-income': 'Arbeitgeber wird erkannt …',
+  'pillar3a-certificate': 'Anbieter wird erkannt …',
+  'pillar2-statement': 'Vorsorgeeinrichtung wird erkannt …',
+  'rental-income': 'Liegenschaft wird erkannt …',
+  'insurance-premium': 'Versicherung wird erkannt …',
+  'bank-statement': 'Bank wird erkannt …',
+  'tax-assessment': 'Steuerbehörde wird erkannt …',
+  default: 'Daten werden analysiert …',
 };
-
-// ============================================================================
-// Validation Steps
-// ============================================================================
 
 interface ValidationStep {
   id: string;
   label: string;
-  minPercent: number; // step becomes active at this percent
-  completePercent: number; // step is completed at this percent
+  minPercent: number;
+  completePercent: number;
 }
 
 const VALIDATION_STEPS: ValidationStep[] = [
-  { id: 'upload', label: 'Dokument hochgeladen', minPercent: 0, completePercent: 15 },
-  { id: 'extract', label: 'Extrahiere Daten', minPercent: 15, completePercent: 80 },
+  { id: 'upload', label: 'Dokument gelesen', minPercent: 0, completePercent: 15 },
+  { id: 'extract', label: 'Inhalt extrahiert', minPercent: 15, completePercent: 80 },
   { id: 'validate', label: 'Validierung', minPercent: 80, completePercent: 100 },
 ];
 
-// ============================================================================
-// Step Row Component
-// ============================================================================
-
-interface StepRowProps {
+const StepRow: React.FC<{
   step: ValidationStep;
   status: 'pending' | 'active' | 'complete';
-  percent: number;
-}
-
-const StepRow: React.FC<StepRowProps> = ({ step, status, percent }) => {
-  // Calculate step-local progress for the badge
-  const stepProgress = status === 'complete' ? 100 
-    : status === 'active' 
-      ? Math.round(((percent - step.minPercent) / (step.completePercent - step.minPercent)) * 100)
-      : 0;
-
-  return (
-    <motion.div 
+}> = ({ step, status }) => (
+  <div
+    className={cn(
+      'flex items-center gap-2.5 text-[13px]',
+      status === 'pending' && 'opacity-50',
+    )}
+  >
+    <div
       className={cn(
-        "flex items-center justify-between",
-        status === 'pending' && "opacity-40"
+        'w-4 h-4 rounded-full flex items-center justify-center shrink-0',
+        status === 'complete' && 'bg-primary',
+        status === 'active' && 'bg-primary/15 border border-primary/40',
+        status === 'pending' && 'bg-muted border border-border',
       )}
-      initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: status === 'pending' ? 0.4 : 1, x: 0 }}
-      transition={{ duration: 0.3 }}
     >
-      <div className="flex items-center gap-3">
-        {/* Step indicator */}
-        <div className={cn(
-          "w-6 h-6 rounded-full flex items-center justify-center border",
-          status === 'complete' && "bg-primary/10 border-primary/20",
-          status === 'active' && "bg-background border-primary/30 relative",
-          status === 'pending' && "bg-background border-border"
-        )}>
-          {status === 'complete' && (
-            <Check className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
-          )}
-          {status === 'active' && (
-            <span className="absolute w-2 h-2 bg-primary rounded-full animate-pulse" />
-          )}
-          {status === 'pending' && (
-            <div className="w-1.5 h-1.5 bg-muted-foreground/30 rounded-full" />
-          )}
-        </div>
-        <span className={cn(
-          "text-sm font-medium",
-          status === 'active' ? "text-foreground" : "text-muted-foreground"
-        )}>
-          {step.label}
-        </span>
-      </div>
-
-      {/* Progress badge for active step */}
-      {status === 'active' && (
-        <motion.span 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full"
-        >
-          {stepProgress}%
-        </motion.span>
+      {status === 'complete' && (
+        <Check className="w-2.5 h-2.5 text-primary-foreground" strokeWidth={3} />
       )}
-    </motion.div>
-  );
-};
-
-// ============================================================================
-// Main Component
-// ============================================================================
+      {status === 'active' && (
+        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+      )}
+    </div>
+    <span
+      className={cn(
+        status === 'active' ? 'text-foreground font-medium' : 'text-muted-foreground',
+      )}
+    >
+      {step.label}
+    </span>
+  </div>
+);
 
 const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
   progress,
   documentType = 'Dokument',
   documentTypeId,
 }) => {
-  const percent = progress.percent;
+  const percent = Math.min(progress.percent, 100);
 
   const statusMessage = useMemo(() => {
     if (documentTypeId && STATUS_MESSAGES_BY_DOCTYPE[documentTypeId]) {
@@ -141,117 +92,73 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
   }, [documentTypeId]);
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="relative flex flex-col items-center pt-2 pb-4 w-full">
-
-        {/* Scanner Icon with orbital rings + scanning beam */}
-        <div className="relative mb-8 w-32 h-32 flex items-center justify-center">
-          {/* Pulsing aura */}
-          <div className="absolute inset-0 bg-primary/15 rounded-full blur-2xl animate-pulse" />
-          {/* Slow orbiting ring */}
-          <motion.div
-            className="absolute inset-0 rounded-full border border-primary/20"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
-            style={{
-              borderTopColor: 'hsl(var(--primary) / 0.6)',
-              borderRightColor: 'hsl(var(--primary) / 0.15)',
-            }}
-          />
-          {/* Counter-rotating inner ring */}
-          <motion.div
-            className="absolute inset-2 rounded-full border border-primary/10"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'linear' }}
-            style={{
-              borderBottomColor: 'hsl(var(--primary) / 0.45)',
-            }}
-          />
-          {/* Image with scanning beam mask */}
-          <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center">
-            <img
-              src={documentCheckImg}
-              alt=""
-              className="relative w-24 h-24 object-contain z-10 select-none pointer-events-none drop-shadow-[0_4px_12px_hsl(var(--primary)/0.35)]"
-              draggable={false}
-            />
-            {/* Scanning beam */}
-            <motion.div
-              className="absolute left-0 right-0 h-[3px] z-20 pointer-events-none"
-              style={{
-                background:
-                  'linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.85) 50%, transparent 100%)',
-                boxShadow: '0 0 12px hsl(var(--primary) / 0.7)',
-              }}
-              animate={{ top: ['0%', '100%', '0%'] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            />
+    <div className="w-full">
+      {/* Main analyzing card */}
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 relative">
+            <Sparkles className="w-5 h-5 text-primary" strokeWidth={1.75} />
+            <span className="absolute inset-0 rounded-xl border border-primary/20 animate-pulse" />
           </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
+              Ditax prüft dein {documentType}
+            </h3>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={statusMessage}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="text-[13px] text-muted-foreground leading-[1.5] mt-1"
+              >
+                {statusMessage}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+          <span className="text-[12px] font-medium text-primary tabular-nums shrink-0">
+            {Math.round(percent)}%
+          </span>
         </div>
 
-        {/* Title with shimmer + animated status message */}
-        <div className="text-center space-y-2 mb-8 min-h-[68px]">
-          <h2 className="text-xl font-semibold tracking-tight shimmer-text">
-            Ditax prüft {documentType}
-          </h2>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={statusMessage}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.35 }}
-              className="text-base text-muted-foreground leading-relaxed max-w-[280px] mx-auto"
-            >
-              {statusMessage}
-            </motion.p>
-          </AnimatePresence>
-        </div>
-
-        {/* Validation Steps */}
-        <div className="w-full space-y-3">
-          {VALIDATION_STEPS.map((step) => {
-            let status: 'pending' | 'active' | 'complete' = 'pending';
-            if (percent >= step.completePercent) {
-              status = 'complete';
-            } else if (percent >= step.minPercent) {
-              status = 'active';
-            }
-            return (
-              <StepRow
-                key={step.id}
-                step={step}
-                status={status}
-                percent={percent}
-              />
-            );
-          })}
-        </div>
-
-        {/* Progress Bar with shimmer sheen */}
-        <div className="w-full bg-muted h-1.5 mt-8 rounded-full overflow-hidden relative">
+        {/* Progress bar */}
+        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
           <motion.div
-            className="h-full rounded-full relative overflow-hidden"
-            style={{
-              background:
-                'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%)',
-              boxShadow: '0 0 12px hsl(var(--primary) / 0.5)',
-            }}
+            className="h-full rounded-full bg-primary relative overflow-hidden"
             initial={{ width: '0%' }}
-            animate={{ width: `${Math.min(percent, 100)}%` }}
+            animate={{ width: `${percent}%` }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             <motion.div
               className="absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.55) 50%, transparent 100%)',
+                  'linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.45) 50%, transparent 100%)',
               }}
               animate={{ x: ['-100%', '100%'] }}
               transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
             />
           </motion.div>
         </div>
+
+        {/* Steps */}
+        <div className="mt-4 space-y-2">
+          {VALIDATION_STEPS.map((step) => {
+            let status: 'pending' | 'active' | 'complete' = 'pending';
+            if (percent >= step.completePercent) status = 'complete';
+            else if (percent >= step.minPercent) status = 'active';
+            return <StepRow key={step.id} step={step} status={status} />;
+          })}
+        </div>
+      </div>
+
+      {/* Privacy hint */}
+      <div className="mt-3 flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5">
+        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+        <p className="text-[12px] text-muted-foreground leading-[1.45]">
+          Analyse erfolgt lokal auf deinem Gerät. Der Inhalt verlässt es nicht.
+        </p>
       </div>
     </div>
   );
