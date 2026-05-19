@@ -745,6 +745,7 @@ const DocumentsContent: React.FC<{
             <button
               onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
               aria-label={t.documentsPage.upload}
+              data-tour="document-upload-floating"
               className="pointer-events-auto w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)',
