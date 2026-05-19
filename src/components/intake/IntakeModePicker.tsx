@@ -25,16 +25,17 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <ModeCard
-          dark
+          rainbow
           image={uploadImg}
           imageAlt="Zwei Personen am Laptop bei der Steuererklärung"
-          icon={<FileUp className="w-4 h-4 text-white" strokeWidth={1.75} />}
+          icon={<FileUp className="w-4 h-4 text-primary" strokeWidth={1.75} />}
           badge="In Minuten"
           title={`Steuererklärung ${prev} hochladen`}
           desc="Lade deine letzte Steuererklärung hoch. Wir erstellen daraus eine persönliche Checkliste – du bestätigst nur Änderungen."
           cta="Vorjahr hochladen"
           onClick={() => onSelect("prior_year_upload")}
         />
+
         <ModeCard
           image={manualImg}
           imageAlt="Person denkt über die Steuererklärung nach"
