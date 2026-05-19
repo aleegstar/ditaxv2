@@ -15,7 +15,7 @@ export const ProcessingContent: React.FC<ProcessingContentProps> = ({
 }) => {
   return (
     <div className="w-full">
-      <div className="mb-12 -mx-6">
+      <div className="mb-12">
         <ExpressUpgradeCard taxReturnId={taxReturnId} currentExpressService={expressService} />
       </div>
       <TrackingProgressSteps workflowStep={workflowStep} />
