@@ -18,6 +18,8 @@ export const PriorYearReturnCard: React.FC<Props> = ({ taxFilerId, taxYear }) =>
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [aiConsent, setAiConsent] = useState<string | null>(null);
+  const [contactConfirmedAt, setContactConfirmedAt] = useState<string | null>(null);
+  const [contactNote, setContactNote] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,18 +28,26 @@ export const PriorYearReturnCard: React.FC<Props> = ({ taxFilerId, taxYear }) =>
       setPath(null);
       setUrl(null);
       setAiConsent(null);
+      setContactConfirmedAt(null);
+      setContactNote(null);
       if (!taxFilerId || !taxYear) {
         setLoading(false);
         return;
       }
       const { data, error } = await supabase
         .from("prior_year_checklists")
-        .select("source_storage_path, ai_consent_at")
+        .select("source_storage_path, ai_consent_at, contact_changes_confirmed_at, contact_changes_note")
         .eq("tax_filer_id", taxFilerId)
         .eq("tax_year", String(taxYear))
         .maybeSingle();
       if (cancelled) return;
-      if (error || !data?.source_storage_path) {
+      if (error || !data) {
+        setLoading(false);
+        return;
+      }
+      setContactConfirmedAt((data as any).contact_changes_confirmed_at ?? null);
+      setContactNote((data as any).contact_changes_note ?? null);
+      if (!data.source_storage_path) {
         setLoading(false);
         return;
       }
@@ -62,35 +72,64 @@ export const PriorYearReturnCard: React.FC<Props> = ({ taxFilerId, taxYear }) =>
       </Card>
     );
   }
-  if (!path) return null;
+  if (!path && !contactConfirmedAt && !contactNote) return null;
+
+  const hasChanges = !!contactNote && contactNote.trim().length > 0;
 
   return (
     <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg mb-3">
-      <CardContent className="py-4 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-          <FileText className="w-4.5 h-4.5 text-primary" strokeWidth={1.8} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold text-foreground">
-            Vorjahres-Steuererklärung ({Number(taxYear) - 1})
+      <CardContent className="py-4 space-y-3">
+        {path && (
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold text-foreground">
+                Vorjahres-Steuererklärung ({Number(taxYear) - 1})
+              </div>
+              <div className="text-[11px] text-muted-foreground truncate">
+                {path}{aiConsent ? " · KI-Consent erteilt" : ""}
+              </div>
+            </div>
+            {url && (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <a href={url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-3.5 h-3.5 mr-1" /> Öffnen
+                  </a>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <a href={url} download>
+                    <Download className="w-3.5 h-3.5 mr-1" /> Download
+                  </a>
+                </Button>
+              </>
+            )}
           </div>
-          <div className="text-[11px] text-muted-foreground truncate">
-            {path}{aiConsent ? " · KI-Consent erteilt" : ""}
+        )}
+
+        {(contactConfirmedAt || contactNote) && (
+          <div
+            className={`rounded-lg border px-3 py-2.5 text-xs ${
+              hasChanges
+                ? "border-amber-200 bg-amber-50/70 text-amber-900"
+                : "border-emerald-200 bg-emerald-50/70 text-emerald-900"
+            }`}
+          >
+            <div className="font-semibold mb-0.5">
+              Persönliche Daten —{" "}
+              {hasChanges ? "Änderungen gemeldet" : "unverändert bestätigt"}
+            </div>
+            {hasChanges && (
+              <div className="whitespace-pre-wrap leading-snug">{contactNote}</div>
+            )}
+            {contactConfirmedAt && (
+              <div className="text-[10px] opacity-70 mt-1">
+                {new Date(contactConfirmedAt).toLocaleString("de-CH")}
+              </div>
+            )}
           </div>
-        </div>
-        {url && (
-          <>
-            <Button asChild variant="outline" size="sm">
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-3.5 h-3.5 mr-1" /> Öffnen
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <a href={url} download>
-                <Download className="w-3.5 h-3.5 mr-1" /> Download
-              </a>
-            </Button>
-          </>
         )}
       </CardContent>
     </Card>

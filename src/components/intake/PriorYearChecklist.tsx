@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight, Replace } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,25 +38,42 @@ interface Props {
   taxYear: string;
 }
 
-const CONTACT_STORAGE_KEY = (taxFilerId: string, taxYear: string) =>
-  `prior-year-contact-${taxFilerId}-${taxYear}`;
-
 export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => {
   const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
     usePriorYearChecklist(taxFilerId, taxYear);
   const [replaceOpen, setReplaceOpen] = useState(false);
-  const [contactState, setContactState] = useState<{ confirmed: boolean; note: string }>(() => {
-    try {
-      const raw = localStorage.getItem(CONTACT_STORAGE_KEY(taxFilerId, taxYear));
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    return { confirmed: false, note: "" };
+  const [contactState, setContactState] = useState<{ confirmed: boolean; note: string }>({
+    confirmed: false,
+    note: "",
   });
-  const persistContact = (next: { confirmed: boolean; note: string }) => {
+
+  useEffect(() => {
+    if (!checklist?.id) return;
+    (async () => {
+      const { data } = await supabase
+        .from("prior_year_checklists")
+        .select("contact_changes_confirmed_at, contact_changes_note")
+        .eq("id", checklist.id)
+        .maybeSingle();
+      if (data) {
+        setContactState({
+          confirmed: !!(data as any).contact_changes_confirmed_at,
+          note: (data as any).contact_changes_note ?? "",
+        });
+      }
+    })();
+  }, [checklist?.id]);
+
+  const persistContact = async (next: { confirmed: boolean; note: string }) => {
     setContactState(next);
-    try {
-      localStorage.setItem(CONTACT_STORAGE_KEY(taxFilerId, taxYear), JSON.stringify(next));
-    } catch {}
+    if (!checklist?.id) return;
+    await supabase
+      .from("prior_year_checklists")
+      .update({
+        contact_changes_confirmed_at: next.confirmed ? new Date().toISOString() : null,
+        contact_changes_note: next.note || null,
+      } as any)
+      .eq("id", checklist.id);
   };
 
   if (loading && !checklist) {
