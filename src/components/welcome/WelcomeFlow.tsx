@@ -392,8 +392,8 @@ export const WelcomeFlow = () => {
 
 
   return <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
-      {/* Logo above card */}
-      <motion.div className="mb-8 flex items-center justify-center" initial={{
+      {/* Logo above card — mobile only */}
+      <motion.div className="mb-8 flex items-center justify-center md:hidden" initial={{
       opacity: 0,
       y: -10
     }} animate={{
@@ -405,26 +405,34 @@ export const WelcomeFlow = () => {
         <img alt="ditax" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" className="h-10 w-auto object-contain" />
       </motion.div>
 
-      {/* Main Card Container */}
-      <motion.main className="w-full max-w-lg bg-white border border-slate-200/80 rounded-[1.75rem] shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden" initial={{
-      opacity: 0,
-      y: 20
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      duration: 0.4
-    }}>
+      {/* Main Card Container — matches dashboard card pattern */}
+      <motion.main
+        className="w-full max-w-lg bg-card border border-border rounded-2xl shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* Hero image */}
+        <div className="relative h-40 w-full overflow-hidden bg-muted">
+          <img
+            src={welcomeHero}
+            alt="Lachendes Paar – Willkommen bei Ditax"
+            loading="eager"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+            <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+            <span className="text-[11px] font-medium text-foreground">Willkommen</span>
+          </div>
+        </div>
+
         {/* Progress Bar */}
-        <div className="flex gap-2 px-6 pt-6 sm:px-10 sm:pt-10">
-          {steps.map((_, index) => <div key={index} className={`h-1.5 flex-1 bg-primary rounded-full transition-opacity duration-300 ${index <= currentStep ? 'opacity-100' : 'opacity-30'}`} />)}
+        <div className="flex gap-2 px-6 pt-6 sm:px-10 sm:pt-8">
+          {steps.map((_, index) => <div key={index} className={`h-1.5 flex-1 bg-primary rounded-full transition-opacity duration-300 ${index <= currentStep ? 'opacity-100' : 'opacity-20'}`} />)}
         </div>
 
         {/* Content */}
-        <div className="px-6 py-10 sm:px-10 sm:pb-16 flex flex-col items-center text-center">
-
-          {/* Illustration removed */}
-
+        <div className="px-6 py-8 sm:px-10 sm:pb-12 sm:pt-8 flex flex-col items-center text-center">
           {/* Heading */}
           <AnimatePresence mode="wait">
             <motion.h1 key={currentStep} initial={{
@@ -438,7 +446,7 @@ export const WelcomeFlow = () => {
             y: -10
           }} transition={{
             duration: 0.3
-          }} className="font-semibold tracking-tight text-foreground mb-10 leading-tight sm:text-2xl text-xl">
+          }} className="font-semibold tracking-tight text-foreground mb-8 leading-tight sm:text-2xl text-xl">
               {getStepTitle()}
             </motion.h1>
           </AnimatePresence>
