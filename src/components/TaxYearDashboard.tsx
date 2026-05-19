@@ -39,7 +39,9 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     formProgress,
     taxYear,
     isDataLoading,
-    formDataLoaded
+    formDataLoaded,
+    saveSection,
+    formData,
   } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
