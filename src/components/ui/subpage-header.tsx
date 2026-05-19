@@ -33,6 +33,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   showAvatar = false,
   mode = 'page',
   rightAction,
+  innerClassName,
 }) => {
   const navigate = useNavigate();
   const { profile } = useProfile();
