@@ -234,6 +234,10 @@ const BulkUploadContent: React.FC = () => {
     }
 
     await generateChecklist();
+    if (from === 'checklist') {
+      navigate(backTarget);
+      return;
+    }
     setStage('missing');
   };
 
