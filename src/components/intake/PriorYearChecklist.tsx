@@ -127,9 +127,9 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {categories.map(cat => (
-          <CategoryCard
+          <CompactCategoryCard
             key={cat}
             category={cat}
             items={grouped[cat]}
