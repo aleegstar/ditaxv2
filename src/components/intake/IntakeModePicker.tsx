@@ -23,8 +23,8 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2" data-tour="intake-mode-picker">
-        <div data-tour="intake-upload-card">
+      <div className="grid gap-4 sm:grid-cols-2 sm:auto-rows-fr items-stretch" data-tour="intake-mode-picker">
+        <div data-tour="intake-upload-card" className="h-full">
         <ModeCard
           rainbow
           image={uploadImg}
@@ -38,7 +38,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
         />
         </div>
 
-        <div data-tour="intake-manual-card">
+        <div data-tour="intake-manual-card" className="h-full">
         <ModeCard
           image={manualImg}
           imageAlt="Person denkt über die Steuererklärung nach"
