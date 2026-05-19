@@ -353,7 +353,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const modeSwitcher = (
     <div className="mb-5">
       <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
-        <div className="relative h-28 w-full overflow-hidden bg-muted">
+        <div className="relative h-16 sm:h-28 w-full overflow-hidden bg-muted">
           <img
             src={modeMeta.image}
             alt={modeMeta.imageAlt}
