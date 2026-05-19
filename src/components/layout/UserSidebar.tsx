@@ -210,9 +210,14 @@ export const UserSidebar: React.FC = () => {
         <div>
           <button
             onClick={() => setUserMenuOpen((v) => !v)}
-            className="w-full flex items-center justify-between px-2 cursor-pointer group"
+            className={cn(
+              'w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl transition-colors group',
+              userMenuOpen
+                ? 'bg-white border border-slate-200/70 shadow-[0_2px_8px_-4px_rgba(15,27,61,0.08)]'
+                : 'hover:bg-slate-100/60'
+            )}
           >
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
@@ -225,15 +230,17 @@ export const UserSidebar: React.FC = () => {
                 </div>
               )}
               <div className="min-w-0 text-left">
-                <div className="text-sm font-semibold text-slate-900 truncate">{displayName}</div>
-                <div className="text-xs text-slate-500 truncate">{profile?.email}</div>
+                <div className="text-sm font-semibold text-slate-900 truncate leading-tight">{displayName}</div>
+                <div className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">{profile?.email}</div>
               </div>
             </div>
-            {userMenuOpen ? (
-              <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors flex-shrink-0" strokeWidth={1.75} />
-            ) : (
-              <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors flex-shrink-0" strokeWidth={1.75} />
-            )}
+            <ChevronUp
+              className={cn(
+                'w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform flex-shrink-0',
+                userMenuOpen && 'rotate-180'
+              )}
+              strokeWidth={1.75}
+            />
           </button>
 
           {userMenuOpen && (
@@ -241,28 +248,28 @@ export const UserSidebar: React.FC = () => {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.15 }}
-              className="mt-2 space-y-0.5"
+              className="mt-2 rounded-xl border border-slate-200/70 bg-white shadow-[0_4px_16px_-6px_rgba(15,27,61,0.08)] overflow-hidden"
             >
               <button
                 onClick={() => navigate('/profile')}
-                className="w-full flex items-center gap-2.5 px-3 h-9 rounded-lg text-sm text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-colors"
+                className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
               >
-                <UserIcon className="w-4 h-4" strokeWidth={1.75} />
-                {t.menu.profile}
+                <UserIcon className="w-4 h-4 text-slate-500 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate">{t.menu.profile}</span>
               </button>
               <button
                 onClick={() => navigate('/privacy-settings')}
-                className="w-full flex items-center gap-2.5 px-3 h-9 rounded-lg text-sm text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-colors"
+                className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-100"
               >
-                <Settings className="w-4 h-4" strokeWidth={1.75} />
-                {t.menu.privacySettings}
+                <Settings className="w-4 h-4 text-slate-500 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate">{t.menu.privacySettings}</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 h-9 rounded-lg text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-rose-600 hover:bg-rose-50 transition-colors border-t border-slate-100"
               >
-                <LogOut className="w-4 h-4" strokeWidth={1.75} />
-                {t.menu.logout}
+                <LogOut className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate">{t.menu.logout}</span>
               </button>
             </motion.div>
           )}
