@@ -457,19 +457,32 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             )}
           </div>
 
-          <div className="space-y-2 max-w-xl mb-6">
-            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
-              Deine persönliche Checkliste
-            </h3>
-            <p className="text-base text-slate-500 leading-relaxed">
-              Bestätige die Bereiche aus deiner Vorjahres-Steuererklärung – so wissen wir, welche Belege du dieses Jahr brauchst.
-            </p>
-          </div>
+          {(() => {
+            const isPending = !py.ready && (py.status === 'pending' || py.status === 'loading');
+            const isScanning = py.status === 'scanning';
+            const title = isPending
+              ? `Vorjahres-Steuererklärung ${Number(taxYear) - 1} hochladen`
+              : isScanning
+                ? 'Analyse läuft …'
+                : 'Deine persönliche Checkliste';
+            const desc = isPending
+              ? `Lade dein definitives PDF hoch – wir erstellen daraus deine persönliche Checkliste für ${taxYear}.`
+              : isScanning
+                ? 'Einen Moment, wir extrahieren die Positionen aus deinem PDF.'
+                : 'Bestätige die Bereiche aus deinem Vorjahr – so wissen wir, welche Belege du brauchst.';
+            return (
+              <div className="space-y-2 max-w-xl mb-6">
+                <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">{title}</h3>
+                <p className="text-base text-slate-500 leading-relaxed">{desc}</p>
+              </div>
+            );
+          })()}
 
           <PriorYearChecklistBody
             taxFilerId={activeTaxFilerId}
             taxYear={taxYear}
             onProgress={setPriorYearProgress}
+            hideHeader
           />
         </div>
       ) : (
