@@ -257,49 +257,24 @@ const UserTabs: React.FC<UserTabsProps> = ({
       <Tabs defaultValue="info" className="w-full">
         {/* Tab Navigation - Glassmorphic Segmented Control */}
         <div className="relative">
-          <TabsList className="relative z-10 h-11 w-auto p-1 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl mb-0 gap-0.5">
-            <TabsTrigger 
-              value="info" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
-            >
-              <ClipboardList className="h-3.5 w-3.5" strokeWidth={1.8} />
-              Formularangaben
-            </TabsTrigger>
-            <TabsTrigger 
-              value="documents" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
-            >
-              <Files className="h-3.5 w-3.5" strokeWidth={1.8} />
-              Dokumente
-            </TabsTrigger>
-            <TabsTrigger 
-              value="tax-returns" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
-            >
-              <FileCheck className="h-3.5 w-3.5" strokeWidth={1.8} />
-              Steuererklärung
-            </TabsTrigger>
-            <TabsTrigger 
-              value="definitive-bills" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
-            >
-              <Receipt className="h-3.5 w-3.5" strokeWidth={1.8} />
-              Definitive Rechnungen
-            </TabsTrigger>
-            <TabsTrigger 
-              value="messages" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
-            >
-              <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.8} />
-              Nachrichten
-            </TabsTrigger>
-            <TabsTrigger 
-              value="admin-notes" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
-            >
-              <StickyNote className="h-3.5 w-3.5" strokeWidth={1.8} />
-              Admin-Notizen
-            </TabsTrigger>
+          <TabsList className="relative z-10 inline-flex h-auto items-center gap-1 p-1 sm:p-1.5 rounded-full bg-foreground/[0.045] mb-0 overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {[
+              { value: 'info', icon: ClipboardList, label: 'Formularangaben' },
+              { value: 'documents', icon: Files, label: 'Dokumente' },
+              { value: 'tax-returns', icon: FileCheck, label: 'Steuererklärung' },
+              { value: 'definitive-bills', icon: Receipt, label: 'Definitive Rechnungen' },
+              { value: 'messages', icon: MessageCircle, label: 'Nachrichten' },
+              { value: 'admin-notes', icon: StickyNote, label: 'Admin-Notizen' },
+            ].map(({ value, icon: Icon, label }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="shrink-0 inline-flex items-center gap-1.5 px-4 sm:px-5 h-9 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 active:scale-[0.97] text-muted-foreground/65 hover:text-foreground/85 data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=active]:shadow-[0_1px_2px_rgba(15,27,61,0.06),0_4px_10px_-3px_rgba(15,27,61,0.1)]"
+              >
+                <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+                {label}
+              </TabsTrigger>
+            ))}
           </TabsList>
           
           {/* Content Container */}
