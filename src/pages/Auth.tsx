@@ -721,6 +721,7 @@ const Auth = () => {
                       {t.authFlow.backToLogin}
                     </button>
                   </div>
+                  </div>
 
                 </motion.div>}
             </AnimatePresence>
