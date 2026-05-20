@@ -584,60 +584,112 @@ const UserDetail: React.FC = () => {
 
       <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
         <main className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60 p-4 lg:p-6">
-        {/* User Profile Header Card — clean fintech style */}
-        <div className="rounded-2xl mb-4 bg-card border border-border shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-          {/* Hero band with couple image */}
-          <div className="relative h-28 sm:h-32 w-full overflow-hidden">
-            <img
-              src={adminUserHero}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
-            <div className="absolute top-3 left-3">
-              <Link
-                to="/admin"
-                className="w-9 h-9 rounded-full bg-card/90 backdrop-blur border border-border flex items-center justify-center hover:bg-card transition-colors shadow-sm"
-              >
-                <ArrowLeft className="h-4 w-4 text-foreground" />
-              </Link>
+        {/* User Profile Header — clean, structured fintech style */}
+        <div className="rounded-2xl mb-4 bg-card border border-border shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+          {/* Top row: back + identity + status pills */}
+          <div className="flex items-start gap-4 px-5 sm:px-6 py-5 border-b border-border">
+            <Link
+              to="/admin"
+              className="w-9 h-9 rounded-full bg-muted/60 border border-border flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+              aria-label="Zurück"
+            >
+              <ArrowLeft className="h-4 w-4 text-foreground" />
+            </Link>
+
+            <div className="w-12 h-12 rounded-xl bg-muted/60 border border-border flex items-center justify-center shrink-0">
+              <span className="text-base font-semibold text-foreground">
+                {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                {user.last_name?.charAt(0)?.toUpperCase() || ''}
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate">
+                  {user.first_name} {user.last_name}
+                </h1>
+                {transformedUser.formData?.contactInfo?.adressnummer && (
+                  <span className="hidden sm:inline-flex text-[10px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-md border border-border">
+                    ID: {transformedUser.formData.contactInfo.adressnummer}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground truncate mt-0.5">
+                {user.email || 'Keine E-Mail'}
+              </p>
+            </div>
+
+            {/* Status changer top-right */}
+            <div className="hidden md:block shrink-0">
+              <TaxReturnStatusChanger
+                userId={user.id}
+                taxYear={selectedYear}
+                currentStatus={currentStatus || null}
+                onStatusChanged={fetchUserData}
+              />
             </div>
           </div>
 
-          <div className="px-6 pb-6 -mt-8 relative">
-            {/* User Identity */}
-            <div className="flex items-end gap-4 mb-5">
-              <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center shrink-0">
-                <span className="text-lg font-bold text-foreground">
-                  {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
-                  {user.last_name?.charAt(0)?.toUpperCase() || ''}
-                </span>
-              </div>
-              <div className="min-w-0 flex-1 pb-1">
-                <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
-                  {user.first_name} {user.last_name}
-                </h1>
-                <p className="text-sm text-muted-foreground truncate">
-                  {user.email || 'Keine E-Mail'}
-                </p>
-              </div>
-              {transformedUser.formData?.contactInfo?.adressnummer && (
-                <span className="hidden sm:inline-flex text-[10px] font-mono text-muted-foreground bg-muted px-2 py-1 rounded-lg border border-border">
-                  ID: {transformedUser.formData.contactInfo.adressnummer}
-                </span>
+          {/* Toolbar row: filter pills (left) + actions (right) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-6 py-3 bg-muted/30">
+            <div className="flex items-center gap-2 flex-wrap">
+              {taxFilers.length > 1 && (
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-card border border-border text-foreground">
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                  <select
+                    value={selectedTaxFilerId || ''}
+                    onChange={(e) => setSelectedTaxFilerId(e.target.value)}
+                    className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
+                  >
+                    {taxFilers.map(filer => (
+                      <option key={filer.id} value={filer.id}>
+                        {filer.first_name} {filer.last_name}
+                        {filer.is_primary ? ' (Hauptperson)' : filer.relationship ? ` (${filer.relationship})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               )}
+
+              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-card border border-border text-foreground">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                <select
+                  value={selectedYear}
+                  onChange={(e) => handleYearChange(e.target.value)}
+                  className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
+                >
+                  {Array.from(new Set([
+                    ...formData.map(fd => fd.tax_year),
+                    ...taxReturns.map(tr => tr.tax_year),
+                    ...completedTaxReturns.map(cr => cr.tax_year),
+                    new Date().getFullYear().toString()
+                  ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              {pendingMissingItemsCount > 0 && (
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  <span className="text-xs font-medium">
+                    {pendingMissingItemsCount} offen
+                  </span>
+                </div>
+              )}
+
+              <div className="md:hidden">
+                <TaxReturnStatusChanger
+                  userId={user.id}
+                  taxYear={selectedYear}
+                  currentStatus={currentStatus || null}
+                  onStatusChanged={fetchUserData}
+                />
+              </div>
             </div>
 
-            {/* Actions Row */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <Button
-                onClick={() => setMissingItemDialogOpen(true)}
-                className="gap-1.5"
-              >
-                <AlertCircle className="h-4 w-4" />
-                Unterlagen anfordern
-              </Button>
-              <div className="flex items-center gap-0.5 ml-auto pl-2 border-l border-border">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-0.5 rounded-full bg-card border border-border px-1 h-9">
                 <FormDataPdfDownloader
                   userId={user.id}
                   taxYear={selectedYear}
@@ -661,64 +713,18 @@ const UserDetail: React.FC = () => {
                   userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
                 />
               </div>
-            </div>
 
-            {/* Status Row */}
-            <div className="flex flex-wrap items-center gap-2">
-              {taxFilers.length > 1 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted border border-border text-foreground">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                  <select
-                    value={selectedTaxFilerId || ''}
-                    onChange={(e) => setSelectedTaxFilerId(e.target.value)}
-                    className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
-                  >
-                    {taxFilers.map(filer => (
-                      <option key={filer.id} value={filer.id}>
-                        {filer.first_name} {filer.last_name}
-                        {filer.is_primary ? ' (Hauptperson)' : filer.relationship ? ` (${filer.relationship})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted border border-border text-foreground">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <select
-                  value={selectedYear}
-                  onChange={(e) => handleYearChange(e.target.value)}
-                  className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
-                >
-                  {Array.from(new Set([
-                    ...formData.map(fd => fd.tax_year),
-                    ...taxReturns.map(tr => tr.tax_year),
-                    ...completedTaxReturns.map(cr => cr.tax_year),
-                    new Date().getFullYear().toString()
-                  ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              </div>
-
-              <TaxReturnStatusChanger
-                userId={user.id}
-                taxYear={selectedYear}
-                currentStatus={currentStatus || null}
-                onStatusChanged={fetchUserData}
-              />
-
-              {pendingMissingItemsCount > 0 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  <span className="text-xs font-medium">
-                    {pendingMissingItemsCount} offen
-                  </span>
-                </div>
-              )}
+              <Button
+                onClick={() => setMissingItemDialogOpen(true)}
+                className="h-9 px-4 rounded-full gap-1.5 text-sm"
+              >
+                <AlertCircle className="h-4 w-4" />
+                Unterlagen anfordern
+              </Button>
             </div>
           </div>
         </div>
+
 
         {/* Main Content */}
         <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4">
