@@ -495,7 +495,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   }).map(taxReturn => (
                     <div 
                       key={taxReturn.id} 
-                      className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
+                      className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:border-foreground/20 hover:shadow-[0_4px_16px_-4px_rgba(15,27,61,0.08)] transition-all cursor-pointer" 
                       onClick={() => onTaxReturnClick(taxReturn)}
                     >
                       <div className="flex items-center gap-3">
