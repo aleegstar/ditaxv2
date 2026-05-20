@@ -155,8 +155,53 @@ Deno.serve(async (req) => {
     const systemPrompt = `Du bist ein Schweizer Steuerexperte. Du erhältst eine
 Vorjahres-Steuererklärung als PDF. Deine Aufgabe ist NICHT, Beträge oder
 persönliche Daten zu extrahieren. Bestimme NUR, welche Belege/Dokumente der
-Steuerpflichtige dieses Jahr wieder bereithalten muss, basierend darauf welche
-Einkommens-, Vermögens- und Abzugskategorien im Vorjahr vorkamen.
+Steuerpflichtige dieses Jahr wieder bereithalten muss.
+
+WICHTIGSTE REGEL — VERLASSE DICH AUSSCHLIESSLICH AUF DIE SSK-ZIFFERN
+(eCH-0119): Die 3-stelligen Ziffern (z. B. 100, 220, 400) sind in JEDEM
+kantonalen Hauptformular identisch. Ignoriere kantonale Bezeichnungen,
+Layout oder Beispieltexte. Ein Dokument ist NUR dann erforderlich, wenn die
+zugehörige Ziffer im PDF mit einem Betrag > 0 ausgefüllt ist. Wenn das Feld
+leer, durchgestrichen oder mit "0" gefüllt ist, NICHT aufnehmen.
+
+Ziffer → Dokument-Mapping (verwende EXAKT diese Labels):
+
+EINKOMMEN
+- 100 / 101 / 102 / 103  → "Lohnausweis"
+- 120 / 121 / 122 / 123  → "Nachweis Selbständigerwerb"
+- 130 / 131              → "Rentenbescheinigung (AHV/IV)"
+- 134 / 135 / 136 / 137  → "Pensionskassenausweis"
+- 140 / 141              → "Arbeitslosentaggeld-Abrechnung"
+- 142 / 143              → "Bestätigung Familien-/Mutterschaftszulagen"
+- 150 / 151              → "Wertschriften-/Depotverzeichnis"
+- 160 / 161              → "Bestätigung Alimente/Unterhalt"
+- 180 / 181 / 183 / 186 / 188 → "Liegenschaftsertrag-Abrechnung"
+
+VERMÖGEN
+- 400                    → "Depotauszug per 31.12." UND "Bankkontoauszug per 31.12."
+                           (beide, da Code 400 sowohl Wertschriften als auch Konten umfasst)
+- 406                    → "Rückkaufswert Lebensversicherung"
+- 412                    → "Fahrzeugausweis / Eurotax"
+- 420 / 421 / 422        → "Liegenschaftsbeleg"
+
+ABZÜGE
+- 220 / 240              → "Berufsauslagen-Belege"
+- 250 / 470              → "Schuldzinsen-Bescheinigung"
+- 254 / 255 / 256        → "Beleg Unterhaltszahlung"
+- 260 / 261              → "Säule 3a-Einzahlungsbestätigung"
+- 270                    → "Krankenkassen-Prämienrechnung"
+- 280                    → "PK-Einkauf-Beleg"
+- 291                    → "Belege Weiterbildungskosten"
+- 184 / 185              → "Beleg Liegenschaftsunterhalt"
+- 320                    → "Belege Krankheits-/Unfallkosten"
+- 324                    → "Spendenbescheinigung"
+- 376                    → "Kinderbetreuungs-Beleg"
+
+Sonderregel Säule 3a: NUR über Ziffer klassifizieren. Ziffer 260/261
+→ "Säule 3a-Einzahlungsbestätigung" (Abzug). Eine "Säule 3a-Saldobestätigung"
+existiert NICHT mehr — niemals zurückgeben. "Bescheinigung Säule 3a-Bezug"
+nur dann, wenn das PDF explizit eine Kapitalleistung / Pensionierung
+ausweist (separates Formular Kapitalleistungen, nicht im Hauptformular).
 
 Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema:
 {
@@ -165,29 +210,7 @@ Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema:
   "deductions": [{"label": string}]
 }
 
-Erlaubte Labels (verwende EXAKT diese Schreibweise, keine eigenen Varianten):
-Einkommen: "Lohnausweis", "Nachweis Selbständigerwerb",
-"Rentenbescheinigung (AHV/IV)", "Pensionskassenausweis",
-"Bescheinigung Säule 3a-Bezug", "Wertschriften-/Depotverzeichnis",
-"Liegenschaftsertrag-Abrechnung", "Bestätigung Alimente/Unterhalt",
-"Arbeitslosentaggeld-Abrechnung".
-Vermögen: "Bankkontoauszug per 31.12.", "Depotauszug per 31.12.",
-"Säule 3a-Saldobestätigung", "Rückkaufswert Lebensversicherung",
-"Liegenschaftsbeleg", "Fahrzeugausweis / Eurotax", "Krypto-Saldonachweis".
-Abzüge: "Berufsauslagen-Belege", "Säule 3a-Einzahlungsbestätigung",
-"PK-Einkauf-Beleg", "Belege Krankheits-/Unfallkosten",
-"Krankenkassen-Prämienrechnung", "Spendenbescheinigung",
-"Schuldzinsen-Bescheinigung", "Kinderbetreuungs-Beleg",
-"Beleg Unterhaltszahlung", "Beleg Liegenschaftsunterhalt", "Parteibeitrags-Beleg".
-
-Sonderregel Säule 3a: Standardmässig als "Säule 3a-Einzahlungsbestätigung"
-(Abzug) klassifizieren. Nur wenn das PDF explizit einen Bezug/Auszahlung
-nennt (z. B. "Kapitalleistung", "Bezug Säule 3a", "Pensionierung"), als
-"Bescheinigung Säule 3a-Bezug" (Einkommen) klassifizieren. NICHT als
-"Säule 3a-Saldobestätigung" einordnen.
-
-Gib nur Labels zurück, deren Kategorie tatsächlich im PDF vorkommt. Keine
-Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
+Keine Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
 
     const aiResp = await fetch(LOVABLE_AI_URL, {
       method: "POST",
