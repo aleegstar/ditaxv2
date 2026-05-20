@@ -294,7 +294,96 @@ function scanFromFilledCodes(filled: Set<number>): ExtractedScan {
 export async function extractScanFromPdf(file: File): Promise<ExtractedScan> {
   const pages = await extractRowsFromPdf(file);
   const filled = findFilledCodesInRows(pages);
-  return scanFromFilledCodes(filled);
+  const scan = scanFromFilledCodes(filled);
+  const accounts = extractAccountsFromRows(pages);
+  scan.accounts = accounts;
+  // Append one assets item per account so the prior-year checklist UI shows
+  // each Konto/Depot individually.
+  for (const acc of accounts) {
+    const label = `Beleg Bankkonto/Depot – ${[acc.institution, acc.reference].filter(Boolean).join(' · ')}`;
+    scan.assets.push({ label });
+  }
+  return scan;
+}
+
+// ---------------------------------------------------------------------------
+// Account (Bankkonto/Depot) extraction from Wertschriften pages
+// ---------------------------------------------------------------------------
+
+const IBAN_RX = /\bCH\d{2}[\s\d]{17,30}\b/;
+const DEPOT_RX = /^\d{6,12}$/;
+const KNOWN_INSTITUTIONS = [
+  'UBS', 'Postfinance', 'PostFinance', 'Raiffeisen', 'Yuh', 'Swissquote',
+  'ZKB', 'Migros Bank', 'Cler', 'Credit Suisse', 'Valiant', 'Plus500',
+  'Interactive Brokers', 'Saxo', 'Trading 212', 'Revolut', 'Wise', 'IB',
+];
+
+function normalizeRef(s: string): string {
+  return s.replace(/\s+/g, '').toUpperCase();
+}
+
+function looksLikeInstitution(s: string): boolean {
+  if (!s || /^\d/.test(s)) return false;
+  if (s.length < 3 || s.length > 60) return false;
+  if (KNOWN_INSTITUTIONS.some((k) => s.toLowerCase().includes(k.toLowerCase()))) return true;
+  // Heuristic: starts with capital letter, contains a letter, no IBAN/code-only.
+  return /^[A-ZÄÖÜ]/.test(s) && /[A-Za-z]/.test(s);
+}
+
+function extractAccountsFromRows(pages: Row[][]): ExtractedAccount[] {
+  const seen = new Map<string, ExtractedAccount>();
+  for (const rows of pages) {
+    for (const row of rows) {
+      const cells = row.cells;
+      // Try IBAN first (may span multiple adjacent cells).
+      const joined = cells.map((c) => c.str).join(' ');
+      const ibanMatch = joined.match(IBAN_RX);
+      let reference: string | null = null;
+      let refCellIdx = -1;
+      if (ibanMatch) {
+        reference = ibanMatch[0].trim();
+        // Find cell whose content starts the IBAN.
+        refCellIdx = cells.findIndex((c) => c.str.startsWith('CH'));
+      } else {
+        // Depot number: a cell that is just digits 6-12.
+        for (let i = 0; i < cells.length; i++) {
+          if (DEPOT_RX.test(cells[i].str)) {
+            reference = cells[i].str;
+            refCellIdx = i;
+            break;
+          }
+        }
+      }
+      if (!reference) continue;
+
+      // Institution = nearest preceding cell that looks like a name.
+      let institution = '';
+      for (let i = refCellIdx - 1; i >= 0; i--) {
+        const s = cells[i].str.trim();
+        if (looksLikeInstitution(s)) {
+          institution = s;
+          break;
+        }
+      }
+      if (!institution) {
+        // fallback: try same row trailing
+        for (let i = refCellIdx + 1; i < cells.length; i++) {
+          const s = cells[i].str.trim();
+          if (looksLikeInstitution(s)) {
+            institution = s;
+            break;
+          }
+        }
+      }
+      if (!institution) institution = 'Bank/Depot';
+
+      const key = normalizeRef(reference);
+      if (!seen.has(key)) {
+        seen.set(key, { institution, reference });
+      }
+    }
+  }
+  return [...seen.values()];
 }
 
 // ---------------------------------------------------------------------------
