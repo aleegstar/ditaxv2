@@ -15,6 +15,7 @@ import {
   User as UserIcon,
   LogOut,
 } from 'lucide-react';
+import ditaxLogo from '@/assets/ditax-logo-icon.png';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { useI18n } from '@/contexts/I18nContext';
