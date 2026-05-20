@@ -34,7 +34,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:auto-rows-fr items-stretch" data-tour="intake-mode-picker">
+      <div className="relative grid gap-4 sm:gap-6 sm:grid-cols-2 sm:auto-rows-fr items-stretch" data-tour="intake-mode-picker">
         <div data-tour="intake-upload-card" className="h-full">
         <ModeCard
           recommended
@@ -47,6 +47,24 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
           cta={priorCta}
           onClick={() => onSelect("prior_year_upload")}
         />
+        </div>
+
+        {/* "oder" divider — horizontal on mobile, vertical between cards on desktop */}
+        <div
+          aria-hidden
+          className="flex sm:hidden items-center gap-3 -my-1"
+        >
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">oder</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <div
+          aria-hidden
+          className="hidden sm:flex absolute inset-y-0 left-1/2 -translate-x-1/2 flex-col items-center justify-center pointer-events-none"
+        >
+          <div className="w-px flex-1 bg-border" />
+          <span className="my-2 px-2 py-0.5 rounded-full bg-background text-[11px] font-medium uppercase tracking-wider text-muted-foreground">oder</span>
+          <div className="w-px flex-1 bg-border" />
         </div>
 
         <div data-tour="intake-manual-card" className="h-full">
