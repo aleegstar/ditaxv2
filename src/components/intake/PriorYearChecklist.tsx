@@ -191,6 +191,8 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
             items={grouped[cat]}
             onBulk={(patch) => bulkUpdateCategory(cat, patch)}
             onItem={(id, patch) => updateItem(id, patch)}
+            onAdd={(label) => addItem(cat, label)}
+            onDelete={(id) => deleteItem(id)}
           />
         ))}
       </div>
