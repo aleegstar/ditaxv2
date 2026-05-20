@@ -355,18 +355,18 @@ const CompactCategoryCard: React.FC<{
               Position hinzufügen
             </div>
             <div className="flex gap-2">
-              <input
+              <select
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newLabel.trim()) {
-                    onAdd(newLabel);
-                    setNewLabel("");
-                  }
-                }}
-                placeholder="z. B. Zweite Anstellung, Krypto-Konto …"
                 className="flex-1 text-[13px] rounded-lg border border-border bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+              >
+                <option value="">Aus Dokumenten-Checkliste wählen …</option>
+                {CATALOG_BY_CATEGORY[category]
+                  .filter(opt => !items.some(it => it.label === opt.label))
+                  .map(opt => (
+                    <option key={opt.id} value={opt.label}>{opt.label}</option>
+                  ))}
+              </select>
               <Button
                 variant="outline"
                 size="sm"
