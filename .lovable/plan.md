@@ -1,112 +1,39 @@
-# eCH-0119 Integration
+# Fix: Falsch-positive Kategorien bei Vorjahres-PDF-Upload
 
-## Was eCH-0119 ist
+## Problem
 
-Offizieller SSK/eCH-Standard (v4.0.0, gültig seit 2021-03-08) für die **elektronische Übermittlung von Steuererklärungen natürlicher Personen** in der Schweiz. Er definiert:
+Nach Upload des Aargauer eTax-2025-PDF werden in Einkommen und Abzüge alle Kategorien als „erkannt" gelistet — auch Lohnausweis, Selbständigkeit, Rente, Familienzulagen, Schuldzinsen, Unterhalt, PK-Einkauf, obwohl im PDF nur ausgefüllt sind: Lohn (010/020), Wertschriftenertrag (241), Berufskosten (3201/3401), Säule 3a (381/382), Versicherungsprämien (383), Kinderbetreuung (390).
 
-1. **XML-Schema** für alle Felder einer Steuererklärung (`mainForm`, `revenue`, `deduction`, `asset`, `listOfSecurities`, …) mit verbindlichen **Ziffer-Codes** je Feld.
-2. **documentType-Katalog** (CH 000–026, 999) für **Beilagen-Typisierung** — bisher nicht bei uns hinterlegt.
-3. **Beilagen-Metadaten** (`attachmentType` + `documentIdentificationType`) inkl. `documentCanton`, `internalSortOrder` und Verweis auf zugehörige Ziffer.
-4. **Quelle-Codes** (`source`): 0=Software, 1=2D-Barcode, 2=OCR — direkt relevant für unseren Scanner.
-5. **moneyType1/2**, `partnerAmountType`, `taxAmountType` als verbindliche Beträge-Strukturen.
+## Root Cause
 
-## Wo sich daraus konkreter Mehrwert ergibt
+In `src/services/PriorYearLocalExtractor.ts` prüft `codeIsFilled` per Regex `code…[1-9]` innerhalb 80 Zeichen. Beim PDF-Text-Layer werden alle Felder mit Leertaste verbunden, sodass leere Felder so aussehen:
 
-### A — Korrekturen / Erweiterungen der bestehenden Ziffer-Erkennung
-
-Datei: `src/services/PriorYearLocalExtractor.ts` + `supabase/functions/scan-prior-year-ai/index.ts`
-
-Unsere bestehende Tabelle ist überwiegend korrekt, aber laut Spec ergänzungsbedürftig:
-
-- **Renten/Pensionen**: aktuell nur 130–137 — Spec listet zusätzlich **960–967** als Detail-Ziffern (3.2 Renten/Pension). Aufnehmen.
-- **Weitere Einkünfte**: 162 (Erbschaften/Kooperationsanteile), 163 (freier Eintrag), 164 (Kapitalabfindung) — fehlen komplett.
-- **Berufsauslagen**: zusätzlich 201/221 (ÖV-Abo), 240 (auswärtige Verpflegung) — bei uns nur 220/240.
-- **Vermögen Liegenschaften**: zusätzlich 430, 431, 434 (Selbständig: Privatvermögen Liegenschaften) — fehlt.
-- **PK-Einkauf**: aktuell 280 → Spec sagt diese Ziffer ist Versicherungsprämien-Erweiterung. Auf 281 prüfen und ggf. korrigieren.
-- **Wertschriftenverzeichnis**: Total-Steuerwert = **400**, nicht nur Bankkonto — beide Labels behalten (Depot + Konto).
-
-### B — Neuer eCH-0119 documentType-Katalog (NEU, grösster Mehrwert)
-
-Die Spec definiert offiziell **27 Beilagen-Typen** mit Code. Diese Codes sind verbindlich, kantonsübergreifend und exakt das, was wir für die Vorjahres-Beleg-Checkliste sowie für den Dokumenten-Upload brauchen.
-
-Neue Datei `src/services/ech0119/documentTypes.ts`:
-
-```ts
-export const ECH_DOCUMENT_TYPES = {
-  '000': 'Steuererklärung (PDF)',
-  '005': 'Wertschriftenverzeichnis',
-  '006': 'Liegenschaftenverzeichnis',
-  '007': 'Schuldenverzeichnis',
-  '008': 'Qualifizierte Beteiligungen Privatvermögen',
-  '009': 'Qualifizierte Beteiligungen Geschäftsvermögen',
-  '011': 'Berufsauslagen',
-  '012': 'Versicherungsprämien',
-  '013': 'Krankheits-/Unfallkosten',
-  '014': 'Behinderungsbedingte Kosten',
-  '015': 'Lohnausweis',
-  '016': 'PK-Beleg (Auszahlung)',
-  '017': 'AHV-Beleg',
-  '018': 'IV-Beleg',
-  '019': 'ALV-Beleg',
-  '020': 'Säule 3a (Gebundene Vorsorge)',
-  '021': 'Kontoauszug',
-  '022': 'Hypothek',
-  '023': 'Kleinkredit',
-  '024': 'Krankenversicherung',
-  '025': 'Aus- und Weiterbildungskosten',
-  '026': 'E-Steuerauszug (eCH-0196 XML)',
-  '999': 'Sonstiges (keine Bezeichnung)',
-} as const;
+```
+010 111'606 020 22'919 030 040 050 060 671 672 1701 1901 241 68
 ```
 
-Verwendung:
+Für leeren Code `030` matcht die Regex die führende `4` des nächsten Codes `040` als „Wert" → False Positive. Das wiederholt sich für alle leeren Hauptbogen-Codes.
 
-1. **Dokumenten-Upload (`/documents`)**: jede Kategorie bekommt zusätzlich einen `ech0119Code` — bei späterem XML-Export werden Dateien automatisch korrekt typisiert.
-2. **Vorjahres-Checkliste**: jedem Item den `documentType`-Code zuordnen, damit Bezeichnung und Erkennung 1:1 mit der Norm übereinstimmt (z.B. unser „Säule 3a-Einzahlungsbestätigung" ↔ Code **020** „Gebundene Vorsorge").
-3. **Encrypted-Documents-Tabelle**: optionale Spalte `ech0119_code TEXT` (nullable) — für künftigen Export, ohne sofortige Migrations-Pflicht.
+## Fix in `src/services/PriorYearLocalExtractor.ts`
 
-### C — eCH-0196 E-Steuerauszug erkennen (kleiner, gezielter Mehrwert)
+1. **Komplette Code-Inventarliste** aufbauen (Set `ALL_KNOWN_CODES`): Union aller Codes aus `INCOME_CODES`/`ASSET_CODES`/`DEDUCTION_CODES` plus Hilfs-Codes, die das AG-Formular zwischen Feldern druckt (001, 295, 300, 401, 411, 501, 600, 601, 602, 690, 710, 711, 712, 713, 2701, 2811, 2821 — soweit nicht schon Doc-Codes).
 
-Code **026** = standardisierter XML-Steuerauszug der Banken (UBS, ZKB, Raiffeisen, PostFinance liefern das heute alle). Falls ein User eine `.xml`-Datei mit `eCH-0196`-Namespace hochlädt, können wir:
+2. **Neue Logik in `codeIsFilled(text, code)`**:
+   - Regex erfasst den ersten Token nach dem Code: `(?:^|[^0-9])CODE(?:[^0-9])\s*([\d'\.\s]{0,20})`
+   - Extrahiere die erste reine Ziffernfolge aus der Capture-Group (entferne `'`, `.`, Whitespace).
+   - Wenn `parseInt(value)` in `ALL_KNOWN_CODES` enthalten ist → Feld ist leer (nächstes Token ist ein anderer Code) → return `false`.
+   - Wenn die Ziffernfolge mit `0` beginnt (z.B. „040") → leerer Code-Marker → return `false`.
+   - Sonst echter Geldbetrag → return `true`.
 
-- automatisch als Wertschriftenverzeichnis taggen,
-- später (out of scope für dieses Plan) direkt Einträge in `listOfSecurities` mappen.
+3. **AG-Suchfenster verkleinern** von 80 auf 30 Zeichen, weil im AG-Hauptbogen Code und Wert immer dicht beieinander stehen (verhindert Bleed-Over zur nächsten Zeile).
 
-In dieser Iteration nur: **Erkennen + korrekt taggen** im `PriorYearUpload`/Dokumenten-Upload-Flow.
+## Erwartetes Ergebnis für das hochgeladene Graber-PDF
 
-### D — Scanner-Quelle in DB festhalten
+Einkommen: Lohnausweis, Wertschriften-/Depotverzeichnis (2 statt 8)
+Abzüge: Berufsauslagen-Belege, Säule 3a, Krankenkassen-Prämienrechnung, Kinderbetreuung (4 statt 12)
+Vermögen: Depotauszug, Bankkontoauszug per 31.12.
 
-`prior_year_checklists` bekommt optionales Feld `source SMALLINT` (0/1/2 gemäss eCH-0119 §3.6) — momentan immer `2` (OCR-Scanning). Das ist sauberer Metadaten-Hygiene und zukunftssicher, wenn wir mal selbst eingegebene Daten unterscheiden müssen.
+## Out of Scope
 
-### E — Kein XML-Export-Frontend in dieser Iteration
-
-Vollständiger eCH-0119-konformer XML-Export der gesamten Steuererklärung ist machbar, aber gross (alle 80+ Felder mappen, Schema-Validation, Canton-Extensions). Das ist **out of scope** für dieses Plan — wir legen nur das Fundament (`documentTypes.ts`, optionale DB-Felder), damit ein späterer Export-Service wenig zusätzliche Arbeit braucht.
-
-## Was NICHT geändert wird
-
-- Bestehende Form-/Datenstruktur (`formData.income/assets/deductions`) bleibt unverändert.
-- Keine Migration auf eCH-XML als interne Quelle der Wahrheit.
-- Keine UI-Änderungen am Vorjahres-Checklisten-Layout (das ist abgeschlossen).
-- Kein Touchen der Upload-Encryption (E2E bleibt mandatorisch).
-
-## Implementierungs-Schritte
-
-```text
-1. Ziffer-Mappings erweitern        → PriorYearLocalExtractor.ts
-                                       scan-prior-year-ai/index.ts
-2. Katalog-Datei anlegen            → src/services/ech0119/documentTypes.ts
-3. Vorjahres-Items mit Codes        → priorYearMapping.ts (label → ech0119Code)
-4. Dokumenten-Kategorien taggen     → src/config/documentProfiles.ts
-5. (optional, klein) eCH-0196 XML   → PriorYearUpload Erkennung per Datei-Header
-6. (optional) DB-Felder             → migration: prior_year_checklists.source,
-                                       encrypted_documents.ech0119_code
-```
-
-## Risiken
-
-- **Sehr klein**. Reine Erweiterung von Lookup-Tabellen + neue konstante Datei.
-- Punkt 6 (DB-Migration) bleibt optional und kann später nachgereicht werden, falls Export-Feature gebaut wird.
-
----
-
-Soll ich Schritte **1–4 (Code-only, keine DB)** direkt umsetzen, oder zusätzlich auch **5+6**?
+- AI-Edge-Function bleibt unverändert (Gemini sieht das PDF visuell und unterliegt diesem Token-Bleed-Bug nicht).
+- Kein UI-Change in `PriorYearChecklist.tsx`.
