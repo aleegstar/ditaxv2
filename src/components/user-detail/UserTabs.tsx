@@ -572,16 +572,16 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
           
               <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-                <div>
-                  <div className="mb-3">
-                    <h3 className="text-sm font-semibold text-foreground">
+                <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+                  <div className="mb-4">
+                    <h2 className="text-sm font-semibold text-foreground">
                       Nachrichten mit {user.firstName} {user.lastName}
-                    </h3>
+                    </h2>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Direkter Chat mit dem Benutzer
                     </p>
                   </div>
-                  <div className="h-[600px] rounded-xl overflow-hidden border border-white/40">
+                  <div className="h-[600px] rounded-xl overflow-hidden border border-border bg-background">
                     <SimpleChatWindow selectedUserId={userId} isAdmin={true} fullWidth={true} />
                   </div>
                 </div>
