@@ -21,6 +21,7 @@ import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
 import { FormTourProvider, useFormTour } from '@/contexts/FormTourContext';
 import { FormTour } from '@/components/FormTour';
+import { getLatestFilingTaxYear, isFilingYearAvailable } from '@/config/availableTaxYears';
 
 // Section mapping for import wizard
 const sectionKeyMap: Record<string, FormSectionKey> = {
