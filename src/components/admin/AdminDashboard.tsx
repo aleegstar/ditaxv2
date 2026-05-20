@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, RefreshCw, Zap, AlertTriangle, ClipboardCheck, LifeBuoy, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, RefreshCw, Zap, AlertTriangle, ClipboardCheck, LifeBuoy, ChevronRight, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
+import adminDashboardHero from '@/assets/admin-dashboard-hero.jpg';
 
 interface DashboardStats {
   totalUsers: number;
@@ -230,53 +231,71 @@ export const AdminDashboard: React.FC = () => {
   const completedChange = calcChange(stats.completedThisMonth, stats.completedLastMonth);
 
   return (
-    <div className="max-w-5xl mx-auto px-8 py-12 space-y-14">
-      {/* Hero — single operational focal point */}
-      <section>
-        <div className="flex items-center justify-between gap-6 mb-8">
-          <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-muted-foreground/60 inline-flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </p>
-          <button
-            onClick={loadDashboardData}
-            disabled={refreshing}
-            className="h-8 w-8 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-colors disabled:opacity-50 inline-flex items-center justify-center"
-            aria-label="Aktualisieren"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} strokeWidth={2} />
-          </button>
-        </div>
-
-        <h1 className="text-[34px] font-semibold text-foreground tracking-[-0.028em] leading-[1.1]">
-          {getGreeting()}.
-        </h1>
-        <p className="text-[20px] text-muted-foreground tracking-[-0.015em] leading-snug mt-2 max-w-2xl">
-          {heroLine}
-        </p>
-
-        {primaryUrgent && (
-          <div className="mt-8 flex items-center gap-3">
-            <Link
-              to={primaryUrgent.to}
-              className="h-10 px-4 rounded-lg bg-foreground text-background text-[13px] font-semibold hover:bg-foreground/90 transition-colors inline-flex items-center gap-2"
-            >
-              {primaryUrgent.label} öffnen
-              <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.25} />
-            </Link>
-            <Link
-              to="/admin/tax-processing"
-              className="h-10 px-3 rounded-lg text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors inline-flex items-center"
-            >
-              Alle Vorgänge
-            </Link>
+    <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-10 space-y-6">
+      {/* Hero card */}
+      <section className="bg-card border border-border rounded-3xl overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.04)]">
+        <div className="grid md:grid-cols-[1.45fr_1fr] gap-0">
+          <div className="p-6 md:p-8 flex flex-col justify-between gap-6">
+            <div>
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-muted-foreground/70 inline-flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
+                <button
+                  onClick={loadDashboardData}
+                  disabled={refreshing}
+                  className="h-8 w-8 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors disabled:opacity-50 inline-flex items-center justify-center"
+                  aria-label="Aktualisieren"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} strokeWidth={2} />
+                </button>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.045] text-[11px] font-semibold uppercase tracking-wider text-foreground/70 mb-3">
+                <Sparkles className="h-3 w-3" />
+                Operations
+              </div>
+              <h1 className="text-[28px] md:text-[32px] font-semibold text-foreground tracking-[-0.025em] leading-[1.1]">
+                {getGreeting()}.
+              </h1>
+              <p className="text-[15px] md:text-[16px] text-muted-foreground leading-snug mt-2 max-w-md">
+                {heroLine}
+              </p>
+              {primaryUrgent && (
+                <div className="mt-6 flex items-center gap-2">
+                  <Link
+                    to={primaryUrgent.to}
+                    className="h-11 px-5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-semibold hover:opacity-95 transition-opacity inline-flex items-center gap-2 shadow-[0_2px_8px_-2px_rgba(15,27,61,0.25)]"
+                  >
+                    {primaryUrgent.label} öffnen
+                    <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+                  </Link>
+                  <Link
+                    to="/admin/tax-processing"
+                    className="h-11 px-4 rounded-2xl text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors inline-flex items-center"
+                  >
+                    Alle Vorgänge
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+          <div className="relative h-44 md:h-auto min-h-[240px] overflow-hidden">
+            <img src={adminDashboardHero} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_30%]" />
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-card/10 to-card md:bg-gradient-to-l md:from-transparent md:to-card/85" />
+            {stats.expressTaxReturns > 0 && (
+              <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-semibold text-foreground shadow-[0_2px_8px_-2px_rgba(15,27,61,0.15)]">
+                <Zap className="h-3 w-3 text-red-600" strokeWidth={2.25} />
+                {stats.expressTaxReturns} Express
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
-      {/* Operational queue — primary content */}
-      <section>
-        <div className="flex items-baseline justify-between mb-5">
+      {/* Operational queue card */}
+      <section className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-[0_1px_2px_rgba(15,27,61,0.03)]">
+        <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-[15px] font-semibold text-foreground tracking-[-0.012em]">
             Aktionswarteschlange
           </h2>
@@ -291,9 +310,11 @@ export const AdminDashboard: React.FC = () => {
               <Link
                 key={q.label}
                 to={q.to}
-                className="group flex items-center gap-4 py-4 -mx-3 px-3 rounded-lg hover:bg-foreground/[0.025] transition-colors"
+                className="group flex items-center gap-4 py-3.5 -mx-2 px-2 rounded-xl hover:bg-foreground/[0.025] transition-colors"
               >
-                <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${muted ? 'text-muted-foreground/35' : q.iconClass}`} strokeWidth={1.75} />
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${muted ? 'bg-foreground/[0.03]' : 'bg-foreground/[0.045]'}`}>
+                  <Icon className={`w-[18px] h-[18px] ${muted ? 'text-muted-foreground/40' : q.iconClass}`} strokeWidth={1.75} />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-[14px] font-medium tracking-[-0.005em] ${muted ? 'text-muted-foreground/75' : 'text-foreground'}`}>
                     {q.label}
@@ -310,9 +331,9 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* Recent activity — secondary */}
-      <section>
-        <div className="flex items-baseline justify-between mb-5">
+      {/* Recent activity card */}
+      <section className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-[0_1px_2px_rgba(15,27,61,0.03)]">
+        <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-[15px] font-semibold text-foreground tracking-[-0.012em]">
             Letzte Aktivität
           </h2>
@@ -322,12 +343,12 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {stats.recentTaxReturns.length === 0 ? (
-          <p className="text-[13px] text-muted-foreground/70 py-8">Keine Steuererklärungen vorhanden</p>
+          <p className="text-[13px] text-muted-foreground/70 py-8 text-center">Keine Steuererklärungen vorhanden</p>
         ) : (
           <div className="divide-y divide-border/70">
             {stats.recentTaxReturns.map((tr, i) => (
               <div key={i} className="flex items-center gap-4 py-3.5">
-                <div className="w-7 h-7 rounded-full bg-muted/70 flex items-center justify-center text-[10px] font-semibold text-muted-foreground flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-foreground/[0.05] flex items-center justify-center text-[10px] font-semibold text-muted-foreground flex-shrink-0">
                   {tr.userName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -339,8 +360,12 @@ export const AdminDashboard: React.FC = () => {
                   </p>
                   <p className="text-[11.5px] text-muted-foreground/70 tabular-nums">Steuerjahr {tr.taxYear} · {tr.date}</p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
-                  <span className={`w-1.5 h-1.5 rounded-full ${getStatusDot(tr.status)}`} />
+                <span className={`inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2 py-1 rounded-full ${
+                  tr.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                  tr.status === 'processing' ? 'bg-blue-50 text-blue-700' :
+                  tr.status === 'review' ? 'bg-violet-50 text-violet-700' :
+                  'bg-amber-50 text-amber-700'
+                }`}>
                   {getStatusLabel(tr.status)}
                 </span>
               </div>
@@ -349,11 +374,12 @@ export const AdminDashboard: React.FC = () => {
         )}
       </section>
 
-      {/* Quiet footer metrics — minimal, no boxes */}
-      <section className="pt-10 border-t border-border/70">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
+
+      {/* Footer metrics card */}
+      <section className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-[0_1px_2px_rgba(15,27,61,0.03)]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Umsatz · Monat</p>
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Umsatz · Monat</p>
             <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               CHF {stats.revenueThisMonth.toLocaleString('de-CH')}
             </p>
@@ -365,7 +391,7 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Abschlüsse</p>
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Abschlüsse</p>
             <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               {stats.completedThisMonth}
             </p>
@@ -376,14 +402,14 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
           <Link to="/admin/users" className="group">
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Neue User (30T)</p>
-            <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2 group-hover:text-foreground">
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Neue User (30T)</p>
+            <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               {stats.newUsersLast30Days}
             </p>
             <p className="text-[11.5px] text-muted-foreground/60 mt-1">von {stats.totalUsers} gesamt</p>
           </Link>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Aktive User</p>
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Aktive User</p>
             <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               {stats.totalUsers}
             </p>
