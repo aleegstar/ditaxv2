@@ -1,8 +1,17 @@
 // Local, privacy-preserving extractor for prior-year Swiss tax returns.
-// 1) Reads PDF text layer in the browser via pdfjs-dist (no upload).
-// 2) Matches positions via curated Swiss tax keyword rules.
-// 3) Pseudonymizes the raw text (removes names, AHV, IBAN, address, dates)
-//    so an optional AI fallback never sees personally identifiable data.
+//
+// Strategy (rewritten):
+// 1) Read the PDF text layer WITH coordinates via pdfjs-dist and rebuild
+//    visual rows. This avoids the previous bug where a flat string mixed
+//    section numbers (1.1, 30.2), birth dates (14.10.1996), page IDs
+//    (0280832501DAG) and form codes (010, 3201) together — which caused
+//    countless false-positive category hits.
+// 2) For each row, find the AG form code (right "Code" column) and its
+//    value cell (next numeric cell to the right). If no value is present,
+//    the field is empty and the category is NOT flagged.
+// 3) Map filled codes to AG-specific document categories. Fallback to a
+//    line-based heuristic only for scanned/OCR text where no positions
+//    are available.
 
 import * as pdfjsLib from "pdfjs-dist";
 // @ts-ignore - vite worker import
@@ -18,7 +27,14 @@ export type ExtractedScan = {
   deductions: ExtractedItem[];
 };
 
-/** Read all text from a PDF file using its embedded text layer. */
+type Cell = { x: number; y: number; str: string };
+type Row = { y: number; cells: Cell[] };
+
+// ---------------------------------------------------------------------------
+// Raw text extractors
+// ---------------------------------------------------------------------------
+
+/** Read all text from a PDF file (flat). Kept for back-compat / OCR fallback. */
 export async function extractTextFromPdf(file: File): Promise<string> {
   const buf = await file.arrayBuffer();
   const doc = await (pdfjsLib as any).getDocument({ data: buf }).promise;
@@ -30,6 +46,39 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     parts.push(line);
   }
   return parts.join("\n");
+}
+
+/** Read PDF as positional rows (one array per page). */
+async function extractRowsFromPdf(file: File): Promise<Row[][]> {
+  const buf = await file.arrayBuffer();
+  const doc = await (pdfjsLib as any).getDocument({ data: buf }).promise;
+  const pages: Row[][] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const cells: Cell[] = [];
+    for (const it of content.items as any[]) {
+      const str = (it.str ?? "").trim();
+      if (!str) continue;
+      const tr = it.transform as number[];
+      cells.push({ x: tr[4], y: tr[5], str });
+    }
+    pages.push(groupCellsIntoRows(cells));
+  }
+  return pages;
+}
+
+function groupCellsIntoRows(cells: Cell[]): Row[] {
+  const tol = 2.5;
+  const sorted = [...cells].sort((a, b) => b.y - a.y || a.x - b.x);
+  const rows: Row[] = [];
+  for (const c of sorted) {
+    const row = rows.find((r) => Math.abs(r.y - c.y) <= tol);
+    if (row) row.cells.push(c);
+    else rows.push({ y: c.y, cells: [c] });
+  }
+  for (const r of rows) r.cells.sort((a, b) => a.x - b.x);
+  return rows;
 }
 
 /** Returns true if the text layer is rich enough to skip OCR. */
@@ -86,243 +135,188 @@ export async function ocrPdfLocally(
   return parts.join("\n");
 }
 
-type Rule = { label: string; patterns: RegExp[] };
-
 // ---------------------------------------------------------------------------
-// Kantonale Ziffern-Codes (Schwerpunkt Aargau eTax 2025 + SSK-/eCH-0119-Codes
-// anderer Kantone). Die AG-2025-Hauptbogen-Codierung weicht teilweise stark
-// von der SSK-Empfehlung ab — Beispiel: in AG ist 150/160 = Personengesell-
-// schaft, NICHT Wertschriftenertrag (das wäre 241).
+// Aargau eTax 2025 code → document mapping
+// (AG abweicht von SSK/eCH-0119 — der Kanton darf das Musterformular
+// anpassen, deshalb sind „Codes“ nicht 1:1 genormt.)
 // ---------------------------------------------------------------------------
-type CodeRule = { label: string; codes: number[] };
 
-const INCOME_CODES: CodeRule[] = [
-  // Lohn: AG 010/020 Haupterwerb, 030/040 Nebenerwerb, 050/060 weitere
-  // Vergütungen. SSK 100–103 für andere Kantone.
-  { label: "Lohnausweis",
-    codes: [10, 20, 30, 40, 50, 60, 100, 101, 102, 103] },
-  // Selbständigkeit: AG 070/090, 150/160 (Personengesellschaft P1/P2),
-  // SSK 120–123.
-  { label: "Nachweis Selbständigerwerb",
-    codes: [70, 90, 120, 121, 122, 123, 150, 160] },
-  // Renten: AG 1701/1901 (P1/P2 Renten/Ersatzeinkünfte), SSK 130–137 / 960–967
-  { label: "Rentenbescheinigung (AHV/IV/PK)",
-    codes: [1701, 1901, 130, 131, 132, 133, 134, 135, 136, 137,
-            960, 961, 962, 963, 964, 965, 966, 967] },
-  { label: "Arbeitslosentaggeld-Abrechnung", codes: [140, 141] },
-  // Familienzulagen: AG 671/672, SSK 142/143
-  { label: "Bestätigung Familien-/Mutterschaftszulagen",
-    codes: [142, 143, 671, 672] },
-  // Wertschriftenertrag: AG 241 (Total), SSK 151
-  { label: "Wertschriften-/Depotverzeichnis", codes: [241, 151] },
-  // Alimente erhalten: AG 251/252, SSK 160/161
-  { label: "Bestätigung Alimente/Unterhalt",
-    codes: [160, 161, 251, 252] },
-  // Übrige Einkünfte: AG 253 (Erbschaftsertrag), 254 (Kapitalabfindung),
-  // 255 (übrige Einkünfte), SSK 162–164
-  { label: "Beleg übrige Einkünfte",
-    codes: [162, 163, 164, 253, 254, 255] },
-  // Liegenschaftsertrag: AG 2701/2711/2741/2791, SSK 180–188
-  { label: "Liegenschaftsertrag-Abrechnung",
-    codes: [180, 181, 183, 186, 188, 2701, 2711, 2741, 2791] },
-];
+type Category = "income" | "assets" | "deductions";
 
-const ASSET_CODES: CodeRule[] = [
-  // AG 711 = Wertschriften-Verzeichnis-Total, 713 = Bargeld/VST-Guthaben.
-  // SSK 400 = Total Wertschriften + Konten.
-  { label: "Depotauszug per 31.12.", codes: [400, 711] },
-  { label: "Bankkontoauszug per 31.12.", codes: [400, 713] },
-  // Lebensversicherung: SSK 406
-  { label: "Rückkaufswert Lebensversicherung", codes: [406] },
-  { label: "Fahrzeugausweis / Eurotax", codes: [412] },
-  // Liegenschaft (Vermögen): SSK 420–434, AG 420er-Reihe analog
-  { label: "Liegenschaftsbeleg",
-    codes: [420, 421, 422, 430, 431, 434] },
-];
-
-const DEDUCTION_CODES: CodeRule[] = [
-  // Berufskosten: AG 3201 (P1) / 3401 (P2), SSK 201/220/221/240
-  { label: "Berufsauslagen-Belege",
-    codes: [201, 220, 221, 240, 3201, 3401] },
-  // Schuldzinsen: AG 310, SSK 250/470
-  { label: "Schuldzinsen-Bescheinigung", codes: [250, 310, 470] },
-  // Unterhaltszahlungen (bezahlt): AG 361/362/363, SSK 254–256
-  { label: "Beleg Unterhaltszahlung",
-    codes: [254, 255, 256, 361, 362, 363] },
-  // PK-Einkauf: AG 371/372, SSK 281
-  { label: "PK-Einkauf-Beleg", codes: [281, 371, 372] },
-  // Säule 3a: AG 381/382, SSK 260/261
-  { label: "Säule 3a-Einzahlungsbestätigung",
-    codes: [260, 261, 381, 382] },
-  // Versicherungsprämien (KK + Sparzinsen): AG 383, SSK 270
-  { label: "Krankenkassen-Prämienrechnung", codes: [270, 383] },
-  // Weiterbildung: AG 650/655, SSK 291
-  { label: "Belege Weiterbildungskosten", codes: [291, 650, 655] },
-  // Liegenschaftsunterhalt (Abzug): AG 2811/2821, SSK 184/185
-  { label: "Beleg Liegenschaftsunterhalt",
-    codes: [184, 185, 2811, 2821] },
-  // Krankheits-/Unfallkosten: AG 397, SSK 320
-  { label: "Belege Krankheits-/Unfallkosten", codes: [320, 397] },
-  // Spenden: AG 393, SSK 324
-  { label: "Spendenbescheinigung", codes: [324, 393] },
-  // Parteibeiträge: AG 392
-  { label: "Parteibeitrags-Beleg", codes: [392] },
-  // Kinderbetreuung: AG 390, SSK 376
-  { label: "Kinderbetreuungs-Beleg", codes: [376, 390] },
-];
-
-
-// Vollständiges Inventar aller im AG-eTax-Hauptbogen vorkommenden Ziffern,
-// inkl. reiner Zwischen-/Hilfscodes (Summenzeilen, Subtotale), damit wir
-// erkennen können, wenn nach einem Code direkt der nächste Code folgt
-// (= Feld ist leer). Ohne diese Liste matcht z. B. „030 040" fälschlich.
-const ALL_KNOWN_CODES: Set<number> = new Set<number>([
-  ...INCOME_CODES.flatMap((r) => r.codes),
-  ...ASSET_CODES.flatMap((r) => r.codes),
-  ...DEDUCTION_CODES.flatMap((r) => r.codes),
-  // AG-Hauptbogen Hilfs-/Summen-Codes, die zwischen Eingabefeldern gedruckt
-  // sind und im Text-Layer wie „Werte" aussehen können:
-  1, 295, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309,
-  401, 411, 501, 600, 601, 602, 690, 700, 710, 712,
-  2702, 2712, 2742, 2792, 2802, 2812, 2822,
-  3202, 3402, 380, 384, 385, 386, 387, 388, 389, 391,
-  394, 395, 396, 398, 399, 410, 413, 414, 415,
-]);
-
-/**
- * Erkennt, ob eine Ziffer im Text vorkommt UND mit einem nicht-null
- * Betrag ausgefüllt ist. Wir extrahieren den ersten Token nach dem Code
- * und verwerfen, wenn dieser selbst ein bekannter Code ist (= leeres Feld,
- * direkt gefolgt vom nächsten Code im Text-Layer).
- */
-function codeIsFilled(text: string, code: number): boolean {
-  const c = String(code);
-  const pat = c.length < 3 ? `0?${c}` : c;
-  const re = new RegExp(
-    `(?:^|[^0-9])${pat}(?:[^0-9])[ \\t]{0,30}?([0-9][0-9'\\.,\\s]{0,18})`,
-    "g",
-  );
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    const raw = m[1].replace(/[^0-9]/g, "");
-    if (!raw) continue;
-    // Führende Null → kein echter Betrag, sondern ein anderer Code (z. B. 040).
-    if (raw.startsWith("0")) continue;
-    const n = parseInt(raw, 10);
-    if (Number.isFinite(n) && ALL_KNOWN_CODES.has(n)) continue;
-    if (n > 0) return true;
-  }
-  return false;
+interface CodeDef {
+  code: number;
+  category: Category;
+  label: string;
 }
 
-function applyCodeRules(text: string, rules: CodeRule[]): ExtractedItem[] {
-  const out: ExtractedItem[] = [];
-  const seen = new Set<string>();
-  for (const rule of rules) {
-    if (seen.has(rule.label)) continue;
-    for (const code of rule.codes) {
-      if (codeIsFilled(text, code)) {
-        seen.add(rule.label);
-        out.push({ label: rule.label });
-        break;
+const AG_CODES: CodeDef[] = [
+  // ----- Einkünfte -----
+  { code: 10,   category: "income", label: "Lohnausweis" },
+  { code: 20,   category: "income", label: "Lohnausweis" },
+  { code: 30,   category: "income", label: "Lohnausweis" },
+  { code: 40,   category: "income", label: "Lohnausweis" },
+  { code: 50,   category: "income", label: "Lohnausweis" },
+  { code: 60,   category: "income", label: "Lohnausweis" },
+  { code: 690,  category: "income", label: "Lohnausweis" },
+  { code: 70,   category: "income", label: "Nachweis Selbständigerwerb" },
+  { code: 90,   category: "income", label: "Nachweis Selbständigerwerb" },
+  { code: 150,  category: "income", label: "Nachweis Selbständigerwerb" },
+  { code: 160,  category: "income", label: "Nachweis Selbständigerwerb" },
+  { code: 671,  category: "income", label: "Bestätigung Familien-/Mutterschaftszulagen" },
+  { code: 672,  category: "income", label: "Bestätigung Familien-/Mutterschaftszulagen" },
+  { code: 1701, category: "income", label: "Rentenbescheinigung (AHV/IV/PK)" },
+  { code: 1901, category: "income", label: "Rentenbescheinigung (AHV/IV/PK)" },
+  { code: 241,  category: "income", label: "Wertschriften-/Depotverzeichnis" },
+  { code: 251,  category: "income", label: "Bestätigung Alimente/Unterhalt" },
+  { code: 252,  category: "income", label: "Bestätigung Alimente/Unterhalt" },
+  { code: 253,  category: "income", label: "Beleg übrige Einkünfte" },
+  { code: 254,  category: "income", label: "Beleg übrige Einkünfte" },
+  { code: 255,  category: "income", label: "Beleg übrige Einkünfte" },
+  { code: 2701, category: "income", label: "Liegenschaftsertrag-Abrechnung" },
+  { code: 2711, category: "income", label: "Liegenschaftsertrag-Abrechnung" },
+  { code: 2741, category: "income", label: "Liegenschaftsertrag-Abrechnung" },
+  { code: 2791, category: "income", label: "Liegenschaftsertrag-Abrechnung" },
+
+  // ----- Abzüge -----
+  { code: 3201, category: "deductions", label: "Berufsauslagen-Belege" },
+  { code: 3401, category: "deductions", label: "Berufsauslagen-Belege" },
+  { code: 310,  category: "deductions", label: "Schuldzinsen-Bescheinigung" },
+  { code: 361,  category: "deductions", label: "Beleg Unterhaltszahlung" },
+  { code: 362,  category: "deductions", label: "Beleg Unterhaltszahlung" },
+  { code: 363,  category: "deductions", label: "Beleg Unterhaltszahlung" },
+  { code: 371,  category: "deductions", label: "PK-Einkauf-Beleg" },
+  { code: 372,  category: "deductions", label: "PK-Einkauf-Beleg" },
+  { code: 381,  category: "deductions", label: "Säule 3a-Einzahlungsbestätigung" },
+  { code: 382,  category: "deductions", label: "Säule 3a-Einzahlungsbestätigung" },
+  { code: 383,  category: "deductions", label: "Krankenkassen-Prämienrechnung" },
+  { code: 390,  category: "deductions", label: "Kinderbetreuungs-Beleg" },
+  { code: 392,  category: "deductions", label: "Parteibeitrags-Beleg" },
+  { code: 393,  category: "deductions", label: "Spendenbescheinigung" },
+  { code: 243,  category: "deductions", label: "Beleg Vermögensverwaltungskosten" },
+  { code: 650,  category: "deductions", label: "Belege Weiterbildungskosten" },
+  { code: 655,  category: "deductions", label: "Belege Weiterbildungskosten" },
+  { code: 397,  category: "deductions", label: "Belege Krankheits-/Unfallkosten" },
+  { code: 387,  category: "deductions", label: "Beleg behinderungsbedingte Kosten" },
+  { code: 2811, category: "deductions", label: "Beleg Liegenschaftsunterhalt" },
+  { code: 2821, category: "deductions", label: "Beleg Liegenschaftsunterhalt" },
+
+  // ----- Vermögen -----
+  { code: 711,  category: "assets", label: "Depotauszug per 31.12." },
+  { code: 713,  category: "assets", label: "Bankkontoauszug per 31.12." },
+];
+
+const AG_CODE_SET = new Set(AG_CODES.map((c) => c.code));
+// Pure summary / helper codes that print between input fields but never
+// carry a value the user fills in. Used to recognise an empty cell when
+// the next visible token is just another code label.
+const AG_HELPER_CODES = new Set<number>([
+  1, 240, 242, 295, 300, 311, 312, 380, 384, 385, 386, 388, 389,
+  391, 394, 395, 396, 398, 399, 401, 410, 411, 413, 414, 415,
+  501, 502, 503, 504, 600, 601, 602, 700, 710, 712,
+  2702, 2712, 2742, 2792, 2800, 2802, 2812, 2822,
+  3202, 3402,
+]);
+const ALL_AG_CODES = new Set<number>([...AG_CODE_SET, ...AG_HELPER_CODES]);
+
+function isCodeToken(str: string): number | null {
+  // Exact short numeric token like "010", "241", "3201" — never a date or
+  // amount, never a section number like "1.1".
+  if (!/^\d{2,4}$/.test(str)) return null;
+  const n = parseInt(str, 10);
+  return ALL_AG_CODES.has(n) ? n : null;
+}
+
+function isValueToken(str: string): boolean {
+  // A real Swiss money value: "111'606", "22'919", "3'360", "68", "33".
+  // Must contain at least one digit and may contain ' . , but no letters.
+  if (!/^[\d'.,\s]+$/.test(str)) return false;
+  const digits = str.replace(/[^0-9]/g, "");
+  if (!digits) return false;
+  const n = parseInt(digits, 10);
+  if (!Number.isFinite(n) || n <= 0) return false;
+  // Reject tokens that are themselves a known AG code (likely the
+  // adjacent code column having bled into the value position).
+  if (str.length <= 4 && ALL_AG_CODES.has(n)) return false;
+  return true;
+}
+
+/** Walk reconstructed rows and return the set of AG codes with a value. */
+function findFilledCodesInRows(pages: Row[][]): Set<number> {
+  const filled = new Set<number>();
+  for (const rows of pages) {
+    for (const row of rows) {
+      for (let i = 0; i < row.cells.length; i++) {
+        const code = isCodeToken(row.cells[i].str);
+        if (code === null || !AG_CODE_SET.has(code)) continue;
+        // Look for a value cell to the right on the same row.
+        for (let j = i + 1; j < row.cells.length; j++) {
+          const next = row.cells[j].str;
+          // If the very next cell is another code, the current code is empty.
+          if (isCodeToken(next) !== null) break;
+          if (isValueToken(next)) {
+            filled.add(code);
+            break;
+          }
+        }
       }
     }
   }
-  return out;
+  return filled;
 }
 
-// ---------------------------------------------------------------------------
-// Fallback-Keywords (nur ergänzend wenn Code-Detection wenig findet,
-// z. B. bei nicht-SSK-konformen PDFs oder sehr schlechtem OCR-Output).
-// ---------------------------------------------------------------------------
-const INCOME_RULES: Rule[] = [
-  { label: "Lohnausweis", patterns: [/\blohnausweis\b/i, /\bunselbst[aä]ndige?r?\s+erwerb\b/i, /\bhaupterwerb\b/i, /\bnebenerwerb\b/i] },
-  { label: "Nachweis Selbständigerwerb", patterns: [/\bselbst[aä]ndige?r?\s+erwerb\b/i, /\beinzelfirma\b/i, /\bpersonengesellschaft\b/i] },
-  { label: "Rentenbescheinigung (AHV/IV/PK)", patterns: [/\bAHV[- ]?rente\b/i, /\bIV[- ]?rente\b/i, /\baltersrente\b/i, /\bhinterlassenenrente\b/i, /\bpensionskassenrente\b/i] },
-  { label: "Bescheinigung Säule 3a-Bezug", patterns: [/\bs[aä]ule\s*3a\b[^\n]{0,40}\bbezug\b/i, /\bkapitalleistung\b[^\n]{0,40}\b3a\b/i] },
-  { label: "Wertschriften-/Depotverzeichnis", patterns: [/\bwertschriftenertrag\b/i, /\bdividenden\b/i, /\bzinsertr[aä]ge\b/i, /\bDA-?1\b/i] },
-  { label: "Liegenschaftsertrag-Abrechnung", patterns: [/\beigenmietwert\b/i, /\bmietertrag\b/i, /\bliegenschaftsertrag\b/i] },
-  { label: "Bestätigung Alimente/Unterhalt", patterns: [/\bunterhaltsbeitr[aä]ge\b/i, /\balimente\b/i] },
-  { label: "Arbeitslosentaggeld-Abrechnung", patterns: [/\barbeitslosen\w*\b/i, /\bALV\b/i] },
-];
-
-const ASSETS_RULES: Rule[] = [
-  { label: "Bankkontoauszug per 31.12.", patterns: [/\bbankkonto\b/i, /\bsparkonto\b/i, /\bprivatkonto\b/i, /\bkontokorrent\b/i, /\bpostfinance\b/i, /\braiffeisen\b/i, /\bkantonalbank\b/i] },
-  { label: "Depotauszug per 31.12.", patterns: [/\bwertschriften\b/i, /\bdepot\b/i, /\baktien\b/i, /\bfonds\b/i, /\bobligationen\b/i] },
-  { label: "Rückkaufswert Lebensversicherung", patterns: [/\blebensversicherung\b/i, /\br[uü]ckkaufswert\b/i] },
-  { label: "Liegenschaftsbeleg", patterns: [/\bliegenschaft\b/i, /\beigentumswohnung\b/i, /\beinfamilienhaus\b/i, /\bgrundst[uü]ck\b/i] },
-  { label: "Fahrzeugausweis / Eurotax", patterns: [/\bmotorfahrzeug\b/i, /\bpersonenwagen\b/i] },
-  { label: "Krypto-Saldonachweis", patterns: [/\bkryptow[aä]hrung\w*\b/i, /\bbitcoin\b/i, /\bethereum\b/i] },
-];
-
-const DEDUCTIONS_RULES: Rule[] = [
-  { label: "Berufsauslagen-Belege", patterns: [/\bberufsauslagen\b/i, /\bfahrkosten\b/i, /\bverpflegung\b/i, /\bweiterbildung\b/i] },
-  { label: "Säule 3a-Einzahlungsbestätigung", patterns: [/\beinzahlung\b[^\n]{0,30}\b3a\b/i, /\bbeitrag\b[^\n]{0,30}\b3a\b/i, /\bs[aä]ule\s*3a\b/i, /\bgebundene\s+vorsorge\b/i] },
-  { label: "PK-Einkauf-Beleg", patterns: [/\beinkauf\b[^\n]{0,30}\bpensionskasse\b/i, /\bPK[- ]?einkauf\b/i] },
-  { label: "Belege Krankheits-/Unfallkosten", patterns: [/\bkrankheitskosten\b/i, /\bunfallkosten\b/i, /\bselbstbehalt\b/i] },
-  { label: "Krankenkassen-Prämienrechnung", patterns: [/\bkrankenkassenpr[aä]mien\b/i, /\bgrundversicherung\b/i, /\bKVG\b/i] },
-  { label: "Spendenbescheinigung", patterns: [/\bspenden\b/i, /\bzuwendungen\b/i, /\bgemeinn[uü]tzig\w*\b/i] },
-  { label: "Schuldzinsen-Bescheinigung", patterns: [/\bschuldzinsen\b/i, /\bhypothekarzins\w*\b/i] },
-  { label: "Kinderbetreuungs-Beleg", patterns: [/\bkinderbetreuung\b/i, /\bkita\b/i, /\btagesst[aä]tte\b/i] },
-  { label: "Beleg Unterhaltszahlung", patterns: [/\bunterhaltsbeitr[aä]ge\b[^\n]{0,20}\bbezahlt\b/i, /\balimente\b[^\n]{0,20}\bbezahlt\b/i] },
-  { label: "Beleg Liegenschaftsunterhalt", patterns: [/\bliegenschaftsunterhalt\b/i, /\bunterhaltskosten\b/i] },
-  { label: "Parteibeitrags-Beleg", patterns: [/\bparteibeitr[aä]ge\b/i] },
-];
-
-function applyRules(text: string, rules: Rule[]): ExtractedItem[] {
-  const out: ExtractedItem[] = [];
-  const seen = new Set<string>();
-  for (const rule of rules) {
-    for (const p of rule.patterns) {
-      if (!p.test(text)) continue;
-      if (seen.has(rule.label)) break;
-      seen.add(rule.label);
-      out.push({ label: rule.label });
-      break;
-    }
+function scanFromFilledCodes(filled: Set<number>): ExtractedScan {
+  const seen: Record<Category, Set<string>> = {
+    income: new Set(),
+    assets: new Set(),
+    deductions: new Set(),
+  };
+  for (const def of AG_CODES) {
+    if (filled.has(def.code)) seen[def.category].add(def.label);
   }
-  return out;
-}
-
-function mergeItems(primary: ExtractedItem[], fallback: ExtractedItem[]): ExtractedItem[] {
-  const seen = new Set(primary.map((i) => i.label));
-  const out = [...primary];
-  for (const item of fallback) {
-    if (!seen.has(item.label)) {
-      seen.add(item.label);
-      out.push(item);
-    }
-  }
-  return out;
-}
-
-export function extractItemsFromText(text: string): ExtractedScan {
-  // Primär: SSK Ziffer-Codes (kantonsübergreifend stabil und OCR-robust).
-  const incomeByCode = applyCodeRules(text, INCOME_CODES);
-  const assetsByCode = applyCodeRules(text, ASSET_CODES);
-  const deductionsByCode = applyCodeRules(text, DEDUCTION_CODES);
-
-  // Strikter Modus: Sobald auch nur EINE SSK-Ziffer im Dokument erkannt wurde,
-  // verlassen wir uns ausschliesslich auf die Codes. Keyword-Heuristik wird
-  // nur dann zugeschaltet, wenn gar keine Ziffern gefunden wurden.
-  const codeHits = incomeByCode.length + assetsByCode.length + deductionsByCode.length;
-  if (codeHits >= 1) {
-    return {
-      contact: [],
-      income: incomeByCode,
-      assets: assetsByCode,
-      deductions: deductionsByCode,
-    };
-  }
-
-  // Fallback nur wenn Code-Detection praktisch nichts findet.
   return {
     contact: [],
-    income: mergeItems(incomeByCode, applyRules(text, INCOME_RULES)),
-    assets: mergeItems(assetsByCode, applyRules(text, ASSETS_RULES)),
-    deductions: mergeItems(deductionsByCode, applyRules(text, DEDUCTIONS_RULES)),
+    income: [...seen.income].map((label) => ({ label })),
+    assets: [...seen.assets].map((label) => ({ label })),
+    deductions: [...seen.deductions].map((label) => ({ label })),
   };
 }
+
+/**
+ * Main entry: extract a positional scan from a PDF File.
+ * Returns ExtractedScan based on visually adjacent code + value cells.
+ */
+export async function extractScanFromPdf(file: File): Promise<ExtractedScan> {
+  const pages = await extractRowsFromPdf(file);
+  const filled = findFilledCodesInRows(pages);
+  return scanFromFilledCodes(filled);
+}
+
+// ---------------------------------------------------------------------------
+// Line-based fallback for OCR text (no coordinates available)
+// ---------------------------------------------------------------------------
+
+/** Line-based scan used when only OCR text is available. */
+export function extractItemsFromText(text: string): ExtractedScan {
+  const filled = new Set<number>();
+  const lines = text.split(/\r?\n/);
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    const tokens = line.split(/\s+/);
+    if (tokens.length < 2) continue;
+    // We only accept the typical layout "... <code> <value>" at the end of
+    // the visual line. This avoids matching prose such as
+    // "Summe der Ziffern 30 bis 32 ... 701 24'448".
+    const last = tokens[tokens.length - 1];
+    const prev = tokens[tokens.length - 2];
+    if (!isValueToken(last)) continue;
+    const code = isCodeToken(prev);
+    if (code === null || !AG_CODE_SET.has(code)) continue;
+    filled.add(code);
+  }
+  return scanFromFilledCodes(filled);
+}
+
 
 /**
  * Remove personally identifiable information so the text can be sent to
@@ -330,19 +324,12 @@ export function extractItemsFromText(text: string): ExtractedScan {
  */
 export function pseudonymize(text: string): string {
   return text
-    // AHV / Sozialversicherungsnummer 756.xxxx.xxxx.xx
     .replace(/\b756[.\s]\d{4}[.\s]\d{4}[.\s]\d{2}\b/g, "[AHV]")
-    // IBAN (Schweiz)
     .replace(/\bCH\d{2}\s?(?:\d{4}\s?){4}\d{1,4}\b/gi, "[IBAN]")
-    // Geburtsdaten / Datumsangaben (TT.MM.JJJJ)
     .replace(/\b\d{1,2}\.\d{1,2}\.(?:19|20)\d{2}\b/g, "[DATUM]")
-    // E-Mail
     .replace(/\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g, "[EMAIL]")
-    // Telefon (CH)
     .replace(/\+?41[\s\-]?\d{2}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}/g, "[TEL]")
-    // PLZ + Ort (4-stellige PLZ gefolgt von Wort)
     .replace(/\b\d{4}\s+[A-ZÄÖÜ][a-zäöü\-]+\b/g, "[ORT]")
-    // Strassen mit Hausnummer
     .replace(/\b[A-ZÄÖÜ][a-zäöü\-]+(?:strasse|str\.|gasse|weg|platz|allee)\s*\d+[a-z]?/gi, "[ADRESSE]");
 }
 
