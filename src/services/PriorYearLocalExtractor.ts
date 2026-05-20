@@ -96,7 +96,10 @@ type Rule = { label: string; patterns: RegExp[] };
 type CodeRule = { label: string; codes: number[] };
 
 const INCOME_CODES: CodeRule[] = [
-  { label: "Lohnausweis", codes: [100, 101, 102, 103] },
+  // 100–103 = SSK-Beilagencodes Lohnausweis; 10/20 Haupterwerb,
+  // 30/40 Nebenerwerb, 50/60 weitere Vergütungen (Aargau-Hauptbogen,
+  // weitere Kantone mit 2-stelliger Hauptbogen-Codierung)
+  { label: "Lohnausweis", codes: [100, 101, 102, 103, 10, 20, 30, 40, 50, 60] },
   { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
   // Renten: 130/131 AHV/IV, 132–137 Pensionskasse, 960–967 Detail-Ziffern
   // (eCH-0119 §3.8.4 Tabelle 16)
@@ -149,7 +152,10 @@ const DEDUCTION_CODES: CodeRule[] = [
  */
 function codeIsFilled(text: string, code: number): boolean {
   const c = String(code);
-  const re = new RegExp(`(?:^|[^0-9])${c}(?:[^0-9]|$)[^\\n]{0,40}?[1-9]`);
+  // Kantone wie AG drucken 2-stellige Ziffern als "010", "020" usw.
+  // Daher optional führende Null akzeptieren, wenn der Code <100 ist.
+  const pat = c.length < 3 ? `0?${c}` : c;
+  const re = new RegExp(`(?:^|[^0-9])${pat}(?:[^0-9]|$)[^\\n]{0,40}?[1-9]`);
   return re.test(text);
 }
 

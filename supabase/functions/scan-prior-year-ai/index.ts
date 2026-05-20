@@ -168,6 +168,9 @@ Ziffer → Dokument-Mapping (verwende EXAKT diese Labels):
 
 EINKOMMEN
 - 100 / 101 / 102 / 103  → "Lohnausweis"
+  (Einige Kantone, z. B. AG, verwenden im Hauptbogen stattdessen
+  010 / 020 = Haupterwerb, 030 / 040 = Nebenerwerb, 050 / 060 = weitere
+  Vergütungen — ebenfalls als "Lohnausweis" werten.)
 - 120 / 121 / 122 / 123  → "Nachweis Selbständigerwerb"
 - 130–137 sowie 960–967  → "Rentenbescheinigung (AHV/IV/PK)"
   (Pensionskassenausweis selbst ist KEIN Beleg für die Steuererklärung – nur die Renten-Bescheinigung wenn tatsächlich Renten ausbezahlt werden.)
