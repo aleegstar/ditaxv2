@@ -310,7 +310,10 @@ export async function extractScanFromPdf(file: File): Promise<ExtractedScan> {
 // Account (Bankkonto/Depot) extraction from Wertschriften pages
 // ---------------------------------------------------------------------------
 
-const IBAN_RX = /\bCH\d{2}[\s\d]{17,30}\b/;
+// Swiss IBAN (CH + 19 chars). The Aargau eTax printout sometimes bleeds the
+// adjacent "Typ" column letter (V/L/G/M) into the IBAN cell — allow letters
+// inside the BBAN portion and let normalization dedupe later.
+const IBAN_RX = /\bCH\d{2}(?:[\s]?[A-Z0-9]){17,28}/;
 const DEPOT_RX = /^\d{6,12}$/;
 const KNOWN_INSTITUTIONS = [
   'UBS', 'Postfinance', 'PostFinance', 'Raiffeisen', 'Yuh', 'Swissquote',

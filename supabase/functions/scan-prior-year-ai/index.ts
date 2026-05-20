@@ -15,7 +15,8 @@ const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-2.5-flash";
 
 type Item = { label: string };
-type Scan = { income?: Item[]; assets?: Item[]; deductions?: Item[] };
+type Account = { institution?: string; reference?: string };
+type Scan = { income?: Item[]; assets?: Item[]; deductions?: Item[]; accounts?: Account[] };
 
 // Whitelist of labels we accept back from the model. Anything else is dropped.
 const ALLOWED_LABELS = new Set<string>([
@@ -229,14 +230,34 @@ existiert NICHT mehr — niemals zurückgeben. "Bescheinigung Säule 3a-Bezug"
 nur dann, wenn das PDF explizit eine Kapitalleistung / Pensionierung
 ausweist (separates Formular Kapitalleistungen, nicht im Hauptformular).
 
+ZUSÄTZLICH — BANK-/DEPOTKONTEN aus dem Wertschriften- und Guthabenverzeichnis:
+Wenn das PDF die Detailauflistung Rubrik A (mit Verrechnungssteuer) und/oder
+Rubrik B (ohne Verrechnungssteuer) enthält, EXTRAHIERE JEDES EINZELNE KONTO
+bzw. DEPOT GENAU EINMAL (dedupliziert über die Konto-/Depot-Nummer).
+
+Für jede Zeile in den Detailauflistungen:
+- "reference" = der Inhalt der Spalte "Kto-Nr Valoren-Nr"
+   • IBAN exakt wie gedruckt (z.B. "CH68 0025 3253 1100 1540")
+   • oder reine Depot-/Kontonummer (z.B. "1666308", "135309759")
+   • Ignoriere Spaltennachbarn wie "BK", "PC", "Dep", "V", "L", "G" — das sind
+     Typ-Codes und gehören NICHT in die Referenz.
+- "institution" = der Inhalt der Spalte "Bezeichnung"
+   (z.B. "UBS Switzerland AG", "PostFinance", "Yuh", "Raiffeisen", "Plus500").
+   Ohne "Zeitraum"-Suffix, ohne Adressen.
+- WICHTIG: Wenn dasselbe Konto sowohl in Rubrik A als auch in Rubrik B
+  vorkommt (z.B. Yuh Depot 1666308), darf es NUR EINMAL erscheinen.
+- Wenn keine Wertschriften-Detailauflistung vorhanden ist, gib accounts:[]
+  zurück.
+
 Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema:
 {
   "income":     [{"label": string}],
   "assets":     [{"label": string}],
-  "deductions": [{"label": string}]
+  "deductions": [{"label": string}],
+  "accounts":   [{"institution": string, "reference": string}]
 }
 
-Keine Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
+Keine Werte, keine Beträge, keine Adressen, keine Erklärungen.`;
 
     const aiResp = await fetch(LOVABLE_AI_URL, {
       method: "POST",
@@ -295,6 +316,30 @@ Keine Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
           sort_order: order++,
         });
       }
+    }
+
+    // Append one assets row per extracted bank/depot account, deduped by
+    // normalized reference. Bypass ALLOWED_LABELS — these use a stable
+    // "Beleg Bankkonto/Depot – {institution} · {reference}" format that
+    // priorYearMapping.ts parses back into formData.assets.accounts.
+    const seenRef = new Set<string>();
+    for (const acc of scan.accounts ?? []) {
+      const institutionRaw = String(acc?.institution ?? "").trim();
+      const referenceRaw = String(acc?.reference ?? "").trim();
+      if (!institutionRaw && !referenceRaw) continue;
+      const normRef = referenceRaw.replace(/\s+/g, "").toUpperCase();
+      const key = normRef || institutionRaw.toUpperCase();
+      if (!key || seenRef.has(key)) continue;
+      seenRef.add(key);
+      const institution = institutionRaw || "Bank/Depot";
+      const label = `Beleg Bankkonto/Depot – ${[institution, referenceRaw].filter(Boolean).join(" · ")}`;
+      rows.push({
+        checklist_id: checklist.id,
+        category: "assets",
+        label,
+        source_value: null,
+        sort_order: order++,
+      });
     }
     if (rows.length > 0) {
       const { error: insErr } = await admin.from("prior_year_checklist_items").insert(rows);
