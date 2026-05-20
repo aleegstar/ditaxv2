@@ -472,24 +472,15 @@ const DocumentsContent: React.FC<{
           <div className="max-w-[960px] mx-auto w-full pb-4">
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
-                <div className="mb-3">
-                  <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1]">
-                    Dokumente
-                  </h1>
-                </div>
-                <div className="mb-3" data-tour="documents-year-selector">
+                <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1] mb-4">
+                  Dokumente
+                </h1>
+                <div data-tour="documents-year-selector">
                   <YearPillSelector
                     years={availableYears}
                     selectedYear={selectedYear}
                     onSelect={handleYearSelect}
                   />
-                </div>
-                <p className="text-[13px] text-muted-foreground leading-[1.5] max-w-[520px]">
-                  Lade deine Unterlagen einfach übers Jahr hoch. Ditax ordnet sie später automatisch während der Steuererklärung zu.
-                </p>
-                <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
-                  <Shield className="w-2.5 h-2.5" strokeWidth={2.25} />
-                  Ende-zu-Ende verschlüsselt
                 </div>
               </div>
 
