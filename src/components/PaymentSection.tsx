@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
 import { isPromoWeekActive, PROMO_WEEK_BASE_PRICE, PROMO_WEEK_EXPRESS_PRICE } from '@/config/promoWeek';
+import { mapPriorYearToFormFlags } from '@/components/intake/priorYearMapping';
+import type { ChecklistItem } from '@/hooks/usePriorYearChecklist';
 import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X, FileText, Columns, Bitcoin, Home, Briefcase, Calculator, Receipt, Sparkles, Lock, Check } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
