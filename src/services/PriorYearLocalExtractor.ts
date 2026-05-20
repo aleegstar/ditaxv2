@@ -98,35 +98,49 @@ type CodeRule = { label: string; codes: number[] };
 const INCOME_CODES: CodeRule[] = [
   { label: "Lohnausweis", codes: [100, 101, 102, 103] },
   { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
-  { label: "Rentenbescheinigung (AHV/IV/PK)", codes: [130, 131, 132, 133, 134, 135, 136, 137] },
+  // Renten: 130/131 AHV/IV, 132–137 Pensionskasse, 960–967 Detail-Ziffern
+  // (eCH-0119 §3.8.4 Tabelle 16)
+  { label: "Rentenbescheinigung (AHV/IV/PK)",
+    codes: [130, 131, 132, 133, 134, 135, 136, 137,
+            960, 961, 962, 963, 964, 965, 966, 967] },
   { label: "Arbeitslosentaggeld-Abrechnung", codes: [140, 141] },
   { label: "Bestätigung Familien-/Mutterschaftszulagen", codes: [142, 143] },
   { label: "Wertschriften-/Depotverzeichnis", codes: [150, 151] },
   { label: "Bestätigung Alimente/Unterhalt", codes: [160, 161] },
+  // 162 Erbschaften/Kooperationsanteile, 163 weitere Einkünfte,
+  // 164 wiederkehrende Kapitalabfindung
+  { label: "Beleg übrige Einkünfte", codes: [162, 163, 164] },
   { label: "Liegenschaftsertrag-Abrechnung", codes: [180, 181, 183, 186, 188] },
 ];
 
 const ASSET_CODES: CodeRule[] = [
+  // Code 400 = Total Wertschriften+Konten (Wertschriftenverzeichnis-Total)
   { label: "Depotauszug per 31.12.", codes: [400] },
   { label: "Bankkontoauszug per 31.12.", codes: [400] },
   { label: "Rückkaufswert Lebensversicherung", codes: [406] },
   { label: "Fahrzeugausweis / Eurotax", codes: [412] },
-  { label: "Liegenschaftsbeleg", codes: [420, 421, 422] },
+  // 420–422 Liegenschaften Privatvermögen, 430/431/434 Liegenschaften
+  // im Selbständigen-Geschäftsvermögen (eCH-0119 §3.8.6 Tabelle 18)
+  { label: "Liegenschaftsbeleg", codes: [420, 421, 422, 430, 431, 434] },
 ];
 
 const DEDUCTION_CODES: CodeRule[] = [
-  { label: "Berufsauslagen-Belege", codes: [220, 240] },
+  // 201/221 = ÖV-Abo, 220/240 = übrige Berufsauslagen / Verpflegung
+  { label: "Berufsauslagen-Belege", codes: [201, 220, 221, 240] },
   { label: "Schuldzinsen-Bescheinigung", codes: [250, 470] },
   { label: "Beleg Unterhaltszahlung", codes: [254, 255, 256] },
   { label: "Säule 3a-Einzahlungsbestätigung", codes: [260, 261] },
   { label: "Krankenkassen-Prämienrechnung", codes: [270] },
-  { label: "PK-Einkauf-Beleg", codes: [280] },
+  // 281 = Versicherungsprämien-Erweiterung (Spec lst PK-Einkauf nicht
+  // als eigene Ziffer – Einkäufe laufen üblicherweise via Säule-2-Beleg)
+  { label: "PK-Einkauf-Beleg", codes: [281] },
   { label: "Belege Weiterbildungskosten", codes: [291] },
   { label: "Beleg Liegenschaftsunterhalt", codes: [184, 185] },
   { label: "Belege Krankheits-/Unfallkosten", codes: [320] },
   { label: "Spendenbescheinigung", codes: [324] },
   { label: "Kinderbetreuungs-Beleg", codes: [376] },
 ];
+
 
 /**
  * Erkennt, ob eine SSK-Ziffer im Text vorkommt UND mit einem nicht-null

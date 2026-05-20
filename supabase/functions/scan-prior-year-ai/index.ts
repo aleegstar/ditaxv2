@@ -168,12 +168,13 @@ Ziffer → Dokument-Mapping (verwende EXAKT diese Labels):
 EINKOMMEN
 - 100 / 101 / 102 / 103  → "Lohnausweis"
 - 120 / 121 / 122 / 123  → "Nachweis Selbständigerwerb"
-- 130 / 131 / 132 / 133 / 134 / 135 / 136 / 137  → "Rentenbescheinigung (AHV/IV/PK)"
+- 130–137 sowie 960–967  → "Rentenbescheinigung (AHV/IV/PK)"
   (Pensionskassenausweis selbst ist KEIN Beleg für die Steuererklärung – nur die Renten-Bescheinigung wenn tatsächlich Renten ausbezahlt werden.)
 - 140 / 141              → "Arbeitslosentaggeld-Abrechnung"
 - 142 / 143              → "Bestätigung Familien-/Mutterschaftszulagen"
 - 150 / 151              → "Wertschriften-/Depotverzeichnis"
 - 160 / 161              → "Bestätigung Alimente/Unterhalt"
+- 162 / 163 / 164        → "Beleg übrige Einkünfte" (Erbschaften, freie Einträge, Kapitalabfindung)
 - 180 / 181 / 183 / 186 / 188 → "Liegenschaftsertrag-Abrechnung"
 
 VERMÖGEN
@@ -181,15 +182,15 @@ VERMÖGEN
                            (beide, da Code 400 sowohl Wertschriften als auch Konten umfasst)
 - 406                    → "Rückkaufswert Lebensversicherung"
 - 412                    → "Fahrzeugausweis / Eurotax"
-- 420 / 421 / 422        → "Liegenschaftsbeleg"
+- 420 / 421 / 422 / 430 / 431 / 434 → "Liegenschaftsbeleg"
 
 ABZÜGE
-- 220 / 240              → "Berufsauslagen-Belege"
+- 201 / 220 / 221 / 240  → "Berufsauslagen-Belege" (inkl. ÖV-Abo)
 - 250 / 470              → "Schuldzinsen-Bescheinigung"
 - 254 / 255 / 256        → "Beleg Unterhaltszahlung"
 - 260 / 261              → "Säule 3a-Einzahlungsbestätigung"
 - 270                    → "Krankenkassen-Prämienrechnung"
-- 280                    → "PK-Einkauf-Beleg"
+- 281                    → "PK-Einkauf-Beleg" (Versicherungsprämien-Erweiterung)
 - 291                    → "Belege Weiterbildungskosten"
 - 184 / 185              → "Beleg Liegenschaftsunterhalt"
 - 320                    → "Belege Krankheits-/Unfallkosten"
