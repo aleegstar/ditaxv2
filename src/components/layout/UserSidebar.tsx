@@ -15,6 +15,7 @@ import {
   User as UserIcon,
   LogOut,
 } from 'lucide-react';
+import ditaxLogo from '@/assets/ditax-logo-icon.png';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { useI18n } from '@/contexts/I18nContext';
@@ -127,11 +128,11 @@ export const UserSidebar: React.FC = () => {
           aria-label="Aktiver Steuerpflichtiger"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="w-10 h-10 rounded-full ring-1 ring-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt={filerName} className="w-full h-full object-cover" />
               ) : (
-                <img src="/ditax-symbol.svg" alt="Ditax" className="w-6 h-6 object-contain" />
+                <img src={ditaxLogo} alt="Ditax" className="w-6 h-6 object-contain" />
               )}
             </div>
             <div className="min-w-0 text-left">
