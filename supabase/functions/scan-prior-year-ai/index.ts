@@ -234,25 +234,38 @@ nur dann, wenn das PDF explizit eine Kapitalleistung / Pensionierung
 ausweist (separates Formular Kapitalleistungen, nicht im Hauptformular).
 
 ZUSÄTZLICH — BANK-/DEPOTKONTEN aus dem Wertschriften- und Guthabenverzeichnis:
-Wenn das PDF die Detailauflistung Rubrik A (mit Verrechnungssteuer) und/oder
-Rubrik B (ohne Verrechnungssteuer) enthält, EXTRAHIERE JEDES EINZELNE KONTO
-bzw. DEPOT GENAU EINMAL (dedupliziert über die Konto-/Depot-Nummer).
 
-Für jede Zeile in den Detailauflistungen:
-- "reference" = der Inhalt der Spalte "Kto-Nr Valoren-Nr"
-   • IBAN exakt wie gedruckt (z.B. "CH68 0025 3253 1100 1540")
-   • oder reine Depot-/Kontonummer (z.B. "1666308", "135309759")
-   • Ignoriere Spaltennachbarn wie "BK", "PC", "Dep", "V", "L", "G" — das sind
-     Typ-Codes und gehören NICHT in die Referenz.
-- "institution" = der Inhalt der Spalte "Bezeichnung"
-   (z.B. "UBS Switzerland AG", "PostFinance", "Yuh", "Raiffeisen", "Plus500").
-   Ohne "Zeitraum"-Suffix, ohne Adressen.
-- WICHTIG: Wenn dasselbe Konto sowohl in Rubrik A als auch in Rubrik B
-  vorkommt (z.B. Yuh Depot 1666308), darf es NUR EINMAL erscheinen.
-- Wenn keine Wertschriften-Detailauflistung vorhanden ist, gib accounts:[]
-  zurück.
+LIES NUR DIE TABELLEN-DETAILZEILEN. Beispiel-Spaltenkopf des Aargauer
+Wertschriftenverzeichnisses (Rubrik A "mit Verrechnungssteuer" oder
+Rubrik B "ohne Verrechnungssteuer"):
 
-Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema:
+  Nr | Stk/Nom | Typ | Kto-Nr Valoren-Nr | Bezeichnung | Steuerwert | Bruttoertrag
+
+Vorgehen — STRENG einhalten:
+1. Suche nur Seiten, die den Spaltenkopf "Kto-Nr" UND "Bezeichnung" enthalten.
+   Gibt es keine solche Seite → accounts: [].
+2. Verarbeite ausschliesslich Datenzeilen UNTER diesem Kopf, eine Zeile = ein
+   Konto/Depot. Ignoriere alle Zeilen vor dem Kopf, alle "Zwischen­total"-,
+   "Total"- und Summen-Zeilen, sowie reine Vortragstexte.
+3. Pro Zeile:
+   - "reference" = Inhalt EXAKT der Spalte "Kto-Nr Valoren-Nr", Zeichen für
+     Zeichen wie gedruckt. ERFINDE NIE Ziffern. Bei IBAN: "CH" + 19 Zeichen
+     (Leerzeichen erlaubt). Bei Depot/Konto: nur die abgedruckte Ziffernfolge.
+   - "institution" = Inhalt der Spalte "Bezeichnung" (z.B. "UBS Switzerland AG",
+     "PostFinance AG", "Yuh", "Raiffeisen", "Plus500"). KEIN Adress-Suffix,
+     KEIN Datum/Zeitraum.
+4. Ignoriere Typ-Codes "BK", "PC", "Dep", "V", "L", "G", "M" — die gehören
+   NICHT in reference und NICHT in institution.
+5. DEDUPLIZIERUNG (kritisch): dasselbe Konto kann in Rubrik A UND Rubrik B
+   auftauchen (z.B. Yuh Depot 1666308 erscheint zweimal, einmal pro Rubrik).
+   Behandle gleiche normalisierte reference (Whitespace entfernt, Grossbuch­
+   staben) als EIN Konto. Gib jedes Konto GENAU EINMAL zurück.
+6. VOLLSTÄNDIGKEIT: Verpasse keine Detailzeile. Wenn die Tabelle 8 Datenzeilen
+   hat und 6 davon eindeutige Konten sind, gib alle 6 zurück.
+7. KEIN ERRATEN. Wenn eine Zeile keine klar lesbare Kto-/Valoren-Nummer hat,
+   überspringe sie — niemals platzhaltende oder geschätzte Werte ausgeben.
+
+Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema (kein Markdown):
 {
   "income":     [{"label": string}],
   "assets":     [{"label": string}],
