@@ -47,9 +47,11 @@ const RULES: Record<Exclude<ItemCategory, "contact" | "other">, typeof INCOME_RU
 
 export interface PriorYearMappingResult {
   income: Record<string, boolean>;
-  assets: Record<string, boolean>;
+  assets: Record<string, any>;
   deductions: Record<string, boolean>;
 }
+
+const ACCOUNT_LABEL_RX = /^Beleg Bankkonto\/Depot\s*[–-]\s*(.+)$/i;
 
 /**
  * Convert confirmed prior-year checklist items into formData has-flags.
@@ -65,9 +67,35 @@ export function mapPriorYearToFormFlags(items: ChecklistItem[]): PriorYearMappin
     deductions: seed(DEDUCTIONS_RULES),
   };
 
+  const accounts: Array<{ id: string; institution: string; reference: string; source: 'prior-year' }> = [];
+  const seenAccountKey = new Set<string>();
+
   for (const it of items) {
     if (it.change_status === "removed") continue;
     const cat = it.category;
+
+    // Parse "Beleg Bankkonto/Depot – Institution · Reference" into accounts.
+    if (cat === "assets") {
+      const m = it.label.match(ACCOUNT_LABEL_RX);
+      if (m) {
+        const detail = m[1].trim();
+        const [institutionRaw, referenceRaw] = detail.split(/\s+·\s+|\s+-\s+/);
+        const institution = (institutionRaw || 'Bank/Depot').trim();
+        const reference = (referenceRaw || '').trim();
+        const key = (reference || institution).replace(/\s+/g, '').toUpperCase();
+        if (!seenAccountKey.has(key)) {
+          seenAccountKey.add(key);
+          accounts.push({
+            id: `py-${key}`,
+            institution,
+            reference,
+            source: 'prior-year',
+          });
+        }
+        continue; // do not run keyword rules on these
+      }
+    }
+
     if (cat !== "income" && cat !== "assets" && cat !== "deductions") continue;
     const rules = RULES[cat];
     const text = `${it.label} ${it.source_value ?? ""}`;
@@ -75,5 +103,11 @@ export function mapPriorYearToFormFlags(items: ChecklistItem[]): PriorYearMappin
       if (kw.test(text)) result[cat][flag] = true;
     }
   }
+
+  if (accounts.length > 0) {
+    result.assets.accounts = accounts;
+    result.assets.accountCount = accounts.length;
+  }
+
   return result;
 }

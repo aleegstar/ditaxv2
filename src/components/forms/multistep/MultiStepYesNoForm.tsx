@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFormContext } from '@/contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { YesNoQuestion } from './YesNoQuestion';
+import { DropdownQuestion } from './DropdownQuestion';
 import { RepeaterStep } from './RepeaterStep';
 import { MultiStepProgress } from './MultiStepProgress';
 import { FormSummary } from './FormSummary';
@@ -128,7 +129,15 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const repeaterData: Record<string, any[]> = {};
     questions.forEach((question) => {
       if (!question?.id) return;
-      answers[question.id] = existingData[question.id] || false;
+      if (question.inputType === 'dropdown') {
+        const raw = existingData[question.id];
+        // Numeric answer stored under same key; mirror as boolean (n>0) so existing
+        // "answered" logic still works.
+        const n = typeof raw === 'number' ? raw : undefined;
+        (answers as any)[question.id] = n;
+      } else {
+        answers[question.id] = existingData[question.id] || false;
+      }
       if (question.requiresRepeater) {
         const dataKey = getRepeaterDataKey(question.id);
         if (dataKey) repeaterData[question.id] = existingData[dataKey] || [];
@@ -285,6 +294,30 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       });
     }
   }, [formState.currentQuestionIndex, formState.answers, questions, viewState.isEditing, section, formData, updateFormData, saveSection, t]);
+
+  const handleNumericAnswer = useCallback(async (value: number) => {
+    try {
+      const question = questions[formState.currentQuestionIndex];
+      if (!question) return;
+      const qid = question.id;
+      const newAnswers = { ...formState.answers, [qid]: value as any };
+      setFormState((prev) => ({ ...prev, answers: newAnswers }));
+      try {
+        const sectionData = { ...formData[section as any], [qid]: value };
+        updateFormData(section as any, sectionData);
+        await saveSection(section as any, sectionData);
+      } catch (saveError) {
+        console.error('Error saving numeric answer:', saveError);
+      }
+      if (viewState.isEditing) {
+        handleEditingComplete();
+      } else {
+        handleContinue();
+      }
+    } catch (e) {
+      console.error('Error in handleNumericAnswer:', e);
+    }
+  }, [formState.currentQuestionIndex, formState.answers, questions, viewState.isEditing, section, formData, updateFormData, saveSection]);
 
   const handleRepeaterDataChange = (data: any[]) => {
     if (!currentQuestion) return;
@@ -520,13 +553,17 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
   // Generate summary items for the FormSummary component
   const generateSummaryItems = useCallback((): FormSummaryItem[] => {
-    return questions.map((question) => ({
-      questionId: question.id,
-      questionText: question.text,
-      answer: formState.answers[question.id] || false,
-      repeaterData: question.requiresRepeater ? formState.repeaterData[question.id] : undefined,
-      repeaterTitle: question.requiresRepeater?.title
-    }));
+    return questions.map((question) => {
+      const raw = formState.answers[question.id];
+      const answer = typeof raw === 'number' ? raw > 0 : !!raw;
+      return {
+        questionId: question.id,
+        questionText: question.text,
+        answer,
+        repeaterData: question.requiresRepeater ? formState.repeaterData[question.id] : undefined,
+        repeaterTitle: question.requiresRepeater?.title
+      };
+    });
   }, [questions, formState.answers, formState.repeaterData]);
 
   // Handle editing from summary
@@ -677,6 +714,14 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                 onContinue={handleContinue}
                 canContinue={canContinueFromRepeater()}
               />
+            ) : currentQuestion.inputType === 'dropdown' ? (
+              <DropdownQuestion
+                key={`${currentQuestion.id}-dd-${viewState.isEditing ? 'edit' : 'q'}`}
+                question={currentQuestion}
+                value={formState.answers[currentQuestion.id] as any}
+                onSubmit={handleNumericAnswer}
+                section={section}
+              />
             ) : (
               <YesNoQuestion
                 key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
@@ -775,6 +820,14 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               onDataChange={handleRepeaterDataChange}
               onContinue={handleContinue}
               canContinue={canContinueFromRepeater()}
+            />
+          ) : currentQuestion.inputType === 'dropdown' ? (
+            <DropdownQuestion
+              key={`${currentQuestion.id}-dd-${viewState.isEditing ? 'edit' : 'q'}`}
+              question={currentQuestion}
+              value={formState.answers[currentQuestion.id] as any}
+              onSubmit={handleNumericAnswer}
+              section={section}
             />
           ) : (
             <YesNoQuestion

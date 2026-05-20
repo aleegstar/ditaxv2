@@ -315,8 +315,9 @@ export interface Translation {
     hasMortgageExplanation: string;
     hasDebt: string;
     hasDebtExplanation: string;
-    hasDepositAccount: string;
-    hasDepositAccountExplanation: string;
+    accountCount: string;
+    accountCountExplanation: string;
+    accountCountOptions: { zero: string; moreThan: string };
     hasCrypto: string;
     hasCryptoExplanation: string;
     hasOtherAssets: string;
@@ -951,7 +952,7 @@ export interface Translation {
         hasProperty: { text: string; explanation: string; };
         hasMortgage: { text: string; explanation: string; };
         hasDebt: { text: string; explanation: string; };
-        hasDepositAccount: { text: string; explanation: string; };
+        accountCount: { text: string; explanation: string; };
         hasCrypto: { text: string; explanation: string; };
         hasOtherAssets: { text: string; explanation: string; };
       };
@@ -1705,8 +1706,9 @@ export const translations: Record<'de' | 'en', Translation> = {
       hasMortgageExplanation: 'Eine Hypothek ist ein Darlehen, das durch eine Immobilie besichert ist. Gib an, ob du ein solches Darlehen aufgenommen hast.',
       hasDebt: 'Ich habe Schulden',
       hasDebtExplanation: 'Zu Schulden zählen alle offenen Kredite, Darlehen und andere finanzielle Verpflichtungen, die du zurückzahlen musst.',
-      hasDepositAccount: 'Ich habe ein Depotkonto',
-      hasDepositAccountExplanation: 'Ein Depotkonto beinhaltet Wertpapiere wie Aktien, Anleihen, ETFs oder andere Investitionen, die du bei einer Bank oder einem Broker hältst.',
+      accountCount: 'Anzahl Bank-/Depotkonten',
+      accountCountExplanation: '1 Konto = 1 Beleg, auch wenn Rubrik A und B kombiniert.',
+      accountCountOptions: { zero: 'Keine', moreThan: 'Mehr als 10' },
       hasCrypto: 'Ich besitze Kryptowährungen',
       hasCryptoExplanation: 'Kryptowährungen wie Bitcoin, Ethereum oder andere digitale Währungen, die du zum Stichtag besessen hast.',
       hasOtherAssets: 'Ich besitze weitere Vermögenswerte',
@@ -2358,9 +2360,9 @@ export const translations: Record<'de' | 'en', Translation> = {
             text: 'Hast du Schulden?',
             explanation: 'Abzugsfähige Schulden umfassen Bankkredite, Privatkredite, Kreditkartenschulden, Leasingverpflichtungen, geschäftliche Darlehen, Steuerschulden sowie Verbindlichkeiten gegenüber Dritten. Nicht abzugsfähig sind Schulden für den Lebensunterhalt oder Konsumschulden ohne wirtschaftlichen Zweck.'
           },
-          hasDepositAccount: {
-            text: 'Hast du ein Depotkonto?',
-            explanation: 'Depotkonten enthalten Wertpapiere wie Aktien, Obligationen, Anlagefonds, ETFs, strukturierte Produkte sowie andere börsengehandelte Anlagen. Alle Wertpapiere in der Schweiz und im Ausland müssen mit dem Kurswert per 31. Dezember deklariert werden. Auch ausländische Depots und Online-Broker wie Interactive Brokers, Swissquote oder Trading 212 gehören dazu.'
+          accountCount: {
+            text: 'Wie viele Bank-/Depotkonten hast du?',
+            explanation: 'Pro Konto wird genau 1 Beleg (Zins-/Saldobescheinigung oder Depotauszug per 31.12.) verlangt — auch wenn dasselbe Konto in Rubrik A und B vorkommt.'
           },
           hasCrypto: {
             text: 'Besitzt du Kryptowährungen?',
@@ -3147,8 +3149,9 @@ export const translations: Record<'de' | 'en', Translation> = {
       hasMortgageExplanation: 'A mortgage is a loan secured by real estate. Indicate whether you have taken out such a loan.',
       hasDebt: 'I have debts',
       hasDebtExplanation: 'Debts include all outstanding loans, credits, and other financial obligations that you must repay.',
-      hasDepositAccount: 'I have a securities account',
-      hasDepositAccountExplanation: 'A securities account contains securities such as stocks, bonds, ETFs, or other investments that you hold with a bank or broker.',
+      accountCount: 'Number of bank/deposit accounts',
+      accountCountExplanation: '1 account = 1 statement, even if combined under category A and B.',
+      accountCountOptions: { zero: 'None', moreThan: 'More than 10' },
       hasCrypto: 'I own cryptocurrencies',
       hasCryptoExplanation: 'Cryptocurrencies such as Bitcoin, Ethereum, or other digital currencies that you owned as of the reference date.',
       hasOtherAssets: 'I own other assets',
@@ -3845,9 +3848,9 @@ export const translations: Record<'de' | 'en', Translation> = {
             text: 'Do you have debts?',
             explanation: 'Deductible debts include bank loans, private loans, credit card debts, leasing obligations, business loans, tax debts, and liabilities to third parties. Debts for living expenses or consumer debts without economic purpose are not deductible.'
           },
-          hasDepositAccount: {
-            text: 'Do you have a securities account?',
-            explanation: 'Securities accounts contain securities such as stocks, bonds, investment funds, ETFs, structured products, and other exchange-traded investments. All securities in Switzerland and abroad must be declared at market value as of December 31. This also includes foreign accounts and online brokers like Interactive Brokers, Swissquote, or Trading 212.'
+          accountCount: {
+            text: 'How many bank/deposit accounts do you have?',
+            explanation: 'Each account requires exactly 1 statement (interest/balance certificate or deposit statement as of Dec 31) — even if the same account appears in both category A and B.'
           },
           hasCrypto: {
             text: 'Do you own cryptocurrencies?',

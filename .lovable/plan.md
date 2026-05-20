@@ -1,46 +1,97 @@
 ## Ziel
-Die Admin-Bereiche sollen zuverlässig laden, ohne manuelles Refreshing oder leere Zustände nach der Navigation.
 
-## Was ich umsetzen werde
-1. **Admin-Auth-Readiness zentralisieren**
-   - Einen kleinen, zentralen Auth-Readiness-Mechanismus für Admin-Seiten einführen.
-   - Admin-Daten erst laden, wenn die Supabase-Session wirklich wiederhergestellt ist und der User vorhanden ist.
-   - Verhindern, dass Admin-Komponenten beim ersten Mount schon Queries abschicken.
+Zwei Pfade liefern die Bank-/Depotkonten in die Dokumenten-Checkliste — jeweils **1 Eintrag pro Konto** (auch wenn ein Konto in Rubrik A und B vorkommt, gilt es als 1 Beleg, weil es als 1 Eintrag erfasst wird).
 
-2. **Doppelte / konkurrierende Admin-Prüfungen entfernen**
-   - `AdminRouteGuard`, `src/pages/Admin.tsx` und `src/components/admin/AdminDashboard.tsx` auf eine saubere Reihenfolge bringen:
-     - zuerst Auth bereit
-     - dann Admin-Rolle bestätigt
-     - erst danach Daten laden
-   - Das aktuelle Muster mit mehrfachen `getUser()` / `verifyAdminAccess()` / Direkt-Queries beim Mount entschärfen.
+1. **Yes/No-Flow:** Dropdown „Anzahl Bankkonten/Depots" → erzeugt generische Einträge „Bank 1", „Bank 2", …
+2. **Vorjahres-Import (OCR):** Wertschriften-Seiten werden ausgewertet → erzeugt pro erkanntem Konto einen benannten Eintrag, z. B. „UBS – CH19…", „Postfinance – CH81…", „Yuh – Depot 1666308".
 
-3. **Admin-Seiten gegen leere Zustände absichern**
-   - In den Hauptseiten (`/admin`, `/admin/dashboard`, `/admin/users`, `/admin/tax-processing`) Queries nur noch starten, wenn Auth/Admin bereit ist.
-   - Währenddessen klare Loading-States statt „nichts erscheint“.
-   - Refresh-Buttons nur als manuelle Aktualisierung verwenden, nicht als Workaround für Initial-Loads.
+---
 
-4. **Navigation stabilisieren**
-   - Prüfen und bereinigen, dass interne Admin-Navigation nicht in einen Zustand wechselt, in dem die Route da ist, aber die Session/Role-Prüfung noch nicht fertig ist.
-   - Falls nötig, Admin-Layout-Komponenten wie Sidebar/Header ebenfalls auf denselben Readiness-State hängen.
+## Änderungen
 
-5. **Gezielte Fehlerdiagnose verbessern**
-   - Präzisere Logs/Fehlerzustände für diese Fälle ergänzen:
-     - Session noch nicht bereit
-     - User vorhanden, aber Admin-Rolle fehlt
-     - Query durch RLS blockiert
-   - So lässt sich unterscheiden, ob es ein Race Condition- oder Rollenproblem ist.
+### A. Datenmodell
 
-## Konkrete Erkenntnisse aus dem Code
-- `src/pages/Admin.tsx` lädt Benutzerdaten direkt in `useEffect(..., [])` und prüft dort Auth/Admin nochmal separat.
-- `src/components/admin/AdminDashboard.tsx` lädt Stats ebenfalls sofort beim Mount, ohne auf bestätigte Admin-Readiness zu warten.
-- `AdminRouteGuard` prüft Admin bereits vorher, aber die Seiten führen danach trotzdem nochmals eigene Auth-/Admin-Checks und Direkt-Queries aus.
-- Das ist ein typisches Muster für inkonsistente Initialisierung und erklärt gut, warum nach Navigation manchmal erst ein Refresh hilft.
+**`src/contexts/form/defaults.ts`**
+- `assets.hasDepositAccount` entfernen.
+- Neu:
+  - `accountCount: number | undefined` — Anzahl aus Dropdown (Yes/No-Flow).
+  - `accounts: Array<{ id: string; institution: string; reference: string; source: 'manual' | 'prior-year' }>` — vom OCR befüllte Detailliste (überschreibt `accountCount`, wenn vorhanden).
 
-## Technische Umsetzung
-- Neue Admin-Readiness-Hook oder vorhandene Auth-Schicht erweitern.
-- Admin-Komponenten nur mit Guard-abhängigem `enabled`-Verhalten laden.
-- `Admin.tsx` als Container vereinfachen: keine parallele zweite Auth-Orchestrierung mehr.
-- `AdminDashboard.tsx` und weitere Kernseiten auf denselben Freigabezustand umstellen.
+**`src/contexts/form/sanitizeImport.ts` / `FormContext.tsx`**
+- Migration: alter `hasDepositAccount: true` → `accountCount: 1`.
+- `hasAssetsData` (FormContext Zeile 574) auf `accountCount > 0 || accounts?.length > 0` umstellen.
 
-## Hinweis
-Ich konnte den angegebenen Account `sandrograber.ch@gmail.com` nicht live gegen die Datenbank prüfen, weil in dieser Session kein direkter DB-Zugriff verfügbar ist. Der Fix zielt deshalb zuerst auf das klar sichtbare Frontend/Auth-Race; falls danach weiterhin nur dieser Account betroffen ist, wäre als Nächstes die Admin-Rolle des Accounts zu verifizieren.
+### B. Yes/No-Flow (Dropdown)
+
+**`src/config/yesNoQuestions.ts`** und **`src/i18n/translations.ts`**
+- Frage `hasDepositAccount` ersetzen durch neue Frage `accountCount` vom Typ `dropdown` (Werte 0–10 + „Mehr als 10").
+- Übersetzungsstrings: `t.yesNoForm.questions.assets.accountCount.text` und `.explanation`.
+
+**`src/components/forms/multistep/MultiStepYesNoForm.tsx`**
+- Dropdown-Fragetyp unterstützen (falls nicht vorhanden → neuen `QuestionType: 'dropdown'` mit Select-Renderer).
+- Antwort schreibt direkt in `formData.assets.accountCount`.
+
+**`src/components/forms/AssetsForm.tsx`** (Expert-Modus)
+- Checkbox `hasDepositAccount` ersetzen durch shadcn `Select` mit identischen Optionen, bindet auf `accountCount`.
+
+### C. Vorjahres-Import / OCR (Wertschriften-Extraktion)
+
+**`src/services/PriorYearLocalExtractor.ts`**
+- Neue Funktion `extractAccountsFromRows(pages)`: scannt die Rubrik-A- und Rubrik-B-Tabellen (Wertschriften- und Guthabenverzeichnis) zeilenweise:
+  - Erkennt Konto-Identifier (IBAN-Muster `CH\d{2}[\s\d]{17,}` oder Depot-Nummer `\d{6,}`) in der Spalte „Kto-Nr Valoren-Nr".
+  - Erkennt die Bezeichnung in der Nachbarspalte („UBS Switzerland AG", „Post", „Yuh", „Plus500…").
+  - Erkennt Typ-Token in Spalte „T" (`BK`, `PC`, `Dep`).
+  - Dedupliziert nach normalisierter Konto-Nr (z. B. IBAN ohne Leerzeichen) — Yuh in A+B bleibt 1 Eintrag.
+- Neues Feld im `ExtractedScan`-Typ: `accounts: Array<{ institution: string; reference: string; type: 'BK'|'PC'|'Dep' }>`.
+
+**`src/services/seedPriorYearChecklistFromInternal.ts`** und **`src/hooks/usePriorYearChecklist.ts`**
+- Beim Übernehmen der OCR-Resultate in den Form-State: extrahierte `accounts` in `formData.assets.accounts` schreiben (Source `'prior-year'`).
+- Bisheriges generisches Item „Depotauszug per 31.12." / „Bankkontoauszug per 31.12." aus der Asset-Liste entfernen — wird ersetzt durch die Einzeleinträge.
+
+### D. Checklist-Generator
+
+**`src/contexts/form/checklistGenerator.ts`**
+- Items `bank-account-statement` und `deposit-account` entfernen.
+- Neuer Block (im `assets`-Branch):
+  ```ts
+  const accounts = formData.assets?.accounts ?? [];
+  if (accounts.length > 0) {
+    accounts.forEach((acc, i) => checklistItems.push({
+      id: `account-${acc.id}`,
+      title: `${acc.institution} – ${acc.reference}`,
+      description: 'Zins-/Saldobescheinigung oder Depotauszug per 31.12. (1 Beleg pro Konto, auch wenn Rubrik A + B kombiniert).',
+      category: 'assets',
+      uploaded: false,
+      required: true,
+    }));
+  } else if ((formData.assets?.accountCount ?? 0) > 0) {
+    const n = formData.assets.accountCount!;
+    for (let i = 1; i <= n; i++) checklistItems.push({
+      id: `account-generic-${i}`,
+      title: `Bank ${i}`,
+      description: `Zins-/Saldobescheinigung oder Depotauszug per 31.12. (Konto ${i} von ${n}).`,
+      category: 'assets',
+      uploaded: false,
+      required: true,
+    });
+  }
+  ```
+
+### E. Texte
+
+- DE (informell) + EN für `accountCount`-Frage, Dropdown-Optionen und neue Item-Beschreibungen in `src/i18n/translations.ts`.
+
+---
+
+## Akzeptanzkriterien
+
+- Yes/No-Flow: Auswahl „3" → Checkliste zeigt „Bank 1", „Bank 2", „Bank 3" unter Vermögen.
+- Vorjahres-Import auf der Beispiel-PDF (Yuh + UBS×3 + Post×2 + Plus500): Checkliste zeigt 6 benannte Einträge — Yuh erscheint **einmal**, obwohl es in Rubrik A und B steht.
+- Alte `hasDepositAccount: true`-Daten laden migriert als `accountCount: 1` ohne UI-Fehler.
+- Keine „Zins- und Saldobescheinigung der Bankkonten"-Sammelposition mehr.
+
+## Technische Details
+
+- shadcn `Select` mit semantischen Tokens (`bg-card`, `border`), navy Primary für Submit — keine Custom-Farben.
+- Dedup-Key fürs OCR: `reference.replace(/\s+/g,'').toUpperCase()`.
+- `tax_filer_id`-Partition und `_completed: true`-Flag bleiben unverändert; kein Supabase-Schema-Change (alles in `form_data` JSON).

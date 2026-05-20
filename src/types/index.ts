@@ -68,13 +68,21 @@ export interface Income {
   freelanceIncome: FreelanceIncomeData[];
 }
 
+export interface BankAccountEntry {
+  id: string;
+  institution: string;
+  reference: string;
+  source: 'manual' | 'prior-year';
+}
+
 export interface Assets {
   // Base properties from original type
   hasVehicle: boolean;
   hasProperty: boolean;
   hasMortgage: boolean;
   hasDebt: boolean;
-  hasDepositAccount: boolean;
+  /** @deprecated use `accountCount` / `accounts` instead */
+  hasDepositAccount?: boolean;
   hasSecuritiesAccount: boolean;
   hasCrypto: boolean;
   hasOtherAssets: boolean;
@@ -82,7 +90,12 @@ export interface Assets {
   vehicles: Vehicle[];
   properties: Property[];
   debts: Debt[];
-  
+
+  /** Number of bank/depot accounts. Used when no detailed `accounts` list exists. */
+  accountCount?: number;
+  /** Detailed list of accounts (overrides accountCount when non-empty). */
+  accounts?: BankAccountEntry[];
+
   // Additional properties used in AssetsForm
   bankAccounts: number;
   stocks: number;
