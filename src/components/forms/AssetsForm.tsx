@@ -67,13 +67,13 @@ const AssetsForm = ({
     hasProperty,
     hasMortgage,
     hasDebt,
-    hasDepositAccount,
+    accountCount,
     hasCrypto,
     hasOtherAssets,
     vehicles,
     properties,
     debts
-  }), [hasVehicle, hasProperty, hasMortgage, hasDebt, hasDepositAccount, hasCrypto, hasOtherAssets, vehicles, properties, debts]);
+  }), [hasVehicle, hasProperty, hasMortgage, hasDebt, accountCount, hasCrypto, hasOtherAssets, vehicles, properties, debts]);
 
   // Load existing data
   useEffect(() => {
@@ -82,7 +82,11 @@ const AssetsForm = ({
       setHasProperty(formData.assets.hasProperty || false);
       setHasMortgage(formData.assets.hasMortgage || false);
       setHasDebt(formData.assets.hasDebt || false);
-      setHasDepositAccount(formData.assets.hasDepositAccount || false);
+      const legacy = (formData.assets as any).hasDepositAccount;
+      const ac = formData.assets.accountCount;
+      const initial = typeof ac === 'number' ? ac : (legacy ? 1 : undefined);
+      setAccountCount(initial);
+      if (typeof initial === 'number' && initial > 10) setAccountCountMore(String(initial));
       setHasCrypto(formData.assets.hasCrypto || false);
       setHasOtherAssets(formData.assets.hasOtherAssets || false);
       setVehicles(formData.assets.vehicles || []);
