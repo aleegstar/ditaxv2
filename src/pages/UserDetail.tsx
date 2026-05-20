@@ -721,7 +721,7 @@ const UserDetail: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white/60 backdrop-blur-xl rounded-[20px] shadow-sm p-4" style={{ border: '1px solid rgba(255, 255, 255, 0.6)' }}>
+        <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4">
           <UserTabs
             user={transformedUser}
             taxReturns={taxReturns}
