@@ -96,7 +96,10 @@ type Rule = { label: string; patterns: RegExp[] };
 type CodeRule = { label: string; codes: number[] };
 
 const INCOME_CODES: CodeRule[] = [
-  { label: "Lohnausweis", codes: [100, 101, 102, 103] },
+  // 100–103 = SSK-Beilagencodes Lohnausweis; 10/20 Haupterwerb,
+  // 30/40 Nebenerwerb, 50/60 weitere Vergütungen (Aargau-Hauptbogen,
+  // weitere Kantone mit 2-stelliger Hauptbogen-Codierung)
+  { label: "Lohnausweis", codes: [100, 101, 102, 103, 10, 20, 30, 40, 50, 60] },
   { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
   // Renten: 130/131 AHV/IV, 132–137 Pensionskasse, 960–967 Detail-Ziffern
   // (eCH-0119 §3.8.4 Tabelle 16)
