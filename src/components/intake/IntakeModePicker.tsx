@@ -82,7 +82,7 @@ const ModeCard: React.FC<{
     onClick={onClick}
     className={`group relative h-full w-full text-left rounded-2xl bg-card overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col ${
       recommended
-        ? "border-2 border-primary shadow-[0_8px_28px_-8px_hsl(var(--primary)/0.25)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.35)]"
+        ? "border-2 border-blue-600 shadow-[0_8px_28px_-8px_rgb(37_99_235_/_0.25)] hover:shadow-[0_12px_32px_-8px_rgb(37_99_235_/_0.35)]"
         : "border border-border hover:shadow-[0_8px_24px_rgba(15,27,61,0.08)] hover:border-primary/30"
     }`}
   >
@@ -95,10 +95,10 @@ const ModeCard: React.FC<{
       />
       <div className={`absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full backdrop-blur-sm border ${
         recommended
-          ? "bg-primary/10 border-primary/30 text-primary"
+          ? "bg-blue-600/10 border-blue-600/30 text-blue-600"
           : "bg-card/90 border-border/60 text-foreground"
       }`}>
-        {icon}
+        {recommended ? <Zap className="w-4 h-4 text-blue-600 fill-blue-600" strokeWidth={1.75} /> : icon}
         <span className="text-[11px] font-semibold">{badge}</span>
       </div>
     </div>
