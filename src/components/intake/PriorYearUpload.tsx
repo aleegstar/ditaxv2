@@ -204,37 +204,50 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         return;
       }
 
-      // Sonst: rein lokaler Pfad
+      // Sonst: rein lokaler Pfad — positionsbasiert direkt aus dem PDF.
       setPhase("parsing");
-      let text = await extractTextFromPdf(file);
+      let localScan: ExtractedScan | null = null;
       let usedOcr = false;
+      try {
+        localScan = await extractScanFromPdf(file);
+      } catch (e) {
+        console.warn("[PriorYearUpload] positional extraction failed", e);
+      }
 
-      if (!hasUsableTextLayer(text)) {
-        setPhase("ocr");
-        try {
-          text = await ocrPdfLocally(file, {
-            maxPages: 6,
-            onProgress: (p) => setOcrProgress(p),
-          });
-          usedOcr = true;
-        } catch (ocrErr: any) {
-          console.error("[PriorYearUpload] OCR failed", ocrErr);
+      // Wenn der Textlayer nichts hergibt → OCR + zeilenbasierte Heuristik.
+      const positionalTotal =
+        (localScan?.income.length ?? 0) +
+        (localScan?.assets.length ?? 0) +
+        (localScan?.deductions.length ?? 0);
+
+      if (positionalTotal === 0) {
+        // Prüfe ob überhaupt Text im PDF ist, sonst OCR.
+        const flatText = await extractTextFromPdf(file);
+        let usableText = flatText;
+        if (!hasUsableTextLayer(flatText)) {
+          setPhase("ocr");
+          try {
+            usableText = await ocrPdfLocally(file, {
+              maxPages: 6,
+              onProgress: (p) => setOcrProgress(p),
+            });
+            usedOcr = true;
+          } catch (ocrErr) {
+            console.error("[PriorYearUpload] OCR failed", ocrErr);
+          }
         }
+        if (!hasUsableTextLayer(usableText)) {
+          toast.error(
+            "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Aktiviere die KI-Analyse oder fülle die Angaben manuell aus.",
+          );
+          return;
+        }
+        localScan = extractItemsFromText(usableText);
       }
 
-      if (!hasUsableTextLayer(text)) {
-        toast.error(
-          "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Aktiviere die KI-Analyse oder fülle die Angaben manuell aus.",
-        );
-        return;
-      }
-
-      // Nur lokale Analyse – KEIN automatischer KI-Fallback. Wenn der User
-      // die KI-Analyse will, muss er den Toggle aktiv einschalten.
-      const localScan = extractItemsFromText(text);
-      await persistChecklist(localScan, "local", storagePath);
+      await persistChecklist(localScan!, "local", storagePath);
       const total =
-        localScan.income.length + localScan.assets.length + localScan.deductions.length;
+        localScan!.income.length + localScan!.assets.length + localScan!.deductions.length;
       if (total === 0) {
         toast.message(
           "Keine Positionen automatisch erkannt – bitte ergänze die Checkliste manuell oder aktiviere die KI-Analyse.",
