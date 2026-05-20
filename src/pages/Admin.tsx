@@ -59,6 +59,8 @@ const Admin: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [adminStatus, setAdminStatus] = useState<boolean | null>(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [userFilter, setUserFilter] = useState<'all' | 'active' | 'inactive' | 'with-returns'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
