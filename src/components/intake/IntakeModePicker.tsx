@@ -67,7 +67,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
 };
 
 const ModeCard: React.FC<{
-  rainbow?: boolean;
+  recommended?: boolean;
   image: string;
   imageAlt: string;
   icon: React.ReactNode;
@@ -76,17 +76,16 @@ const ModeCard: React.FC<{
   desc: string;
   cta: string;
   onClick: () => void;
-}> = ({ rainbow, image, imageAlt, icon, badge, title, desc, cta, onClick }) => (
+}> = ({ recommended, image, imageAlt, icon, badge, title, desc, cta, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className="group relative h-full w-full text-left rounded-2xl border border-border bg-card overflow-hidden transition-all hover:shadow-[0_8px_24px_rgba(15,27,61,0.08)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col"
+    className={`group relative h-full w-full text-left rounded-2xl bg-card overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col ${
+      recommended
+        ? "border-2 border-primary shadow-[0_8px_28px_-8px_hsl(var(--primary)/0.25)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.35)]"
+        : "border border-border hover:shadow-[0_8px_24px_rgba(15,27,61,0.08)] hover:border-primary/30"
+    }`}
   >
-    {rainbow && (
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 overflow-hidden">
-        <div className="absolute -inset-x-8 -bottom-12 h-16 rainbow-gradient animate-rainbow opacity-[0.18] blur-[56px]" />
-      </div>
-    )}
     <div className="relative h-36 w-full overflow-hidden bg-muted">
       <img
         src={image}
@@ -94,9 +93,13 @@ const ModeCard: React.FC<{
         loading="lazy"
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
-      <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+      <div className={`absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full backdrop-blur-sm border ${
+        recommended
+          ? "bg-primary/10 border-primary/30 text-primary"
+          : "bg-card/90 border-border/60 text-foreground"
+      }`}>
         {icon}
-        <span className="text-[11px] font-medium text-foreground">{badge}</span>
+        <span className="text-[11px] font-semibold">{badge}</span>
       </div>
     </div>
     <div className="relative p-5 flex flex-col flex-1">
