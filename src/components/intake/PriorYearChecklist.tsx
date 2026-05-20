@@ -52,7 +52,7 @@ interface BodyProps extends Props {
 }
 
 export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYear, onProgress, hideHeader }) => {
-  const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
+  const { checklist, items, loading, reload, updateItem, bulkUpdateCategory, addItem, deleteItem } =
     usePriorYearChecklist(taxFilerId, taxYear);
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [contactState, setContactState] = useState<{ confirmed: boolean; note: string }>({
