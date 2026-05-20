@@ -153,21 +153,27 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
 
   return (
     <div className="space-y-4">
-      {!hideHeader && (
-        <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
+        {!hideHeader ? (
           <p className="text-[13px] text-muted-foreground">
             {doneCats} von {totalCats} Bereichen bestätigt
           </p>
-          <div className="flex items-center gap-1 shrink-0">
-            <Button variant="ghost" size="sm" onClick={() => setReplaceOpen(true)} title="Vorjahres-PDF ersetzen" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground">
-              <Replace className="w-4 h-4" strokeWidth={1.75} />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground">
-              <RefreshCw className="w-4 h-4" strokeWidth={1.75} />
-            </Button>
-          </div>
+        ) : (
+          <span className="text-[13px] text-muted-foreground">
+            {doneCats}/{totalCats} bestätigt
+          </span>
+        )}
+        <div className="flex items-center gap-1 shrink-0">
+          <Button variant="ghost" size="sm" onClick={() => setReplaceOpen(true)} title="Vorjahres-PDF ersetzen" className="h-9 gap-1.5 px-2.5 text-muted-foreground hover:text-foreground">
+            <Replace className="w-4 h-4" strokeWidth={1.75} />
+            <span className="text-[12px] font-medium">Datei ersetzen</span>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground">
+            <RefreshCw className="w-4 h-4" strokeWidth={1.75} />
+          </Button>
         </div>
-      )}
+      </div>
+
 
       <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
         <div
