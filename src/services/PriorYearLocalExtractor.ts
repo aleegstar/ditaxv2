@@ -152,7 +152,10 @@ const DEDUCTION_CODES: CodeRule[] = [
  */
 function codeIsFilled(text: string, code: number): boolean {
   const c = String(code);
-  const re = new RegExp(`(?:^|[^0-9])${c}(?:[^0-9]|$)[^\\n]{0,40}?[1-9]`);
+  // Kantone wie AG drucken 2-stellige Ziffern als "010", "020" usw.
+  // Daher optional führende Null akzeptieren, wenn der Code <100 ist.
+  const pat = c.length < 3 ? `0?${c}` : c;
+  const re = new RegExp(`(?:^|[^0-9])${pat}(?:[^0-9]|$)[^\\n]{0,40}?[1-9]`);
   return re.test(text);
 }
 
