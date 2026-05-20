@@ -39,7 +39,6 @@ export const IntakeModeSheet: React.FC<Props> = ({ open, onOpenChange, currentMo
 
         <div className="grid gap-4 sm:grid-cols-2 mt-2">
           <ModeCard
-            rainbow
             active={currentMode === "prior_year_upload"}
             image={uploadImg}
             imageAlt="Zwei Personen am Laptop bei der Steuererklärung"
@@ -69,7 +68,6 @@ export const IntakeModeSheet: React.FC<Props> = ({ open, onOpenChange, currentMo
 };
 
 const ModeCard: React.FC<{
-  rainbow?: boolean;
   active?: boolean;
   image: string;
   imageAlt: string;
@@ -79,7 +77,7 @@ const ModeCard: React.FC<{
   desc: string;
   cta: string;
   onClick: () => void;
-}> = ({ rainbow, active, image, imageAlt, icon, badge, title, desc, cta, onClick }) => (
+}> = ({ active, image, imageAlt, icon, badge, title, desc, cta, onClick }) => (
   <button
     type="button"
     onClick={onClick}
@@ -87,26 +85,6 @@ const ModeCard: React.FC<{
       active ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/30"
     }`}
   >
-    {rainbow && (
-      <>
-        {/* Outer halo around the entire card */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -inset-[2px] rounded-[18px] rainbow-gradient animate-rainbow opacity-60 blur-2xl"
-        />
-        {/* Inner edge glow — bright at borders, fading toward center (Apple Intelligence style) */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-2xl rainbow-gradient animate-rainbow opacity-50 blur-2xl"
-          style={{
-            WebkitMaskImage:
-              "radial-gradient(ellipse at center, transparent 35%, black 100%)",
-            maskImage:
-              "radial-gradient(ellipse at center, transparent 35%, black 100%)",
-          }}
-        />
-      </>
-    )}
     <div className="relative h-32 w-full overflow-hidden bg-muted">
       <img
         src={image}
