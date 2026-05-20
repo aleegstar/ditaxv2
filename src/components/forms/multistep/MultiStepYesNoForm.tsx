@@ -553,13 +553,17 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
   // Generate summary items for the FormSummary component
   const generateSummaryItems = useCallback((): FormSummaryItem[] => {
-    return questions.map((question) => ({
-      questionId: question.id,
-      questionText: question.text,
-      answer: formState.answers[question.id] || false,
-      repeaterData: question.requiresRepeater ? formState.repeaterData[question.id] : undefined,
-      repeaterTitle: question.requiresRepeater?.title
-    }));
+    return questions.map((question) => {
+      const raw = formState.answers[question.id];
+      const answer = typeof raw === 'number' ? raw > 0 : !!raw;
+      return {
+        questionId: question.id,
+        questionText: question.text,
+        answer,
+        repeaterData: question.requiresRepeater ? formState.repeaterData[question.id] : undefined,
+        repeaterTitle: question.requiresRepeater?.title
+      };
+    });
   }, [questions, formState.answers, formState.repeaterData]);
 
   // Handle editing from summary
