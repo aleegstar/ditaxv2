@@ -87,13 +87,13 @@ const ModeCard: React.FC<{
   <button
     type="button"
     onClick={onClick}
-    className={`group relative h-full w-full text-left rounded-2xl bg-card overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col ${
+    className={`group relative h-full w-full text-left rounded-2xl bg-card overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-primary/30 flex flex-col sm:flex-row ${
       recommended
         ? "border-2 border-blue-600 shadow-[0_8px_28px_-8px_rgb(37_99_235_/_0.25)] hover:shadow-[0_12px_32px_-8px_rgb(37_99_235_/_0.35)]"
         : "border border-border hover:shadow-[0_8px_24px_rgba(15,27,61,0.08)] hover:border-primary/30"
     }`}
   >
-    <div className="relative h-36 w-full overflow-hidden bg-muted">
+    <div className="relative h-36 sm:h-auto sm:w-56 sm:flex-shrink-0 w-full overflow-hidden bg-muted">
       <img
         src={image}
         alt={imageAlt}
@@ -109,8 +109,8 @@ const ModeCard: React.FC<{
         <span className="text-[11px] font-semibold">{badge}</span>
       </div>
     </div>
-    <div className="relative p-5 flex flex-col flex-1">
-      <h3 className="text-[16px] font-semibold text-foreground tracking-tight">{title}</h3>
+    <div className="relative p-5 sm:p-6 flex flex-col flex-1">
+      <h3 className="text-[16px] sm:text-[17px] font-semibold text-foreground tracking-tight">{title}</h3>
       <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed flex-1">{desc}</p>
       <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
         {cta}
