@@ -191,37 +191,38 @@ export function AdminSidebar() {
     name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const mainNav: NavItem[] = [
-    { label: 'Dashboard', icon: LayoutGrid, route: '/admin/dashboard' },
+    { label: 'Dashboard', icon: LayoutDashboard, route: '/admin/dashboard' },
   ];
 
   const taxNav: NavItem[] = [
-    { label: 'Steuererklärungen', icon: ScrollText, route: '/admin/tax-processing' },
-    { label: 'Fehlende Unterlagen', icon: TriangleAlert, route: '/admin/missing-documents' },
+    { label: 'Steuererklärungen', icon: FileText, route: '/admin/tax-processing' },
+    { label: 'Fehlende Unterlagen', icon: AlertCircle, route: '/admin/missing-documents' },
     { label: 'Zur Übermittlung', icon: Send, route: '/admin/signed-returns' },
-    { label: 'Veranlagungen', icon: ClipboardCheck, route: '/admin/definitive-tax-bills' },
+    { label: 'Veranlagungen', icon: CircleCheck, route: '/admin/definitive-tax-bills' },
   ];
 
   const supportNav: NavItem[] = [
-    { label: 'Support Tickets', icon: LifeBuoy, route: '/admin/tickets', badge: workload?.tickets },
-    { label: 'Chat', icon: MessagesSquare, route: '/admin/chat' },
+    { label: 'Support Tickets', icon: HelpCircle, route: '/admin/tickets', badge: workload?.tickets },
+    { label: 'Chat', icon: MessageCircle, route: '/admin/chat' },
   ];
 
   const managementNav: NavItem[] = [
-    { label: 'Benutzer', icon: UsersRound, route: '/admin/users' },
-    { label: 'Schnellantworten', icon: Sparkles, route: '/admin/quick-replies' },
-    { label: 'Zahlungen', icon: Wallet, route: '/admin/payment-status' },
-    { label: 'OCR Konfiguration', icon: Scan, route: '/admin/ocr-config' },
-    { label: 'Nicht erkannte Uploads', icon: FileWarning, route: '/admin/ocr-unrecognized' },
+    { label: 'Benutzer', icon: Users, route: '/admin/users' },
+    { label: 'Schnellantworten', icon: Wand2, route: '/admin/quick-replies' },
+    { label: 'Zahlungen', icon: CreditCard, route: '/admin/payment-status' },
+    { label: 'OCR Konfiguration', icon: ScanLine, route: '/admin/ocr-config' },
+    { label: 'Nicht erkannte Uploads', icon: FileX2, route: '/admin/ocr-unrecognized' },
     { label: 'User-Feedback', icon: Star, route: '/admin/user-feedback' },
-    { label: 'Lösch-Feedback', icon: MessageSquareDashed, route: '/admin/deletion-feedback' },
+    { label: 'Lösch-Feedback', icon: MessageSquareOff, route: '/admin/deletion-feedback' },
     { label: 'Newsletter', icon: Mail, route: '/admin/newsletter' },
-    { label: 'Aktionscodes', icon: Ticket, route: '/admin/promo-codes' },
+    { label: 'Aktionscodes', icon: BadgePercent, route: '/admin/promo-codes' },
   ];
 
   const exportNav: NavItem[] = [
-    { label: 'AG eTax XML', icon: FileCode, route: '/admin/ag-xml' },
+    { label: 'AG eTax XML', icon: FileCode2, route: '/admin/ag-xml' },
     { label: 'AG Import-Test', icon: PackageCheck, route: '/admin/ag-import' },
   ];
+
 
   const isActive = (path: string) => currentPath === path;
   const managementHasActive = managementNav.some(i => isActive(i.route));
