@@ -29,10 +29,10 @@ const ALLOWED_LABELS = new Set<string>([
   "Liegenschaftsertrag-Abrechnung",
   "Bestätigung Alimente/Unterhalt",
   "Arbeitslosentaggeld-Abrechnung",
+  "Bestätigung Familien-/Mutterschaftszulagen",
   // assets
   "Bankkontoauszug per 31.12.",
   "Depotauszug per 31.12.",
-  "Säule 3a-Saldobestätigung",
   "Rückkaufswert Lebensversicherung",
   "Liegenschaftsbeleg",
   "Fahrzeugausweis / Eurotax",
@@ -49,6 +49,7 @@ const ALLOWED_LABELS = new Set<string>([
   "Beleg Unterhaltszahlung",
   "Beleg Liegenschaftsunterhalt",
   "Parteibeitrags-Beleg",
+  "Belege Weiterbildungskosten",
 ]);
 
 Deno.serve(async (req) => {
