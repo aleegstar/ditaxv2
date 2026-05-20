@@ -22,8 +22,7 @@ const ALLOWED_LABELS = new Set<string>([
   // income
   "Lohnausweis",
   "Nachweis Selbständigerwerb",
-  "Rentenbescheinigung (AHV/IV)",
-  "Pensionskassenausweis",
+  "Rentenbescheinigung (AHV/IV/PK)",
   "Bescheinigung Säule 3a-Bezug",
   "Wertschriften-/Depotverzeichnis",
   "Liegenschaftsertrag-Abrechnung",
