@@ -230,14 +230,34 @@ existiert NICHT mehr — niemals zurückgeben. "Bescheinigung Säule 3a-Bezug"
 nur dann, wenn das PDF explizit eine Kapitalleistung / Pensionierung
 ausweist (separates Formular Kapitalleistungen, nicht im Hauptformular).
 
+ZUSÄTZLICH — BANK-/DEPOTKONTEN aus dem Wertschriften- und Guthabenverzeichnis:
+Wenn das PDF die Detailauflistung Rubrik A (mit Verrechnungssteuer) und/oder
+Rubrik B (ohne Verrechnungssteuer) enthält, EXTRAHIERE JEDES EINZELNE KONTO
+bzw. DEPOT GENAU EINMAL (dedupliziert über die Konto-/Depot-Nummer).
+
+Für jede Zeile in den Detailauflistungen:
+- "reference" = der Inhalt der Spalte "Kto-Nr Valoren-Nr"
+   • IBAN exakt wie gedruckt (z.B. "CH68 0025 3253 1100 1540")
+   • oder reine Depot-/Kontonummer (z.B. "1666308", "135309759")
+   • Ignoriere Spaltennachbarn wie "BK", "PC", "Dep", "V", "L", "G" — das sind
+     Typ-Codes und gehören NICHT in die Referenz.
+- "institution" = der Inhalt der Spalte "Bezeichnung"
+   (z.B. "UBS Switzerland AG", "PostFinance", "Yuh", "Raiffeisen", "Plus500").
+   Ohne "Zeitraum"-Suffix, ohne Adressen.
+- WICHTIG: Wenn dasselbe Konto sowohl in Rubrik A als auch in Rubrik B
+  vorkommt (z.B. Yuh Depot 1666308), darf es NUR EINMAL erscheinen.
+- Wenn keine Wertschriften-Detailauflistung vorhanden ist, gib accounts:[]
+  zurück.
+
 Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema:
 {
   "income":     [{"label": string}],
   "assets":     [{"label": string}],
-  "deductions": [{"label": string}]
+  "deductions": [{"label": string}],
+  "accounts":   [{"institution": string, "reference": string}]
 }
 
-Keine Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
+Keine Werte, keine Beträge, keine Adressen, keine Erklärungen.`;
 
     const aiResp = await fetch(LOVABLE_AI_URL, {
       method: "POST",
