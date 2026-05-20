@@ -227,173 +227,199 @@ const SignedTaxReturns: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Zur Übermittlung
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Unterschriebene Steuererklärungen zur Übermittlung an das Steueramt
-          </p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6 min-h-screen">
+      {/* Hero Card */}
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-[0_8px_30px_-12px_rgba(15,27,61,0.12)]">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr]">
+          <div className="p-6 sm:p-8 flex flex-col justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground bg-muted px-2.5 py-1 rounded-full border border-border mb-4">
+                <Sparkles className="h-3 w-3" strokeWidth={2} />
+                Übermittlung
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+                Zur Übermittlung
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-md">
+                Unterschriebene Steuererklärungen zur Übermittlung an das Steueramt.
+              </p>
+            </div>
+
+            {/* Stats inline */}
+            <div className="grid grid-cols-4 gap-4">
+              {[
+                { label: 'Gesamt', value: stats.total },
+                { label: 'Bereit', value: stats.ready },
+                { label: 'Übermittelt', value: stats.submitted },
+                { label: 'Abgeschlossen', value: stats.completed },
+              ].map(s => (
+                <div key={s.label}>
+                  <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">{s.value}</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="relative h-44 md:h-auto">
+            <img
+              src={heroImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-card via-card/40 to-transparent md:bg-gradient-to-r md:from-card md:via-card/20 md:to-transparent" />
+          </div>
+        </div>
+      </div>
+
+      {/* Filter + Refresh */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-1 p-1 sm:p-1.5 rounded-full bg-foreground/[0.045]">
+          {[
+            { key: 'all' as const, label: 'Alle' },
+            { key: 'ready' as const, label: 'Bereit' },
+            { key: 'submitted' as const, label: 'Übermittelt' },
+            { key: 'completed' as const, label: 'Abgeschlossen' },
+          ].map(f => {
+            const active = filterStatus === f.key;
+            return (
+              <button
+                key={f.key}
+                onClick={() => setFilterStatus(f.key)}
+                className={cn(
+                  'shrink-0 px-4 sm:px-5 h-9 sm:h-10 rounded-full text-xs sm:text-sm transition-all duration-200 active:scale-[0.97]',
+                  active
+                    ? 'bg-white text-foreground font-semibold shadow-[0_1px_2px_rgba(15,27,61,0.06),0_4px_10px_-3px_rgba(15,27,61,0.1)]'
+                    : 'text-muted-foreground/65 font-medium hover:text-foreground/85'
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
         <button
           onClick={fetchSignedReturns}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 h-9 rounded-full border border-border bg-card hover:bg-muted"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} />
           Aktualisieren
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="flex gap-6">
-        {[
-          { label: 'Gesamt', value: stats.total },
-          { label: 'Bereit', value: stats.ready },
-          { label: 'Übermittelt', value: stats.submitted },
-          { label: 'Abgeschlossen', value: stats.completed },
-        ].map(s => (
-          <div key={s.label}>
-            <div className="text-xl font-semibold tracking-tight text-foreground">{s.value}</div>
-            <div className="text-[11px] text-muted-foreground">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Filter */}
-      <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5 w-fit">
-        {[
-          { key: 'all' as const, label: 'Alle' },
-          { key: 'ready' as const, label: 'Bereit' },
-          { key: 'submitted' as const, label: 'Übermittelt' },
-          { key: 'completed' as const, label: 'Abgeschlossen' },
-        ].map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFilterStatus(f.key)}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-              filterStatus === f.key
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <p className="text-sm text-muted-foreground">Laden...</p>
+        <div className="bg-card border border-border rounded-2xl flex justify-center py-20">
+          <p className="text-sm text-muted-foreground">Laden…</p>
         </div>
       ) : filteredReturns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+        <div className="bg-card border border-border rounded-2xl flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <FileText className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+          </div>
           <p className="text-sm font-medium text-foreground mb-1">Keine Ergebnisse</p>
           <p className="text-xs text-muted-foreground">Keine unterschriebenen Steuererklärungen gefunden.</p>
         </div>
       ) : (
-        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/30">
-                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Benutzer</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Nr.</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Jahr</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Unterschrieben</th>
-                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Status</th>
-                <th className="text-right py-3 px-5 text-xs font-medium text-muted-foreground">Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredReturns.map((item) => (
-                <tr key={item.id} className="border-b border-white/20 last:border-0 hover:bg-white/40 transition-colors">
-                  <td className="py-3 px-5">
-                    <div>
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="text-left py-3 px-5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Benutzer</th>
+                  <th className="text-left py-3 px-5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Nr.</th>
+                  <th className="text-left py-3 px-5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Jahr</th>
+                  <th className="text-left py-3 px-5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Unterschrieben</th>
+                  <th className="text-left py-3 px-5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Status</th>
+                  <th className="text-right py-3 px-5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredReturns.map((item) => (
+                  <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="py-4 px-5">
                       <div className="text-sm font-medium text-foreground">
                         {item.signer_name || `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim() || 'Unbekannt'}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {item.signer_email || item.user_email}
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-5">
-                    <span className="text-xs text-muted-foreground">
-                      {item.adressnummer || '–'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-5">
-                    <span className="text-xs font-medium text-foreground">{item.tax_year}</span>
-                  </td>
-                  <td className="py-3 px-5">
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(item.signed_at), 'dd.MM.yyyy', { locale: de })}
-                    </span>
-                  </td>
-                  <td className="py-3 px-5">
-                    <span className={cn(
-                      "text-[10px] font-medium px-2 py-0.5 rounded-full",
-                      item.tax_return_status === 'completed'
-                        ? "bg-foreground/[0.06] text-foreground"
-                        : item.tax_return_status === 'submitted'
-                        ? "bg-foreground/[0.06] text-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {getStatusLabel(item.tax_return_status)}
-                    </span>
-                  </td>
-                  <td className="py-3 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      {item.signed_pdf_path && (
-                        <button
-                          onClick={() => openPdf(item.signed_pdf_path)}
-                          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                          title="PDF anzeigen"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                      
-                      <Link
-                        to={`/admin/user/${item.user_id}`}
-                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                        title="Benutzer anzeigen"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </Link>
+                    </td>
+                    <td className="py-4 px-5">
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {item.adressnummer || '–'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-5">
+                      <span className="text-sm font-medium text-foreground tabular-nums">{item.tax_year}</span>
+                    </td>
+                    <td className="py-4 px-5">
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {format(new Date(item.signed_at), 'dd.MM.yyyy', { locale: de })}
+                      </span>
+                    </td>
+                    <td className="py-4 px-5">
+                      <span className={cn(
+                        'inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border',
+                        item.tax_return_status === 'completed'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : item.tax_return_status === 'submitted'
+                          ? 'bg-blue-50 text-blue-700 border-blue-200'
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                      )}>
+                        {getStatusLabel(item.tax_return_status)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {item.signed_pdf_path && (
+                          <button
+                            onClick={() => openPdf(item.signed_pdf_path)}
+                            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            title="PDF anzeigen"
+                          >
+                            <Eye className="h-3.5 w-3.5" strokeWidth={1.8} />
+                          </button>
+                        )}
 
-                      {(!item.tax_return_status || item.tax_return_status === 'available') && (
-                        <button
-                          onClick={() => markAsSubmitted(item.id, item.completed_tax_return_id)}
-                          disabled={updatingId === item.id}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white hover:brightness-[1.04] disabled:opacity-50 transition-all"
+                        <Link
+                          to={`/admin/user/${item.user_id}`}
+                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          title="Benutzer anzeigen"
                         >
-                          <Send className="h-3 w-3" />
-                          Übermittelt
-                        </button>
-                      )}
+                          <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
+                        </Link>
 
-                      {item.tax_return_status === 'submitted' && (
-                        <button
-                          onClick={() => markAsCompleted(item.id, item.completed_tax_return_id)}
-                          disabled={updatingId === item.id}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border border-border text-foreground hover:bg-muted/50 disabled:opacity-50 transition-all"
-                        >
-                          <CheckCircle2 className="h-3 w-3" />
-                          Abschliessen
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {(!item.tax_return_status || item.tax_return_status === 'available') && (
+                          <Button
+                            onClick={() => markAsSubmitted(item.id, item.completed_tax_return_id)}
+                            disabled={updatingId === item.id}
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                          >
+                            <Send className="h-3 w-3 mr-1.5" strokeWidth={2} />
+                            Übermittelt
+                          </Button>
+                        )}
+
+                        {item.tax_return_status === 'submitted' && (
+                          <Button
+                            onClick={() => markAsCompleted(item.id, item.completed_tax_return_id)}
+                            disabled={updatingId === item.id}
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                          >
+                            <CheckCircle2 className="h-3 w-3 mr-1.5" strokeWidth={2} />
+                            Abschliessen
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
