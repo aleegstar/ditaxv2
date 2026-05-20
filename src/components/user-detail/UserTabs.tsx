@@ -291,19 +291,17 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 isAdmin={true} 
               />
             ) : (
-              <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
-                <CardContent className="py-10">
-                  <div className="text-center">
-                    <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FileText className="h-6 w-6 text-muted-foreground/60" />
-                    </div>
-                    <p className="text-muted-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      Der Mandant hat noch keine Angaben gemacht
-                    </p>
+              <div className="bg-card border border-border rounded-2xl py-12">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
+                    <FileText className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Der Mandant hat noch keine Angaben gemacht
+                  </p>
+                </div>
+              </div>
             )}
               </TabsContent>
 
