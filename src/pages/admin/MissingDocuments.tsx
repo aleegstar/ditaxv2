@@ -12,9 +12,12 @@ import {
   CheckCircle2,
   Eye,
   User,
-  Calendar
+  Calendar,
+  Sparkles,
+  AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import heroImage from '@/assets/admin-missing-hero.jpg';
 import { CreateMissingItemRequestDialog } from '@/components/admin/CreateMissingItemRequestDialog';
 import { ReviewSubmittedItemsDialog } from '@/components/admin/ReviewSubmittedItemsDialog';
 import { useSubmittedMissingItems, type MissingItemRequest } from '@/hooks/useMissingItemRequests';
@@ -177,95 +180,117 @@ const MissingDocuments = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Fehlende Unterlagen
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Steuererklärungen mit ausstehenden Dokumenten oder Angaben
-          </p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6 min-h-screen">
+      {/* Hero Card */}
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-[0_8px_30px_-12px_rgba(15,27,61,0.12)]">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr]">
+          <div className="p-6 sm:p-8 flex flex-col justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground bg-muted px-2.5 py-1 rounded-full border border-border mb-4">
+                <AlertTriangle className="h-3 w-3" strokeWidth={2} />
+                Anfragen
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+                Fehlende Unterlagen
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-md">
+                Steuererklärungen mit ausstehenden Dokumenten oder Angaben.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-4 gap-4">
+              {stats.map(s => (
+                <div key={s.label}>
+                  <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">{s.value}</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="relative h-44 md:h-auto">
+            <img
+              src={heroImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-card via-card/40 to-transparent md:bg-gradient-to-r md:from-card md:via-card/20 md:to-transparent" />
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs + Refresh */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-1 p-1 sm:p-1.5 rounded-full bg-foreground/[0.045]">
+          {[
+            { key: 'pending' as const, label: 'Offen', count: pendingItems.length },
+            { key: 'submitted' as const, label: 'Eingereicht', count: submittedItems.length },
+          ].map(t => {
+            const active = activeTab === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setActiveTab(t.key)}
+                className={cn(
+                  'shrink-0 px-4 sm:px-5 h-9 sm:h-10 rounded-full text-xs sm:text-sm transition-all duration-200 active:scale-[0.97]',
+                  active
+                    ? 'bg-white text-foreground font-semibold shadow-[0_1px_2px_rgba(15,27,61,0.06),0_4px_10px_-3px_rgba(15,27,61,0.1)]'
+                    : 'text-muted-foreground/65 font-medium hover:text-foreground/85'
+                )}
+              >
+                {t.label}
+                {t.count > 0 && <span className="ml-1.5 text-[10px] opacity-70">{t.count}</span>}
+              </button>
+            );
+          })}
         </div>
         <button
           onClick={handleRefresh}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 h-9 rounded-full border border-border bg-card hover:bg-muted"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} />
           Aktualisieren
         </button>
       </div>
 
-      {/* Stats row */}
-      <div className="flex gap-6">
-        {stats.map(s => (
-          <div key={s.label}>
-            <div className="text-xl font-semibold tracking-tight text-foreground">{s.value}</div>
-            <div className="text-[11px] text-muted-foreground">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabs + Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5">
+      {/* Sub-filter for pending */}
+      {activeTab === 'pending' && (
+        <div className="flex flex-wrap gap-1.5">
           {[
-            { key: 'pending' as const, label: 'Offen', count: pendingItems.length },
-            { key: 'submitted' as const, label: 'Eingereicht', count: submittedItems.length },
-          ].map(t => (
-            <button
-              key={t.key}
-              onClick={() => setActiveTab(t.key)}
-              className={cn(
-                "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-                activeTab === t.key
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {t.label}
-              {t.count > 0 && (
-                <span className="ml-1.5 text-[10px] text-muted-foreground">{t.count}</span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === 'pending' && (
-          <div className="flex gap-1">
-            {[
-              { key: 'all' as const, label: 'Alle' },
-              { key: 'missing_documents' as const, label: 'Unterlagen' },
-              { key: 'missing_information' as const, label: 'Angaben' },
-            ].map(f => (
+            { key: 'all' as const, label: 'Alle' },
+            { key: 'missing_documents' as const, label: 'Unterlagen' },
+            { key: 'missing_information' as const, label: 'Angaben' },
+          ].map(f => {
+            const active = filter === f.key;
+            return (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
                 className={cn(
-                  "px-2.5 py-1 rounded-md text-xs transition-all",
-                  filter === f.key
-                    ? "bg-foreground/[0.06] text-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground"
+                  'px-3 h-8 rounded-full text-xs transition-all',
+                  active
+                    ? 'bg-foreground text-background font-medium'
+                    : 'bg-card border border-border text-muted-foreground hover:text-foreground'
                 )}
               >
                 {f.label}
               </button>
-            ))}
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Pending Tab */}
       {activeTab === 'pending' && (
         <>
           {loading ? (
-            <div className="flex justify-center py-20">
-              <p className="text-sm text-muted-foreground">Laden...</p>
+            <div className="bg-card border border-border rounded-2xl flex justify-center py-20">
+              <p className="text-sm text-muted-foreground">Laden…</p>
             </div>
           ) : pendingItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <CheckCircle2 className="h-10 w-10 text-muted-foreground/30 mb-3" />
+            <div className="bg-card border border-border rounded-2xl flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" strokeWidth={1.8} />
+              </div>
               <p className="text-sm font-medium text-foreground mb-1">Alles erledigt</p>
               <p className="text-xs text-muted-foreground">Keine offenen Anfragen vorhanden.</p>
             </div>
@@ -274,7 +299,7 @@ const MissingDocuments = () => {
               {pendingItems.map(item => (
                 <div
                   key={item.id}
-                   className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm hover:bg-white/80 transition-all duration-150"
+                  className="bg-card border border-border rounded-2xl p-5 hover:shadow-[0_4px_16px_-4px_rgba(15,27,61,0.08)] transition-all duration-150"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -286,10 +311,10 @@ const MissingDocuments = () => {
                       </p>
                     </div>
                     <span className={cn(
-                      "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                      "text-[10px] font-medium px-2 py-1 rounded-full",
                       item.status === 'missing_information'
-                        ? "bg-foreground/[0.08] text-foreground"
-                        : "bg-muted text-muted-foreground"
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-blue-50 text-blue-700"
                     )}>
                       {getStatusLabel(item.status)}
                     </span>
@@ -317,7 +342,7 @@ const MissingDocuments = () => {
 
                   <button
                     onClick={() => handleOpenCreateDialog(item)}
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:opacity-80 transition-opacity px-3 h-8 rounded-full bg-muted"
                   >
                     <Plus className="h-3 w-3" />
                     Anfrage erstellen
@@ -333,12 +358,14 @@ const MissingDocuments = () => {
       {activeTab === 'submitted' && (
         <>
           {submittedLoading ? (
-            <div className="flex justify-center py-20">
-              <p className="text-sm text-muted-foreground">Laden...</p>
+            <div className="bg-card border border-border rounded-2xl flex justify-center py-20">
+              <p className="text-sm text-muted-foreground">Laden…</p>
             </div>
           ) : submittedItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+            <div className="bg-card border border-border rounded-2xl flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                <FileText className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+              </div>
               <p className="text-sm font-medium text-foreground mb-1">Keine Einreichungen</p>
               <p className="text-xs text-muted-foreground">Keine eingereichten Unterlagen zur Prüfung.</p>
             </div>
@@ -347,7 +374,7 @@ const MissingDocuments = () => {
               {submittedItems.map(item => (
                 <div
                   key={item.tax_return_id}
-                  className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm hover:bg-white/80 transition-all duration-150"
+                  className="bg-card border border-border rounded-2xl p-5 hover:shadow-[0_4px_16px_-4px_rgba(15,27,61,0.08)] transition-all duration-150"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -358,7 +385,7 @@ const MissingDocuments = () => {
                         {item.requests.length} Einreichung{item.requests.length !== 1 ? 'en' : ''}
                       </p>
                     </div>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                    <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
                       Eingereicht
                     </span>
                   </div>
@@ -380,7 +407,7 @@ const MissingDocuments = () => {
 
                   <button
                     onClick={() => handleOpenReviewDialog(item)}
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:opacity-80 transition-opacity px-3 h-8 rounded-full bg-muted"
                   >
                     <Eye className="h-3 w-3" />
                     Prüfen
