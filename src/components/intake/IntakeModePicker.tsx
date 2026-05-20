@@ -37,11 +37,11 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
       <div className="grid gap-4 sm:grid-cols-2 sm:auto-rows-fr items-stretch" data-tour="intake-mode-picker">
         <div data-tour="intake-upload-card" className="h-full">
         <ModeCard
-          rainbow
+          recommended
           image={uploadImg}
           imageAlt="Zwei Personen am Laptop bei der Steuererklärung"
-          icon={<FileUp className="w-4 h-4 text-primary" strokeWidth={1.75} />}
-          badge={priorBadge}
+          icon={<Zap className="w-4 h-4 text-primary fill-primary" strokeWidth={1.75} />}
+          badge="Empfohlen"
           title={priorTitle}
           desc={priorDesc}
           cta={priorCta}
