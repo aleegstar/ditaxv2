@@ -228,25 +228,21 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         return;
       }
 
+      // Nur lokale Analyse – KEIN automatischer KI-Fallback. Wenn der User
+      // die KI-Analyse will, muss er den Toggle aktiv einschalten.
       const localScan = extractItemsFromText(text);
-      if (isLocalResultSufficient(localScan)) {
-        await persistChecklist(localScan, "local", storagePath);
-        toast.success(
-          usedOcr
-            ? "Checkliste per lokalem OCR erstellt."
-            : "Checkliste erstellt.",
+      await persistChecklist(localScan, "local", storagePath);
+      const total =
+        localScan.income.length + localScan.assets.length + localScan.deductions.length;
+      if (total === 0) {
+        toast.message(
+          "Keine Positionen automatisch erkannt – bitte ergänze die Checkliste manuell oder aktiviere die KI-Analyse.",
         );
-        onScanStarted?.();
-        return;
+      } else {
+        toast.success(
+          usedOcr ? "Checkliste per lokalem OCR erstellt." : "Checkliste erstellt.",
+        );
       }
-
-      setPhase("structuring");
-      const safeText = pseudonymize(text);
-      const { error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
-        body: { taxFilerId, taxYear, text: safeText, storagePath },
-      });
-      if (fnErr) throw fnErr;
-      toast.success("Checkliste erstellt.");
       onScanStarted?.();
     } catch (e: any) {
       console.error(e);
