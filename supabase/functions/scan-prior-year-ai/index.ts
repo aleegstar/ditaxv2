@@ -283,12 +283,13 @@ Keine Werte, keine Beträge, keine Adressen, keine Erklärungen.`;
       },
       body: JSON.stringify({
         model: MODEL,
+        response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
           {
             role: "user",
             content: [
-              { type: "text", text: "Analysiere das angehängte PDF." },
+              { type: "text", text: "Analysiere das angehängte PDF. Antworte AUSSCHLIESSLICH mit JSON gemäss Schema." },
               { type: "image_url", image_url: { url: dataUrl } },
             ],
           },
