@@ -344,7 +344,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                             <DocumentCard 
                               key={doc.id} 
                               document={doc} 
-                              onPreview={handleDocumentPreview} 
+                              onPreview={handleDocumentPreview} userId={userId} isAdmin={true} 
                             />
                           ))}
                         </div>
@@ -366,7 +366,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                             <DocumentCard 
                               key={doc.id} 
                               document={doc} 
-                              onPreview={handleDocumentPreview} 
+                              onPreview={handleDocumentPreview} userId={userId} isAdmin={true} 
                             />
                           ))}
                         </div>
@@ -388,7 +388,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                             <DocumentCard 
                               key={doc.id} 
                               document={doc} 
-                              onPreview={handleDocumentPreview} 
+                              onPreview={handleDocumentPreview} userId={userId} isAdmin={true} 
                             />
                           ))}
                         </div>
@@ -410,7 +410,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                             <DocumentCard 
                               key={doc.id} 
                               document={doc} 
-                              onPreview={handleDocumentPreview} 
+                              onPreview={handleDocumentPreview} userId={userId} isAdmin={true} 
                             />
                           ))}
                         </div>
@@ -432,7 +432,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                             <DocumentCard 
                               key={doc.id} 
                               document={doc} 
-                              onPreview={handleDocumentPreview} 
+                              onPreview={handleDocumentPreview} userId={userId} isAdmin={true} 
                             />
                           ))}
                         </div>
