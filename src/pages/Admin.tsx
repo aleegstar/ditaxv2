@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { SecurityService } from '@/services/SecurityService';
+import { useAdminAuth } from '@/components/guards/AdminRouteGuard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
