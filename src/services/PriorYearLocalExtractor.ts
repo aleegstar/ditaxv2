@@ -172,18 +172,47 @@ const DEDUCTION_CODES: CodeRule[] = [
 ];
 
 
+// Vollständiges Inventar aller im AG-eTax-Hauptbogen vorkommenden Ziffern,
+// inkl. reiner Zwischen-/Hilfscodes (Summenzeilen, Subtotale), damit wir
+// erkennen können, wenn nach einem Code direkt der nächste Code folgt
+// (= Feld ist leer). Ohne diese Liste matcht z. B. „030 040" fälschlich.
+const ALL_KNOWN_CODES: Set<number> = new Set<number>([
+  ...INCOME_CODES.flatMap((r) => r.codes),
+  ...ASSET_CODES.flatMap((r) => r.codes),
+  ...DEDUCTION_CODES.flatMap((r) => r.codes),
+  // AG-Hauptbogen Hilfs-/Summen-Codes, die zwischen Eingabefeldern gedruckt
+  // sind und im Text-Layer wie „Werte" aussehen können:
+  1, 295, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309,
+  401, 411, 501, 600, 601, 602, 690, 700, 710, 712,
+  2702, 2712, 2742, 2792, 2802, 2812, 2822,
+  3202, 3402, 380, 384, 385, 386, 387, 388, 389, 391,
+  394, 395, 396, 398, 399, 410, 413, 414, 415,
+]);
+
 /**
  * Erkennt, ob eine Ziffer im Text vorkommt UND mit einem nicht-null
- * Betrag ausgefüllt ist. Schweizer Zahlenformate: 1'234.55, 1234, 1 234.
- * Innerhalb von 80 Zeichen nach dem Code muss eine Ziffer 1-9 stehen.
+ * Betrag ausgefüllt ist. Wir extrahieren den ersten Token nach dem Code
+ * und verwerfen, wenn dieser selbst ein bekannter Code ist (= leeres Feld,
+ * direkt gefolgt vom nächsten Code im Text-Layer).
  */
 function codeIsFilled(text: string, code: number): boolean {
   const c = String(code);
-  // 2-stellige Hauptbogen-Codes (z. B. AG 010, 020) erlauben optional
-  // führende Null. 3-/4-stellige Codes müssen exakt matchen.
   const pat = c.length < 3 ? `0?${c}` : c;
-  const re = new RegExp(`(?:^|[^0-9])${pat}(?:[^0-9]|$)[^\\n]{0,80}?[1-9]`);
-  return re.test(text);
+  const re = new RegExp(
+    `(?:^|[^0-9])${pat}(?:[^0-9])[ \\t]{0,30}?([0-9][0-9'\\.,\\s]{0,18})`,
+    "g",
+  );
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const raw = m[1].replace(/[^0-9]/g, "");
+    if (!raw) continue;
+    // Führende Null → kein echter Betrag, sondern ein anderer Code (z. B. 040).
+    if (raw.startsWith("0")) continue;
+    const n = parseInt(raw, 10);
+    if (Number.isFinite(n) && ALL_KNOWN_CODES.has(n)) continue;
+    if (n > 0) return true;
+  }
+  return false;
 }
 
 function applyCodeRules(text: string, rules: CodeRule[]): ExtractedItem[] {
