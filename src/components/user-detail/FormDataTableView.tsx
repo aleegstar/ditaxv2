@@ -185,8 +185,8 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
     <>
       <div className="space-y-4">
         {/* Section 1: Persönliche Daten - Two Column Layout */}
-        <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
-          <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
+        <Card className="border-0 shadow-none bg-card">
+          <CardHeader className="py-2.5 px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
@@ -202,36 +202,36 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Left Column - Personalien */}
                 <div className="space-y-3">
-                  <h4 className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 pb-1 border-b border-border/30">
+                  <h4 className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                     <User className="h-3 w-3" />
                     Personalien
                   </h4>
                   <Table>
                     <TableBody>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5 w-28">Name</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(`${contactInfo.firstName || ''} ${contactInfo.lastName || ''}`.trim())}
                           {contactInfo.firstName && <CopyButton text={`${contactInfo.firstName} ${contactInfo.lastName}`} fieldId="name" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">Geburtsdatum</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(contactInfo.birthDate ? new Date(contactInfo.birthDate).toLocaleDateString('de-CH') : null)}
                           {contactInfo.birthDate && <CopyButton text={new Date(contactInfo.birthDate).toLocaleDateString('de-CH')} fieldId="birthDate" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">Zivilstand</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">{displayValue(getValueLabel('maritalStatus', contactInfo.maritalStatus))}</TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">Konfession</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">{displayValue(getValueLabel('religion', contactInfo.religion))}</TableCell>
                       </TableRow>
                       {contactInfo.adressnummer && (
-                        <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableRow className="group hover:bg-muted/30 border-0">
                           <TableCell className="text-xs text-muted-foreground/80 py-2.5">Adressnummer</TableCell>
                           <TableCell className="text-sm font-medium py-2.5">
                             {contactInfo.adressnummer}
@@ -245,38 +245,38 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
                 {/* Right Column - Kontakt & Adresse */}
                 <div className="space-y-3">
-                  <h4 className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 pb-1 border-b border-border/30">
+                  <h4 className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                     <MapPin className="h-3 w-3" />
                     Kontakt & Adresse
                   </h4>
                   <Table>
                     <TableBody>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5 w-28">Adresse</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(contactInfo.address)}
                           {contactInfo.address && <CopyButton text={contactInfo.address} fieldId="address" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">PLZ / Ort</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(`${contactInfo.postalCode || ''} ${contactInfo.city || ''}`.trim())}
                           {(contactInfo.postalCode || contactInfo.city) && <CopyButton text={`${contactInfo.postalCode} ${contactInfo.city}`} fieldId="plzort" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">Kanton</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">{displayValue(getValueLabel('kanton', contactInfo.kanton))}</TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">Telefon</TableCell>
                         <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(contactInfo.phone)}
                           {contactInfo.phone && <CopyButton text={contactInfo.phone} fieldId="phone" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                      <TableRow className="group hover:bg-muted/30 border-0">
                         <TableCell className="text-xs text-muted-foreground/80 py-2.5">E-Mail</TableCell>
                         <TableCell className="text-sm font-medium py-2.5 break-all">
                           {displayValue(contactInfo.email)}
@@ -352,8 +352,8 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 2: Einkommen */}
         {income && Object.keys(income).some(k => income[k as keyof typeof income]) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
-            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
+          <Card className="border-0 shadow-none bg-card">
+            <CardHeader className="py-2.5 px-4">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                   <Briefcase className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
@@ -447,8 +447,8 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 3: Vermögen */}
         {(assets || bankStatementDocs.length > 0) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
-            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
+          <Card className="border-0 shadow-none bg-card">
+            <CardHeader className="py-2.5 px-4">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                   <Wallet className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
@@ -593,8 +593,8 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 4: Abzüge */}
         {deductions && Object.keys(deductions).some(k => deductions[k as keyof typeof deductions]) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
-            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
+          <Card className="border-0 shadow-none bg-card">
+            <CardHeader className="py-2.5 px-4">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                   <Receipt className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
@@ -685,7 +685,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Empty State */}
         {!contactInfo && !income && !assets && !deductions && (
-          <Card className="border-border/50 shadow-sm">
+          <Card className="border-0 shadow-none bg-card">
             <CardContent className="py-12">
               <div className="text-center text-muted-foreground">
                 <FileIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
