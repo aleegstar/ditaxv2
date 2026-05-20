@@ -571,7 +571,9 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
                            formData.income?.hasPensionPayout ||
                            formData.income?.hasOtherIncome;
       
-      const hasAssetsData = formData.assets?.hasDepositAccount ||
+      const hasAssetsData = (formData.assets?.accountCount ?? 0) > 0 ||
+                           (formData.assets?.accounts?.length ?? 0) > 0 ||
+                           formData.assets?.hasDepositAccount ||
                            formData.assets?.hasCrypto ||
                            formData.assets?.hasMortgage ||
                            formData.assets?.hasProperty ||
