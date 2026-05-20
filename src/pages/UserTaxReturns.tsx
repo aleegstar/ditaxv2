@@ -146,7 +146,10 @@ const UserTaxReturns = () => {
   }, [loading, authLoading, profileLoading, taxFilerLoading, activeTaxFilerId, isReady]);
 
   const availableYears = useMemo(() => {
-    const years = taxReturns.map((tr: TaxReturn) => tr.tax_year);
+    const allowed = new Set(getFilingTaxYears());
+    const years = taxReturns
+      .map((tr: TaxReturn) => tr.tax_year)
+      .filter((y) => allowed.has(y));
     return [...new Set(years)].sort((a, b) => parseInt(b) - parseInt(a));
   }, [taxReturns]);
 
