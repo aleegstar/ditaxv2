@@ -52,7 +52,7 @@ interface BodyProps extends Props {
 }
 
 export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYear, onProgress, hideHeader }) => {
-  const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
+  const { checklist, items, loading, reload, updateItem, bulkUpdateCategory, addItem, deleteItem } =
     usePriorYearChecklist(taxFilerId, taxYear);
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [contactState, setContactState] = useState<{ confirmed: boolean; note: string }>({
@@ -191,6 +191,8 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
             items={grouped[cat]}
             onBulk={(patch) => bulkUpdateCategory(cat, patch)}
             onItem={(id, patch) => updateItem(id, patch)}
+            onAdd={(label) => addItem(cat, label)}
+            onDelete={(id) => deleteItem(id)}
           />
         ))}
       </div>
@@ -229,8 +231,11 @@ const CompactCategoryCard: React.FC<{
   items: ChecklistItem[];
   onBulk: (patch: Partial<ChecklistItem>) => void;
   onItem: (id: string, patch: Partial<ChecklistItem>) => void;
-}> = ({ category, items, onBulk, onItem }) => {
+  onAdd: (label: string) => void;
+  onDelete: (id: string) => void;
+}> = ({ category, items, onBulk, onItem, onAdd, onDelete }) => {
   const [editOpen, setEditOpen] = useState(false);
+  const [newLabel, setNewLabel] = useState("");
   const allDone = items.every(i => i.completed);
   const allUnchanged = items.every(i => i.change_status === "unchanged");
 
@@ -308,8 +313,41 @@ const CompactCategoryCard: React.FC<{
           </AppDialogHeader>
           <div className="divide-y divide-border max-h-[60vh] overflow-y-auto -mx-2">
             {items.map(it => (
-              <ItemRow key={it.id} item={it} onChange={(patch) => onItem(it.id, patch)} />
+              <ItemRow
+                key={it.id}
+                item={it}
+                onChange={(patch) => onItem(it.id, patch)}
+                onDelete={it.change_status === "new" ? () => onDelete(it.id) : undefined}
+              />
             ))}
+          </div>
+          <div className="pt-3 border-t border-border">
+            <div className="text-[12px] font-medium text-foreground mb-2">
+              Position hinzufügen
+            </div>
+            <div className="flex gap-2">
+              <input
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newLabel.trim()) {
+                    onAdd(newLabel);
+                    setNewLabel("");
+                  }
+                }}
+                placeholder="z. B. Zweite Anstellung, Krypto-Konto …"
+                className="flex-1 text-[13px] rounded-lg border border-border bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 text-[13px]"
+                disabled={!newLabel.trim()}
+                onClick={() => { onAdd(newLabel); setNewLabel(""); }}
+              >
+                Hinzufügen
+              </Button>
+            </div>
           </div>
           <div className="flex justify-end pt-3">
             <Button onClick={() => setEditOpen(false)}>Fertig</Button>
@@ -339,7 +377,8 @@ const Chip: React.FC<{ active: boolean; label: string; onClick: () => void }> = 
 const ItemRow: React.FC<{
   item: ChecklistItem;
   onChange: (patch: Partial<ChecklistItem>) => void;
-}> = ({ item, onChange }) => {
+  onDelete?: () => void;
+}> = ({ item, onChange, onDelete }) => {
   const setStatus = (status: ChangeStatus) =>
     onChange({ change_status: status, completed: status !== "pending" });
 
@@ -354,6 +393,16 @@ const ItemRow: React.FC<{
             </div>
           )}
         </div>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-[11px] text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md"
+            aria-label="Entfernen"
+          >
+            Entfernen
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-1.5">

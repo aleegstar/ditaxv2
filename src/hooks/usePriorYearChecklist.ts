@@ -84,5 +84,32 @@ export function usePriorYearChecklist(taxFilerId: string | null | undefined, tax
       .eq("category", category);
   }, [checklist?.id]);
 
-  return { checklist, items, loading, reload: load, updateItem, bulkUpdateCategory };
+  const addItem = useCallback(async (category: ItemCategory, label: string) => {
+    const clId = checklist?.id;
+    if (!clId || !label.trim()) return;
+    const nextSort = items.filter(i => i.category === category)
+      .reduce((m, i) => Math.max(m, i.sort_order), 0) + 1;
+    const { data, error } = await supabase
+      .from("prior_year_checklist_items")
+      .insert({
+        checklist_id: clId,
+        category,
+        label: label.trim(),
+        change_status: "new",
+        completed: true,
+        sort_order: nextSort,
+      })
+      .select("*")
+      .single();
+    if (!error && data) {
+      setItems(prev => [...prev, data as ChecklistItem]);
+    }
+  }, [checklist?.id, items]);
+
+  const deleteItem = useCallback(async (id: string) => {
+    setItems(prev => prev.filter(it => it.id !== id));
+    await supabase.from("prior_year_checklist_items").delete().eq("id", id);
+  }, []);
+
+  return { checklist, items, loading, reload: load, updateItem, bulkUpdateCategory, addItem, deleteItem };
 }
