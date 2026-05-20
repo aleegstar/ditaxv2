@@ -168,8 +168,8 @@ Ziffer → Dokument-Mapping (verwende EXAKT diese Labels):
 EINKOMMEN
 - 100 / 101 / 102 / 103  → "Lohnausweis"
 - 120 / 121 / 122 / 123  → "Nachweis Selbständigerwerb"
-- 130 / 131              → "Rentenbescheinigung (AHV/IV)"
-- 134 / 135 / 136 / 137  → "Pensionskassenausweis"
+- 130 / 131 / 132 / 133 / 134 / 135 / 136 / 137  → "Rentenbescheinigung (AHV/IV/PK)"
+  (Pensionskassenausweis selbst ist KEIN Beleg für die Steuererklärung – nur die Renten-Bescheinigung wenn tatsächlich Renten ausbezahlt werden.)
 - 140 / 141              → "Arbeitslosentaggeld-Abrechnung"
 - 142 / 143              → "Bestätigung Familien-/Mutterschaftszulagen"
 - 150 / 151              → "Wertschriften-/Depotverzeichnis"
