@@ -710,6 +710,14 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                 onContinue={handleContinue}
                 canContinue={canContinueFromRepeater()}
               />
+            ) : currentQuestion.inputType === 'dropdown' ? (
+              <DropdownQuestion
+                key={`${currentQuestion.id}-dd-${viewState.isEditing ? 'edit' : 'q'}`}
+                question={currentQuestion}
+                value={formState.answers[currentQuestion.id] as any}
+                onSubmit={handleNumericAnswer}
+                section={section}
+              />
             ) : (
               <YesNoQuestion
                 key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
@@ -808,6 +816,14 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               onDataChange={handleRepeaterDataChange}
               onContinue={handleContinue}
               canContinue={canContinueFromRepeater()}
+            />
+          ) : currentQuestion.inputType === 'dropdown' ? (
+            <DropdownQuestion
+              key={`${currentQuestion.id}-dd-${viewState.isEditing ? 'edit' : 'q'}`}
+              question={currentQuestion}
+              value={formState.answers[currentQuestion.id] as any}
+              onSubmit={handleNumericAnswer}
+              section={section}
             />
           ) : (
             <YesNoQuestion
