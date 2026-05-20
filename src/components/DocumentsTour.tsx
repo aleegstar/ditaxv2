@@ -26,13 +26,6 @@ const documentsTourSteps = [
     position: 'bottom' as const,
   },
   {
-    id: 'hero',
-    title: 'Sicher verschlüsselt',
-    description: 'Alle Dokumente werden Ende-zu-Ende verschlüsselt gespeichert – nur du hast Zugriff.',
-    targetElement: '[data-tour="documents-hero"]',
-    position: 'bottom' as const,
-  },
-  {
     id: 'upload-card',
     title: 'Dokumente hochladen',
     description: 'Tippe hier, um Belege per Kamera, Galerie oder Datei hochzuladen.',
