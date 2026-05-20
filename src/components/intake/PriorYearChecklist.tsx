@@ -16,6 +16,33 @@ import {
 } from "@/hooks/usePriorYearChecklist";
 import { useFormContext } from "@/contexts";
 import { mapPriorYearToFormFlags } from "./priorYearMapping";
+import { DOCUMENT_PROFILES } from "@/config/documentProfiles";
+
+// Mapping Profil-Kategorie → Checklist-Kategorie
+const PROFILE_TO_CHECKLIST: Record<string, ItemCategory> = {
+  income: "income",
+  pension: "income",
+  assets: "assets",
+  property: "assets",
+  deductions: "deductions",
+  debts: "deductions",
+};
+
+const CATALOG_BY_CATEGORY: Record<ItemCategory, { id: string; label: string }[]> = {
+  contact: [],
+  other: [],
+  income: [],
+  assets: [],
+  deductions: [],
+};
+for (const p of Object.values(DOCUMENT_PROFILES)) {
+  const cat = p.category ? PROFILE_TO_CHECKLIST[p.category] : undefined;
+  if (!cat) continue;
+  CATALOG_BY_CATEGORY[cat].push({ id: p.id, label: p.label });
+}
+for (const cat of Object.keys(CATALOG_BY_CATEGORY) as ItemCategory[]) {
+  CATALOG_BY_CATEGORY[cat].sort((a, b) => a.label.localeCompare(b.label, "de"));
+}
 
 const CATEGORY_LABEL: Record<ItemCategory, string> = {
   contact: "Persönliche Daten",
