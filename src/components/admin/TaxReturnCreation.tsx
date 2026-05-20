@@ -610,19 +610,12 @@ const TaxReturnCreation: React.FC = () => {
             )}
           </div>
           <DialogFooter>
-            <button
-              onClick={() => setUploadDialogOpen(false)}
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
               Abbrechen
-            </button>
-            <button
-              onClick={handleUploadComplete}
-              disabled={uploading || !selectedFile}
-              className="px-4 py-2 text-sm font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full hover:brightness-[1.04] disabled:opacity-50 transition-all"
-            >
-              {uploading ? 'Lädt...' : 'Hochladen'}
-            </button>
+            </Button>
+            <Button onClick={handleUploadComplete} disabled={uploading || !selectedFile}>
+              {uploading ? 'Lädt…' : 'Hochladen'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
