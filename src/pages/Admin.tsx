@@ -251,9 +251,9 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="md:flex md:h-screen md:w-full md:bg-muted/30 md:overflow-hidden">
+    <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">
       <AdminSidebar />
-      <div className="md:flex-1 md:min-w-0 md:bg-background md:overflow-y-auto md:border-l md:border-border">
+      <div className="md:flex-1 md:min-w-0 md:bg-background md:overflow-y-auto md:border-l md:border-slate-200/50">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
