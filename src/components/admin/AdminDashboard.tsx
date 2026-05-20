@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, RefreshCw, Zap, AlertTriangle, ClipboardCheck, LifeBuoy, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, RefreshCw, Zap, AlertTriangle, ClipboardCheck, LifeBuoy, ChevronRight, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
+import adminDashboardHero from '@/assets/admin-dashboard-hero.jpg';
 
 interface DashboardStats {
   totalUsers: number;
