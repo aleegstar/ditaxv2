@@ -1,39 +1,57 @@
-# Fix: Falsch-positive Kategorien bei Vorjahres-PDF-Upload
+# Plan
 
-## Problem
+## Befund
+Das Problem ist **nicht primär OCR**, sondern die aktuelle **Regex-Erkennung auf flachem Lauftext**.
 
-Nach Upload des Aargauer eTax-2025-PDF werden in Einkommen und Abzüge alle Kategorien als „erkannt" gelistet — auch Lohnausweis, Selbständigkeit, Rente, Familienzulagen, Schuldzinsen, Unterhalt, PK-Einkauf, obwohl im PDF nur ausgefüllt sind: Lohn (010/020), Wertschriftenertrag (241), Berufskosten (3201/3401), Säule 3a (381/382), Versicherungsprämien (383), Kinderbetreuung (390).
+Beim Aargau-PDF werden nach dem Extrahieren Zahlen aus völlig verschiedenen Spalten zusammengeworfen:
+- **rote linke Ziffern** = Abschnitts-/Positionsnummern wie `1.1`, `15.0`, `30.2`
+- **gelbe rechte Ziffern** = AG-Formularcodes wie `010`, `3201`, `711`
+- zusätzlich tauchen **Geburtsdaten**, **Seiten-/Formular-IDs** wie `0280832501DAG` und andere Zahlen im gleichen Textstrom auf
 
-## Root Cause
+Dadurch matcht die aktuelle Logik z. B.:
+- Code `10` in `14.10.1996`
+- Code `30` in `30.2`
+- Code `70` in Beträgen/anderen Zahlenfolgen
 
-In `src/services/PriorYearLocalExtractor.ts` prüft `codeIsFilled` per Regex `code…[1-9]` innerhalb 80 Zeichen. Beim PDF-Text-Layer werden alle Felder mit Leertaste verbunden, sodass leere Felder so aussehen:
+Und zu deiner Frage: **Ja, die gelben Codes sind nicht einfach 1:1 „eCH-genormt“**. eCH-0119 beschreibt das Austauschformat und Musterformulare, **Kantone dürfen die Formulare und Codes anpassen**. Aargau hat hier eigene bzw. abweichende Codierungen, deshalb reicht „nur an eCH-Codes orientieren“ nicht sauber aus.
 
-```
-010 111'606 020 22'919 030 040 050 060 671 672 1701 1901 241 68
-```
+## Was ich umsetzen werde
+1. **Regex-Scan auf dem Gesamttest entfernen** für AG-PDFs.
+2. **Positionsbasierte PDF-Auswertung** einbauen:
+   - Text-Items mit `x/y`-Koordinaten aus PDF.js lesen
+   - Zeilen bilden statt alles zu einem String zu flatten
+   - nur die **rechte Code-Spalte** als Codes werten
+   - die **linke rote Nummernspalte** explizit ignorieren
+3. **Betrag nur aus derselben visuellen Zeile** bzw. direkt rechts vom Code lesen.
+   - leerer Code ohne Wert = nicht erkannt
+   - Folgecodes oder Abschnittsnummern zählen nicht mehr als Betrag
+4. **Seitenbezogene Erkennung** für `Einkünfte`, `Abzüge`, `Vermögen`:
+   - Codes nur auf passenden Formularseiten interpretieren
+   - AG-spezifische Zuordnung pro Bereich verwenden
+5. **OCR-Fallback an dieselbe Struktur koppeln**:
+   - OCR nur, wenn Textlayer wirklich unbrauchbar ist
+   - danach dieselbe zeilen-/spaltenbasierte Heuristik anwenden statt globaler Keywords
+6. **Gezielt gegen dein hochgeladenes PDF validieren**, damit nur die tatsächlich ausgefüllten Kategorien erscheinen.
 
-Für leeren Code `030` matcht die Regex die führende `4` des nächsten Codes `040` als „Wert" → False Positive. Das wiederholt sich für alle leeren Hauptbogen-Codes.
+## Erwartetes Resultat
+Für dieses Aargau-Formular sollen danach **nur echte Treffer** übernommen werden, also keine falsch angehakten Positionen aus:
+- Geburtsdaten
+- roten Abschnittsnummern links
+- Seiten-IDs / DAG-Codes
+- benachbarten Folgecodes ohne Wert
 
-## Fix in `src/services/PriorYearLocalExtractor.ts`
+## Technische Details
+- Hauptdatei: `src/services/PriorYearLocalExtractor.ts`
+- Wahrscheinlich kleinere Anpassung in `src/components/intake/PriorYearUpload.tsx`, damit der neue strukturierte Extraktionspfad sauber verwendet wird
+- Vorgehen:
+  - neues internes Modell `page -> rows -> code/value cells`
+  - AG-spezifische Codeerkennung auf Basis von Koordinaten statt Regex
+  - OCR-Qualitätscheck verschärfen, damit eingebetteter, aber schlecht geordneter Text nicht blind als „gut genug“ gilt
 
-1. **Komplette Code-Inventarliste** aufbauen (Set `ALL_KNOWN_CODES`): Union aller Codes aus `INCOME_CODES`/`ASSET_CODES`/`DEDUCTION_CODES` plus Hilfs-Codes, die das AG-Formular zwischen Feldern druckt (001, 295, 300, 401, 411, 501, 600, 601, 602, 690, 710, 711, 712, 713, 2701, 2811, 2821 — soweit nicht schon Doc-Codes).
+<presentation-actions>
+  <presentation-open-history>View History</presentation-open-history>
+</presentation-actions>
 
-2. **Neue Logik in `codeIsFilled(text, code)`**:
-   - Regex erfasst den ersten Token nach dem Code: `(?:^|[^0-9])CODE(?:[^0-9])\s*([\d'\.\s]{0,20})`
-   - Extrahiere die erste reine Ziffernfolge aus der Capture-Group (entferne `'`, `.`, Whitespace).
-   - Wenn `parseInt(value)` in `ALL_KNOWN_CODES` enthalten ist → Feld ist leer (nächstes Token ist ein anderer Code) → return `false`.
-   - Wenn die Ziffernfolge mit `0` beginnt (z.B. „040") → leerer Code-Marker → return `false`.
-   - Sonst echter Geldbetrag → return `true`.
-
-3. **AG-Suchfenster verkleinern** von 80 auf 30 Zeichen, weil im AG-Hauptbogen Code und Wert immer dicht beieinander stehen (verhindert Bleed-Over zur nächsten Zeile).
-
-## Erwartetes Ergebnis für das hochgeladene Graber-PDF
-
-Einkommen: Lohnausweis, Wertschriften-/Depotverzeichnis (2 statt 8)
-Abzüge: Berufsauslagen-Belege, Säule 3a, Krankenkassen-Prämienrechnung, Kinderbetreuung (4 statt 12)
-Vermögen: Depotauszug, Bankkontoauszug per 31.12.
-
-## Out of Scope
-
-- AI-Edge-Function bleibt unverändert (Gemini sieht das PDF visuell und unterliegt diesem Token-Bleed-Bug nicht).
-- Kein UI-Change in `PriorYearChecklist.tsx`.
+<presentation-actions>
+<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
+</presentation-actions>
