@@ -7,7 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { Home, RefreshCw } from 'lucide-react';
+import { Home, RefreshCw, Sparkles, Search, Users as UsersIcon, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import adminUsersHero from '@/assets/admin-users-hero.jpg';
 import { User, FormData } from '@/types';
 import TaxReturnCreation from "@/components/admin/TaxReturnCreation";
 import { TicketManagement } from "@/components/admin/TicketManagement";
