@@ -2,23 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  LayoutGrid,
-  ScrollText,
-  TriangleAlert,
+  LayoutDashboard,
+  FileText,
+  AlertCircle,
   Send,
-  ClipboardCheck,
-  LifeBuoy,
-  MessagesSquare,
-  Sparkles,
-  UsersRound,
-  Wallet,
-  Scan,
-  FileWarning,
+  CircleCheck,
+  HelpCircle,
+  MessageCircle,
+  Wand2,
+  Users,
+  CreditCard,
+  ScanLine,
+  FileX2,
   Star,
-  MessageSquareDashed,
+  MessageSquareOff,
   Mail,
-  Ticket,
-  FileCode,
+  BadgePercent,
+  FileCode2,
   PackageCheck,
   LogOut,
   Settings,
@@ -27,6 +27,7 @@ import {
   ChevronDown,
   Zap,
 } from 'lucide-react';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
