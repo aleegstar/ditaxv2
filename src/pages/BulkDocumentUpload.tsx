@@ -417,187 +417,116 @@ const BulkUploadContent: React.FC = () => {
   const renderReview = () => {
     if (files.length === 0) return null;
 
-    // Summary view after last file
-    if (showSummary) {
-      return (
-        <>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            Überprüfe Deine Zuordnungen und lade hoch.
-          </div>
-          <div className="rounded-3xl border border-border bg-card divide-y divide-border overflow-hidden">
-            {files.map((f, idx) => {
-              const tone = confidenceTone(f.confidence);
-              return (
-                <div key={f.id} className="p-4 flex items-center gap-3">
+    return (
+      <>
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+          Überprüfe Deine Zuordnungen und lade hoch.
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+          {files.map((f) => {
+            const isEditing = editingId === f.id;
+            return (
+              <div key={f.id} className="px-4 py-3.5 sm:px-5">
+                <div className="flex items-center gap-3">
                   <FileText className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.75} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm text-foreground truncate">{f.file.name}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">
-                      {f.suggestedChecklistItemId
-                        ? f.suggestedLabel
-                        : <span className="text-amber-700">Nicht zugeordnet</span>}
+                    <div className="text-[13px] sm:text-sm font-medium text-foreground truncate">
+                      {f.file.name}
+                    </div>
+                    <div className="text-[12px] truncate">
+                      {f.suggestedChecklistItemId ? (
+                        <span className="text-primary">{f.suggestedLabel}</span>
+                      ) : (
+                        <span className="text-amber-600">Nicht zugeordnet</span>
+                      )}
                     </div>
                   </div>
                   {f.suggestedChecklistItemId && f.confidence > 0 && (
-                    <span className={cn('shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full border whitespace-nowrap', tone.cls)}>
+                    <span
+                      className={cn(
+                        'shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full border tabular-nums whitespace-nowrap',
+                        CONFIDENCE_PILL_CLS,
+                      )}
+                    >
                       {Math.round(f.confidence)}%
                     </span>
                   )}
                   <button
                     type="button"
-                    onClick={() => { setShowSummary(false); setCurrentIndex(idx); }}
-                    className="text-xs text-[#1E3A5F] hover:underline shrink-0"
+                    onClick={() => setEditingId(isEditing ? null : f.id)}
+                    className="text-[12px] text-primary hover:underline shrink-0 font-medium"
                   >
                     Ändern
                   </button>
                   <button
                     type="button"
                     onClick={() => removeFile(f.id)}
-                    className="shrink-0 w-7 h-7 rounded-lg text-muted-foreground hover:bg-muted flex items-center justify-center"
+                    className="shrink-0 w-7 h-7 rounded-lg text-muted-foreground hover:bg-muted flex items-center justify-center transition-colors"
                     aria-label="Entfernen"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              );
-            })}
-          </div>
 
-          <div className="sticky bottom-4 mt-6 z-10">
-            <div className="rounded-2xl border border-border bg-card/95 backdrop-blur p-4 flex items-center justify-between gap-4 shadow-sm">
-              <div className="text-sm">
-                <span className="font-semibold text-foreground">{assignedCount}</span>
-                <span className="text-muted-foreground"> von {files.length} bereit</span>
-                {unassignedCount > 0 && (
-                  <span className="ml-2 text-amber-700 text-xs">· {unassignedCount} ohne Zuordnung</span>
+                {isEditing && (
+                  <div className="mt-3 pl-7 animate-fade-in">
+                    <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block uppercase tracking-wide">
+                      Zuordnen zu
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={f.suggestedChecklistItemId ?? ''}
+                        onChange={(e) => {
+                          handleAssign(f.id, e.target.value || null);
+                          setEditingId(null);
+                        }}
+                        className="w-full appearance-none rounded-xl border border-border bg-background pr-9 pl-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      >
+                        <option value="">Kategorie wählen…</option>
+                        {openItems.length > 0 && (
+                          <optgroup label="Offene Unterlagen">
+                            {openItems.map((o) => (
+                              <option key={o.id} value={o.id}>{o.title}</option>
+                            ))}
+                          </optgroup>
+                        )}
+                        <optgroup label="Alle Kategorien">
+                          {checklistOptions
+                            .filter((o) => !openItems.some((oi) => oi.id === o.id))
+                            .map((o) => (
+                              <option key={o.id} value={o.id}>{o.title}</option>
+                            ))}
+                        </optgroup>
+                      </select>
+                      <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
                 )}
               </div>
-              <Button onClick={handleConfirmUpload} disabled={!canUpload}>
-                {unassignedCount > 0 ? `${assignedCount} hochladen` : 'Hochladen'}
-              </Button>
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    const safeIndex = Math.min(currentIndex, files.length - 1);
-    const f = files[safeIndex];
-    const tone = confidenceTone(f.confidence);
-    const isLast = safeIndex === files.length - 1;
-
-    return (
-      <>
-        {/* Step header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-xs text-muted-foreground">
-            Dokument <span className="font-semibold text-foreground">{safeIndex + 1}</span> von {files.length}
-          </div>
-          <button
-            type="button"
-            onClick={() => { handleAssign(f.id, null); goNext(); }}
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-          >
-            <SkipForward className="w-3.5 h-3.5" /> Überspringen
-          </button>
+            );
+          })}
         </div>
 
-        {/* Card */}
-        <div className="rounded-3xl border border-border bg-card overflow-hidden">
-          {/* Large preview */}
-          <div className="bg-muted/40 flex items-center justify-center" style={{ minHeight: 360 }}>
-            <BulkPreviewCard
-              fileId={f.id}
-              file={f.file}
-              className="w-full h-[360px] md:h-[460px] flex items-center justify-center"
-            />
-          </div>
-
-          {/* Meta + dropdown */}
-          <div className="p-4 md:p-5 space-y-4">
-            <div className="flex items-start gap-3">
-              <FileText className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" strokeWidth={1.75} />
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-foreground truncate">{f.file.name}</div>
-                <div className="text-[11px] text-muted-foreground">
-                  {(f.file.size / 1024).toFixed(0)} KB
-                  {f.suggestedLabel && (
-                    <> · Vorschlag: <span className="text-foreground/80">{f.suggestedLabel}</span></>
-                  )}
-                </div>
-              </div>
-              {f.confidence > 0 && (
-                <span className={cn('shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full border whitespace-nowrap', tone.cls)}>
-                  {Math.round(f.confidence)}%
-                </span>
+        <div className="sticky bottom-4 mt-5 z-10">
+          <div className="rounded-2xl border border-border bg-card/95 backdrop-blur px-4 sm:px-5 py-3.5 flex items-center justify-between gap-4 shadow-[0_4px_16px_-4px_rgba(15,27,61,0.08)]">
+            <div className="text-[13px] sm:text-sm">
+              <span className="font-semibold text-foreground">{assignedCount}</span>
+              <span className="text-muted-foreground"> von {files.length} bereit</span>
+              {unassignedCount > 0 && (
+                <span className="ml-2 text-amber-600 text-[12px]">· {unassignedCount} ohne Zuordnung</span>
               )}
             </div>
-
-            <div>
-              <label className="text-xs font-medium text-foreground mb-1.5 block">
-                Zuordnen zu
-              </label>
-              <div className="relative">
-                <select
-                  value={f.suggestedChecklistItemId ?? ''}
-                  onChange={(e) => handleAssign(f.id, e.target.value || null)}
-                  className="w-full appearance-none rounded-xl border border-border bg-background pr-9 pl-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
-                >
-                  <option value="">Kategorie wählen…</option>
-                  {openItems.length > 0 && (
-                    <optgroup label="Offene Unterlagen">
-                      {openItems.map((o) => (
-                        <option key={o.id} value={o.id}>{o.title}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                  <optgroup label="Alle Kategorien">
-                    {checklistOptions
-                      .filter((o) => !openItems.some((oi) => oi.id === o.id))
-                      .map((o) => (
-                        <option key={o.id} value={o.id}>{o.title}</option>
-                      ))}
-                  </optgroup>
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={goPrev}
-                disabled={safeIndex === 0}
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
-              </Button>
-              <Button onClick={() => (isLast ? setShowSummary(true) : goNext())}>
-                {isLast ? 'Zur Übersicht' : 'Weiter'}
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </div>
+            <Button onClick={handleConfirmUpload} disabled={!canUpload}>
+              Hochladen
+            </Button>
           </div>
-        </div>
-
-        {/* Progress dots */}
-        <div className="flex items-center justify-center gap-1.5 mt-4">
-          {files.map((ff, i) => (
-            <button
-              key={ff.id}
-              type="button"
-              onClick={() => { setShowSummary(false); setCurrentIndex(i); }}
-              className={cn(
-                'h-1.5 rounded-full transition-all',
-                i === safeIndex ? 'w-6 bg-[#1E3A5F]' : ff.suggestedChecklistItemId ? 'w-1.5 bg-emerald-500' : 'w-1.5 bg-muted-foreground/30',
-              )}
-              aria-label={`Zu Dokument ${i + 1}`}
-            />
-          ))}
         </div>
       </>
     );
   };
+
 
   const renderUploading = () => (
     <div className="rounded-3xl border border-border bg-card p-8 text-center">
