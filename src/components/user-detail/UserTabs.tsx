@@ -14,6 +14,7 @@ import DocumentsPdfDownloader from './DocumentsPdfDownloader';
 import DocumentCard from './DocumentCard';
 import FormDataPdfDownloader from './FormDataPdfDownloader';
 import DocumentPreview from './DocumentPreview';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import CompletedTaxReturnManager from './CompletedTaxReturnManager';
 import { UserDefinitiveTaxBill } from './UserDefinitiveTaxBill';
 import { PriorYearReturnCard } from './PriorYearReturnCard';
