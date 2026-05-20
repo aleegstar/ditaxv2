@@ -199,6 +199,8 @@ const DocumentsContent: React.FC<{
   // Filter available years
   useEffect(() => {
     const available = allYears.filter(year => !completedYears.includes(year));
+    // Newest year first (descending)
+    available.sort((a, b) => Number(b) - Number(a));
     setAvailableYears(available);
     if (available.length > 0 && completedYears.includes(selectedYear)) {
       onYearChange(available[0]);
