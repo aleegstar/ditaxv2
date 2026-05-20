@@ -28,6 +28,7 @@ import documentsHero from '@/assets/documents-hero.webp';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
+import { YearPillSelector } from '@/components/dashboard/YearPillSelector';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { getAvailableTaxYears } from '@/config/availableTaxYears';
 
@@ -469,40 +470,17 @@ const DocumentsContent: React.FC<{
           <div className="max-w-[960px] mx-auto w-full pb-4">
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
+                <div className="mb-3">
                   <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1]">
                     Dokumente
                   </h1>
-                  <div className="relative" data-tour="documents-year-selector">
-                    <button
-                      onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                      className="inline-flex items-center gap-1 h-6 px-2 rounded-md hover:bg-muted text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors tabular-nums"
-                    >
-                      {selectedYear}
-                      <ChevronDown className={cn("h-3 w-3 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
-                    </button>
-                    {isYearDropdownOpen && (
-                      <>
-                        <div className="fixed inset-0 z-[199]" onClick={() => setIsYearDropdownOpen(false)} />
-                        <div className="absolute top-full left-0 mt-1.5 z-[200] bg-white rounded-xl shadow-xl ring-1 ring-black/5 overflow-hidden min-w-[160px]">
-                          <div className="max-h-64 overflow-y-auto py-1">
-                            {availableYears.map(year => (
-                              <button
-                                key={year}
-                                onClick={() => handleYearSelect(year)}
-                                className={cn(
-                                  "w-full px-3.5 py-2 text-left text-[13px] transition-colors",
-                                  year === selectedYear ? "text-primary font-medium bg-primary/10" : "text-foreground hover:bg-muted"
-                                )}
-                              >
-                                Steuerjahr {year}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                </div>
+                <div className="mb-3" data-tour="documents-year-selector">
+                  <YearPillSelector
+                    years={availableYears}
+                    selectedYear={selectedYear}
+                    onSelect={handleYearSelect}
+                  />
                 </div>
                 <p className="text-[13px] text-muted-foreground leading-[1.5] max-w-[520px]">
                   Lade deine Unterlagen einfach übers Jahr hoch. Ditax ordnet sie später automatisch während der Steuererklärung zu.
@@ -512,6 +490,7 @@ const DocumentsContent: React.FC<{
                   Ende-zu-Ende verschlüsselt
                 </div>
               </div>
+
 
               {!isLocked && (
                 <button
