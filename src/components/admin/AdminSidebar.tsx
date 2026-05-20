@@ -28,6 +28,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import adminHeroCouple from '@/assets/admin-hero-couple.jpg';
