@@ -29,6 +29,7 @@ const ALLOWED_LABELS = new Set<string>([
   "Bestätigung Alimente/Unterhalt",
   "Arbeitslosentaggeld-Abrechnung",
   "Bestätigung Familien-/Mutterschaftszulagen",
+  "Beleg übrige Einkünfte",
   // assets
   "Bankkontoauszug per 31.12.",
   "Depotauszug per 31.12.",
