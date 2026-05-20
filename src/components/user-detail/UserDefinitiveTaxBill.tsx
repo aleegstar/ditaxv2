@@ -281,29 +281,30 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center border border-emerald-200/50">
-            <Receipt className="h-6 w-6 text-emerald-600" />
+          <div className="w-11 h-11 rounded-2xl bg-foreground/[0.045] flex items-center justify-center border border-border">
+            <Receipt className="h-5 w-5 text-foreground/75" strokeWidth={1.8} />
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">Definitive Steuerrechnungen</h3>
-            <p className="text-sm text-slate-500">
+            <h3 className="text-[17px] font-semibold text-foreground tracking-[-0.012em]">Definitive Steuerrechnungen</h3>
+            <p className="text-[12.5px] text-muted-foreground mt-0.5">
               {isAdmin ? 'Steuerrechnungen vom Steueramt hochladen' : 'Ihre definitiven Steuerrechnungen vom Steueramt'}
             </p>
           </div>
         </div>
-        
+
         {canUpload && (
           <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
-                className="rounded-full px-5 h-10 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white font-medium flex items-center gap-2"
+              <Button
+                className="h-10 px-5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-semibold hover:opacity-95 transition-opacity inline-flex items-center gap-2 shadow-[0_2px_8px_-2px_rgba(15,27,61,0.25)]"
               >
-                <Upload className="h-4 w-4" />
+                <Upload className="h-4 w-4" strokeWidth={1.8} />
                 Hochladen
               </Button>
             </DialogTrigger>
+
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Steuerrechnung hochladen</DialogTitle>
