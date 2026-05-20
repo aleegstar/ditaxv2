@@ -3,16 +3,17 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { validateStoragePath } from '@/utils/fileValidation';
+import { Button } from '@/components/ui/button';
+import heroImage from '@/assets/admin-signed-hero.jpg';
 
-import { 
-  FileText, 
-  ExternalLink, 
-  CheckCircle2, 
+import {
+  FileText,
+  ExternalLink,
+  CheckCircle2,
   Send,
   Eye,
   RefreshCw,
-  User,
-  Calendar
+  Sparkles,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
