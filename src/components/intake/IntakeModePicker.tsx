@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, ArrowRight, Zap, Sparkles, Upload, Star } from "lucide-react";
+import { Pen, ArrowRight, Zap, Upload, Star } from "lucide-react";
 import type { IntakeMode } from "./IntakeModeSheet";
 import { Button } from "@/components/ui/button";
 import uploadImg from "@/assets/intake-upload.webp";
@@ -61,7 +61,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
           <ModeCard
             image={manualImg}
             imageAlt="Person denkt über die Steuererklärung nach"
-            badgeIcon={<Pencil className="w-3 h-3 text-emerald-700" strokeWidth={2} />}
+            badgeIcon={<Pen className="w-3 h-3 text-emerald-700" strokeWidth={2} />}
             badge="Manuell"
             badgeVariant="success"
             title="Daten manuell erfassen"
