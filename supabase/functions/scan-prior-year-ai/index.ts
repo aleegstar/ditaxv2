@@ -340,16 +340,23 @@ Keine Werte, keine Beträge, keine Adressen, keine Erklärungen.`;
     // "Beleg Bankkonto/Depot – {institution} · {reference}" format that
     // priorYearMapping.ts parses back into formData.assets.accounts.
     const seenRef = new Set<string>();
+    const IBAN_OK = /^CH\d{2}[A-Z0-9]{17}$/;
+    const DEPOT_OK = /^\d{5,14}$/;
     for (const acc of scan.accounts ?? []) {
       const institutionRaw = String(acc?.institution ?? "").trim();
       const referenceRaw = String(acc?.reference ?? "").trim();
-      if (!institutionRaw && !referenceRaw) continue;
+      if (!referenceRaw) continue; // ohne Referenz keine Aufnahme
       const normRef = referenceRaw.replace(/\s+/g, "").toUpperCase();
-      const key = normRef || institutionRaw.toUpperCase();
-      if (!key || seenRef.has(key)) continue;
-      seenRef.add(key);
+      // Sanity: muss entweder eine plausible IBAN ODER reine Depot-/Konto-Ziffer sein.
+      const looksValid = IBAN_OK.test(normRef) || DEPOT_OK.test(normRef);
+      if (!looksValid) {
+        console.warn("scan-prior-year-ai: dropping implausible account reference:", referenceRaw);
+        continue;
+      }
+      if (seenRef.has(normRef)) continue;
+      seenRef.add(normRef);
       const institution = institutionRaw || "Bank/Depot";
-      const label = `Beleg Bankkonto/Depot – ${[institution, referenceRaw].filter(Boolean).join(" · ")}`;
+      const label = `Beleg Bankkonto/Depot – ${institution} · ${referenceRaw}`;
       rows.push({
         checklist_id: checklist.id,
         category: "assets",
