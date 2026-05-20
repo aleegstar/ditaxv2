@@ -295,6 +295,30 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   }, [formState.currentQuestionIndex, formState.answers, questions, viewState.isEditing, section, formData, updateFormData, saveSection, t]);
 
+  const handleNumericAnswer = useCallback(async (value: number) => {
+    try {
+      const question = questions[formState.currentQuestionIndex];
+      if (!question) return;
+      const qid = question.id;
+      const newAnswers = { ...formState.answers, [qid]: value as any };
+      setFormState((prev) => ({ ...prev, answers: newAnswers }));
+      try {
+        const sectionData = { ...formData[section as any], [qid]: value };
+        updateFormData(section as any, sectionData);
+        await saveSection(section as any, sectionData);
+      } catch (saveError) {
+        console.error('Error saving numeric answer:', saveError);
+      }
+      if (viewState.isEditing) {
+        handleEditingComplete();
+      } else {
+        handleContinue();
+      }
+    } catch (e) {
+      console.error('Error in handleNumericAnswer:', e);
+    }
+  }, [formState.currentQuestionIndex, formState.answers, questions, viewState.isEditing, section, formData, updateFormData, saveSection]);
+
   const handleRepeaterDataChange = (data: any[]) => {
     if (!currentQuestion) return;
     const qid = currentQuestion.id;
