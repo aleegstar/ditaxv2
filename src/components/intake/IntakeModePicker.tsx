@@ -1,5 +1,5 @@
 import React from "react";
-import { FileUp, Pencil, ArrowRight, Zap } from "lucide-react";
+import { Pencil, ArrowRight, Zap } from "lucide-react";
 import type { IntakeMode } from "./IntakeModeSheet";
 import uploadImg from "@/assets/intake-upload.webp";
 import manualImg from "@/assets/intake-manual.webp";
