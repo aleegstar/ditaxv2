@@ -291,39 +291,37 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 isAdmin={true} 
               />
             ) : (
-              <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
-                <CardContent className="py-10">
-                  <div className="text-center">
-                    <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FileText className="h-6 w-6 text-muted-foreground/60" />
-                    </div>
-                    <p className="text-muted-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      Der Mandant hat noch keine Angaben gemacht
-                    </p>
+              <div className="bg-card border border-border rounded-2xl py-12">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
+                    <FileText className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Der Mandant hat noch keine Angaben gemacht
+                  </p>
+                </div>
+              </div>
             )}
               </TabsContent>
 
-              <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-4">
             <PriorYearReturnCard taxFilerId={selectedTaxFilerId} taxYear={selectedYear} />
-            <Card className="border-white/40 shadow-none bg-transparent">
-              <CardHeader className="pb-3 px-0 pt-0">
-                <CardTitle className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">
+            <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+              <div className="mb-5">
+                <h2 className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Vom Mandanten eingereichte Unterlagen für {selectedYear}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
+                </p>
+              </div>
+              <div>
                 {documentsForSelectedYear.length === 0 ? (
                   <div className="text-center py-10">
-                    <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FolderOpen className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                      <FolderOpen className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                     </div>
-                    <p className="text-sm font-medium text-muted-foreground">Keine Dokumente hochgeladen</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
+                    <p className="text-sm font-medium text-foreground">Keine Dokumente hochgeladen</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Für das Steuerjahr {selectedYear} wurden noch keine Unterlagen eingereicht
                     </p>
                   </div>
@@ -440,15 +438,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     )}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
               </TabsContent>
 
               <TabsContent value="tax-returns" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
             {/* Year Selector */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-white/50 rounded-full px-4 py-2 border border-white/60">
+                <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 border border-border">
                   <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
                   <Select value={selectedYear} onValueChange={handleYearChange}>
                     <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto min-w-[60px] focus:ring-0 shadow-none">
@@ -497,7 +495,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   }).map(taxReturn => (
                     <div 
                       key={taxReturn.id} 
-                      className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
+                      className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:border-foreground/20 hover:shadow-[0_4px_16px_-4px_rgba(15,27,61,0.08)] transition-all cursor-pointer" 
                       onClick={() => onTaxReturnClick(taxReturn)}
                     >
                       <div className="flex items-center gap-3">
@@ -554,12 +552,12 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length === 0 && (
-              <div className="flex flex-col items-center justify-center py-10 rounded-xl border border-dashed border-white/60">
-                <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-3">
-                  <FileText className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
+              <div className="flex flex-col items-center justify-center py-12 rounded-2xl border border-dashed border-border bg-card/50">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                  <FileText className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Keine Steuererklärung für {selectedYear}</p>
-                <p className="text-xs text-muted-foreground/60 mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
+                <p className="text-sm font-medium text-foreground">Keine Steuererklärung für {selectedYear}</p>
+                <p className="text-xs text-muted-foreground mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
               </div>
             )}
               </TabsContent>
@@ -574,16 +572,16 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
           
               <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-                <div>
-                  <div className="mb-3">
-                    <h3 className="text-sm font-semibold text-foreground">
+                <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+                  <div className="mb-4">
+                    <h2 className="text-sm font-semibold text-foreground">
                       Nachrichten mit {user.firstName} {user.lastName}
-                    </h3>
+                    </h2>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Direkter Chat mit dem Benutzer
                     </p>
                   </div>
-                  <div className="h-[600px] rounded-xl overflow-hidden border border-white/40">
+                  <div className="h-[600px] rounded-xl overflow-hidden border border-border bg-background">
                     <SimpleChatWindow selectedUserId={userId} isAdmin={true} fullWidth={true} />
                   </div>
                 </div>
