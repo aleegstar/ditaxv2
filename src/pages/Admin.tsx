@@ -270,41 +270,129 @@ const Admin: React.FC = () => {
             <EnhancedAdminChatOverview />
           } />
           <Route path="users" element={
-             <div className="max-w-6xl mx-auto px-8 py-10 space-y-6">
-              {/* Header */}
-              <div className="flex items-end justify-between pb-5 border-b border-border">
-                <div>
-                  <h1 className="text-[22px] font-semibold text-foreground tracking-[-0.02em] leading-tight">Benutzer</h1>
-                  <p className="text-[13px] text-muted-foreground mt-1">
-                    <span className="tabular-nums font-medium text-foreground/80">{users.length}</span> registrierte Benutzer
-                  </p>
+          <Route path="users" element={(() => {
+            const now = Date.now();
+            const isActive = (u: AdminUser) => u.lastLoginAt && (now - new Date(u.lastLoginAt).getTime()) < 1000 * 60 * 60 * 24 * 30;
+            const activeCount = users.filter(isActive).length;
+            const withReturnsCount = users.filter(u => (u.taxReturns?.length || 0) > 0).length;
+            const q = userSearch.trim().toLowerCase();
+            const filtered = users.filter(u => {
+              if (userFilter === 'active' && !isActive(u)) return false;
+              if (userFilter === 'inactive' && isActive(u)) return false;
+              if (userFilter === 'with-returns' && (u.taxReturns?.length || 0) === 0) return false;
+              if (!q) return true;
+              const name = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
+              return name.includes(q) || (u.email || '').toLowerCase().includes(q) || (u.adressnummer || '').toLowerCase().includes(q);
+            });
+            const filters: { id: typeof userFilter; label: string; count: number }[] = [
+              { id: 'all', label: 'Alle', count: users.length },
+              { id: 'active', label: 'Aktiv', count: activeCount },
+              { id: 'with-returns', label: 'Mit Erklärung', count: withReturnsCount },
+              { id: 'inactive', label: 'Inaktiv', count: users.length - activeCount },
+            ];
+            return (
+            <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-10 space-y-6">
+              {/* Hero card */}
+              <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.04)]">
+                <div className="grid md:grid-cols-[1.4fr_1fr] gap-0">
+                  <div className="p-6 md:p-8 flex flex-col justify-between gap-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.045] text-[11px] font-semibold uppercase tracking-wider text-foreground/70 mb-3">
+                        <Sparkles className="h-3 w-3" />
+                        Benutzerverwaltung
+                      </div>
+                      <h1 className="text-[26px] md:text-[30px] font-semibold text-foreground tracking-[-0.02em] leading-tight">
+                        Benutzer
+                      </h1>
+                      <p className="text-[13.5px] text-muted-foreground mt-2 max-w-md leading-relaxed">
+                        Übersicht aller registrierten Konten – einsehen, filtern und in die Steuerakten eintauchen.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { label: 'Gesamt', value: users.length },
+                        { label: 'Aktiv', value: activeCount },
+                        { label: 'Mit Erklärung', value: withReturnsCount },
+                      ].map(s => (
+                        <div key={s.label} className="rounded-2xl bg-foreground/[0.025] border border-border/60 px-3 py-2.5">
+                          <div className="text-[20px] font-semibold tabular-nums text-foreground tracking-tight">{s.value}</div>
+                          <div className="text-[11px] text-muted-foreground mt-0.5">{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative h-44 md:h-auto min-h-[220px] overflow-hidden">
+                    <img src={adminUsersHero} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_25%]" />
+                    <div className="absolute inset-0 bg-gradient-to-l from-transparent via-card/10 to-card md:bg-gradient-to-l md:from-transparent md:to-card/80" />
+                  </div>
                 </div>
-                <button
-                  onClick={fetchUsers}
-                  className="h-8 px-3 rounded-lg border border-border text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors inline-flex items-center gap-1.5"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  Aktualisieren
-                </button>
+              </div>
+
+              {/* Controls */}
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:justify-between">
+                <div className="inline-flex items-center gap-1 p-1 rounded-full bg-foreground/[0.045] overflow-x-auto">
+                  {filters.map(f => {
+                    const active = userFilter === f.id;
+                    return (
+                      <button
+                        key={f.id}
+                        onClick={() => setUserFilter(f.id)}
+                        className={cn(
+                          'shrink-0 px-3.5 h-8 rounded-full text-xs transition-all duration-200 inline-flex items-center gap-1.5',
+                          active ? 'bg-white text-foreground font-semibold shadow-sm' : 'text-muted-foreground/70 hover:text-foreground/85'
+                        )}
+                      >
+                        {f.label}
+                        <span className={cn('tabular-nums text-[10.5px]', active ? 'text-foreground/55' : 'text-muted-foreground/50')}>{f.count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 md:w-72">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60" />
+                    <input
+                      value={userSearch}
+                      onChange={e => setUserSearch(e.target.value)}
+                      placeholder="Name, E-Mail oder Nr."
+                      className="w-full h-9 pl-9 pr-8 rounded-full bg-foreground/[0.04] border border-transparent focus:bg-white focus:border-border focus:outline-none text-[13px] text-foreground placeholder:text-muted-foreground/60 transition"
+                    />
+                    {userSearch && (
+                      <button onClick={() => setUserSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-foreground/5">
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={fetchUsers}
+                    className="h-9 px-3 rounded-full border border-border text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Aktualisieren</span>
+                  </button>
+                </div>
               </div>
 
               {loading ? (
-                <div className="flex items-center justify-center py-16">
+                <div className="flex items-center justify-center py-16 bg-card border border-border rounded-2xl">
                   <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
                 </div>
-              ) : users.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
+              ) : filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center bg-card border border-border rounded-2xl">
+                  <div className="w-12 h-12 rounded-full bg-foreground/[0.04] flex items-center justify-center mb-3">
+                    <UsersIcon className="h-5 w-5 text-muted-foreground" />
+                  </div>
                   <p className="text-sm font-medium text-foreground mb-1">Keine Benutzer gefunden</p>
                   <p className="text-[13px] text-muted-foreground mb-4">
-                    Falls keine Daten sichtbar sind, überprüfen Sie die Administratorberechtigung.
+                    {q || userFilter !== 'all' ? 'Passe Suche oder Filter an.' : 'Falls keine Daten sichtbar sind, überprüfe die Berechtigungen.'}
                   </p>
                   <button onClick={fetchUsers} className="h-8 px-3 rounded-lg border border-border text-[12px] font-medium text-foreground hover:bg-muted/50 transition-colors">
                     Erneut versuchen
                   </button>
                 </div>
               ) : (
-                <div className="bg-white border border-border rounded-xl shadow-[0_1px_2px_rgba(15,27,61,0.03)] divide-y divide-border overflow-hidden">
-                  {users.map(user => (
+                <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(15,27,61,0.03)] divide-y divide-border overflow-hidden">
+                  {filtered.map(user => (
                     <UserCard
                       key={user.id}
                       id={user.id}
@@ -319,7 +407,8 @@ const Admin: React.FC = () => {
                 </div>
               )}
             </div>
-          } />
+            );
+          })()} />
           <Route path="onboarding" element={
             <div className="max-w-6xl mx-auto px-8 py-10">
               <AdminWelcomeHeader
