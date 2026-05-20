@@ -16,6 +16,33 @@ import {
 } from "@/hooks/usePriorYearChecklist";
 import { useFormContext } from "@/contexts";
 import { mapPriorYearToFormFlags } from "./priorYearMapping";
+import { DOCUMENT_PROFILES } from "@/config/documentProfiles";
+
+// Mapping Profil-Kategorie → Checklist-Kategorie
+const PROFILE_TO_CHECKLIST: Record<string, ItemCategory> = {
+  income: "income",
+  pension: "income",
+  assets: "assets",
+  property: "assets",
+  deductions: "deductions",
+  debts: "deductions",
+};
+
+const CATALOG_BY_CATEGORY: Record<ItemCategory, { id: string; label: string }[]> = {
+  contact: [],
+  other: [],
+  income: [],
+  assets: [],
+  deductions: [],
+};
+for (const p of Object.values(DOCUMENT_PROFILES)) {
+  const cat = p.category ? PROFILE_TO_CHECKLIST[p.category] : undefined;
+  if (!cat) continue;
+  CATALOG_BY_CATEGORY[cat].push({ id: p.id, label: p.label });
+}
+for (const cat of Object.keys(CATALOG_BY_CATEGORY) as ItemCategory[]) {
+  CATALOG_BY_CATEGORY[cat].sort((a, b) => a.label.localeCompare(b.label, "de"));
+}
 
 const CATEGORY_LABEL: Record<ItemCategory, string> = {
   contact: "Persönliche Daten",
@@ -82,7 +109,9 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
     if (it.category === "contact") return acc;
     (acc[it.category] ||= []).push(it); return acc;
   }, { contact: [], income: [], assets: [], deductions: [], other: [] });
-  const categories = (Object.keys(grouped) as ItemCategory[]).filter(c => c !== "contact" && grouped[c].length > 0);
+  // Immer alle drei Belegkategorien anzeigen, auch wenn das Vorjahres-PDF
+  // keine Position enthielt – der User kann dann manuell etwas hinzufügen.
+  const categories: ItemCategory[] = ["income", "assets", "deductions"];
   const ready = checklist?.status === "ready";
   const totalCats = ready ? categories.length + 1 : 0;
   const doneCats = ready
@@ -326,18 +355,18 @@ const CompactCategoryCard: React.FC<{
               Position hinzufügen
             </div>
             <div className="flex gap-2">
-              <input
+              <select
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newLabel.trim()) {
-                    onAdd(newLabel);
-                    setNewLabel("");
-                  }
-                }}
-                placeholder="z. B. Zweite Anstellung, Krypto-Konto …"
                 className="flex-1 text-[13px] rounded-lg border border-border bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+              >
+                <option value="">Aus Dokumenten-Checkliste wählen …</option>
+                {CATALOG_BY_CATEGORY[category]
+                  .filter(opt => !items.some(it => it.label === opt.label))
+                  .map(opt => (
+                    <option key={opt.id} value={opt.label}>{opt.label}</option>
+                  ))}
+              </select>
               <Button
                 variant="outline"
                 size="sm"
