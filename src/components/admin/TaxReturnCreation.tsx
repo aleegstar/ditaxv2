@@ -4,9 +4,11 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, User, CheckCircle, FileText, Zap, Search, X, RefreshCw } from 'lucide-react';
+import { Calendar, User, CheckCircle, FileText, Zap, Search, X, RefreshCw, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import heroImage from '@/assets/admin-processing-hero.jpg';
 
 interface PaidTaxReturn {
   id: string;
