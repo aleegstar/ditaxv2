@@ -157,49 +157,71 @@ Vorjahres-Steuererklärung als PDF. Deine Aufgabe ist NICHT, Beträge oder
 persönliche Daten zu extrahieren. Bestimme NUR, welche Belege/Dokumente der
 Steuerpflichtige dieses Jahr wieder bereithalten muss.
 
-WICHTIGSTE REGEL — VERLASSE DICH AUSSCHLIESSLICH AUF DIE SSK-ZIFFERN
-(eCH-0119): Die 3-stelligen Ziffern (z. B. 100, 220, 400) sind in JEDEM
-kantonalen Hauptformular identisch. Ignoriere kantonale Bezeichnungen,
-Layout oder Beispieltexte. Ein Dokument ist NUR dann erforderlich, wenn die
-zugehörige Ziffer im PDF mit einem Betrag > 0 ausgefüllt ist. Wenn das Feld
-leer, durchgestrichen oder mit "0" gefüllt ist, NICHT aufnehmen.
+WICHTIGSTE REGEL — VERLASSE DICH AUSSCHLIESSLICH AUF DIE ZIFFERN:
+Ignoriere kantonale Bezeichnungen, Layout oder Beispieltexte. Ein Dokument
+ist NUR dann erforderlich, wenn die zugehörige Ziffer im PDF mit einem
+Betrag > 0 ausgefüllt ist. Wenn das Feld leer, durchgestrichen oder mit "0"
+gefüllt ist, NICHT aufnehmen.
+
+Beachte: Die Aargauer eTax-Hauptbogen-Codierung 2025 weicht stark von der
+SSK-Empfehlung ab. Verwende untenstehende Mapping-Tabelle für BEIDE Welten.
 
 Ziffer → Dokument-Mapping (verwende EXAKT diese Labels):
 
 EINKOMMEN
-- 100 / 101 / 102 / 103  → "Lohnausweis"
-  (Einige Kantone, z. B. AG, verwenden im Hauptbogen stattdessen
-  010 / 020 = Haupterwerb, 030 / 040 = Nebenerwerb, 050 / 060 = weitere
-  Vergütungen — ebenfalls als "Lohnausweis" werten.)
-- 120 / 121 / 122 / 123  → "Nachweis Selbständigerwerb"
-- 130–137 sowie 960–967  → "Rentenbescheinigung (AHV/IV/PK)"
-  (Pensionskassenausweis selbst ist KEIN Beleg für die Steuererklärung – nur die Renten-Bescheinigung wenn tatsächlich Renten ausbezahlt werden.)
-- 140 / 141              → "Arbeitslosentaggeld-Abrechnung"
-- 142 / 143              → "Bestätigung Familien-/Mutterschaftszulagen"
-- 150 / 151              → "Wertschriften-/Depotverzeichnis"
-- 160 / 161              → "Bestätigung Alimente/Unterhalt"
-- 162 / 163 / 164        → "Beleg übrige Einkünfte" (Erbschaften, freie Einträge, Kapitalabfindung)
-- 180 / 181 / 183 / 186 / 188 → "Liegenschaftsertrag-Abrechnung"
+- AG 010 / 020 / 030 / 040 / 050 / 060   (oder SSK 100–103)
+                                  → "Lohnausweis"
+- AG 070 / 090 / 150 / 160               (oder SSK 120–123)
+                                  → "Nachweis Selbständigerwerb"
+  (In AG sind 150/160 = Personengesellschaft P1/P2, NICHT Wertschriften.)
+- AG 1701 / 1901                         (oder SSK 130–137 / 960–967)
+                                  → "Rentenbescheinigung (AHV/IV/PK)"
+  (Pensionskassenausweis selbst ist KEIN Beleg – nur die Renten-Bescheinigung wenn tatsächlich Renten ausbezahlt werden.)
+- SSK 140 / 141                  → "Arbeitslosentaggeld-Abrechnung"
+- AG 671 / 672                           (oder SSK 142 / 143)
+                                  → "Bestätigung Familien-/Mutterschaftszulagen"
+- AG 241                                 (oder SSK 151)
+                                  → "Wertschriften-/Depotverzeichnis"
+- AG 251 / 252                           (oder SSK 160 / 161)
+                                  → "Bestätigung Alimente/Unterhalt"
+- AG 253 / 254 / 255                     (oder SSK 162 / 163 / 164)
+                                  → "Beleg übrige Einkünfte" (Erbschaften, Kapitalabfindung, übrige)
+- AG 2701 / 2711 / 2741 / 2791           (oder SSK 180 / 181 / 183 / 186 / 188)
+                                  → "Liegenschaftsertrag-Abrechnung"
 
 VERMÖGEN
-- 400                    → "Depotauszug per 31.12." UND "Bankkontoauszug per 31.12."
-                           (beide, da Code 400 sowohl Wertschriften als auch Konten umfasst)
-- 406                    → "Rückkaufswert Lebensversicherung"
-- 412                    → "Fahrzeugausweis / Eurotax"
-- 420 / 421 / 422 / 430 / 431 / 434 → "Liegenschaftsbeleg"
+- AG 711                                 (oder SSK 400) → "Depotauszug per 31.12."
+- AG 713                                 (oder SSK 400) → "Bankkontoauszug per 31.12."
+  (SSK 400 deckt beides ab – dann beide Labels aufnehmen.)
+- SSK 406                        → "Rückkaufswert Lebensversicherung"
+- SSK 412                        → "Fahrzeugausweis / Eurotax"
+- SSK 420 / 421 / 422 / 430 / 431 / 434
+                                  → "Liegenschaftsbeleg"
 
 ABZÜGE
-- 201 / 220 / 221 / 240  → "Berufsauslagen-Belege" (inkl. ÖV-Abo)
-- 250 / 470              → "Schuldzinsen-Bescheinigung"
-- 254 / 255 / 256        → "Beleg Unterhaltszahlung"
-- 260 / 261              → "Säule 3a-Einzahlungsbestätigung"
-- 270                    → "Krankenkassen-Prämienrechnung"
-- 281                    → "PK-Einkauf-Beleg" (Versicherungsprämien-Erweiterung)
-- 291                    → "Belege Weiterbildungskosten"
-- 184 / 185              → "Beleg Liegenschaftsunterhalt"
-- 320                    → "Belege Krankheits-/Unfallkosten"
-- 324                    → "Spendenbescheinigung"
-- 376                    → "Kinderbetreuungs-Beleg"
+- AG 3201 / 3401                         (oder SSK 201 / 220 / 221 / 240)
+                                  → "Berufsauslagen-Belege" (inkl. ÖV-Abo)
+- AG 310                                 (oder SSK 250 / 470)
+                                  → "Schuldzinsen-Bescheinigung"
+- AG 361 / 362 / 363                     (oder SSK 254 / 255 / 256)
+                                  → "Beleg Unterhaltszahlung"
+- AG 371 / 372                           (oder SSK 281)
+                                  → "PK-Einkauf-Beleg"
+- AG 381 / 382                           (oder SSK 260 / 261)
+                                  → "Säule 3a-Einzahlungsbestätigung"
+- AG 383                                 (oder SSK 270)
+                                  → "Krankenkassen-Prämienrechnung"
+- AG 650 / 655                           (oder SSK 291)
+                                  → "Belege Weiterbildungskosten"
+- AG 2811 / 2821                         (oder SSK 184 / 185)
+                                  → "Beleg Liegenschaftsunterhalt"
+- AG 397                                 (oder SSK 320)
+                                  → "Belege Krankheits-/Unfallkosten"
+- AG 393                                 (oder SSK 324)
+                                  → "Spendenbescheinigung"
+- AG 392                          → "Parteibeitrags-Beleg"
+- AG 390                                 (oder SSK 376)
+                                  → "Kinderbetreuungs-Beleg"
 
 Sonderregel Säule 3a: NUR über Ziffer klassifizieren. Ziffer 260/261
 → "Säule 3a-Einzahlungsbestätigung" (Abzug). Eine "Säule 3a-Saldobestätigung"
