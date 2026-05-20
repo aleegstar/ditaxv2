@@ -325,19 +325,16 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
     <div className="space-y-6">
       {/* Header with upload button */}
       <div className="flex items-center justify-between">
-        <Button 
+        <Button
           onClick={() => setUploadDialogOpen(true)}
           size="sm"
-          className="text-primary-foreground rounded-full px-5 py-2 font-medium border-0 transition-all duration-200 gap-2 hover:scale-[1.02] hover:brightness-[1.04]"
-          style={{ 
-            background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
-            boxShadow: 'none'
-          }}
+          className="h-10 px-5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-semibold hover:opacity-95 transition-opacity inline-flex items-center gap-2 shadow-[0_2px_8px_-2px_rgba(15,27,61,0.25)]"
         >
-          <Upload className="h-4 w-4" />
+          <Upload className="h-4 w-4" strokeWidth={1.8} />
           Hochladen
         </Button>
       </div>
+
       
       {/* Documents list */}
       {completedTaxReturns.length === 0 ? (
