@@ -302,24 +302,21 @@ export function extractItemsFromText(text: string): ExtractedScan {
   for (const raw of lines) {
     const line = raw.trim();
     if (!line) continue;
-    // Tokenise by whitespace.
     const tokens = line.split(/\s+/);
-    for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
-      const code = isCodeToken(t);
-      if (code === null || !AG_CODE_SET.has(code)) continue;
-      for (let j = i + 1; j < tokens.length; j++) {
-        const next = tokens[j];
-        if (isCodeToken(next) !== null) break;
-        if (isValueToken(next)) {
-          filled.add(code);
-          break;
-        }
-      }
-    }
+    if (tokens.length < 2) continue;
+    // We only accept the typical layout "... <code> <value>" at the end of
+    // the visual line. This avoids matching prose such as
+    // "Summe der Ziffern 30 bis 32 ... 701 24'448".
+    const last = tokens[tokens.length - 1];
+    const prev = tokens[tokens.length - 2];
+    if (!isValueToken(last)) continue;
+    const code = isCodeToken(prev);
+    if (code === null || !AG_CODE_SET.has(code)) continue;
+    filled.add(code);
   }
   return scanFromFilledCodes(filled);
 }
+
 
 /**
  * Remove personally identifiable information so the text can be sent to
