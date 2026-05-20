@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, User, Calendar, BarChart3, RefreshCw } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 interface AdminWelcomeHeaderProps {
   title: string;
   subtitle?: string;
