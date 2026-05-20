@@ -239,14 +239,52 @@ const AssetsForm = ({
         </div>
       )}
 
-      <div className="animate-fade-in opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
-        <CustomCheckbox
-          id="hasDepositAccount"
-          checked={hasDepositAccount}
-          onCheckedChange={(checked) => setHasDepositAccount(checked === true)}
-          label={t.assets.hasDepositAccount}
-          explanation={t.assets.hasDepositAccountExplanation}
-        />
+      <div className="animate-fade-in opacity-0 space-y-2" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+        <Label htmlFor="accountCount" className="text-sm font-medium">
+          {t.assets.accountCount}
+        </Label>
+        <p className="text-xs text-muted-foreground">{t.assets.accountCountExplanation}</p>
+        <Select
+          value={
+            accountCount === undefined
+              ? ''
+              : accountCount > 10
+                ? 'more'
+                : String(accountCount)
+          }
+          onValueChange={(v) => {
+            if (v === 'more') {
+              const parsed = parseInt(accountCountMore, 10);
+              setAccountCount(Number.isFinite(parsed) && parsed > 10 ? parsed : 11);
+            } else {
+              setAccountCount(parseInt(v, 10));
+            }
+          }}
+        >
+          <SelectTrigger id="accountCount" className="bg-card border">
+            <SelectValue placeholder="Auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">{t.assets.accountCountOptions.zero}</SelectItem>
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+              <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+            ))}
+            <SelectItem value="more">{t.assets.accountCountOptions.moreThan}</SelectItem>
+          </SelectContent>
+        </Select>
+        {accountCount !== undefined && accountCount > 10 && (
+          <Input
+            type="number"
+            min={11}
+            value={accountCountMore || String(accountCount)}
+            onChange={(e) => {
+              setAccountCountMore(e.target.value);
+              const parsed = parseInt(e.target.value, 10);
+              if (Number.isFinite(parsed) && parsed > 0) setAccountCount(parsed);
+            }}
+            className="bg-card border"
+          />
+        )}
       </div>
 
       <div className="animate-fade-in opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
