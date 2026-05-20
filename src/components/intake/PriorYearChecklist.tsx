@@ -231,8 +231,11 @@ const CompactCategoryCard: React.FC<{
   items: ChecklistItem[];
   onBulk: (patch: Partial<ChecklistItem>) => void;
   onItem: (id: string, patch: Partial<ChecklistItem>) => void;
-}> = ({ category, items, onBulk, onItem }) => {
+  onAdd: (label: string) => void;
+  onDelete: (id: string) => void;
+}> = ({ category, items, onBulk, onItem, onAdd, onDelete }) => {
   const [editOpen, setEditOpen] = useState(false);
+  const [newLabel, setNewLabel] = useState("");
   const allDone = items.every(i => i.completed);
   const allUnchanged = items.every(i => i.change_status === "unchanged");
 
