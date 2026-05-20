@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFormContext } from '@/contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { YesNoQuestion } from './YesNoQuestion';
+import { DropdownQuestion } from './DropdownQuestion';
 import { RepeaterStep } from './RepeaterStep';
 import { MultiStepProgress } from './MultiStepProgress';
 import { FormSummary } from './FormSummary';
