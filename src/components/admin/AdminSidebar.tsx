@@ -58,9 +58,10 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
       )}
     >
       <Icon
-        className={cn('w-5 h-5 flex-shrink-0', isActive ? 'text-blue-600' : '')}
-        strokeWidth={1.75}
+        className={cn('w-[18px] h-[18px] flex-shrink-0', isActive ? 'text-[#1E3A5F]' : 'text-slate-400 group-hover:text-slate-700')}
+        strokeWidth={1.5}
       />
+
       <span className="truncate">{item.label}</span>
       {!!item.badge && item.badge > 0 && (
         <span
