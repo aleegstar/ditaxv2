@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { SecurityService } from '@/services/SecurityService';
+import { useAdminAuth } from '@/components/guards/AdminRouteGuard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,80 +55,19 @@ interface AdminUser {
 }
 
 const Admin: React.FC = () => {
+  const { userId } = useAdminAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [adminStatus, setAdminStatus] = useState<boolean | null>(null);
   const [userSearch, setUserSearch] = useState('');
   const [userFilter, setUserFilter] = useState<'all' | 'active' | 'inactive' | 'with-returns'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
-    checkAuthAndFetchUsers();
+    // AdminRouteGuard already verified auth + admin role.
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkAuthAndFetchUsers = async () => {
-    try {
-      console.log('🔐 Admin: Checking authentication and admin status...');
-      
-      // Check current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error('❌ Admin: Error getting user:', userError);
-        toast({
-          title: "Authentifizierungsfehler",
-          description: "Fehler beim Abrufen der Benutzerinformationen.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-
-      if (!user) {
-        console.log('🚫 Admin: No authenticated user found');
-        toast({
-          title: "Nicht angemeldet",
-          description: "Du musst dich anmelden, um auf den Adminbereich zuzugreifen.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-
-      console.log('✅ Admin: User authenticated:', user.id);
-      setCurrentUser(user);
-
-      // Check admin status using SecurityService instead of direct RPC
-      const isAdminVerified = await SecurityService.verifyAdminAccess('admin_dashboard_access');
-
-      console.log('🔍 Admin: Admin verification result:', isAdminVerified);
-      setAdminStatus(isAdminVerified);
-
-      if (!isAdminVerified) {
-        console.log('🚫 Admin: User is not an admin');
-        toast({
-          title: "Keine Berechtigung",
-          description: "Sie haben keine Administratorberechtigung.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Fetch users data using the new RPC function
-      await fetchUsers();
-
-    } catch (error) {
-      console.error('❌ Admin: Critical error in auth check:', error);
-      toast({
-        title: "Systemfehler",
-        description: "Ein unerwarteter Fehler ist aufgetreten.",
-        variant: "destructive"
-      });
-      setLoading(false);
-    }
-  };
 
   const fetchUsers = async () => {
     try {
@@ -249,10 +188,10 @@ const Admin: React.FC = () => {
   // Debug information
   console.log('🐛 Admin Component State:', {
     loading,
-    currentUser: currentUser?.id,
-    adminStatus,
+    userId,
     usersCount: users.length
   });
+
 
   return (
     <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">

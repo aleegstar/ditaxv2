@@ -28,6 +28,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import adminHeroCouple from '@/assets/admin-hero-couple.jpg';
@@ -119,28 +120,30 @@ export function AdminSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { userId, email } = useAuth();
 
   useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+
+    if (email) setAdminEmail(email);
+
     const loadAdminInfo = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      if (user.email) setAdminEmail(user.email);
-
       const { data: profile } = await supabase
         .from('profiles')
         .select('first_name, last_name, avatar_url')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
+      if (cancelled || !profile) return;
 
-      if (profile?.first_name) {
+      if (profile.first_name) {
         setAdminName(
           profile.last_name
             ? `${profile.first_name} ${profile.last_name}`
             : profile.first_name
         );
       }
-      if (profile?.avatar_url) setAdminAvatarUrl(profile.avatar_url);
+      if (profile.avatar_url) setAdminAvatarUrl(profile.avatar_url);
     };
 
     const loadWorkload = async () => {
@@ -155,6 +158,7 @@ export function AdminSidebar() {
           .select('*', { count: 'exact', head: true })
           .in('status', ['open', 'in_progress']),
       ]);
+      if (cancelled) return;
       setWorkload({
         express: express.count || 0,
         tickets: tickets.count || 0,
@@ -163,9 +167,9 @@ export function AdminSidebar() {
 
     loadAdminInfo();
     loadWorkload();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => loadAdminInfo());
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId, email]);
+
 
   const handleLogout = async () => {
     try {

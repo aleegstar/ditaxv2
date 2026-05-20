@@ -1,151 +1,94 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthValidation } from '@/hooks/use-auth-validation';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { supabase } from '@/integrations/supabase/client';
 
-import { useI18n } from '@/contexts/I18nContext';
-import { SecurityService } from '@/services/SecurityService';
-import { validateAdminAccess, logAdminSecurityEvent, initializeAdminSecurity } from '@/utils/adminSecurity';
+interface AdminAuthValue {
+  userId: string;
+  email: string | null;
+  isAdmin: true;
+}
+
+const AdminAuthContext = createContext<AdminAuthValue | null>(null);
+
+export function useAdminAuth(): AdminAuthValue {
+  const ctx = useContext(AdminAuthContext);
+  if (!ctx) throw new Error('useAdminAuth must be used inside AdminRouteGuard');
+  return ctx;
+}
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { userId, isValid, isLoading: authLoading } = useAuthValidation();
-  const { t } = useI18n();
+  const { userId, email, isValid, isLoading: authLoading } = useAuth();
   const location = useLocation();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Initialize security monitoring on component mount
-  useEffect(() => {
-    initializeAdminSecurity();
-  }, []);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const checkAdminAccess = async () => {
-      // Wait for auth validation to complete
-      if (authLoading) {
-        return;
-      }
+    let cancelled = false;
 
-      // If not authenticated, fail immediately
-      if (!isValid || !userId) {
-        console.log('🚫 Admin access denied: User not authenticated', { isValid, userId });
-        logAdminSecurityEvent(
-          'ADMIN_ACCESS_DENIED_NO_AUTH',
-          false,
-          userId,
-          location.pathname,
-          { reason: 'User not authenticated' }
-        );
-        setIsAdmin(false);
-        setIsLoading(false);
-        return;
-      }
+    if (authLoading) return;
 
-      try {
-        console.log('🔐 Admin status check for user:', userId, 'Route:', location.pathname);
+    if (!isValid || !userId) {
+      setIsAdmin(false);
+      setChecking(false);
+      return;
+    }
 
-        // Use enhanced server-side admin validation
-        const adminStatus = await validateAdminAccess();
+    setChecking(true);
 
-        console.log('✅ Admin status result:', adminStatus);
-        setIsAdmin(adminStatus);
-        
-        if (!adminStatus) {
-          // Log security event for unauthorized admin access attempt
-          console.warn('🚨 Unauthorized admin access attempt by user:', userId, 'Route:', location.pathname);
-          logAdminSecurityEvent(
-            'UNAUTHORIZED_ADMIN_ROUTE_ACCESS',
-            false,
-            userId,
-            location.pathname,
-            { 
-              userAgent: navigator.userAgent,
-              timestamp: new Date().toISOString()
-            }
-          );
+    // Single source of truth: one has_role RPC, no extra getUser() roundtrip
+    supabase
+      .rpc('has_role', { _user_id: userId, _role: 'admin' })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          console.error('Admin role check failed:', error);
+          setIsAdmin(false);
         } else {
-          // Log successful admin access
-          logAdminSecurityEvent(
-            'AUTHORIZED_ADMIN_ROUTE_ACCESS',
-            true,
-            userId,
-            location.pathname,
-            {
-              userAgent: navigator.userAgent,
-              timestamp: new Date().toISOString()
-            }
-          );
+          setIsAdmin(data === true);
         }
-      } catch (error) {
-        console.error('❌ Critical error in admin check:', error);
-        // In case of any error, deny access for security
-        setIsAdmin(false);
-        
-        logAdminSecurityEvent(
-          'ADMIN_CHECK_ERROR',
-          false,
-          userId,
-          location.pathname,
-          { 
-            error: error instanceof Error ? error.message : 'Unknown error',
-            timestamp: new Date().toISOString()
-          }
-        );
-      } finally {
-        setIsLoading(false);
-      }
+        setChecking(false);
+      });
+
+    return () => {
+      cancelled = true;
     };
+  }, [userId, isValid, authLoading]);
 
-    checkAdminAccess();
-  }, [userId, isValid, authLoading, location.pathname]);
-
-  // Show loading while checking auth or admin status
-  if (authLoading || isLoading) {
-    return null;
+  // Show a real loading spinner instead of a blank screen
+  if (authLoading || checking || isAdmin === null) {
+    return <LoadingSpinner fullScreen delay={0} />;
   }
 
-  // If not authenticated, redirect to auth with return path
   if (!isValid || !userId) {
-    console.log('🔒 Redirecting to auth: User not authenticated');
-    logAdminSecurityEvent(
-      'REDIRECT_TO_AUTH',
-      false,
-      userId,
-      location.pathname,
-      { reason: 'Authentication required' }
-    );
-    
     toast({
-      title: t.errors.permissionDenied,
+      title: 'Nicht angemeldet',
       description: 'Du musst dich anmelden, um auf den Administratorbereich zuzugreifen.',
-      variant: "destructive",
+      variant: 'destructive',
     });
-    
     return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
 
-  // If authenticated but not admin, show access denied and redirect to home
-  if (isAdmin === false) {
-    console.log('🚫 Admin access denied: User lacks admin role', { userId, isAdmin });
-    
+  if (!isAdmin) {
     toast({
-      title: t.errors.permissionDenied,
+      title: 'Keine Berechtigung',
       description: 'Sie haben keine Berechtigung für den Administratorbereich.',
-      variant: "destructive",
+      variant: 'destructive',
     });
-    
     return <Navigate to="/" replace />;
   }
 
-  // Log successful admin access
-  console.log('✅ Admin access granted for user:', userId, 'Route:', location.pathname);
-
-  return <>{children}</>;
+  return (
+    <AdminAuthContext.Provider value={{ userId, email, isAdmin: true }}>
+      {children}
+    </AdminAuthContext.Provider>
+  );
 };
 
 export default AdminRouteGuard;
