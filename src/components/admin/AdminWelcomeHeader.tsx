@@ -29,6 +29,7 @@ export const AdminWelcomeHeader: React.FC<AdminWelcomeHeaderProps> = ({
   showStats = false,
   children
 }) => {
+  const { userId } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [adminName, setAdminName] = useState<string>('Admin');
   const [stats, setStats] = useState<AdminStats>({
@@ -46,27 +47,23 @@ export const AdminWelcomeHeader: React.FC<AdminWelcomeHeaderProps> = ({
       loadStats();
     }
     return () => clearInterval(timer);
-  }, [showStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showStats, userId]);
   const loadAdminInfo = async () => {
     try {
+      if (!userId) return;
       const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
-      if (user) {
-        const {
-          data: profile
-        } = await supabase.from('profiles').select('first_name, last_name').eq('id', user.id).single();
-        if (profile) {
-          const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
-          setAdminName(fullName || 'Admin');
-        }
+        data: profile
+      } = await supabase.from('profiles').select('first_name, last_name').eq('id', userId).single();
+      if (profile) {
+        const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+        setAdminName(fullName || 'Admin');
       }
     } catch (error) {
       console.error('Error loading admin info:', error);
     }
   };
+
   const loadStats = async () => {
     try {
       // Get total users count
