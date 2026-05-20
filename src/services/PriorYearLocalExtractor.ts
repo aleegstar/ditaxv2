@@ -98,8 +98,7 @@ type CodeRule = { label: string; codes: number[] };
 const INCOME_CODES: CodeRule[] = [
   { label: "Lohnausweis", codes: [100, 101, 102, 103] },
   { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
-  { label: "Rentenbescheinigung (AHV/IV)", codes: [130, 131] },
-  { label: "Pensionskassenausweis", codes: [134, 135, 136, 137] },
+  { label: "Rentenbescheinigung (AHV/IV/PK)", codes: [130, 131, 132, 133, 134, 135, 136, 137] },
   { label: "Arbeitslosentaggeld-Abrechnung", codes: [140, 141] },
   { label: "Bestätigung Familien-/Mutterschaftszulagen", codes: [142, 143] },
   { label: "Wertschriften-/Depotverzeichnis", codes: [150, 151] },
