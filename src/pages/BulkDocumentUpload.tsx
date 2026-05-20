@@ -38,11 +38,9 @@ type Stage = 'drop' | 'analyzing' | 'review' | 'uploading' | 'missing';
 
 const ACCEPT = 'application/pdf,image/jpeg,image/png,image/webp,image/heic,image/heif';
 
-function confidenceTone(conf: number): { label: string; cls: string } {
-  if (conf >= 80) return { label: 'Sicher erkannt', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
-  if (conf >= 50) return { label: 'Wahrscheinlich', cls: 'bg-amber-50 text-amber-700 border-amber-200' };
-  return { label: 'Unsicher', cls: 'bg-rose-50 text-rose-700 border-rose-200' };
-}
+// Single soft mint pill for assigned documents — matches the global fintech palette.
+const CONFIDENCE_PILL_CLS =
+  'bg-[hsl(var(--primary)/0.06)] text-primary border-[hsl(var(--primary)/0.18)]';
 
 const BulkUploadContent: React.FC = () => {
   const navigate = useNavigate();
