@@ -61,8 +61,8 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
           <ModeCard
             image={manualImg}
             imageAlt="Person denkt über die Steuererklärung nach"
-            badgeIcon={<Sparkles className="w-3 h-3 text-emerald-700" strokeWidth={2} />}
-            badge="Neu"
+            badgeIcon={<Pencil className="w-3 h-3 text-emerald-700" strokeWidth={2} />}
+            badge="Manuell"
             badgeVariant="success"
             title="Daten manuell erfassen"
             desc="Wir führen dich begleitet durch alle Bereiche – ideal beim ersten Mal oder wenn sich vieles geändert hat."
