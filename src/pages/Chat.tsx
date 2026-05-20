@@ -132,7 +132,7 @@ const Chat: React.FC = () => {
         <div className="max-w-[720px] mx-auto px-5 pb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center relative overflow-hidden flex-shrink-0 ring-1 ring-border bg-muted"
+              className="w-10 h-10 rounded-full flex items-center justify-center relative overflow-hidden flex-shrink-0 ring-1 ring-border bg-white"
             >
               {escalatedMode ? (
                 <div
@@ -219,7 +219,7 @@ const Chat: React.FC = () => {
           ) : lastMessages.length === 0 ? (
             <motion.div variants={bubbleVariants} className="py-6">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-full ring-1 ring-border bg-muted flex-shrink-0 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-full ring-1 ring-border bg-white flex-shrink-0 flex items-center justify-center">
                   <img src={assistantAvatar} alt="Steuer-Assistent" className="w-7 h-7 object-contain" />
                 </div>
                 <div>
@@ -279,7 +279,7 @@ const Chat: React.FC = () => {
                               <User className="w-3.5 h-3.5 text-white" strokeWidth={2} />
                             </div>
                           ) : (
-                            <div className="w-7 h-7 rounded-full overflow-hidden ring-1 ring-border bg-muted">
+                            <div className="w-7 h-7 rounded-full overflow-hidden ring-1 ring-border bg-white">
                               <img src={assistantAvatar} alt="" className="w-full h-full object-cover" />
                             </div>
                           )
