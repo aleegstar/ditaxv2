@@ -621,13 +621,30 @@ const UserTabs: React.FC<UserTabsProps> = ({
         </div>
       </Tabs>
 
-      <DocumentPreview 
-        document={previewDocument} 
-        open={previewOpen} 
-        onOpenChange={setPreviewOpen} 
-        userId={userId} 
-        isAdmin={true} 
-      />
+      <ErrorBoundary
+        fallback={
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <div className="pointer-events-auto bg-card border border-border rounded-2xl p-6 max-w-md shadow-lg">
+              <p className="text-sm font-medium text-foreground mb-2">Vorschau konnte nicht geladen werden</p>
+              <p className="text-xs text-muted-foreground mb-4">Bitte versuche es erneut oder lade das Dokument herunter.</p>
+              <button
+                onClick={() => { setPreviewOpen(false); setPreviewDocument(null); }}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Schliessen
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <DocumentPreview
+          document={previewDocument}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          userId={userId}
+          isAdmin={true}
+        />
+      </ErrorBoundary>
     </div>
   );
 };
