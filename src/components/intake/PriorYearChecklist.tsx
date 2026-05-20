@@ -82,7 +82,9 @@ export const PriorYearChecklistBody: React.FC<BodyProps> = ({ taxFilerId, taxYea
     if (it.category === "contact") return acc;
     (acc[it.category] ||= []).push(it); return acc;
   }, { contact: [], income: [], assets: [], deductions: [], other: [] });
-  const categories = (Object.keys(grouped) as ItemCategory[]).filter(c => c !== "contact" && grouped[c].length > 0);
+  // Immer alle drei Belegkategorien anzeigen, auch wenn das Vorjahres-PDF
+  // keine Position enthielt – der User kann dann manuell etwas hinzufügen.
+  const categories: ItemCategory[] = ["income", "assets", "deductions"];
   const ready = checklist?.status === "ready";
   const totalCats = ready ? categories.length + 1 : 0;
   const doneCats = ready
