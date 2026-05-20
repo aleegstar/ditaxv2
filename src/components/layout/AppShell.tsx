@@ -1,19 +1,24 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { UserSidebar } from './UserSidebar';
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
-/**
- * App layout shell.
- * - Mobile: renders children directly (existing layout with HomeBottomNav).
- * - Desktop (md+): renders a permanent left sidebar on a white frame,
- *   with the page content nested inside a rounded card using the main
- *   background (rosé-tinted). The mobile bottom nav is hidden via its
- *   own md:hidden rule.
- */
+// Routes where the sidebar should NOT be shown (onboarding/auth flows)
+const HIDE_SIDEBAR_ROUTES = ['/welcome'];
+
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
+  const { pathname } = useLocation();
+  const hideSidebar = HIDE_SIDEBAR_ROUTES.some(
+    (r) => pathname === r || pathname.startsWith(`${r}/`)
+  );
+
+  if (hideSidebar) {
+    return <div className="min-h-screen bg-white">{children}</div>;
+  }
+
   return (
     <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">
       <UserSidebar />
@@ -25,3 +30,4 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 };
 
 export default AppShell;
+
