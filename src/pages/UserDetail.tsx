@@ -21,6 +21,7 @@ import AgEtaxExportButton from '@/components/user-detail/AgEtaxExportButton';
 import { TaxReturnStatusChanger } from '@/components/user-detail/TaxReturnStatusChanger';
 import { defaultFormData } from '@/contexts/form/defaults';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import adminUserHero from '@/assets/admin-user-hero.jpg';
 
 // Local interface for the raw database user
 interface DatabaseUser {
