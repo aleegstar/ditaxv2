@@ -87,6 +87,35 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     }
   }, [isValid]);
 
+  const [checklistFlags, setChecklistFlags] = useState<ReturnType<typeof mapPriorYearToFormFlags> | null>(null);
+
+  // Load prior-year checklist and derive flags so price always orients on the checklist
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!activeTaxFilerId || !year) { setChecklistFlags(null); return; }
+      try {
+        const { data: cl } = await supabase
+          .from('prior_year_checklists')
+          .select('id')
+          .eq('tax_filer_id', activeTaxFilerId)
+          .eq('tax_year', year)
+          .maybeSingle();
+        if (!cl?.id) { if (!cancelled) setChecklistFlags(null); return; }
+        const { data: its } = await supabase
+          .from('prior_year_checklist_items')
+          .select('*')
+          .eq('checklist_id', cl.id);
+        if (cancelled) return;
+        const flags = mapPriorYearToFormFlags((its ?? []) as ChecklistItem[]);
+        setChecklistFlags(flags);
+      } catch {
+        if (!cancelled) setChecklistFlags(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [activeTaxFilerId, year]);
+
   useEffect(() => {
     if (isUpgrade) {
       const promo = isPromoWeekActive();
@@ -104,10 +133,18 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         }]
       });
     } else {
-      const breakdown = calculatePrice(formData, expressService);
+      // Merge checklist-derived flags into formData so the price reflects
+      // the confirmed prior-year checklist (source of truth), not only saved formData.
+      const merged: any = {
+        ...formData,
+        income: { ...(formData?.income ?? {}), ...(checklistFlags?.income ?? {}) },
+        assets: { ...(formData?.assets ?? {}), ...(checklistFlags?.assets ?? {}) },
+        deductions: { ...(formData?.deductions ?? {}), ...(checklistFlags?.deductions ?? {}) },
+      };
+      const breakdown = calculatePrice(merged, expressService);
       setPriceBreakdown(breakdown);
     }
-  }, [formData, expressService, isUpgrade]);
+  }, [formData, expressService, isUpgrade, checklistFlags]);
 
   useEffect(() => {
     const fetchUser = async () => {
