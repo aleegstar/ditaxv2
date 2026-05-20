@@ -3,6 +3,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useI18n } from '@/contexts/I18nContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ExpertFormContainer } from '@/components/ui/expert-form-container';
@@ -40,7 +49,8 @@ const AssetsForm = ({
   const [hasProperty, setHasProperty] = useState<boolean>(false);
   const [hasMortgage, setHasMortgage] = useState<boolean>(false);
   const [hasDebt, setHasDebt] = useState<boolean>(false);
-  const [hasDepositAccount, setHasDepositAccount] = useState<boolean>(false);
+  const [accountCount, setAccountCount] = useState<number | undefined>(undefined);
+  const [accountCountMore, setAccountCountMore] = useState<string>('');
   const [hasCrypto, setHasCrypto] = useState<boolean>(false);
   const [hasOtherAssets, setHasOtherAssets] = useState<boolean>(false);
 
