@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
   extractTextFromPdf,
+  extractScanFromPdf,
   extractItemsFromText,
   pseudonymize,
   isLocalResultSufficient,
