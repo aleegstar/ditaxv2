@@ -1,17 +1,20 @@
 /**
  * Tax year availability is system-managed.
  *
- * Base years: 2024 + 2025 are always available.
- * Each future year Y becomes available starting 01.01.(Y+1).
- * (e.g. 2026 unlocks on 01.01.2026.)
+ * DOCUMENT COLLECTION SCOPE (getAvailableTaxYears):
+ *   Base 2024 + 2025; each future year Y unlocks on 01.01.Y (e.g. 2026 since 01.01.2026).
+ *   Used in /documents so users can already collect documents for the upcoming year.
  *
- * Users cannot add tax years themselves anymore.
+ * FILING / DASHBOARD SCOPE (getFilingTaxYears):
+ *   Only years for which the actual tax return can be filed. 2026 is NOT yet
+ *   activated for filing on the main dashboard — it remains documents-only.
+ *
+ * Users cannot add tax years themselves.
  */
 export const getAvailableTaxYears = (now: Date = new Date()): string[] => {
   const base = [2024, 2025];
   const currentYear = now.getFullYear();
   const years = new Set<number>(base);
-  // Add every year from 2026 up to currentYear (inclusive).
   for (let y = 2026; y <= currentYear; y++) {
     years.add(y);
   }
@@ -25,5 +28,21 @@ export const isTaxYearAvailable = (year: string, now: Date = new Date()): boolea
 
 export const getLatestAvailableTaxYear = (now: Date = new Date()): string => {
   const years = getAvailableTaxYears(now);
+  return years[years.length - 1];
+};
+
+/**
+ * Years available for the main filing flow (dashboard, tax-returns page).
+ * 2026 is intentionally excluded — only documents collection is active for 2026.
+ */
+export const getFilingTaxYears = (_now: Date = new Date()): string[] => {
+  return ['2024', '2025'];
+};
+
+export const isFilingYearAvailable = (year: string, now: Date = new Date()): boolean =>
+  getFilingTaxYears(now).includes(year);
+
+export const getLatestFilingTaxYear = (now: Date = new Date()): string => {
+  const years = getFilingTaxYears(now);
   return years[years.length - 1];
 };
