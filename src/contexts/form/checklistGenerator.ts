@@ -140,18 +140,37 @@ export const generateChecklistItems = (
   // Add assets-related documents (including bank account statement)
   if (formProgress.assets || formData.assets || true) { // Always process assets to include bank statement
     console.log('🏠 Processing assets documents...');
-    
-    // Always add bank account statement under assets category
-    checklistItems.push({
-      id: "bank-account-statement",
-      title: "Zins- und Saldobescheinigung der Bankkonten",
-      description: "Bescheinigung über Zinserträge und Kontostände aller Bankkonten per Jahresende",
-      category: "assets",
-      uploaded: false,
-      required: true
-    });
-    console.log('✅ Added bank account statement to assets');
-    
+
+    // Bank-/Depotkonten: 1 Beleg pro Konto
+    const accounts = Array.isArray(formData.assets?.accounts) ? formData.assets!.accounts! : [];
+    if (accounts.length > 0) {
+      accounts.forEach((acc) => {
+        const title = [acc.institution, acc.reference].filter(Boolean).join(' – ') || 'Bank-/Depotkonto';
+        checklistItems.push({
+          id: `account-${acc.id}`,
+          title,
+          description: 'Zins-/Saldobescheinigung oder Depotauszug per 31.12. (1 Beleg pro Konto, auch wenn Rubrik A + B kombiniert).',
+          category: 'assets',
+          uploaded: false,
+          required: true
+        });
+      });
+      console.log(`✅ Added ${accounts.length} account documents (named)`);
+    } else {
+      const n = formData.assets?.accountCount ?? 0;
+      for (let i = 1; i <= n; i++) {
+        checklistItems.push({
+          id: `account-generic-${i}`,
+          title: `Bank ${i}`,
+          description: `Zins-/Saldobescheinigung oder Depotauszug per 31.12. (Konto ${i} von ${n}).`,
+          category: 'assets',
+          uploaded: false,
+          required: true
+        });
+      }
+      if (n > 0) console.log(`✅ Added ${n} generic account documents`);
+    }
+
     // NOTE: Vehicles and properties are excluded as per user requirement
     // if (formData.assets?.hasVehicle) - EXCLUDED
     // Check for properties and add purchase contracts if purchased this year
@@ -174,18 +193,6 @@ export const generateChecklistItems = (
           console.log(`✅ Added purchase contract for property: ${property.address}`);
         });
       }
-    }
-    
-    if (formData.assets?.hasDepositAccount) {
-      checklistItems.push({
-        id: "deposit-account",
-        title: "Depotauszug",
-        description: "Auszug deines Depotkontos per Jahresende",
-        category: "assets",
-        uploaded: false,
-        required: true
-      });
-      console.log('✅ Added deposit account document');
     }
     
     if (formData.assets?.hasCrypto) {
