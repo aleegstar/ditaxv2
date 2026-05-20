@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { 
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
   LayoutGrid,
   ScrollText,
   TriangleAlert,
@@ -19,99 +20,102 @@ import {
   Ticket,
   FileCode,
   PackageCheck,
-  LogOut, 
-  Settings, 
-  User as UserIcon, 
-  ChevronRight,
-  ChevronDown
+  LogOut,
+  Settings,
+  User as UserIcon,
+  ChevronUp,
+  ChevronDown,
+  Zap,
 } from 'lucide-react';
-import { supabase } from "@/integrations/supabase/client";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
+import adminHeroCouple from '@/assets/admin-hero-couple.jpg';
 
-interface NavItemProps {
-  title: string;
-  url: string;
+interface NavItem {
+  label: string;
   icon: React.ElementType;
-  isActive: boolean;
+  route: string;
+  badge?: number;
 }
 
-function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
+const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }> = ({
+  item,
+  isActive,
+  onClick,
+}) => {
+  const Icon = item.icon;
   return (
-    <NavLink
-      to={url}
+    <button
+      onClick={onClick}
       className={cn(
-        'group w-full flex items-center gap-3 px-3 h-9 rounded-lg text-[13.5px] transition-colors text-left',
+        'group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left',
         isActive
-          ? 'bg-foreground/[0.05] text-foreground font-medium'
-          : 'text-muted-foreground/85 hover:bg-foreground/[0.03] hover:text-foreground'
+          ? 'bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] border border-slate-200/60 text-slate-900'
+          : 'text-slate-500 hover:bg-slate-100/50 hover:text-slate-900'
       )}
     >
       <Icon
-        className={cn(
-          'w-[16px] h-[16px] flex-shrink-0',
-          isActive ? 'text-foreground' : 'text-muted-foreground/55 group-hover:text-foreground/75'
-        )}
+        className={cn('w-5 h-5 flex-shrink-0', isActive ? 'text-blue-600' : '')}
         strokeWidth={1.75}
       />
-      <span className="truncate tracking-[-0.005em]">{title}</span>
-    </NavLink>
+      <span className="truncate">{item.label}</span>
+      {!!item.badge && item.badge > 0 && (
+        <span
+          className={cn(
+            'ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold tabular-nums',
+            isActive ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'
+          )}
+        >
+          {item.badge > 9 ? '9+' : item.badge}
+        </span>
+      )}
+    </button>
   );
-}
+};
 
-interface NavGroupProps {
-  title: string;
+const SectionLabel: React.FC<{
   children: React.ReactNode;
   collapsible?: boolean;
-  defaultOpen?: boolean;
-  hasActive?: boolean;
-}
-
-function NavGroup({ title, children, collapsible = false, defaultOpen = true, hasActive = false }: NavGroupProps) {
-  const [open, setOpen] = useState(defaultOpen || hasActive);
-
-  useEffect(() => {
-    if (hasActive) setOpen(true);
-  }, [hasActive]);
-
+  open?: boolean;
+  onToggle?: () => void;
+}> = ({ children, collapsible, open, onToggle }) => {
   if (!collapsible) {
     return (
-      <div className="pt-6">
-        <div className="space-y-0.5">{children}</div>
+      <div className="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3 px-3">
+        {children}
       </div>
     );
   }
-
   return (
-    <div className="pt-6">
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-3 pb-1.5 group"
-      >
-        <span className="text-[11px] font-medium text-muted-foreground/55 tracking-[-0.005em]">
-          {title}
-        </span>
-        <ChevronDown
-          className={cn(
-            'w-3 h-3 text-muted-foreground/35 transition-transform group-hover:text-muted-foreground/65',
-            open ? 'rotate-0' : '-rotate-90'
-          )}
-          strokeWidth={2}
-        />
-      </button>
-      {open && <div className="space-y-0.5 mt-0.5">{children}</div>}
-    </div>
+    <button
+      type="button"
+      onClick={onToggle}
+      className="w-full mb-3 px-3 flex items-center justify-between group"
+    >
+      <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
+        {children}
+      </span>
+      <ChevronDown
+        className={cn(
+          'w-3 h-3 text-slate-300 group-hover:text-slate-500 transition-transform',
+          open ? 'rotate-0' : '-rotate-90'
+        )}
+        strokeWidth={2}
+      />
+    </button>
   );
-}
+};
 
 export function AdminSidebar() {
-  const [adminEmail, setAdminEmail] = useState<string>('');
-  const [adminName, setAdminName] = useState<string>('Ditax Admin');
-  const [adminAvatarUrl, setAdminAvatarUrl] = useState<string>('');
-  const [workload, setWorkload] = useState<{ pending: number; express: number; tickets: number } | null>(null);
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminName, setAdminName] = useState('Ditax Admin');
+  const [adminAvatarUrl, setAdminAvatarUrl] = useState('');
+  const [workload, setWorkload] = useState<{ express: number; tickets: number } | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [managementOpen, setManagementOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -122,29 +126,36 @@ export function AdminSidebar() {
       if (!user) return;
 
       if (user.email) setAdminEmail(user.email);
-      
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('first_name, last_name, avatar_url')
         .eq('id', user.id)
         .maybeSingle();
-      
+
       if (profile?.first_name) {
-        setAdminName(profile.last_name 
-          ? `${profile.first_name} ${profile.last_name}`
-          : profile.first_name);
+        setAdminName(
+          profile.last_name
+            ? `${profile.first_name} ${profile.last_name}`
+            : profile.first_name
+        );
       }
       if (profile?.avatar_url) setAdminAvatarUrl(profile.avatar_url);
     };
 
     const loadWorkload = async () => {
-      const [pending, express, tickets] = await Promise.all([
-        supabase.from('tax_returns').select('*', { count: 'exact', head: true }).in('workflow_step', ['review', 'processing']).neq('status', 'completed'),
-        supabase.from('tax_returns').select('*', { count: 'exact', head: true }).eq('express_service', true).neq('status', 'completed'),
-        supabase.from('support_tickets').select('*', { count: 'exact', head: true }).in('status', ['open', 'in_progress']),
+      const [express, tickets] = await Promise.all([
+        supabase
+          .from('tax_returns')
+          .select('*', { count: 'exact', head: true })
+          .eq('express_service', true)
+          .neq('status', 'completed'),
+        supabase
+          .from('support_tickets')
+          .select('*', { count: 'exact', head: true })
+          .in('status', ['open', 'in_progress']),
       ]);
       setWorkload({
-        pending: pending.count || 0,
         express: express.count || 0,
         tickets: tickets.count || 0,
       });
@@ -159,140 +170,267 @@ export function AdminSidebar() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      toast({ title: "Erfolgreich abgemeldet", description: "Du wurdest erfolgreich abgemeldet." });
+      toast({ title: 'Erfolgreich abgemeldet', description: 'Du wurdest erfolgreich abgemeldet.' });
       navigate('/auth');
     } catch (error) {
       console.error('Error logging out:', error);
-      toast({ variant: "destructive", title: "Abmeldefehler", description: "Ein Fehler ist beim Abmelden aufgetreten." });
+      toast({
+        variant: 'destructive',
+        title: 'Abmeldefehler',
+        description: 'Ein Fehler ist beim Abmelden aufgetreten.',
+      });
     }
   };
 
   const getInitials = (name: string) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-  const mainNavItems = [
-    { title: "Dashboard", url: "/admin/dashboard", icon: LayoutGrid },
+  const mainNav: NavItem[] = [
+    { label: 'Dashboard', icon: LayoutGrid, route: '/admin/dashboard' },
   ];
 
-  const taxNavItems = [
-    { title: "Steuererklärungen", url: "/admin/tax-processing", icon: ScrollText },
-    { title: "Fehlende Unterlagen", url: "/admin/missing-documents", icon: TriangleAlert },
-    { title: "Zur Übermittlung", url: "/admin/signed-returns", icon: Send },
-    { title: "Veranlagungen", url: "/admin/definitive-tax-bills", icon: ClipboardCheck },
+  const taxNav: NavItem[] = [
+    { label: 'Steuererklärungen', icon: ScrollText, route: '/admin/tax-processing' },
+    { label: 'Fehlende Unterlagen', icon: TriangleAlert, route: '/admin/missing-documents' },
+    { label: 'Zur Übermittlung', icon: Send, route: '/admin/signed-returns' },
+    { label: 'Veranlagungen', icon: ClipboardCheck, route: '/admin/definitive-tax-bills' },
   ];
 
-  const supportNavItems = [
-    { title: "Support Tickets", url: "/admin/tickets", icon: LifeBuoy },
-    { title: "Chat", url: "/admin/chat", icon: MessagesSquare },
+  const supportNav: NavItem[] = [
+    { label: 'Support Tickets', icon: LifeBuoy, route: '/admin/tickets', badge: workload?.tickets },
+    { label: 'Chat', icon: MessagesSquare, route: '/admin/chat' },
   ];
 
-  const managementNavItems = [
-    { title: "Benutzer", url: "/admin/users", icon: UsersRound },
-    { title: "Schnellantworten", url: "/admin/quick-replies", icon: Sparkles },
-    { title: "Zahlungen", url: "/admin/payment-status", icon: Wallet },
-    { title: "OCR Konfiguration", url: "/admin/ocr-config", icon: Scan },
-    { title: "Nicht erkannte Uploads", url: "/admin/ocr-unrecognized", icon: FileWarning },
-    { title: "User-Feedback", url: "/admin/user-feedback", icon: Star },
-    { title: "Lösch-Feedback", url: "/admin/deletion-feedback", icon: MessageSquareDashed },
-    { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
-    { title: "Aktionscodes", url: "/admin/promo-codes", icon: Ticket },
+  const managementNav: NavItem[] = [
+    { label: 'Benutzer', icon: UsersRound, route: '/admin/users' },
+    { label: 'Schnellantworten', icon: Sparkles, route: '/admin/quick-replies' },
+    { label: 'Zahlungen', icon: Wallet, route: '/admin/payment-status' },
+    { label: 'OCR Konfiguration', icon: Scan, route: '/admin/ocr-config' },
+    { label: 'Nicht erkannte Uploads', icon: FileWarning, route: '/admin/ocr-unrecognized' },
+    { label: 'User-Feedback', icon: Star, route: '/admin/user-feedback' },
+    { label: 'Lösch-Feedback', icon: MessageSquareDashed, route: '/admin/deletion-feedback' },
+    { label: 'Newsletter', icon: Mail, route: '/admin/newsletter' },
+    { label: 'Aktionscodes', icon: Ticket, route: '/admin/promo-codes' },
   ];
 
-  const exportNavItems = [
-    { title: "AG eTax XML", url: "/admin/ag-xml", icon: FileCode },
-    { title: "AG Import-Test", url: "/admin/ag-import", icon: PackageCheck },
+  const exportNav: NavItem[] = [
+    { label: 'AG eTax XML', icon: FileCode, route: '/admin/ag-xml' },
+    { label: 'AG Import-Test', icon: PackageCheck, route: '/admin/ag-import' },
   ];
 
-  const managementHasActive = managementNavItems.some(item => currentPath === item.url);
-  const exportHasActive = exportNavItems.some(item => currentPath === item.url);
+  const isActive = (path: string) => currentPath === path;
+  const managementHasActive = managementNav.some(i => isActive(i.route));
+  const exportHasActive = exportNav.some(i => isActive(i.route));
+
+  useEffect(() => {
+    if (managementHasActive) setManagementOpen(true);
+    if (exportHasActive) setExportOpen(true);
+  }, [managementHasActive, exportHasActive]);
+
+  const expressCount = workload?.express ?? 0;
 
   return (
     <aside
       data-sidebar
-      className="hidden md:flex flex-col w-[232px] flex-shrink-0 h-screen sticky top-0 bg-muted/30 px-3 py-5 border-r border-border/70"
+      className="hidden md:flex flex-col justify-between w-64 flex-shrink-0 h-screen sticky top-0 bg-[#F8F9FB] border-r border-slate-200/50 py-8 px-6 overflow-y-auto"
     >
-      <div className="flex flex-col h-full overflow-hidden">
-        {/* Logo + workspace label */}
-        <div className="flex items-center gap-2 mb-2 px-3 h-9">
-          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-[18px] w-auto opacity-90" />
-          <span className="text-[11px] font-medium text-muted-foreground/60 tracking-[-0.005em]">Admin</span>
+      <div className="space-y-8">
+        {/* Logo */}
+        <button
+          onClick={() => navigate('/admin/dashboard')}
+          className="flex items-center gap-2 px-2"
+        >
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-6 w-auto" />
+          <span className="text-[11px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">
+            Admin
+          </span>
+        </button>
+
+        {/* Workspace context card */}
+        <div className="w-full bg-white border border-slate-200/60 rounded-2xl p-3 flex items-center justify-between shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            </div>
+            <div className="min-w-0 text-left">
+              <div className="text-sm font-semibold text-slate-900 truncate">Operations</div>
+              <div className="text-xs text-slate-500 mt-0.5 truncate">Live · alle Vorgänge</div>
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pr-0.5 mt-2">
-          <div className="space-y-0.5">
-            {mainNavItems.map((item) => (
-              <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
+        <nav className="space-y-6">
+          <ul className="space-y-1">
+            {mainNav.map(item => (
+              <li key={item.route}>
+                <NavRow item={item} isActive={isActive(item.route)} onClick={() => navigate(item.route)} />
+              </li>
             ))}
+          </ul>
+
+          <div>
+            <SectionLabel>Steuern</SectionLabel>
+            <ul className="space-y-1">
+              {taxNav.map(item => (
+                <li key={item.route}>
+                  <NavRow item={item} isActive={isActive(item.route)} onClick={() => navigate(item.route)} />
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <NavGroup title="Steuern">
-            {taxNavItems.map((item) => (
-              <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
-            ))}
-          </NavGroup>
+          <div>
+            <SectionLabel>Support</SectionLabel>
+            <ul className="space-y-1">
+              {supportNav.map(item => (
+                <li key={item.route}>
+                  <NavRow item={item} isActive={isActive(item.route)} onClick={() => navigate(item.route)} />
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <NavGroup title="Support">
-            {supportNavItems.map((item) => (
-              <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
-            ))}
-          </NavGroup>
+          <div>
+            <SectionLabel
+              collapsible
+              open={managementOpen}
+              onToggle={() => setManagementOpen(v => !v)}
+            >
+              Verwaltung
+            </SectionLabel>
+            {managementOpen && (
+              <ul className="space-y-1">
+                {managementNav.map(item => (
+                  <li key={item.route}>
+                    <NavRow item={item} isActive={isActive(item.route)} onClick={() => navigate(item.route)} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
-          <NavGroup title="Verwaltung" collapsible defaultOpen={false} hasActive={managementHasActive}>
-            {managementNavItems.map((item) => (
-              <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
-            ))}
-          </NavGroup>
-
-          <NavGroup title="Export" collapsible defaultOpen={exportHasActive} hasActive={exportHasActive}>
-            {exportNavItems.map((item) => (
-              <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
-            ))}
-          </NavGroup>
+          <div>
+            <SectionLabel
+              collapsible
+              open={exportOpen}
+              onToggle={() => setExportOpen(v => !v)}
+            >
+              Export
+            </SectionLabel>
+            {exportOpen && (
+              <ul className="space-y-1">
+                {exportNav.map(item => (
+                  <li key={item.route}>
+                    <NavRow item={item} isActive={isActive(item.route)} onClick={() => navigate(item.route)} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </nav>
       </div>
 
-      {/* User Profile */}
-      <div className="pt-3 mt-2 border-t border-border/70">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="w-full outline-none">
-            <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-foreground/[0.04] transition-colors cursor-pointer">
-              <Avatar className="h-7 w-7">
-                {adminAvatarUrl ? (
-                  <AvatarImage src={adminAvatarUrl} alt={adminName} />
-                ) : (
-                  <AvatarFallback className="bg-foreground/[0.06] text-foreground/60 text-[10px] font-medium">
-                    {getInitials(adminName)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="text-[12px] font-medium text-foreground/80 truncate">
+      <div className="space-y-4 pt-6">
+        {/* Hero card — happy customers */}
+        <button
+          onClick={() => navigate('/admin/tax-processing?filter=express')}
+          className="group relative w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/70 transition-all text-left"
+        >
+          <div className="relative h-20 overflow-hidden">
+            <img
+              src={adminHeroCouple}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-[center_30%] group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#0F1B3D]/85 via-[#1E3A5F]/55 to-transparent" />
+            <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#0F1B3D] shadow-sm">
+              <Zap className="w-3 h-3" strokeWidth={2} />
+              {expressCount > 0 ? `${expressCount} Express` : 'Live'}
+            </div>
+          </div>
+          <div className="px-4 py-3">
+            <div className="text-sm font-semibold text-slate-900 leading-tight">
+              {expressCount > 0 ? 'Express-Fälle bearbeiten' : 'Glückliche Kunden'}
+            </div>
+            <div className="text-xs text-slate-500 mt-0.5">
+              {expressCount > 0 ? '48h SLA · höchste Priorität' : 'Alles erledigt — gut gemacht'}
+            </div>
+          </div>
+        </button>
+
+        {/* User profile */}
+        <div>
+          <button
+            onClick={() => setUserMenuOpen(v => !v)}
+            className={cn(
+              'w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl transition-colors group',
+              userMenuOpen
+                ? 'bg-white border border-slate-200/70 shadow-[0_2px_8px_-4px_rgba(15,27,61,0.08)]'
+                : 'hover:bg-slate-100/60'
+            )}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              {adminAvatarUrl ? (
+                <img
+                  src={adminAvatarUrl}
+                  alt={adminName}
+                  className="w-9 h-9 rounded-full object-cover border border-slate-200 flex-shrink-0"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-sm font-semibold text-slate-700 flex-shrink-0">
+                  {getInitials(adminName)}
+                </div>
+              )}
+              <div className="min-w-0 text-left">
+                <div className="text-sm font-semibold text-slate-900 truncate leading-tight">
                   {adminName}
                 </div>
-                <div className="text-[10px] text-muted-foreground/60 truncate">
+                <div className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">
                   {adminEmail}
                 </div>
               </div>
-              <ChevronRight className="h-3 w-3 text-muted-foreground/30 flex-shrink-0" />
             </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="end" className="w-52 mb-2">
-            <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer text-[13px]">
-              <UserIcon className="mr-2 h-4 w-4" />
-              <span>Profil</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/privacy-settings')} className="cursor-pointer text-[13px]">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Einstellungen</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer focus:text-destructive text-[13px]">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Abmelden</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <ChevronUp
+              className={cn(
+                'w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform flex-shrink-0',
+                userMenuOpen && 'rotate-180'
+              )}
+              strokeWidth={1.75}
+            />
+          </button>
+
+          {userMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15 }}
+              className="mt-2 rounded-xl border border-slate-200/70 bg-white shadow-[0_4px_16px_-6px_rgba(15,27,61,0.08)] overflow-hidden"
+            >
+              <button
+                onClick={() => navigate('/profile')}
+                className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <UserIcon className="w-4 h-4 text-slate-500 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate">Profil</span>
+              </button>
+              <button
+                onClick={() => navigate('/privacy-settings')}
+                className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-100"
+              >
+                <Settings className="w-4 h-4 text-slate-500 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate">Einstellungen</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 h-10 text-[13px] font-medium text-rose-600 hover:bg-rose-50 transition-colors border-t border-slate-100"
+              >
+                <LogOut className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate">Abmelden</span>
+              </button>
+            </motion.div>
+          )}
+        </div>
       </div>
     </aside>
   );
