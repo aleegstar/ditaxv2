@@ -386,23 +386,24 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
                   </div>
                 )}
 
-                <div className="flex justify-end gap-3 pt-2">
-                  <Button 
-                    variant="outline" 
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button
+                    variant="outline"
                     onClick={() => setUploadDialogOpen(false)}
-                    className="rounded-full"
+                    className="h-10 rounded-2xl"
                   >
                     Abbrechen
                   </Button>
-                  <Button 
-                    onClick={handleUpload} 
+                  <Button
+                    onClick={handleUpload}
                     disabled={uploadLoading || !selectedFile || !selectedTaxYear || (!isAdmin && selectedTaxYear && !canUserUpload(selectedTaxYear))}
-                    className="rounded-full bg-[#1d64ff] hover:bg-[#1d64ff]/90"
+                    className="h-10 px-5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white font-semibold hover:opacity-95 transition-opacity"
                   >
                     {uploadLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     Hochladen
                   </Button>
                 </div>
+
               </div>
             </DialogContent>
           </Dialog>
