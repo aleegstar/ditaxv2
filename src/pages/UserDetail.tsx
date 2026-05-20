@@ -21,6 +21,7 @@ import AgEtaxExportButton from '@/components/user-detail/AgEtaxExportButton';
 import { TaxReturnStatusChanger } from '@/components/user-detail/TaxReturnStatusChanger';
 import { defaultFormData } from '@/contexts/form/defaults';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import adminUserHero from '@/assets/admin-user-hero.jpg';
 
 // Local interface for the raw database user
 interface DatabaseUser {
@@ -578,87 +579,95 @@ const UserDetail: React.FC = () => {
   const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
 
   return (
-    <div className="md:flex md:h-screen md:w-full md:bg-white md:overflow-hidden">
+    <div className="md:flex md:h-screen md:w-full md:bg-background md:overflow-hidden">
       <AdminSidebar />
 
       <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
         <main className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60 p-4 lg:p-6">
-        {/* User Profile Header Card */}
-        <div className="rounded-2xl p-6 mb-4 relative overflow-hidden bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm">
-          <div className="relative z-10">
-            {/* Top Row: Back + Actions */}
-            <div className="flex items-center justify-between mb-5">
-              <Link 
-                to="/admin" 
-                className="w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm border border-white/60 flex items-center justify-center hover:bg-white/80 transition-colors"
+        {/* User Profile Header Card — clean fintech style */}
+        <div className="rounded-2xl mb-4 bg-card border border-border shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+          {/* Hero band with couple image */}
+          <div className="relative h-28 sm:h-32 w-full overflow-hidden">
+            <img
+              src={adminUserHero}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+            <div className="absolute top-3 left-3">
+              <Link
+                to="/admin"
+                className="w-9 h-9 rounded-full bg-card/90 backdrop-blur border border-border flex items-center justify-center hover:bg-card transition-colors shadow-sm"
               >
-                <ArrowLeft className="h-4 w-4 text-slate-600" />
+                <ArrowLeft className="h-4 w-4 text-foreground" />
               </Link>
-              
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => setMissingItemDialogOpen(true)}
-                  className="h-9 rounded-full px-4 font-medium gap-1.5 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-[1.04] text-white text-xs shadow-sm border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                >
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  Unterlagen anfordern
-                </Button>
-                <div className="flex items-center gap-0.5 border-l border-black/10 pl-2 ml-1">
-                  <FormDataPdfDownloader 
-                    userId={user.id} 
-                    taxYear={selectedYear}
-                    userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()} 
-                    userEmail={user.email || undefined}
-                  />
-                  <DocumentsPdfDownloader 
-                    userId={user.id} 
-                    taxYear={selectedYear}
-                    userName={`${user.first_name} ${user.last_name}`}
-                    documentCount={documents.filter(d => d.tax_year === selectedYear).length}
-                  />
-                  <CoverLetterDownloader
-                    userId={user.id}
-                    userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
-                  />
-                  <AgEtaxExportButton
-                    userId={user.id}
-                    taxFilerId={selectedTaxFilerId}
-                    taxYear={selectedYear}
-                    userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
-                  />
-                </div>
-              </div>
             </div>
-            
+          </div>
+
+          <div className="px-6 pb-6 -mt-8 relative">
             {/* User Identity */}
-            <div className="flex items-center gap-4 mb-5">
-              <div className="w-14 h-14 rounded-2xl bg-white/50 backdrop-blur-sm border border-white/60 flex items-center justify-center">
-                <span className="text-lg font-bold text-slate-700">
+            <div className="flex items-end gap-4 mb-5">
+              <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center shrink-0">
+                <span className="text-lg font-bold text-foreground">
                   {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
                   {user.last_name?.charAt(0)?.toUpperCase() || ''}
                 </span>
               </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-black tracking-tight">
+              <div className="min-w-0 flex-1 pb-1">
+                <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
                   {user.first_name} {user.last_name}
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground truncate">
                   {user.email || 'Keine E-Mail'}
                 </p>
               </div>
               {transformedUser.formData?.contactInfo?.adressnummer && (
-                <span className="text-[10px] font-mono text-gray-500 bg-white/40 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/50 ml-auto">
+                <span className="hidden sm:inline-flex text-[10px] font-mono text-muted-foreground bg-muted px-2 py-1 rounded-lg border border-border">
                   ID: {transformedUser.formData.contactInfo.adressnummer}
                 </span>
               )}
             </div>
-            
+
+            {/* Actions Row */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <Button
+                onClick={() => setMissingItemDialogOpen(true)}
+                className="gap-1.5"
+              >
+                <AlertCircle className="h-4 w-4" />
+                Unterlagen anfordern
+              </Button>
+              <div className="flex items-center gap-0.5 ml-auto pl-2 border-l border-border">
+                <FormDataPdfDownloader
+                  userId={user.id}
+                  taxYear={selectedYear}
+                  userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
+                  userEmail={user.email || undefined}
+                />
+                <DocumentsPdfDownloader
+                  userId={user.id}
+                  taxYear={selectedYear}
+                  userName={`${user.first_name} ${user.last_name}`}
+                  documentCount={documents.filter(d => d.tax_year === selectedYear).length}
+                />
+                <CoverLetterDownloader
+                  userId={user.id}
+                  userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
+                />
+                <AgEtaxExportButton
+                  userId={user.id}
+                  taxFilerId={selectedTaxFilerId}
+                  taxYear={selectedYear}
+                  userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
+                />
+              </div>
+            </div>
+
             {/* Status Row */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* Tax Filer Selector */}
               {taxFilers.length > 1 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/60 text-gray-600">
-                  <Users className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted border border-border text-foreground">
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
                   <select
                     value={selectedTaxFilerId || ''}
                     onChange={(e) => setSelectedTaxFilerId(e.target.value)}
@@ -673,10 +682,9 @@ const UserDetail: React.FC = () => {
                   </select>
                 </div>
               )}
-              
-              {/* Year Selector */}
-              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/60 text-gray-600">
-                <Calendar className="h-3.5 w-3.5" />
+
+              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted border border-border text-foreground">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                 <select
                   value={selectedYear}
                   onChange={(e) => handleYearChange(e.target.value)}
@@ -692,18 +700,16 @@ const UserDetail: React.FC = () => {
                   ))}
                 </select>
               </div>
-              
-              {/* Status Chip */}
+
               <TaxReturnStatusChanger
                 userId={user.id}
                 taxYear={selectedYear}
                 currentStatus={currentStatus || null}
                 onStatusChanged={fetchUserData}
               />
-              
-              {/* Missing Items Warning */}
+
               {pendingMissingItemsCount > 0 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50/80 backdrop-blur-sm border border-amber-200/60 text-amber-700">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
                   <AlertCircle className="h-3.5 w-3.5" />
                   <span className="text-xs font-medium">
                     {pendingMissingItemsCount} offen
@@ -715,7 +721,7 @@ const UserDetail: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white/60 backdrop-blur-xl rounded-[20px] shadow-sm p-4" style={{ border: '1px solid rgba(255, 255, 255, 0.6)' }}>
+        <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4">
           <UserTabs
             user={transformedUser}
             taxReturns={taxReturns}
