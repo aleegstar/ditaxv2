@@ -583,20 +583,20 @@ const UserDetail: React.FC = () => {
       <AdminSidebar />
 
       <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
-        <main className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60 p-4 lg:p-6">
-        {/* User Profile Header — clean, structured fintech style */}
-        <div className="rounded-2xl mb-4 bg-card border border-border shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <main className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto p-4 lg:p-6">
+        {/* User Profile Header — clean, minimal fintech style */}
+        <div className="rounded-2xl mb-4 bg-card">
           {/* Top row: back + identity + status pills */}
-          <div className="flex items-start gap-4 px-5 sm:px-6 py-5 border-b border-border">
+          <div className="flex items-start gap-4 px-5 sm:px-6 py-5">
             <Link
               to="/admin"
-              className="w-9 h-9 rounded-full bg-muted/60 border border-border flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+              className="w-9 h-9 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
               aria-label="Zurück"
             >
               <ArrowLeft className="h-4 w-4 text-foreground" />
             </Link>
 
-            <div className="w-12 h-12 rounded-xl bg-muted/60 border border-border flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-muted/60 flex items-center justify-center shrink-0">
               <span className="text-base font-semibold text-foreground">
                 {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
                 {user.last_name?.charAt(0)?.toUpperCase() || ''}
@@ -609,7 +609,7 @@ const UserDetail: React.FC = () => {
                   {user.first_name} {user.last_name}
                 </h1>
                 {transformedUser.formData?.contactInfo?.adressnummer && (
-                  <span className="hidden sm:inline-flex text-[10px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-md border border-border">
+                  <span className="hidden sm:inline-flex text-[10px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
                     ID: {transformedUser.formData.contactInfo.adressnummer}
                   </span>
                 )}
@@ -631,10 +631,10 @@ const UserDetail: React.FC = () => {
           </div>
 
           {/* Toolbar row: filter pills (left) + actions (right) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-6 py-3 bg-muted/30">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-6 pb-4">
             <div className="flex items-center gap-2 flex-wrap">
               {taxFilers.length > 1 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-card border border-border text-foreground">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted/60 text-foreground">
                   <Users className="h-3.5 w-3.5 text-muted-foreground" />
                   <select
                     value={selectedTaxFilerId || ''}
@@ -651,7 +651,7 @@ const UserDetail: React.FC = () => {
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-card border border-border text-foreground">
+              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted/60 text-foreground">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                 <select
                   value={selectedYear}
@@ -670,7 +670,7 @@ const UserDetail: React.FC = () => {
               </div>
 
               {pendingMissingItemsCount > 0 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 text-amber-700">
                   <AlertCircle className="h-3.5 w-3.5" />
                   <span className="text-xs font-medium">
                     {pendingMissingItemsCount} offen
@@ -689,7 +689,7 @@ const UserDetail: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-0.5 rounded-full bg-card border border-border px-1 h-9">
+              <div className="flex items-center gap-0.5 rounded-full bg-muted/60 px-1 h-9">
                 <FormDataPdfDownloader
                   userId={user.id}
                   taxYear={selectedYear}
@@ -727,7 +727,7 @@ const UserDetail: React.FC = () => {
 
 
         {/* Main Content */}
-        <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4">
+        <div className="bg-card rounded-2xl p-4">
           <UserTabs
             user={transformedUser}
             taxReturns={taxReturns}
