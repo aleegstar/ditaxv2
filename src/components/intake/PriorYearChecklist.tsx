@@ -238,7 +238,7 @@ const CompactCategoryCard: React.FC<{
   const rest = items.length - visible.length;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 flex flex-col shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+    <div className="rounded-2xl border border-border bg-card p-4 flex flex-col shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] overflow-hidden">
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="text-[14px] font-semibold text-foreground tracking-tight">
           {CATEGORY_LABEL[category]}
