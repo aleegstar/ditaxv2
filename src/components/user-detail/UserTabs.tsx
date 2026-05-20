@@ -305,23 +305,23 @@ const UserTabs: React.FC<UserTabsProps> = ({
             )}
               </TabsContent>
 
-              <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-4">
             <PriorYearReturnCard taxFilerId={selectedTaxFilerId} taxYear={selectedYear} />
-            <Card className="border-white/40 shadow-none bg-transparent">
-              <CardHeader className="pb-3 px-0 pt-0">
-                <CardTitle className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">
+            <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+              <div className="mb-5">
+                <h2 className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Vom Mandanten eingereichte Unterlagen für {selectedYear}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
+                </p>
+              </div>
+              <div>
                 {documentsForSelectedYear.length === 0 ? (
                   <div className="text-center py-10">
-                    <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FolderOpen className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                      <FolderOpen className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                     </div>
-                    <p className="text-sm font-medium text-muted-foreground">Keine Dokumente hochgeladen</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
+                    <p className="text-sm font-medium text-foreground">Keine Dokumente hochgeladen</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Für das Steuerjahr {selectedYear} wurden noch keine Unterlagen eingereicht
                     </p>
                   </div>
