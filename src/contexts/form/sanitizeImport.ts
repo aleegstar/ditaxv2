@@ -115,5 +115,11 @@ export const sanitizeImportedData = (
     }
   }
 
+  // Legacy migration: hasDepositAccount → accountCount (1 if true, 0 otherwise)
+  if (section === 'assets' && 'hasDepositAccount' in result && result.accountCount === undefined) {
+    result.accountCount = result.hasDepositAccount ? 1 : 0;
+    delete result.hasDepositAccount;
+  }
+
   return result;
 };
