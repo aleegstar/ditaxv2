@@ -443,32 +443,34 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
 
               <TabsContent value="tax-returns" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
-            {/* Year Selector */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 border border-border">
-                  <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
-                  <Select value={selectedYear} onValueChange={handleYearChange}>
-                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto min-w-[60px] focus:ring-0 shadow-none">
-                      <SelectValue placeholder="Jahr" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      {availableYears.map(year => (
-                        <SelectItem key={year} value={year}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {(getYearDataStatus.hasTaxReturn || getYearDataStatus.hasCompletedReturn) && (
-                  <span className="flex items-center gap-1.5 text-sm text-emerald-600">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                    Daten verfügbar
-                  </span>
-                )}
+            {/* Year Selector — segmented pill matching main app */}
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="inline-flex items-center gap-1 p-1 rounded-full bg-foreground/[0.045] overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {availableYears.slice(0, 6).map(year => {
+                  const active = String(selectedYear) === String(year);
+                  return (
+                    <button
+                      key={year}
+                      onClick={() => handleYearChange(year)}
+                      className={`shrink-0 px-4 h-8 rounded-full text-xs font-medium tabular-nums transition-all duration-200 active:scale-[0.97] ${
+                        active
+                          ? 'bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white font-semibold shadow-[0_1px_2px_rgba(15,27,61,0.15)]'
+                          : 'text-muted-foreground/70 hover:text-foreground/85'
+                      }`}
+                    >
+                      {year}
+                    </button>
+                  );
+                })}
               </div>
+              {(getYearDataStatus.hasTaxReturn || getYearDataStatus.hasCompletedReturn) && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Daten verfügbar
+                </span>
+              )}
             </div>
+
 
             {/* In Processing Section - filtered by year AND tax_filer_id */}
             {taxReturns.filter(taxReturn => {
