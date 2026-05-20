@@ -63,21 +63,16 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const [aiEnabled, setAiEnabled] = useState(false);
   const [consentDialogOpen, setConsentDialogOpen] = useState(false);
 
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(CONSENT_KEY)) setAiEnabled(true);
-    } catch {}
-  }, []);
+  // KEIN Auto-Aktivieren aus localStorage: die KI-Analyse muss bei jedem
+  // Upload bewusst eingeschaltet und (beim ersten Mal) bestätigt werden.
 
   const handleToggleAi = (checked: boolean) => {
     if (!checked) {
       setAiEnabled(false);
       return;
     }
-    if (localStorage.getItem(CONSENT_KEY)) {
-      setAiEnabled(true);
-      return;
-    }
+    // Immer Bestätigungsdialog zeigen – nie still aus gespeichertem Consent
+    // aktivieren. Der User muss aktiv zustimmen.
     setConsentDialogOpen(true);
   };
 
