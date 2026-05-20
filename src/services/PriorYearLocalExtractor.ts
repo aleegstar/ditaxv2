@@ -20,11 +20,17 @@ import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 (pdfjsLib as any).GlobalWorkerOptions.workerPort = new PdfWorker();
 
 export type ExtractedItem = { label: string };
+export type ExtractedAccount = {
+  institution: string;
+  reference: string;
+};
 export type ExtractedScan = {
   contact: ExtractedItem[]; // always empty – kept for back-compat
   income: ExtractedItem[];
   assets: ExtractedItem[];
   deductions: ExtractedItem[];
+  /** Per-account list parsed from Wertschriften pages (Rubrik A + B), deduped. */
+  accounts?: ExtractedAccount[];
 };
 
 type Cell = { x: number; y: number; str: string };
