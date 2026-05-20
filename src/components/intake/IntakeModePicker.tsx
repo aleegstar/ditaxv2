@@ -20,7 +20,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
   const priorDesc = hasInternalPriorYear
     ? `Wir kennen deine Steuererklärung ${prev} schon. Du musst nur noch bestätigen, was sich geändert hat – kein Upload nötig.`
     : "Lade deine letzte Steuererklärung hoch. Wir erstellen daraus eine persönliche Checkliste – du bestätigst nur Änderungen.";
-  const priorBadge = hasInternalPriorYear ? "In Sekunden" : "In Minuten";
+  // priorBadge no longer used – recommended card always shows "Empfohlen"
   const priorCta = hasInternalPriorYear ? "Daten übernehmen" : "Vorjahr hochladen";
 
   return (
