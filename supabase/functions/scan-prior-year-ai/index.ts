@@ -12,7 +12,10 @@ const corsHeaders = {
 };
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-2.5-flash";
+// Pro-Variante für die Vision-Extraktion: deutlich zuverlässiger beim Lesen
+// von Aargauer Wertschriftenverzeichnis-Tabellen (IBAN, Depot-Nr., Institution)
+// als Flash. Wir akzeptieren die höhere Latenz für korrekte Konten.
+const MODEL = "google/gemini-2.5-pro";
 
 type Item = { label: string };
 type Account = { institution?: string; reference?: string };
