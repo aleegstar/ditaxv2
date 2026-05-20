@@ -98,8 +98,7 @@ type CodeRule = { label: string; codes: number[] };
 const INCOME_CODES: CodeRule[] = [
   { label: "Lohnausweis", codes: [100, 101, 102, 103] },
   { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
-  { label: "Rentenbescheinigung (AHV/IV)", codes: [130, 131] },
-  { label: "Pensionskassenausweis", codes: [134, 135, 136, 137] },
+  { label: "Rentenbescheinigung (AHV/IV/PK)", codes: [130, 131, 132, 133, 134, 135, 136, 137] },
   { label: "Arbeitslosentaggeld-Abrechnung", codes: [140, 141] },
   { label: "Bestätigung Familien-/Mutterschaftszulagen", codes: [142, 143] },
   { label: "Wertschriften-/Depotverzeichnis", codes: [150, 151] },
@@ -163,8 +162,7 @@ function applyCodeRules(text: string, rules: CodeRule[]): ExtractedItem[] {
 const INCOME_RULES: Rule[] = [
   { label: "Lohnausweis", patterns: [/\blohnausweis\b/i, /\bunselbst[aä]ndige?r?\s+erwerb\b/i, /\bhaupterwerb\b/i, /\bnebenerwerb\b/i] },
   { label: "Nachweis Selbständigerwerb", patterns: [/\bselbst[aä]ndige?r?\s+erwerb\b/i, /\beinzelfirma\b/i, /\bpersonengesellschaft\b/i] },
-  { label: "Rentenbescheinigung (AHV/IV)", patterns: [/\bAHV[- ]?rente\b/i, /\bIV[- ]?rente\b/i, /\baltersrente\b/i, /\bhinterlassenenrente\b/i] },
-  { label: "Pensionskassenausweis", patterns: [/\bpensionskasse\b/i, /\b2\.\s*s[aä]ule\b/i, /\bBVG\b/i] },
+  { label: "Rentenbescheinigung (AHV/IV/PK)", patterns: [/\bAHV[- ]?rente\b/i, /\bIV[- ]?rente\b/i, /\baltersrente\b/i, /\bhinterlassenenrente\b/i, /\bpensionskassenrente\b/i] },
   { label: "Bescheinigung Säule 3a-Bezug", patterns: [/\bs[aä]ule\s*3a\b[^\n]{0,40}\bbezug\b/i, /\bkapitalleistung\b[^\n]{0,40}\b3a\b/i] },
   { label: "Wertschriften-/Depotverzeichnis", patterns: [/\bwertschriftenertrag\b/i, /\bdividenden\b/i, /\bzinsertr[aä]ge\b/i, /\bDA-?1\b/i] },
   { label: "Liegenschaftsertrag-Abrechnung", patterns: [/\beigenmietwert\b/i, /\bmietertrag\b/i, /\bliegenschaftsertrag\b/i] },
@@ -228,11 +226,11 @@ export function extractItemsFromText(text: string): ExtractedScan {
   const assetsByCode = applyCodeRules(text, ASSET_CODES);
   const deductionsByCode = applyCodeRules(text, DEDUCTION_CODES);
 
-  // Wenn genügend Codes erkannt wurden, verlassen wir uns ausschliesslich
-  // auf diese — die Keyword-Heuristik wird nicht mehr ergänzend genutzt,
-  // weil das zu False Positives führt (z. B. "Lohnausweis" als Beispieltext).
+  // Strikter Modus: Sobald auch nur EINE SSK-Ziffer im Dokument erkannt wurde,
+  // verlassen wir uns ausschliesslich auf die Codes. Keyword-Heuristik wird
+  // nur dann zugeschaltet, wenn gar keine Ziffern gefunden wurden.
   const codeHits = incomeByCode.length + assetsByCode.length + deductionsByCode.length;
-  if (codeHits >= 2) {
+  if (codeHits >= 1) {
     return {
       contact: [],
       income: incomeByCode,
