@@ -317,6 +317,30 @@ Keine Werte, keine Beträge, keine Adressen, keine Erklärungen.`;
         });
       }
     }
+
+    // Append one assets row per extracted bank/depot account, deduped by
+    // normalized reference. Bypass ALLOWED_LABELS — these use a stable
+    // "Beleg Bankkonto/Depot – {institution} · {reference}" format that
+    // priorYearMapping.ts parses back into formData.assets.accounts.
+    const seenRef = new Set<string>();
+    for (const acc of scan.accounts ?? []) {
+      const institutionRaw = String(acc?.institution ?? "").trim();
+      const referenceRaw = String(acc?.reference ?? "").trim();
+      if (!institutionRaw && !referenceRaw) continue;
+      const normRef = referenceRaw.replace(/\s+/g, "").toUpperCase();
+      const key = normRef || institutionRaw.toUpperCase();
+      if (!key || seenRef.has(key)) continue;
+      seenRef.add(key);
+      const institution = institutionRaw || "Bank/Depot";
+      const label = `Beleg Bankkonto/Depot – ${[institution, referenceRaw].filter(Boolean).join(" · ")}`;
+      rows.push({
+        checklist_id: checklist.id,
+        category: "assets",
+        label,
+        source_value: null,
+        sort_order: order++,
+      });
+    }
     if (rows.length > 0) {
       const { error: insErr } = await admin.from("prior_year_checklist_items").insert(rows);
       if (insErr) throw new Error(insErr.message);
