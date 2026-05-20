@@ -131,7 +131,7 @@ export const UserSidebar: React.FC = () => {
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt={filerName} className="w-full h-full object-cover" />
               ) : (
-                <img src="/ditax-logo-new.svg" alt="Ditax" className="w-6 h-6 object-contain" />
+                <img src="/ditax-symbol.svg" alt="Ditax" className="w-6 h-6 object-contain" />
               )}
             </div>
             <div className="min-w-0 text-left">
