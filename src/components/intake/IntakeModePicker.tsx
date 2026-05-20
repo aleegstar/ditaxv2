@@ -34,7 +34,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
         </p>
       </div>
 
-      <div className="flex flex-col gap-5 max-w-xl mx-auto w-full" data-tour="intake-mode-picker">
+      <div className="flex flex-col gap-5 w-full" data-tour="intake-mode-picker">
         <div data-tour="intake-upload-card">
         <ModeCard
           recommended
