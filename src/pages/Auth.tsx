@@ -645,24 +645,34 @@ const Auth = () => {
                    </div>
                   </div>
 
-                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }} className="px-7 py-12 sm:px-9 sm:py-11">
+                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
 
-                  {/* Logo */}
-                  <div className="flex items-center justify-center gap-3 mb-10">
-                    <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-8 object-contain" />
+                  {/* Hero image */}
+                  <div className="relative w-full h-64 sm:h-44 overflow-hidden">
+                    <img
+                      src={authHero}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-white" />
                   </div>
 
-                  {/* Header */}
-                  <div className="text-center mb-8 space-y-2">
-                    <h1 className="text-[24px] font-bold tracking-[-0.03em] text-foreground">
+                  <div className="px-7 pt-6 pb-12 sm:px-9 sm:pt-2 sm:pb-11">
+                  {/* Logo */}
+                  <div className="flex flex-col items-center text-center mb-8">
+                    <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-6 object-contain mb-7" />
+                    <h1 className="font-semibold tracking-[-0.022em] text-foreground mb-2 text-[22px] leading-[1.2]">
                       {t.authFlow.enterCode}
                     </h1>
-                    <p className="text-[13px] text-muted-foreground/60 font-light max-w-[85%] mx-auto leading-relaxed">
+                    <p className="text-[13.5px] tracking-tight text-muted-foreground/70 font-normal max-w-[85%] leading-relaxed">
                       {t.authFlow.codeSentTo}{' '}
                       <span className="text-foreground font-medium">{email}</span>{' '}
                       {t.authFlow.codeSentToSuffix}
                     </p>
                   </div>
+
 
                   {/* OTP Form */}
                   <div className="space-y-5">
@@ -710,6 +720,7 @@ const Auth = () => {
                       <ChevronLeft className="w-3.5 h-3.5" />
                       {t.authFlow.backToLogin}
                     </button>
+                  </div>
                   </div>
 
                 </motion.div>}
