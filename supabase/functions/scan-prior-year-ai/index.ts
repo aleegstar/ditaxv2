@@ -15,7 +15,8 @@ const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-2.5-flash";
 
 type Item = { label: string };
-type Scan = { income?: Item[]; assets?: Item[]; deductions?: Item[] };
+type Account = { institution?: string; reference?: string };
+type Scan = { income?: Item[]; assets?: Item[]; deductions?: Item[]; accounts?: Account[] };
 
 // Whitelist of labels we accept back from the model. Anything else is dropped.
 const ALLOWED_LABELS = new Set<string>([
