@@ -4,9 +4,11 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, User, CheckCircle, FileText, Zap, Search, X, RefreshCw } from 'lucide-react';
+import { Calendar, User, CheckCircle, FileText, Zap, Search, X, RefreshCw, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import heroImage from '@/assets/admin-processing-hero.jpg';
 
 interface PaidTaxReturn {
   id: string;
@@ -389,32 +391,61 @@ const TaxReturnCreation: React.FC = () => {
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || expressFilter;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[20px] font-semibold text-foreground tracking-tight">Steuererklärungen</h1>
-          <p className="text-[13px] text-muted-foreground mt-0.5">
-            {paidTaxReturns.length} bezahlte Aufträge zur Bearbeitung
-          </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6">
+      {/* Hero Card */}
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-[0_8px_30px_-12px_rgba(15,27,61,0.12)]">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr]">
+          <div className="p-6 sm:p-8 flex flex-col justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground bg-muted px-2.5 py-1 rounded-full border border-border mb-4">
+                <Sparkles className="h-3 w-3" strokeWidth={2} />
+                Bearbeitung
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+                Steuererklärungen
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-md">
+                {paidTaxReturns.length} bezahlte Aufträge zur Bearbeitung warten auf dich.
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">{paidTaxReturns.length}</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">Gesamt</div>
+              </div>
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">{paidTaxReturns.filter(t => t.status === 'pending').length}</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">Bereit</div>
+              </div>
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">{paidTaxReturns.filter(t => t.express_service).length}</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                  <Zap className="h-2.5 w-2.5 text-amber-500" strokeWidth={2} />
+                  Express
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-44 md:h-auto">
+            <img
+              src={heroImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-card via-card/40 to-transparent md:bg-gradient-to-r md:from-card md:via-card/20 md:to-transparent" />
+          </div>
         </div>
-        <button
-          onClick={fetchPaidTaxReturns}
-          className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-muted-foreground hover:text-foreground hover:bg-white/80 transition-colors"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-        </button>
       </div>
 
-      {/* Search & Filters */}
-      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+      {/* Search + Filters */}
+      <div className="bg-card border border-border rounded-2xl p-3 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <div className="relative flex-1 w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" strokeWidth={1.8} />
           <Input
-            placeholder="Suchen..."
+            placeholder="Suchen…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9 rounded-xl bg-background border-border/60 text-sm"
+            className="pl-9 h-10 rounded-xl bg-background border-border text-sm"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -422,37 +453,47 @@ const TaxReturnCreation: React.FC = () => {
             </button>
           )}
         </div>
-        <div className="flex gap-1 bg-muted/40 rounded-xl p-0.5">
+        <div className="inline-flex items-center gap-1 p-1 rounded-full bg-foreground/[0.045]">
           {[
             { key: 'all' as const, label: 'Alle' },
             { key: 'pending' as const, label: 'Bereit' },
             { key: 'processing' as const, label: 'In Bearbeitung' },
-          ].map(f => (
-            <button
-              key={f.key}
-              onClick={() => setStatusFilter(f.key)}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                statusFilter === f.key
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+          ].map(f => {
+            const active = statusFilter === f.key;
+            return (
+              <button
+                key={f.key}
+                onClick={() => setStatusFilter(f.key)}
+                className={cn(
+                  'shrink-0 px-4 h-8 rounded-full text-xs transition-all duration-200 active:scale-[0.97]',
+                  active
+                    ? 'bg-white text-foreground font-semibold shadow-[0_1px_2px_rgba(15,27,61,0.06),0_4px_10px_-3px_rgba(15,27,61,0.1)]'
+                    : 'text-muted-foreground/65 font-medium hover:text-foreground/85'
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
         <button
           onClick={() => setExpressFilter(!expressFilter)}
           className={cn(
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
+            'inline-flex items-center gap-1.5 px-3.5 h-8 rounded-full text-xs font-medium transition-all border',
             expressFilter
-              ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
-              : "border-border/60 text-muted-foreground hover:text-foreground"
+              ? 'border-amber-300 bg-amber-50 text-amber-700'
+              : 'border-border bg-card text-muted-foreground hover:text-foreground'
           )}
         >
-          <Zap className="h-3 w-3" />
+          <Zap className="h-3 w-3" strokeWidth={2} />
           Express
+        </button>
+        <button
+          onClick={fetchPaidTaxReturns}
+          className="sm:ml-auto inline-flex items-center justify-center h-9 w-9 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label="Aktualisieren"
+        >
+          <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} />
         </button>
       </div>
 
@@ -467,16 +508,20 @@ const TaxReturnCreation: React.FC = () => {
 
       {/* Content */}
       {paidTaxReturns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+        <div className="bg-card border border-border rounded-2xl flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <FileText className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+          </div>
           <p className="text-sm font-medium text-foreground mb-1">Keine Aufträge</p>
           <p className="text-xs text-muted-foreground">
             Es gibt derzeit keine bezahlten Steuererklärungen zur Bearbeitung.
           </p>
         </div>
       ) : filteredTaxReturns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Search className="h-10 w-10 text-muted-foreground/30 mb-3" />
+        <div className="bg-card border border-border rounded-2xl flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <Search className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+          </div>
           <p className="text-sm font-medium text-foreground mb-1">Keine Ergebnisse</p>
           <p className="text-xs text-muted-foreground">
             Versuche einen anderen Suchbegriff oder setze die Filter zurück.
@@ -490,21 +535,27 @@ const TaxReturnCreation: React.FC = () => {
               to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`}
               className="group block"
             >
-              <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm hover:bg-white/80 transition-all duration-150">
+              <div className="relative bg-card border border-border rounded-2xl p-5 hover:border-foreground/20 hover:shadow-[0_8px_24px_-8px_rgba(15,27,61,0.12)] transition-all duration-200">
+                {taxReturn.express_service && (
+                  <div className="absolute -top-2 -right-2 inline-flex items-center gap-1 text-[10px] font-semibold bg-gradient-to-b from-amber-400 to-amber-500 text-white px-2 py-0.5 rounded-full shadow-sm">
+                    <Zap className="h-2.5 w-2.5" strokeWidth={2.5} />
+                    EXPRESS
+                  </div>
+                )}
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-base font-semibold text-foreground tracking-tight">
+                    <h3 className="text-lg font-semibold text-foreground tracking-tight tabular-nums">
                       {taxReturn.tax_year}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-foreground/80 mt-0.5 font-medium">
                       {taxReturn.tax_filer_name}
                     </p>
                   </div>
                   <span className={cn(
-                    "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                    'text-[11px] font-medium px-2.5 py-1 rounded-full border',
                     taxReturn.status === 'processing'
-                      ? "bg-foreground/[0.06] text-foreground"
-                      : "bg-muted text-muted-foreground"
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
                   )}>
                     {getStatusText(taxReturn.status)}
                   </span>
@@ -512,23 +563,17 @@ const TaxReturnCreation: React.FC = () => {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <User className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <User className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.8} />
                     <span className="truncate">{taxReturn.user_email}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.8} />
                     <span>Bezahlt am {new Date(taxReturn.payment_date).toLocaleDateString('de-CH')}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500/70" />
+                  <div className="flex items-center gap-2 text-xs text-emerald-700">
+                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500" strokeWidth={1.8} />
                     <span>Zahlung bestätigt</span>
                   </div>
-                  {taxReturn.express_service && (
-                    <div className="flex items-center gap-2 text-xs text-foreground/70">
-                      <Zap className="h-3.5 w-3.5 text-amber-500" />
-                      <span className="font-medium">Express</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </Link>
@@ -565,19 +610,12 @@ const TaxReturnCreation: React.FC = () => {
             )}
           </div>
           <DialogFooter>
-            <button
-              onClick={() => setUploadDialogOpen(false)}
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
               Abbrechen
-            </button>
-            <button
-              onClick={handleUploadComplete}
-              disabled={uploading || !selectedFile}
-              className="px-4 py-2 text-sm font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full hover:brightness-[1.04] disabled:opacity-50 transition-all"
-            >
-              {uploading ? 'Lädt...' : 'Hochladen'}
-            </button>
+            </Button>
+            <Button onClick={handleUploadComplete} disabled={uploading || !selectedFile}>
+              {uploading ? 'Lädt…' : 'Hochladen'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
