@@ -99,6 +99,7 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, t
         <Button
           onClick={saveAdminNotes}
           disabled={savingNotes || !hasChanges}
+          className="h-10 px-5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-semibold hover:opacity-95 transition-opacity shadow-[0_2px_8px_-2px_rgba(15,27,61,0.25)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {savingNotes ? (
             <>
@@ -107,16 +108,17 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, t
             </>
           ) : saved ? (
             <>
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="h-4 w-4 mr-2" strokeWidth={1.8} />
               Gespeichert
             </>
           ) : (
             <>
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-4 w-4 mr-2" strokeWidth={1.8} />
               Speichern
             </>
           )}
         </Button>
+
       </div>
     </div>
   );
