@@ -177,7 +177,7 @@ const UserTaxReturns = () => {
     if (!userId || !activeTaxFilerId || loading) return;
     const key = `${userId}:${activeTaxFilerId}`;
     if (autoCreateRef.current === key) return;
-    const required = getAvailableTaxYears();
+    const required = getFilingTaxYears();
     const existing = new Set(taxReturns.map((tr: TaxReturn) => tr.tax_year));
     const missing = required.filter(y => !existing.has(y));
     if (missing.length === 0) {
