@@ -89,73 +89,100 @@ export async function ocrPdfLocally(
 type Rule = { label: string; patterns: RegExp[] };
 
 // ---------------------------------------------------------------------------
-// SSK Ziffer-Codes (eCH-0119 / Schweiz. Steuerkonferenz)
-// Diese 3-stelligen Codes sind in JEDEM kantonalen Steuerformular identisch
-// und damit OCR-stabil und kantonsübergreifend zuverlässig.
+// Kantonale Ziffern-Codes (Schwerpunkt Aargau eTax 2025 + SSK-/eCH-0119-Codes
+// anderer Kantone). Die AG-2025-Hauptbogen-Codierung weicht teilweise stark
+// von der SSK-Empfehlung ab — Beispiel: in AG ist 150/160 = Personengesell-
+// schaft, NICHT Wertschriftenertrag (das wäre 241).
 // ---------------------------------------------------------------------------
 type CodeRule = { label: string; codes: number[] };
 
 const INCOME_CODES: CodeRule[] = [
-  // 100–103 = SSK-Beilagencodes Lohnausweis; 10/20 Haupterwerb,
-  // 30/40 Nebenerwerb, 50/60 weitere Vergütungen (Aargau-Hauptbogen,
-  // weitere Kantone mit 2-stelliger Hauptbogen-Codierung)
-  { label: "Lohnausweis", codes: [100, 101, 102, 103, 10, 20, 30, 40, 50, 60] },
-  { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
-  // Renten: 130/131 AHV/IV, 132–137 Pensionskasse, 960–967 Detail-Ziffern
-  // (eCH-0119 §3.8.4 Tabelle 16)
+  // Lohn: AG 010/020 Haupterwerb, 030/040 Nebenerwerb, 050/060 weitere
+  // Vergütungen. SSK 100–103 für andere Kantone.
+  { label: "Lohnausweis",
+    codes: [10, 20, 30, 40, 50, 60, 100, 101, 102, 103] },
+  // Selbständigkeit: AG 070/090, 150/160 (Personengesellschaft P1/P2),
+  // SSK 120–123.
+  { label: "Nachweis Selbständigerwerb",
+    codes: [70, 90, 120, 121, 122, 123, 150, 160] },
+  // Renten: AG 1701/1901 (P1/P2 Renten/Ersatzeinkünfte), SSK 130–137 / 960–967
   { label: "Rentenbescheinigung (AHV/IV/PK)",
-    codes: [130, 131, 132, 133, 134, 135, 136, 137,
+    codes: [1701, 1901, 130, 131, 132, 133, 134, 135, 136, 137,
             960, 961, 962, 963, 964, 965, 966, 967] },
   { label: "Arbeitslosentaggeld-Abrechnung", codes: [140, 141] },
-  { label: "Bestätigung Familien-/Mutterschaftszulagen", codes: [142, 143] },
-  { label: "Wertschriften-/Depotverzeichnis", codes: [150, 151] },
-  { label: "Bestätigung Alimente/Unterhalt", codes: [160, 161] },
-  // 162 Erbschaften/Kooperationsanteile, 163 weitere Einkünfte,
-  // 164 wiederkehrende Kapitalabfindung
-  { label: "Beleg übrige Einkünfte", codes: [162, 163, 164] },
-  { label: "Liegenschaftsertrag-Abrechnung", codes: [180, 181, 183, 186, 188] },
+  // Familienzulagen: AG 671/672, SSK 142/143
+  { label: "Bestätigung Familien-/Mutterschaftszulagen",
+    codes: [142, 143, 671, 672] },
+  // Wertschriftenertrag: AG 241 (Total), SSK 151
+  { label: "Wertschriften-/Depotverzeichnis", codes: [241, 151] },
+  // Alimente erhalten: AG 251/252, SSK 160/161
+  { label: "Bestätigung Alimente/Unterhalt",
+    codes: [160, 161, 251, 252] },
+  // Übrige Einkünfte: AG 253 (Erbschaftsertrag), 254 (Kapitalabfindung),
+  // 255 (übrige Einkünfte), SSK 162–164
+  { label: "Beleg übrige Einkünfte",
+    codes: [162, 163, 164, 253, 254, 255] },
+  // Liegenschaftsertrag: AG 2701/2711/2741/2791, SSK 180–188
+  { label: "Liegenschaftsertrag-Abrechnung",
+    codes: [180, 181, 183, 186, 188, 2701, 2711, 2741, 2791] },
 ];
 
 const ASSET_CODES: CodeRule[] = [
-  // Code 400 = Total Wertschriften+Konten (Wertschriftenverzeichnis-Total)
-  { label: "Depotauszug per 31.12.", codes: [400] },
-  { label: "Bankkontoauszug per 31.12.", codes: [400] },
+  // AG 711 = Wertschriften-Verzeichnis-Total, 713 = Bargeld/VST-Guthaben.
+  // SSK 400 = Total Wertschriften + Konten.
+  { label: "Depotauszug per 31.12.", codes: [400, 711] },
+  { label: "Bankkontoauszug per 31.12.", codes: [400, 713] },
+  // Lebensversicherung: SSK 406
   { label: "Rückkaufswert Lebensversicherung", codes: [406] },
   { label: "Fahrzeugausweis / Eurotax", codes: [412] },
-  // 420–422 Liegenschaften Privatvermögen, 430/431/434 Liegenschaften
-  // im Selbständigen-Geschäftsvermögen (eCH-0119 §3.8.6 Tabelle 18)
-  { label: "Liegenschaftsbeleg", codes: [420, 421, 422, 430, 431, 434] },
+  // Liegenschaft (Vermögen): SSK 420–434, AG 420er-Reihe analog
+  { label: "Liegenschaftsbeleg",
+    codes: [420, 421, 422, 430, 431, 434] },
 ];
 
 const DEDUCTION_CODES: CodeRule[] = [
-  // 201/221 = ÖV-Abo, 220/240 = übrige Berufsauslagen / Verpflegung
-  { label: "Berufsauslagen-Belege", codes: [201, 220, 221, 240] },
-  { label: "Schuldzinsen-Bescheinigung", codes: [250, 470] },
-  { label: "Beleg Unterhaltszahlung", codes: [254, 255, 256] },
-  { label: "Säule 3a-Einzahlungsbestätigung", codes: [260, 261] },
-  { label: "Krankenkassen-Prämienrechnung", codes: [270] },
-  // 281 = Versicherungsprämien-Erweiterung (Spec lst PK-Einkauf nicht
-  // als eigene Ziffer – Einkäufe laufen üblicherweise via Säule-2-Beleg)
-  { label: "PK-Einkauf-Beleg", codes: [281] },
-  { label: "Belege Weiterbildungskosten", codes: [291] },
-  { label: "Beleg Liegenschaftsunterhalt", codes: [184, 185] },
-  { label: "Belege Krankheits-/Unfallkosten", codes: [320] },
-  { label: "Spendenbescheinigung", codes: [324] },
-  { label: "Kinderbetreuungs-Beleg", codes: [376] },
+  // Berufskosten: AG 3201 (P1) / 3401 (P2), SSK 201/220/221/240
+  { label: "Berufsauslagen-Belege",
+    codes: [201, 220, 221, 240, 3201, 3401] },
+  // Schuldzinsen: AG 310, SSK 250/470
+  { label: "Schuldzinsen-Bescheinigung", codes: [250, 310, 470] },
+  // Unterhaltszahlungen (bezahlt): AG 361/362/363, SSK 254–256
+  { label: "Beleg Unterhaltszahlung",
+    codes: [254, 255, 256, 361, 362, 363] },
+  // PK-Einkauf: AG 371/372, SSK 281
+  { label: "PK-Einkauf-Beleg", codes: [281, 371, 372] },
+  // Säule 3a: AG 381/382, SSK 260/261
+  { label: "Säule 3a-Einzahlungsbestätigung",
+    codes: [260, 261, 381, 382] },
+  // Versicherungsprämien (KK + Sparzinsen): AG 383, SSK 270
+  { label: "Krankenkassen-Prämienrechnung", codes: [270, 383] },
+  // Weiterbildung: AG 650/655, SSK 291
+  { label: "Belege Weiterbildungskosten", codes: [291, 650, 655] },
+  // Liegenschaftsunterhalt (Abzug): AG 2811/2821, SSK 184/185
+  { label: "Beleg Liegenschaftsunterhalt",
+    codes: [184, 185, 2811, 2821] },
+  // Krankheits-/Unfallkosten: AG 397, SSK 320
+  { label: "Belege Krankheits-/Unfallkosten", codes: [320, 397] },
+  // Spenden: AG 393, SSK 324
+  { label: "Spendenbescheinigung", codes: [324, 393] },
+  // Parteibeiträge: AG 392
+  { label: "Parteibeitrags-Beleg", codes: [392] },
+  // Kinderbetreuung: AG 390, SSK 376
+  { label: "Kinderbetreuungs-Beleg", codes: [376, 390] },
 ];
 
 
 /**
- * Erkennt, ob eine SSK-Ziffer im Text vorkommt UND mit einem nicht-null
+ * Erkennt, ob eine Ziffer im Text vorkommt UND mit einem nicht-null
  * Betrag ausgefüllt ist. Schweizer Zahlenformate: 1'234.55, 1234, 1 234.
- * Wir verlangen Code + irgendwo innerhalb 40 Zeichen eine Ziffer 1-9.
+ * Innerhalb von 80 Zeichen nach dem Code muss eine Ziffer 1-9 stehen.
  */
 function codeIsFilled(text: string, code: number): boolean {
   const c = String(code);
-  // Kantone wie AG drucken 2-stellige Ziffern als "010", "020" usw.
-  // Daher optional führende Null akzeptieren, wenn der Code <100 ist.
+  // 2-stellige Hauptbogen-Codes (z. B. AG 010, 020) erlauben optional
+  // führende Null. 3-/4-stellige Codes müssen exakt matchen.
   const pat = c.length < 3 ? `0?${c}` : c;
-  const re = new RegExp(`(?:^|[^0-9])${pat}(?:[^0-9]|$)[^\\n]{0,40}?[1-9]`);
+  const re = new RegExp(`(?:^|[^0-9])${pat}(?:[^0-9]|$)[^\\n]{0,80}?[1-9]`);
   return re.test(text);
 }
 
