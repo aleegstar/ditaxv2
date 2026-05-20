@@ -226,11 +226,11 @@ export function extractItemsFromText(text: string): ExtractedScan {
   const assetsByCode = applyCodeRules(text, ASSET_CODES);
   const deductionsByCode = applyCodeRules(text, DEDUCTION_CODES);
 
-  // Wenn genügend Codes erkannt wurden, verlassen wir uns ausschliesslich
-  // auf diese — die Keyword-Heuristik wird nicht mehr ergänzend genutzt,
-  // weil das zu False Positives führt (z. B. "Lohnausweis" als Beispieltext).
+  // Strikter Modus: Sobald auch nur EINE SSK-Ziffer im Dokument erkannt wurde,
+  // verlassen wir uns ausschliesslich auf die Codes. Keyword-Heuristik wird
+  // nur dann zugeschaltet, wenn gar keine Ziffern gefunden wurden.
   const codeHits = incomeByCode.length + assetsByCode.length + deductionsByCode.length;
-  if (codeHits >= 2) {
+  if (codeHits >= 1) {
     return {
       contact: [],
       income: incomeByCode,
