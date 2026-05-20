@@ -93,11 +93,18 @@ export const getAssetsQuestions = (t: Translation): QuestionConfig => ({
         title: 'Schulden Details'
       }
     ),
-    createQuestion(
-      'hasDepositAccount',
-      t.yesNoForm.questions.assets.hasDepositAccount.text,
-      t.yesNoForm.questions.assets.hasDepositAccount.explanation
-    ),
+    {
+      id: 'accountCount',
+      text: t.yesNoForm.questions.assets.accountCount.text,
+      explanation: t.yesNoForm.questions.assets.accountCount.explanation,
+      inputType: 'dropdown',
+      dropdownOptions: {
+        min: 0,
+        max: 10,
+        zeroLabel: t.assets.accountCountOptions.zero,
+        moreLabel: t.assets.accountCountOptions.moreThan,
+      },
+    },
     createQuestion(
       'hasCrypto',
       t.yesNoForm.questions.assets.hasCrypto.text,
