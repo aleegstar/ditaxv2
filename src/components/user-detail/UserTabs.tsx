@@ -552,12 +552,12 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length === 0 && (
-              <div className="flex flex-col items-center justify-center py-10 rounded-xl border border-dashed border-white/60">
-                <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-3">
-                  <FileText className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
+              <div className="flex flex-col items-center justify-center py-12 rounded-2xl border border-dashed border-border bg-card/50">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                  <FileText className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Keine Steuererklärung für {selectedYear}</p>
-                <p className="text-xs text-muted-foreground/60 mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
+                <p className="text-sm font-medium text-foreground">Keine Steuererklärung für {selectedYear}</p>
+                <p className="text-xs text-muted-foreground mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
               </div>
             )}
               </TabsContent>
