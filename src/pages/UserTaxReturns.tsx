@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useTaxYearData } from '@/hooks/use-tax-year-data';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
-import { getAvailableTaxYears } from '@/config/availableTaxYears';
+import { getFilingTaxYears } from '@/config/availableTaxYears';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
@@ -146,7 +146,10 @@ const UserTaxReturns = () => {
   }, [loading, authLoading, profileLoading, taxFilerLoading, activeTaxFilerId, isReady]);
 
   const availableYears = useMemo(() => {
-    const years = taxReturns.map((tr: TaxReturn) => tr.tax_year);
+    const allowed = new Set(getFilingTaxYears());
+    const years = taxReturns
+      .map((tr: TaxReturn) => tr.tax_year)
+      .filter((y) => allowed.has(y));
     return [...new Set(years)].sort((a, b) => parseInt(b) - parseInt(a));
   }, [taxReturns]);
 
@@ -177,7 +180,7 @@ const UserTaxReturns = () => {
     if (!userId || !activeTaxFilerId || loading) return;
     const key = `${userId}:${activeTaxFilerId}`;
     if (autoCreateRef.current === key) return;
-    const required = getAvailableTaxYears();
+    const required = getFilingTaxYears();
     const existing = new Set(taxReturns.map((tr: TaxReturn) => tr.tax_year));
     const missing = required.filter(y => !existing.has(y));
     if (missing.length === 0) {

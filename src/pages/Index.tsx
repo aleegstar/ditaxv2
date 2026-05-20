@@ -21,6 +21,7 @@ import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
 import { FormTourProvider, useFormTour } from '@/contexts/FormTourContext';
 import { FormTour } from '@/components/FormTour';
+import { getLatestFilingTaxYear, isFilingYearAvailable } from '@/config/availableTaxYears';
 
 // Section mapping for import wizard
 const sectionKeyMap: Record<string, FormSectionKey> = {
@@ -183,7 +184,9 @@ const IndexContent = () => {
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const year = searchParams.get('year') || new Date().getFullYear().toString();
+  const rawYear = searchParams.get('year');
+  // 2026 is documents-only; on the main dashboard fall back to latest filing year (2025).
+  const year = rawYear && isFilingYearAvailable(rawYear) ? rawYear : getLatestFilingTaxYear();
 
   // Handle auth tokens from deep link
   useEffect(() => {
