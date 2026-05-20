@@ -88,8 +88,78 @@ export async function ocrPdfLocally(
 
 type Rule = { label: string; patterns: RegExp[] };
 
-// Labels = das *Dokument*, das der User dieses Jahr bereithalten muss.
-// Patterns sind bewusst konservativ (Wortgrenzen), um OCR-Rauschen zu vermeiden.
+// ---------------------------------------------------------------------------
+// SSK Ziffer-Codes (eCH-0119 / Schweiz. Steuerkonferenz)
+// Diese 3-stelligen Codes sind in JEDEM kantonalen Steuerformular identisch
+// und damit OCR-stabil und kantonsübergreifend zuverlässig.
+// ---------------------------------------------------------------------------
+type CodeRule = { label: string; codes: number[] };
+
+const INCOME_CODES: CodeRule[] = [
+  { label: "Lohnausweis", codes: [100, 101, 102, 103] },
+  { label: "Nachweis Selbständigerwerb", codes: [120, 121, 122, 123] },
+  { label: "Rentenbescheinigung (AHV/IV)", codes: [130, 131] },
+  { label: "Pensionskassenausweis", codes: [134, 135, 136, 137] },
+  { label: "Arbeitslosentaggeld-Abrechnung", codes: [140, 141] },
+  { label: "Bestätigung Familien-/Mutterschaftszulagen", codes: [142, 143] },
+  { label: "Wertschriften-/Depotverzeichnis", codes: [150, 151] },
+  { label: "Bestätigung Alimente/Unterhalt", codes: [160, 161] },
+  { label: "Liegenschaftsertrag-Abrechnung", codes: [180, 181, 183, 186, 188] },
+];
+
+const ASSET_CODES: CodeRule[] = [
+  { label: "Depotauszug per 31.12.", codes: [400] },
+  { label: "Bankkontoauszug per 31.12.", codes: [400] },
+  { label: "Rückkaufswert Lebensversicherung", codes: [406] },
+  { label: "Fahrzeugausweis / Eurotax", codes: [412] },
+  { label: "Liegenschaftsbeleg", codes: [420, 421, 422] },
+];
+
+const DEDUCTION_CODES: CodeRule[] = [
+  { label: "Berufsauslagen-Belege", codes: [220, 240] },
+  { label: "Schuldzinsen-Bescheinigung", codes: [250, 470] },
+  { label: "Beleg Unterhaltszahlung", codes: [254, 255, 256] },
+  { label: "Säule 3a-Einzahlungsbestätigung", codes: [260, 261] },
+  { label: "Krankenkassen-Prämienrechnung", codes: [270] },
+  { label: "PK-Einkauf-Beleg", codes: [280] },
+  { label: "Belege Weiterbildungskosten", codes: [291] },
+  { label: "Beleg Liegenschaftsunterhalt", codes: [184, 185] },
+  { label: "Belege Krankheits-/Unfallkosten", codes: [320] },
+  { label: "Spendenbescheinigung", codes: [324] },
+  { label: "Kinderbetreuungs-Beleg", codes: [376] },
+];
+
+/**
+ * Erkennt, ob eine SSK-Ziffer im Text vorkommt UND mit einem nicht-null
+ * Betrag ausgefüllt ist. Schweizer Zahlenformate: 1'234.55, 1234, 1 234.
+ * Wir verlangen Code + irgendwo innerhalb 40 Zeichen eine Ziffer 1-9.
+ */
+function codeIsFilled(text: string, code: number): boolean {
+  const c = String(code);
+  const re = new RegExp(`(?:^|[^0-9])${c}(?:[^0-9]|$)[^\\n]{0,40}?[1-9]`);
+  return re.test(text);
+}
+
+function applyCodeRules(text: string, rules: CodeRule[]): ExtractedItem[] {
+  const out: ExtractedItem[] = [];
+  const seen = new Set<string>();
+  for (const rule of rules) {
+    if (seen.has(rule.label)) continue;
+    for (const code of rule.codes) {
+      if (codeIsFilled(text, code)) {
+        seen.add(rule.label);
+        out.push({ label: rule.label });
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// Fallback-Keywords (nur ergänzend wenn Code-Detection wenig findet,
+// z. B. bei nicht-SSK-konformen PDFs oder sehr schlechtem OCR-Output).
+// ---------------------------------------------------------------------------
 const INCOME_RULES: Rule[] = [
   { label: "Lohnausweis", patterns: [/\blohnausweis\b/i, /\bunselbst[aä]ndige?r?\s+erwerb\b/i, /\bhaupterwerb\b/i, /\bnebenerwerb\b/i] },
   { label: "Nachweis Selbständigerwerb", patterns: [/\bselbst[aä]ndige?r?\s+erwerb\b/i, /\beinzelfirma\b/i, /\bpersonengesellschaft\b/i] },
@@ -105,9 +175,6 @@ const INCOME_RULES: Rule[] = [
 const ASSETS_RULES: Rule[] = [
   { label: "Bankkontoauszug per 31.12.", patterns: [/\bbankkonto\b/i, /\bsparkonto\b/i, /\bprivatkonto\b/i, /\bkontokorrent\b/i, /\bpostfinance\b/i, /\braiffeisen\b/i, /\bkantonalbank\b/i] },
   { label: "Depotauszug per 31.12.", patterns: [/\bwertschriften\b/i, /\bdepot\b/i, /\baktien\b/i, /\bfonds\b/i, /\bobligationen\b/i] },
-  // Säule 3a wird bewusst NICHT als Vermögen geführt — siehe DEDUCTIONS_RULES
-  // (in den allermeisten Fällen handelt es sich um eine Einzahlung = Abzug,
-  // nicht um eine Kapitalauszahlung).
   { label: "Rückkaufswert Lebensversicherung", patterns: [/\blebensversicherung\b/i, /\br[uü]ckkaufswert\b/i] },
   { label: "Liegenschaftsbeleg", patterns: [/\bliegenschaft\b/i, /\beigentumswohnung\b/i, /\beinfamilienhaus\b/i, /\bgrundst[uü]ck\b/i] },
   { label: "Fahrzeugausweis / Eurotax", patterns: [/\bmotorfahrzeug\b/i, /\bpersonenwagen\b/i] },
@@ -143,12 +210,43 @@ function applyRules(text: string, rules: Rule[]): ExtractedItem[] {
   return out;
 }
 
+function mergeItems(primary: ExtractedItem[], fallback: ExtractedItem[]): ExtractedItem[] {
+  const seen = new Set(primary.map((i) => i.label));
+  const out = [...primary];
+  for (const item of fallback) {
+    if (!seen.has(item.label)) {
+      seen.add(item.label);
+      out.push(item);
+    }
+  }
+  return out;
+}
+
 export function extractItemsFromText(text: string): ExtractedScan {
+  // Primär: SSK Ziffer-Codes (kantonsübergreifend stabil und OCR-robust).
+  const incomeByCode = applyCodeRules(text, INCOME_CODES);
+  const assetsByCode = applyCodeRules(text, ASSET_CODES);
+  const deductionsByCode = applyCodeRules(text, DEDUCTION_CODES);
+
+  // Wenn genügend Codes erkannt wurden, verlassen wir uns ausschliesslich
+  // auf diese — die Keyword-Heuristik wird nicht mehr ergänzend genutzt,
+  // weil das zu False Positives führt (z. B. "Lohnausweis" als Beispieltext).
+  const codeHits = incomeByCode.length + assetsByCode.length + deductionsByCode.length;
+  if (codeHits >= 2) {
+    return {
+      contact: [],
+      income: incomeByCode,
+      assets: assetsByCode,
+      deductions: deductionsByCode,
+    };
+  }
+
+  // Fallback nur wenn Code-Detection praktisch nichts findet.
   return {
-    contact: [], // Persönliche Daten werden bewusst nicht mehr aus dem PDF gelesen
-    income: applyRules(text, INCOME_RULES),
-    assets: applyRules(text, ASSETS_RULES),
-    deductions: applyRules(text, DEDUCTIONS_RULES),
+    contact: [],
+    income: mergeItems(incomeByCode, applyRules(text, INCOME_RULES)),
+    assets: mergeItems(assetsByCode, applyRules(text, ASSETS_RULES)),
+    deductions: mergeItems(deductionsByCode, applyRules(text, DEDUCTIONS_RULES)),
   };
 }
 
