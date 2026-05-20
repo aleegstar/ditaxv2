@@ -62,6 +62,7 @@ const BulkUploadContent: React.FC = () => {
   const [pdfReady, setPdfReady] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const autoAdvanceTimer = useRef<number | null>(null);
 
   // Load PDF.js once on mount so PDF text + OCR fallback actually work here.
