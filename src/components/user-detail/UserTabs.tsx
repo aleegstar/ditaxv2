@@ -438,8 +438,8 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     )}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
               </TabsContent>
 
               <TabsContent value="tax-returns" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
