@@ -375,11 +375,11 @@ export const AdminDashboard: React.FC = () => {
       </section>
 
 
-      {/* Quiet footer metrics — minimal, no boxes */}
-      <section className="pt-10 border-t border-border/70">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
+      {/* Footer metrics card */}
+      <section className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-[0_1px_2px_rgba(15,27,61,0.03)]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Umsatz · Monat</p>
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Umsatz · Monat</p>
             <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               CHF {stats.revenueThisMonth.toLocaleString('de-CH')}
             </p>
@@ -391,7 +391,7 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Abschlüsse</p>
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Abschlüsse</p>
             <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               {stats.completedThisMonth}
             </p>
@@ -402,14 +402,14 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
           <Link to="/admin/users" className="group">
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Neue User (30T)</p>
-            <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2 group-hover:text-foreground">
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Neue User (30T)</p>
+            <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               {stats.newUsersLast30Days}
             </p>
             <p className="text-[11.5px] text-muted-foreground/60 mt-1">von {stats.totalUsers} gesamt</p>
           </Link>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/55">Aktive User</p>
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/60">Aktive User</p>
             <p className="text-[20px] font-semibold text-foreground tracking-[-0.02em] tabular-nums mt-2">
               {stats.totalUsers}
             </p>
