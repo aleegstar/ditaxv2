@@ -28,7 +28,25 @@ export const DashboardChatCard: React.FC = () => {
   };
 
   return (
-    <section className="hidden md:block mt-12 mb-8">
+    <section className="hidden md:block mt-16 mb-8">
+      {/* Section divider + title */}
+      <div className="mb-5 flex items-center gap-4">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.18em]">
+          Hilfe & Assistent
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <div className="mb-5 text-center">
+        <h2 className="text-[20px] font-semibold text-foreground tracking-[-0.018em]">
+          Brauchst du Hilfe?
+        </h2>
+        <p className="text-[13px] text-muted-foreground/75 mt-1">
+          Stell deine Frage – dein persönlicher Assistent antwortet sofort.
+        </p>
+      </div>
+
       <div className="rounded-3xl bg-card border border-border overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
         {/* Header */}
         <div className="flex items-center gap-3 px-6 pt-6 pb-5">
