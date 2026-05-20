@@ -377,7 +377,8 @@ const Chip: React.FC<{ active: boolean; label: string; onClick: () => void }> = 
 const ItemRow: React.FC<{
   item: ChecklistItem;
   onChange: (patch: Partial<ChecklistItem>) => void;
-}> = ({ item, onChange }) => {
+  onDelete?: () => void;
+}> = ({ item, onChange, onDelete }) => {
   const setStatus = (status: ChangeStatus) =>
     onChange({ change_status: status, completed: status !== "pending" });
 
@@ -392,6 +393,16 @@ const ItemRow: React.FC<{
             </div>
           )}
         </div>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-[11px] text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md"
+            aria-label="Entfernen"
+          >
+            Entfernen
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-1.5">
