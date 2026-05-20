@@ -188,10 +188,10 @@ const Admin: React.FC = () => {
   // Debug information
   console.log('🐛 Admin Component State:', {
     loading,
-    currentUser: currentUser?.id,
-    adminStatus,
+    userId,
     usersCount: users.length
   });
+
 
   return (
     <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">
