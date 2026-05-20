@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useTaxYearData } from '@/hooks/use-tax-year-data';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
-import { getAvailableTaxYears } from '@/config/availableTaxYears';
+import { getFilingTaxYears } from '@/config/availableTaxYears';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
