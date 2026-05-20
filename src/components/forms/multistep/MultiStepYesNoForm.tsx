@@ -129,7 +129,15 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const repeaterData: Record<string, any[]> = {};
     questions.forEach((question) => {
       if (!question?.id) return;
-      answers[question.id] = existingData[question.id] || false;
+      if (question.inputType === 'dropdown') {
+        const raw = existingData[question.id];
+        // Numeric answer stored under same key; mirror as boolean (n>0) so existing
+        // "answered" logic still works.
+        const n = typeof raw === 'number' ? raw : undefined;
+        (answers as any)[question.id] = n;
+      } else {
+        answers[question.id] = existingData[question.id] || false;
+      }
       if (question.requiresRepeater) {
         const dataKey = getRepeaterDataKey(question.id);
         if (dataKey) repeaterData[question.id] = existingData[dataKey] || [];
