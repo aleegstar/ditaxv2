@@ -500,33 +500,18 @@ const DocumentsContent: React.FC<{
           </div>
         </div>
 
-        {/* Hero card */}
-        <div className="px-5 md:px-8 pb-3">
+        {/* Slim info row */}
+        <div className="px-5 md:px-8 pt-1 pb-2">
           <div className="max-w-[960px] mx-auto w-full">
-            <div data-tour="documents-hero" className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
-              <div className="relative h-40 sm:h-48 w-full overflow-hidden">
-                <img
-                  src={documentsHero}
-                  alt="Dokumente sicher sammeln"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-white/95 backdrop-blur-sm text-[11px] font-medium text-foreground shadow-sm">
-                  <Shield className="w-3 h-3" strokeWidth={2.25} />
-                  Sicher verschlüsselt
-                </div>
-              </div>
-              <div className="p-4 sm:p-5">
-                <h2 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em] mb-1">
-                  Sammle alles an einem Ort
-                </h2>
-                <p className="text-[13px] text-muted-foreground leading-[1.5]">
-                  Lohnausweis, Belege, Bankauszüge — lade sie übers Jahr hoch. Ditax ordnet sie später automatisch deiner Steuererklärung zu.
-                </p>
-              </div>
+            <div data-tour="documents-hero" className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" strokeWidth={2} />
+              <span>
+                Lade Lohnausweis, Belege und Bankauszüge übers Jahr hoch — Ende-zu-Ende verschlüsselt.
+              </span>
             </div>
           </div>
         </div>
+
 
         {/* Sticky search + sort */}
 
