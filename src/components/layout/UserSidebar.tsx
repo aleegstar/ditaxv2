@@ -127,8 +127,12 @@ export const UserSidebar: React.FC = () => {
           aria-label="Aktiver Steuerpflichtiger"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 font-medium text-sm flex-shrink-0">
-              {filerInitial}
+            <div className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={filerName} className="w-full h-full object-cover" />
+              ) : (
+                <img src="/ditax-symbol.svg" alt="Ditax" className="w-6 h-6 object-contain" />
+              )}
             </div>
             <div className="min-w-0 text-left">
               <div className="text-sm font-semibold text-slate-900 truncate">{filerName}</div>
