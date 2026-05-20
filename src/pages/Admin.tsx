@@ -269,7 +269,6 @@ const Admin: React.FC = () => {
           <Route path="chat" element={
             <EnhancedAdminChatOverview />
           } />
-          <Route path="users" element={
           <Route path="users" element={(() => {
             const now = Date.now();
             const isActive = (u: AdminUser) => u.lastLoginAt && (now - new Date(u.lastLoginAt).getTime()) < 1000 * 60 * 60 * 24 * 30;
