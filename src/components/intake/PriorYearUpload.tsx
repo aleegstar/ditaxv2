@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   FileUp,
   Loader2,
@@ -8,17 +8,10 @@ import {
   ScanLine,
   Brain,
   CheckCircle2,
+  Cloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  AppDialog,
-  AppDialogContent,
-  AppDialogDescription,
-  AppDialogFooter,
-  AppDialogHeader,
-  AppDialogTitle,
-} from "@/components/ui/app-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -26,22 +19,19 @@ import {
   extractTextFromPdf,
   extractScanFromPdf,
   extractItemsFromText,
-  pseudonymize,
-  isLocalResultSufficient,
   hasUsableTextLayer,
   ocrPdfLocally,
   type ExtractedScan,
 } from "@/services/PriorYearLocalExtractor";
 
-const CONSENT_KEY = "ditax.aiScanConsent.v1";
-
-const GoogleG: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
-    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z" />
-    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.5 6.3 14.7z" />
-    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.5 5C9.5 39.4 16.2 44 24 44z" />
-    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.5l6.2 5.2c6.4-5.9 7.1-13.5 6.6-19z" />
-  </svg>
+const AzureMark: React.FC<{ className?: string }> = ({ className }) => (
+  <div
+    className={
+      "flex items-center justify-center rounded-md bg-primary/10 text-primary " + (className ?? "")
+    }
+  >
+    <Cloud className="w-3.5 h-3.5" strokeWidth={1.75} />
+  </div>
 );
 
 interface Props {
@@ -61,29 +51,13 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const [working, setWorking] = useState(false);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring" | "ai">("idle");
   const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
-  const [aiEnabled, setAiEnabled] = useState(false);
-  const [consentDialogOpen, setConsentDialogOpen] = useState(false);
-
-  // KEIN Auto-Aktivieren aus localStorage: die KI-Analyse muss bei jedem
-  // Upload bewusst eingeschaltet und (beim ersten Mal) bestätigt werden.
+  // Azure Document Intelligence (Schweiz Nord) ist Standard – DSGVO-konform, keine Speicherung.
+  const [aiEnabled, setAiEnabled] = useState(true);
 
   const handleToggleAi = (checked: boolean) => {
-    if (!checked) {
-      setAiEnabled(false);
-      return;
-    }
-    // Immer Bestätigungsdialog zeigen – nie still aus gespeichertem Consent
-    // aktivieren. Der User muss aktiv zustimmen.
-    setConsentDialogOpen(true);
+    setAiEnabled(checked);
   };
 
-  const confirmConsent = () => {
-    try {
-      localStorage.setItem(CONSENT_KEY, new Date().toISOString());
-    } catch {}
-    setAiEnabled(true);
-    setConsentDialogOpen(false);
-  };
 
   const persistChecklist = async (
     scan: ExtractedScan,
@@ -198,13 +172,19 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       // damit Du es später ersetzen kannst und unser Team es bei Bedarf einsehen kann.
       const storagePath = await uploadPdfToStorage(file);
 
-      // Opt-in: AI-Analyse direkt über Edge Function (PDF wird übermittelt)
+      // Standardpfad: Azure Document Intelligence (Schweiz Nord) über Edge Function.
       if (aiEnabled) {
-        await runAiScan(file);
-        return;
+        try {
+          await runAiScan(file);
+          return;
+        } catch (azureErr: any) {
+          console.warn("[PriorYearUpload] Azure DI failed, falling back to local", azureErr);
+          toast.message("Azure-Analyse nicht verfügbar – nutze lokale Erkennung.");
+          // weiter mit lokalem Fallback unten
+        }
       }
 
-      // Sonst: rein lokaler Pfad — positionsbasiert direkt aus dem PDF.
+      // Lokaler Pfad — positionsbasiert direkt aus dem PDF.
       setPhase("parsing");
       let localScan: ExtractedScan | null = null;
       let usedOcr = false;
@@ -214,14 +194,12 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         console.warn("[PriorYearUpload] positional extraction failed", e);
       }
 
-      // Wenn der Textlayer nichts hergibt → OCR + zeilenbasierte Heuristik.
       const positionalTotal =
         (localScan?.income.length ?? 0) +
         (localScan?.assets.length ?? 0) +
         (localScan?.deductions.length ?? 0);
 
       if (positionalTotal === 0) {
-        // Prüfe ob überhaupt Text im PDF ist, sonst OCR.
         const flatText = await extractTextFromPdf(file);
         let usableText = flatText;
         if (!hasUsableTextLayer(flatText)) {
@@ -238,7 +216,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         }
         if (!hasUsableTextLayer(usableText)) {
           toast.error(
-            "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Aktiviere die KI-Analyse oder fülle die Angaben manuell aus.",
+            "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Bitte fülle die Angaben manuell aus.",
           );
           return;
         }
@@ -250,7 +228,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         localScan!.income.length + localScan!.assets.length + localScan!.deductions.length;
       if (total === 0) {
         toast.message(
-          "Keine Positionen automatisch erkannt – bitte ergänze die Checkliste manuell oder aktiviere die KI-Analyse.",
+          "Keine Positionen automatisch erkannt – bitte ergänze die Checkliste manuell.",
         );
       } else {
         toast.success(
@@ -258,6 +236,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         );
       }
       onScanStarted?.();
+
     } catch (e: any) {
       console.error(e);
       toast.error(`Analyse fehlgeschlagen: ${e?.message ?? "unbekannt"}`);
@@ -320,7 +299,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
             const aiFlow = aiEnabled;
             const stages = aiFlow
               ? [
-                  { key: "ai", icon: Sparkles, label: "Google Gemini analysiert dein PDF", done: "PDF analysiert" },
+                  { key: "ai", icon: Sparkles, label: "Microsoft Azure analysiert dein PDF", done: "PDF analysiert" },
                   { key: "structuring", icon: Brain, label: "Erstelle Dokumenten-Checkliste", done: "Checkliste erstellt" },
                 ]
               : [
@@ -375,16 +354,16 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         </div>
       )}
 
-      {/* AI-Toggle */}
+      {/* Azure-Toggle */}
       <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 p-3">
         <div className="flex items-start gap-3 min-w-0">
-          <GoogleG className="w-5 h-5 shrink-0 mt-0.5" />
+          <AzureMark className="w-7 h-7 shrink-0 mt-0.5" />
           <div className="min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              KI-Analyse mit Google Gemini
+              Azure Document Intelligence (Schweiz)
             </div>
             <div className="text-[12px] text-muted-foreground leading-snug">
-              Genauer für gescannte PDFs · DSGVO-konform
+              DSGVO-konform · Server in Zürich · keine Speicherung
             </div>
           </div>
         </div>
@@ -392,7 +371,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           checked={aiEnabled}
           onCheckedChange={handleToggleAi}
           disabled={working}
-          aria-label="KI-Analyse mit Google Gemini aktivieren"
+          aria-label="Azure Document Intelligence aktivieren"
         />
       </div>
 
@@ -403,41 +382,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           <strong className="text-foreground">Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert</strong> –
           nur Du und unser Steuer-Team haben Zugriff. So kannst Du es jederzeit ersetzen.
           {aiEnabled
-            ? " Für die Analyse wird es einmalig an Google Gemini übermittelt; Google speichert es nicht."
+            ? " Für die Analyse wird es einmalig an Microsoft Azure Document Intelligence (Schweiz, Zürich) übermittelt und nicht gespeichert."
             : " Die Analyse erfolgt lokal auf deinem Gerät."}
         </p>
       </div>
-
-      {/* Einwilligungs-Dialog */}
-      <AppDialog open={consentDialogOpen} onOpenChange={setConsentDialogOpen}>
-        <AppDialogContent size="default">
-          <AppDialogHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <GoogleG className="w-6 h-6" />
-              <AppDialogTitle>KI-Analyse aktivieren</AppDialogTitle>
-            </div>
-            <AppDialogDescription className="leading-relaxed">
-              Wenn Du die KI-gestützte Analyse aktivierst, übermitteln wir Dein hochgeladenes
-              PDF einmalig an <strong>Google Gemini</strong> (über das Lovable AI Gateway) zur
-              Auswertung. Dabei gilt:
-            </AppDialogDescription>
-          </AppDialogHeader>
-
-          <ul className="text-[13px] text-foreground/90 space-y-2 list-disc pl-5">
-            <li>Es werden <strong>nur</strong> die benötigten Dokumenten-Kategorien zurückgegeben – keine Beträge, Namen, AHV oder Adressen.</li>
-            <li>Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert (nur Du und unser Steuer-Team sehen es); Google speichert es nicht.</li>
-            <li>Die Verarbeitung erfolgt ausschliesslich zur Erstellung Deiner Checkliste.</li>
-            <li>Du kannst die KI-Analyse jederzeit wieder deaktivieren.</li>
-          </ul>
-
-          <AppDialogFooter>
-            <Button variant="outline" onClick={() => setConsentDialogOpen(false)}>
-              Abbrechen
-            </Button>
-            <Button onClick={confirmConsent}>Zustimmen &amp; aktivieren</Button>
-          </AppDialogFooter>
-        </AppDialogContent>
-      </AppDialog>
     </div>
   );
+
 };
