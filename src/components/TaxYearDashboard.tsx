@@ -493,13 +493,13 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     <>
       {/* ═══════════ Step 1: Vorjahres-Daten ═══════════ */}
       {(!pyStep1Done || step1Expanded) ? (
-        <div className="group relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[2rem] p-6 md:p-8 mb-5">
-          <div className="flex items-center justify-between gap-3 mb-5">
+        <div className="group relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 mb-4 md:mb-5">
+          <div className="flex items-center justify-between gap-3 mb-4 md:mb-5">
             <div className="flex items-center gap-2">
               {pyStep1Done ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="text-[11px] font-semibold text-emerald-600 uppercase tracking-widest">Abgeschlossen</span>
+                  <span className="text-[10px] md:text-[11px] font-semibold text-emerald-600 uppercase tracking-widest">Abgeschlossen</span>
                 </>
               ) : (
                 <>
@@ -507,7 +507,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
                   </div>
-                  <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-widest">Aktueller Schritt</span>
+                  <span className="text-[10px] md:text-[11px] font-semibold text-blue-600 uppercase tracking-widest">Aktueller Schritt</span>
                 </>
               )}
             </div>
@@ -535,12 +535,13 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                 ? 'Einen Moment, wir extrahieren die Positionen aus deinem PDF.'
                 : 'Bestätige die Bereiche aus deinem Vorjahr – so wissen wir, welche Belege du brauchst.';
             return (
-              <div className="space-y-2 max-w-xl mb-6">
-                <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">{title}</h3>
-                <p className="text-base text-slate-500 leading-relaxed">{desc}</p>
+              <div className="space-y-1.5 md:space-y-2 max-w-xl mb-5 md:mb-6">
+                <h3 className="text-[19px] md:text-3xl font-semibold text-slate-900 tracking-tight leading-tight">{title}</h3>
+                <p className="text-[14px] md:text-base text-slate-500 leading-relaxed">{desc}</p>
               </div>
             );
           })()}
+
 
           <PriorYearChecklistBody
             taxFilerId={activeTaxFilerId}
