@@ -99,6 +99,8 @@ class CloudOcrService {
       const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
       try {
+        const { buildDeviceHeaders } = await import('@/lib/deviceVault');
+        const deviceHeaders = await buildDeviceHeaders();
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ocr-extract`,
           {
@@ -106,6 +108,7 @@ class CloudOcrService {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              ...deviceHeaders,
             },
             body: JSON.stringify({
               imageBase64: base64,
