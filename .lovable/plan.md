@@ -1,103 +1,109 @@
-## Ziel
+# Quick Wins: Vertex AI Gemini Kostenoptimierung
 
-Vorjahres-Steuererklärung wird mit **Gemini 2.5 Pro via Google Cloud Vertex AI in Region `europe-west6` (Zürich, Schweiz)** analysiert. Daten verlassen die Schweiz nicht, kein Training auf Kundendaten (Vertex AI Default), DSGVO-konform über Google Cloud DPA + Swiss Data Residency. Azure Document Intelligence wird komplett entfernt. Lokaler Extractor bleibt als Fallback.
+Ziel: Sofort 40–60 % Kosten sparen, ohne neue Komplexität. Keine Änderungen an PDF-Preprocessing, lokalem Fallback oder Monitoring.
 
-## Warum Vertex AI statt AI Studio / Lovable Gateway
+## 1. Model-Tiering in `_shared/vertex-ai.ts`
 
-- **Lovable AI Gateway / AI Studio**: Daten gehen über Google-US-Endpoints → nicht CH-resident.
-- **Vertex AI mit `location: europe-west6`**: Inference läuft physisch in Zürich, Daten bleiben in der Schweiz, „Data residency commitments" durch Google Cloud garantiert.
-- Gemini-Präzision (PDF nativ als Input, kein OCR-Vorverarbeitung nötig) bei voller DSGVO/CH-Compliance.
+Konstanten exportieren, Default unverändert:
 
-## Architektur
-
-```text
-PriorYearUpload (Client)
-   │  PDF (verschlüsselt über HTTPS)
-   ▼
-scan-prior-year-vertex (Edge Function, neu)
-   │  - holt OAuth-Token aus Service-Account-JWT
-   │  - POST europe-west6-aiplatform.googleapis.com/.../gemini-2.5-pro:generateContent
-   │  - PDF als inlineData (base64) + strukturierter Prompt
-   ▼
-Vertex AI Zürich → strukturiertes JSON (income/assets/deductions + Codes)
-   ▼
-prior_year_checklists + items (wie bisher)
+```ts
+export const MODEL_FLASH_LITE = "gemini-2.5-flash-lite"; // nur reine Text-/OCR-Extraktion
+export const MODEL_FLASH      = "gemini-2.5-flash";       // Default
+const DEFAULT_MODEL           = MODEL_FLASH;              // bleibt unverändert
 ```
 
-Fallback bei Fehler/Quota: lokaler `PriorYearLocalExtractor` (unverändert).
+Region bleibt `europe-west6`. Falls Flash-Lite dort nicht verfügbar ist, fällt der Caller automatisch zurück auf Flash (try/catch um den Call mit `VertexAiError` Code-Check auf 404 → Retry mit `MODEL_FLASH`).
 
-## Aufgaben
+## 2. Einheitliche strukturierte JSON-Responses erzwingen
 
-### 1. Secrets (neu, via add_secret)
+Neuer Helper im `_shared/vertex-ai.ts`:
 
-- `GCP_VERTEX_SA_JSON` — Service-Account-JSON (mit Rolle `roles/aiplatform.user`) als String.
-- `GCP_VERTEX_PROJECT_ID` — GCP-Projekt-ID des Users.
-- `GCP_VERTEX_LOCATION` — fix `europe-west6` (default im Code, aber überschreibbar).
+```ts
+export async function generateJson<T>(parts, opts: GenerateOptions & { responseSchema: unknown }): Promise<T>
+```
 
-Setup-Anleitung für den User:
-1. GCP-Projekt, Vertex AI API aktivieren, Region `europe-west6` erlauben.
-2. Service Account mit `Vertex AI User` Rolle, JSON-Key erzeugen.
-3. Beide Werte in Lovable Secrets eintragen.
+- Setzt zwingend `responseMimeType: "application/json"`.
+- Wirft `VertexAiError("vertex_invalid_json", ...)` wenn Parse fehlschlägt.
+- Wird in `extract-lohnausweis` und `scan-prior-year-vertex` benutzt.
+- `ocr-extract` bekommt ein minimales Schema `{ text: string }` statt freiem Plain-Text → konsistent + planbare Tokens.
 
-### 2. Neue Edge Function: `supabase/functions/scan-prior-year-vertex/index.ts`
+## 3. Prompt- & Schema-Slimming
 
-- Auth-Check (JWT → user) + tax_filer Ownership prüfen.
-- Body: `{ taxFilerId, taxYear, pdfBase64, storagePath }`.
-- Service-Account-JWT signieren (RS256, jose via npm), Access-Token via `oauth2.googleapis.com/token` holen, im Memory cachen (50 min TTL).
-- Vertex-Call: `POST https://europe-west6-aiplatform.googleapis.com/v1/projects/{PID}/locations/europe-west6/publishers/google/models/gemini-2.5-pro:generateContent`
-  - `contents: [{ role: "user", parts: [{ inlineData: { mimeType: "application/pdf", data: pdfBase64 } }, { text: PROMPT }] }]`
-  - `generationConfig.responseMimeType: "application/json"` + `responseSchema` (income/assets/deductions Arrays mit `{label, code?}`).
-  - `safetySettings`: alle auf `BLOCK_NONE` (Steuerdaten).
-- Antwort parsen, in `prior_year_checklists` + `prior_year_checklist_items` schreiben (gleiche Tabellen wie bisher).
-- Strukturierte Fehler: `vertex_unauthorized`, `vertex_quota`, `vertex_timeout`, `vertex_error`.
+- **Lohnausweis-Prompt**: von ~12 Zeilen auf 5 kompakte Bullets. Schema bleibt (Felder werden gebraucht), aber Reihenfolge unverändert.
+- **scan-prior-year**: System-Prompt um ~40 % kürzen (Beispiele konsolidieren, redundante Erklärungen raus). Schema bleibt funktional gleich, aber `required: ["label"]` auf Item-Ebene reicht – keine Änderung nötig.
+- **ocr-extract**: einzeilige Instruction.
 
-Prompt-Kern (deutsch, Schweizer Steuerexperte, Aargau-Codes-Liste eingebettet, Beispiel-Output):
-- Aufgabe: nur Kategorien/Belege bestimmen, keine Beträge/PII extrahieren.
-- Strikte JSON-Antwort gegen `responseSchema`.
+## 4. `maxOutputTokens` reduzieren
 
-### 3. Azure entfernen
+| Function | Vorher | Nachher |
+|---|---|---|
+| `ocr-extract` | 4096 | **1536** |
+| `extract-lohnausweis` | 2048 | **1536** |
+| `scan-prior-year-vertex` | 4096 | **2048** |
 
-- `supabase/functions/scan-prior-year-ai/index.ts` → **löschen** (via supabase--delete_edge_functions).
-- `supabase/functions/_shared/azure-doc-intel.ts` → **löschen**.
-- `supabase/functions/extract-lohnausweis/index.ts` & `ocr-extract/index.ts` → Azure-Pfad raus, auf bisherige (lokale/Gemini) Logik zurück bzw. neu auf Vertex umstellen, falls AI dort nötig.
-- Secrets `AZURE_DOC_INTEL_ENDPOINT` & `AZURE_DOC_INTEL_KEY` → Liste an User, manuell aus Lovable Secrets löschen.
+Realistische Obergrenzen basierend auf Schema-Größe.
 
-### 4. `src/components/intake/PriorYearUpload.tsx`
+## 5. Modell-Zuordnung
 
-- `runAiScan`: ruft neue Function `scan-prior-year-vertex` (statt `scan-prior-year-ai`).
-- Texte:
-  - Toggle-Label: „Gemini 2.5 Pro · Vertex AI (Schweiz, Zürich)".
-  - Sub: „Google Cloud · Region europe-west6 · DSGVO-konform · kein Training auf deinen Daten".
-  - Stage: „Gemini analysiert dein PDF (Schweizer Server)".
-  - Privacy-Hinweis: „Verarbeitung über Google Cloud Vertex AI in Zürich (europe-west6). PDF wird nicht gespeichert, kein Modelltraining."
-- Branding-Icon: lucide `Sparkles` (Gemini-konnotiert, neutral) oder bestehendes `GoogleG` wieder.
-- Fallback-Logik bleibt: Vertex-Fehler → lokaler Pfad + Toast „KI-Analyse nicht verfügbar – nutze lokale Erkennung."
+| Function | Modell |
+|---|---|
+| `ocr-extract` | **`MODEL_FLASH_LITE`** (mit Auto-Fallback auf Flash bei 404) |
+| `extract-lohnausweis` | `MODEL_FLASH` (Default, Präzision wichtig) |
+| `scan-prior-year-vertex` | `MODEL_FLASH` (Default) |
 
-### 5. `.lovable/plan.md`
+## 6. Response-Cache (Supabase Tabelle)
 
-- Inhalt durch dieses neue Konzept ersetzen (Azure → Vertex AI Schweiz).
+Migration `ai_extraction_cache`:
 
-### 6. Memory
+| Spalte | Typ | Zweck |
+|---|---|---|
+| `id` | uuid PK | |
+| `cache_key` | text UNIQUE | SHA-256(file_bytes) + `:` + function_name + `:` + model |
+| `function_name` | text | z. B. `extract-lohnausweis` |
+| `model` | text | z. B. `gemini-2.5-flash` |
+| `file_hash` | text | SHA-256 hex |
+| `payload` | jsonb | extrahiertes JSON-Resultat |
+| `tax_filer_id` | uuid NULL | Isolation, NULL für OCR |
+| `user_id` | uuid NOT NULL | Owner |
+| `created_at` | timestamptz default now() | |
+| `last_used_at` | timestamptz default now() | |
 
-- Neue Memory `mem://integrations/vertex-ai-swiss-region`: Pflicht, Vertex AI mit `europe-west6` für alle KI-Analysen von Kundendokumenten. Kein AI-Studio, kein Azure, kein US-Endpoint.
-- Index aktualisieren.
+- RLS: User darf nur eigene Zeilen lesen/schreiben (`auth.uid() = user_id`).
+- Index auf `cache_key`.
+- Kein TTL-Job nötig (Quick Win) – Cleanup später.
 
-## Was nicht angefasst wird
+Cache-Logik in jeder Function:
 
-- `prior_year_checklists` / `prior_year_checklist_items` Schema.
-- `PriorYearLocalExtractor.ts` (Fallback bleibt).
-- `seedPriorYearChecklistFromInternal.ts`.
+```ts
+const fileHash = sha256Hex(fileBytes);
+const cacheKey = `${fileHash}:${FUNCTION_NAME}:${MODEL}`;
+// 1. SELECT payload FROM ai_extraction_cache WHERE cache_key=$1 AND user_id=$2
+// 2. Hit → update last_used_at, return cached payload
+// 3. Miss → Vertex-Call → INSERT
+```
 
-## Akzeptanzkriterien
+SHA-256 via `crypto.subtle.digest("SHA-256", bytes)` (Web Crypto, in Deno verfügbar).
 
-- Upload Vorjahres-PDF → Edge-Logs zeigen Call an `europe-west6-aiplatform.googleapis.com`, kein Azure-Endpoint mehr.
-- Checkliste enthält korrekt erkannte Kategorien (Lohnausweis, Wertschriftenverzeichnis, 3a, etc.) basierend auf Aargau-Codes — Qualität ≥ bisheriger lokaler Fallback, idealerweise besser.
-- Bei abgeschaltetem GCP-Secret → User sieht „nutze lokale Erkennung" Toast, lokaler Pfad läuft durch.
-- Keine Referenzen auf „Azure", „Microsoft" oder `azure-doc-intel` mehr im Codebase.
-- README/Memory dokumentiert die Schweizer Region.
+## Dateien, die geändert werden
 
-## Offene Punkte zur Bestätigung
+- `supabase/functions/_shared/vertex-ai.ts` — Model-Konstanten, `generateJson` Helper.
+- `supabase/functions/_shared/ai-cache.ts` *(neu)* — `sha256Hex`, `getCached`, `setCached`.
+- `supabase/functions/ocr-extract/index.ts` — Flash-Lite, Cache, JSON-Schema, maxOutputTokens 1536, Prompt slimming.
+- `supabase/functions/extract-lohnausweis/index.ts` — Cache, Prompt slimming, maxOutputTokens 1536, `generateJson`.
+- `supabase/functions/scan-prior-year-vertex/index.ts` — Cache, Prompt slimming, maxOutputTokens 2048, `generateJson`.
+- DB-Migration: Tabelle `ai_extraction_cache` + RLS.
 
-1. **Hast du bereits ein GCP-Projekt mit Vertex AI in `europe-west6`?** Falls nein, brauchst du das vor der Implementierung (5 Min: API aktivieren + Service Account + JSON-Key).
-2. **Modell**: `gemini-2.5-pro` (beste Qualität, ~3× teurer) oder `gemini-2.5-flash` (günstig, sehr gute Qualität für diesen Use-Case)?
-3. **Lohnausweis-OCR** (`extract-lohnausweis`) — auch auf Vertex umstellen oder zurück auf alte Lösung?
+## Was bewusst NICHT gemacht wird
+
+- Kein PDF-Preprocessing / Seiten-Filter.
+- Kein lokaler Fallback-Vorrang.
+- Kein `ai_usage_log` / Monitoring-Widget.
+- Keine Pro-Modell-Integration.
+
+## Risiken
+
+- Flash-Lite-Verfügbarkeit in `europe-west6`: Auto-Fallback auf Flash absichert.
+- Cache-Hit für OCR ist eher selten (unterschiedliche Scans desselben Belegs), aber Lohnausweis/Vorjahres-PDF profitieren stark bei Re-Uploads.
+- `maxOutputTokens` Reduktion: Schema-Größe wurde geprüft, Werte sind sicher.
+
+Soll ich so umsetzen?
