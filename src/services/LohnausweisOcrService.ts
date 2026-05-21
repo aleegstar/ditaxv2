@@ -56,8 +56,11 @@ export async function extractLohnausweisFromFile(
     (file instanceof Blob ? file.type : '') ||
     'application/pdf';
 
+  const { buildDeviceHeaders } = await import('@/lib/deviceVault');
+  const deviceHeaders = await buildDeviceHeaders();
   const { data, error } = await supabase.functions.invoke('extract-lohnausweis', {
     body: { fileBase64, mimeType },
+    headers: deviceHeaders,
   });
   if (error) {
     // Versuch, Body aus FunctionsHttpError zu lesen für freundliche Rate-Limit-Meldung
