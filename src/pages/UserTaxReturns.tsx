@@ -356,7 +356,7 @@ const UserTaxReturns = () => {
 
         {/* Year Pills */}
         {availableYears.length > 0 && (
-          <div className="mb-7" data-tour="year-selector">
+          <div className="mb-5 md:mb-7" data-tour="year-selector">
             <YearPillSelector
               years={availableYears}
               selectedYear={selectedYear}
@@ -364,6 +364,7 @@ const UserTaxReturns = () => {
             />
           </div>
         )}
+
 
         {/* Active Year Content */}
         <motion.div
