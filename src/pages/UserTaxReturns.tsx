@@ -308,12 +308,12 @@ const UserTaxReturns = () => {
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
       <div className="lg:flex lg:items-start lg:min-h-screen md:bg-white">
-      <main className="relative z-10 min-h-screen md:min-h-0 lg:flex-1 lg:min-w-0 max-w-xl lg:max-w-none mx-auto lg:mx-0 pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-6 px-5 md:px-10 xl:px-12">
+      <main className="relative z-10 min-h-screen md:min-h-0 lg:flex-1 lg:min-w-0 max-w-xl lg:max-w-none mx-auto lg:mx-0 pt-[calc(1rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-6 px-4 md:px-10 xl:px-12">
         <div className="lg:max-w-3xl lg:mx-auto w-full">
         {/* Header (mobile only — desktop uses sidebar) */}
-        <header className="md:hidden flex pb-7 items-center justify-between">
+        <header className="md:hidden flex pb-5 items-center justify-between">
           <div className="flex items-center">
-            <img src={ditaxLogoMask} alt="ditax" className="h-[26px] w-auto object-contain" />
+            <img src={ditaxLogoMask} alt="ditax" className="h-[22px] md:h-[26px] w-auto object-contain" />
           </div>
           <div className="flex items-center gap-1 -mr-1">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
@@ -328,17 +328,18 @@ const UserTaxReturns = () => {
         </header>
 
         {/* Mobile greeting */}
-        <section className="md:hidden pb-7">
+        <section className="md:hidden pb-5">
           <div className="flex items-end justify-between gap-4">
             <div className="flex flex-col min-w-0">
-              <p className="text-[13px] text-muted-foreground/70 font-normal tracking-[-0.003em]">{getGreeting()}</p>
-              <h1 className="text-[23px] font-semibold tracking-[-0.026em] text-foreground leading-[1.1] truncate mt-1">
+              <p className="text-[12px] text-muted-foreground/70 font-normal tracking-[-0.003em]">{getGreeting()}</p>
+              <h1 className="text-[20px] font-semibold tracking-[-0.026em] text-foreground leading-[1.1] truncate mt-0.5">
                 {getUserDisplayName()}
               </h1>
             </div>
             <TaxFilerSelector className="flex-shrink-0" />
           </div>
         </section>
+
 
         {/* Desktop hero */}
         <DesktopHero
@@ -355,7 +356,7 @@ const UserTaxReturns = () => {
 
         {/* Year Pills */}
         {availableYears.length > 0 && (
-          <div className="mb-7" data-tour="year-selector">
+          <div className="mb-5 md:mb-7" data-tour="year-selector">
             <YearPillSelector
               years={availableYears}
               selectedYear={selectedYear}
@@ -363,6 +364,7 @@ const UserTaxReturns = () => {
             />
           </div>
         )}
+
 
         {/* Active Year Content */}
         <motion.div
