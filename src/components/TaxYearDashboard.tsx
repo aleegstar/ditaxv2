@@ -515,51 +515,55 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     intakeMode !== null &&
     (intakeMode === 'prior_year_upload' ? pyRemaining > 0 : remainingSteps > 0);
 
-  const floatingNextStep = showFloatingNext ? (
-    <div
-      className="fixed z-[60] pointer-events-none inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+64px)] md:inset-x-auto md:left-auto md:right-6 md:bottom-6 md:px-0 px-0 md:px-4"
-    >
-      <div className="max-w-xl mx-auto pointer-events-auto md:mx-0 md:w-[360px]">
-        <div className="relative md:rounded-2xl rounded-t-2xl rounded-b-none border border-white md:border-border bg-card/95 backdrop-blur-md overflow-hidden md:shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] shadow-[0_-6px_20px_-8px_rgba(15,27,61,0.1)] border-b-0 md:border-b">
-          {/* Image header with "Nächster Schritt" pill */}
-          <div className="relative h-14 w-full overflow-hidden bg-muted">
-            <img
-              src={nextStepMeta.image}
-              alt=""
-              loading="lazy"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 h-5 px-2 rounded-full bg-card/95 backdrop-blur-sm border border-border/60">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
-              </span>
-              <span className="text-[10px] font-semibold text-foreground uppercase tracking-[0.08em] leading-none">Nächster Schritt</span>
-            </div>
-          </div>
-
-          {/* Body: badge + title + action (same on mobile and desktop) */}
-          <div className="flex p-3 items-center justify-between gap-3">
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
-              <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">{nextStepMeta.title}</h3>
-            </div>
-            <button
-              type="button"
-              onClick={nextStepMeta.onClick}
-              className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
-            >
-              {nextStepMeta.action}
-              <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
-            </button>
-          </div>
-
-
-
+  const nextStepCardInner = (
+    <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)]">
+      {/* Image header with "Nächster Schritt" pill */}
+      <div className="relative h-14 w-full overflow-hidden bg-muted">
+        <img
+          src={nextStepMeta.image}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 h-5 px-2 rounded-full bg-card/95 backdrop-blur-sm border border-border/60">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+          </span>
+          <span className="text-[10px] font-semibold text-foreground uppercase tracking-[0.08em] leading-none">Nächster Schritt</span>
         </div>
+      </div>
 
+      {/* Body: badge + title + action */}
+      <div className="flex p-3 items-center justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
+          <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">{nextStepMeta.title}</h3>
+        </div>
+        <button
+          type="button"
+          onClick={nextStepMeta.onClick}
+          className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
+        >
+          {nextStepMeta.action}
+          <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
+        </button>
+      </div>
+    </div>
+  );
 
+  // Inline at the top on mobile (where the mode card used to be)
+  const inlineNextStepMobile = showFloatingNext ? (
+    <div className="md:hidden mb-4">
+      {nextStepCardInner}
+    </div>
+  ) : null;
 
+  // Floating bottom-right on desktop only
+  const floatingNextStep = showFloatingNext ? (
+    <div className="hidden md:block fixed z-[60] pointer-events-none right-6 bottom-6">
+      <div className="w-[360px] pointer-events-auto">
+        {nextStepCardInner}
       </div>
     </div>
   ) : null;
@@ -653,6 +657,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       ) : (
         <>
       {modeSwitcher}
+      {inlineNextStepMobile}
       {intakeMode === 'prior_year_upload' ? priorYearBranch : (
         <>
       <DashboardPriorYearBanner taxYear={taxYear} />
