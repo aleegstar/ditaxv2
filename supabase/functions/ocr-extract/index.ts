@@ -14,7 +14,7 @@ import {
   VertexAiError,
 } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
-import { checkAndLogAiUsage, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 
 const FUNCTION_NAME = "ocr-extract";
 const PRIMARY_MODEL = MODEL_FLASH_LITE;
