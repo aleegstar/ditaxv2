@@ -50,7 +50,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const [working, setWorking] = useState(false);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring" | "ai">("idle");
   const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
-  // Vertex AI Gemini 2.5 Pro (Schweiz, europe-west6/Zürich) ist Standard – DSGVO-konform, keine Speicherung.
+  // Vertex AI Gemini 2.5 Flash (Schweiz, europe-west6/Zürich) ist Standard – DSGVO-konform, keine Speicherung.
   const [aiEnabled, setAiEnabled] = useState(true);
 
   const handleToggleAi = (checked: boolean) => {
@@ -171,7 +171,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       // damit Du es später ersetzen kannst und unser Team es bei Bedarf einsehen kann.
       const storagePath = await uploadPdfToStorage(file);
 
-      // Standardpfad: Gemini 2.5 Pro via Vertex AI (Schweiz, europe-west6) über Edge Function.
+      // Standardpfad: Gemini 2.5 Flash via Vertex AI (Schweiz, europe-west6) über Edge Function.
       if (aiEnabled) {
         try {
           await runAiScan(file);
@@ -359,7 +359,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           <VertexMark className="w-7 h-7 shrink-0 mt-0.5" />
           <div className="min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              Gemini 2.5 Pro · Vertex AI (Schweiz, Zürich)
+              Gemini 2.5 Flash · Vertex AI (Schweiz, Zürich)
             </div>
             <div className="text-[12px] text-muted-foreground leading-snug">
               Google Cloud · Region europe-west6 · DSGVO-konform · kein Modelltraining
