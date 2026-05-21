@@ -739,7 +739,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         onBack={() => navigate('/')}
       />
       <TaxFilerSelector className="max-w-xl mx-auto px-5 sm:px-8 mb-8" />
-      <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
+      <main className="max-w-xl mx-auto px-5 sm:px-8 pb-56">
         {stepsContent}
       </main>
     </div>
