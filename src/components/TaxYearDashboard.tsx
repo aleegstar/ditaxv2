@@ -324,7 +324,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       <div
         onClick={state !== 'locked' ? onAction : undefined}
         className={cn(
-          'relative rounded-[1.25rem] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all',
+          'relative rounded-[1.25rem] p-6 md:p-8 flex flex-col gap-6 transition-all',
           containerCls,
           state !== 'locked' && 'cursor-pointer'
         )}
