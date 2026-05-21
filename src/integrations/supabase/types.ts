@@ -199,6 +199,7 @@ export type Database = {
       ai_usage_log: {
         Row: {
           created_at: string
+          device_hash: string | null
           endpoint: string
           id: string
           success: boolean
@@ -208,6 +209,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          device_hash?: string | null
           endpoint: string
           id?: string
           success?: boolean
@@ -217,6 +219,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          device_hash?: string | null
           endpoint?: string
           id?: string
           success?: boolean
