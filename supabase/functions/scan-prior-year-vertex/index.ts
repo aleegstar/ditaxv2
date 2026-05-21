@@ -4,7 +4,11 @@
 // kein Logging des PDF-Inhalts. PDF wird im privaten Supabase-Storage gespeichert.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { generateContent, VertexAiError } from "../_shared/vertex-ai.ts";
+import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
+import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
+
+const FUNCTION_NAME = "scan-prior-year-vertex";
+const MODEL = MODEL_FLASH;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,23 +58,16 @@ const RESPONSE_SCHEMA = {
   required: ["income", "assets", "deductions"],
 };
 
-const SYSTEM_PROMPT = `Du bist ein Schweizer Steuerexperte. Du analysierst eine \
-definitive Schweizer Steuererklärung des Kantons Aargau (PDF).
-
-AUFGABE: Erstelle eine Checkliste der Belege/Dokumente, die der Steuerpflichtige \
-für das Folgejahr brauchen wird – basierend ausschliesslich auf den Positionen, \
-die in dieser Vorjahres-Erklärung TATSÄCHLICH MIT BETRAG AUSGEFÜLLT sind \
-(Code + Schweizer-Franken-Betrag > 0). Leere/nicht ausgefüllte Formularzeilen \
-ignorieren.
+const SYSTEM_PROMPT = `Schweizer Steuerexperte. Du analysierst eine definitive \
+Schweizer Steuererklärung Kanton Aargau (PDF) und erstellst eine Belegliste fürs Folgejahr.
 
 REGELN:
-- Nur reale Positionen mit Betrag aufnehmen (keine Formular-Defaults).
-- Code = Aargauer Ziffer (z.B. "010", "240", "381", "710") wenn erkennbar.
-- Kategorien: "income" (Einkommen), "deductions" (Abzüge), "assets" (Vermögen/Wertschriften/Liegenschaften/Schulden).
-- Label = kurzer deutscher Belegname (z.B. "Lohnausweis", "Säule 3a-Einzahlungsbestätigung", 
-  "Wertschriften-/Depotverzeichnis", "Schuldzinsen-Bescheinigung", "Krankenkassen-Prämienrechnung",
-  "Liegenschaftenverzeichnis", "Beleg Bankkonto/Depot – <Institut>").
-- Wenn mehrere Wertschriftendepots oder Bankkonten ausgewiesen sind, je einen Eintrag pro Konto/Depot mit Institut.
+- Nur Positionen mit ausgefülltem CHF-Betrag > 0 aufnehmen (keine Formular-Defaults).
+- code = Aargauer Ziffer wenn erkennbar (z.B. "010", "240", "381", "710").
+- Kategorien: income, deductions, assets (Vermögen/Wertschriften/Liegenschaften/Schulden).
+- label = kurzer deutscher Belegname (z.B. "Lohnausweis", "Säule 3a-Bestätigung",
+  "Depotverzeichnis", "Schuldzinsen-Bescheinigung", "Beleg Bankkonto – <Institut>").
+- Bei mehreren Depots/Konten: ein Eintrag pro Konto inkl. Institut.
 - Keine Beträge, keine Personendaten, keine AHV-Nummern im Output.
 - Antwort ausschliesslich als JSON gemäss Schema.`;
 
@@ -143,43 +140,72 @@ Deno.serve(async (req) => {
       .single();
     if (cErr || !checklist) throw new Error(cErr?.message ?? "checklist upsert failed");
 
-    // --- Vertex AI Gemini call ---
+    // --- Vertex AI Gemini call (mit Cache) ---
     const bytes = new Uint8Array(await file.arrayBuffer());
     const pdfBase64 = bytesToBase64(bytes);
+    const fileHash = await sha256Hex(bytes);
+    const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
     const startedAt = Date.now();
-    let result;
-    try {
-      result = await generateContent(
-        [
-          { inlineData: { mimeType: "application/pdf", data: pdfBase64 } },
-          { text: "Analysiere diese Schweizer Steuererklärung und liefere die Checkliste als JSON." },
-        ],
-        {
-          systemInstruction: SYSTEM_PROMPT,
-          responseMimeType: "application/json",
-          responseSchema: RESPONSE_SCHEMA,
-          temperature: 0.0,
-          maxOutputTokens: 4096,
-          timeoutMs: 120_000,
-        },
-      );
-    } catch (err) {
-      const code = err instanceof VertexAiError ? err.code : "vertex_error";
-      const msg = err instanceof Error ? err.message : String(err);
-      const status = err instanceof VertexAiError ? err.status : 502;
-      await admin
-        .from("prior_year_checklists")
-        .update({ status: "failed", error_message: `${code}: ${msg}`.slice(0, 500) })
-        .eq("id", checklist.id);
-      return json({ error: code, message: msg }, status);
-    }
-    console.log(`[scan-prior-year-vertex] vertex ms=${Date.now() - startedAt}`);
 
-    const parsed = (result.json ?? {}) as {
+    let parsedFromCache:
+      | { income?: any[]; assets?: any[]; deductions?: any[] }
+      | null = null;
+    const cached = (await getCached(userId, cacheKey)) as
+      | { parsed?: { income?: any[]; assets?: any[]; deductions?: any[] } }
+      | null;
+    if (cached?.parsed) parsedFromCache = cached.parsed;
+
+    let result: { text: string; json?: unknown } | null = null;
+    if (!parsedFromCache) {
+      try {
+        result = await generateContent(
+          [
+            { inlineData: { mimeType: "application/pdf", data: pdfBase64 } },
+            { text: "Analysiere diese Schweizer Steuererklärung und liefere die Checkliste als JSON." },
+          ],
+          {
+            model: MODEL,
+            systemInstruction: SYSTEM_PROMPT,
+            responseMimeType: "application/json",
+            responseSchema: RESPONSE_SCHEMA,
+            temperature: 0.0,
+            maxOutputTokens: 2048,
+            timeoutMs: 120_000,
+          },
+        );
+      } catch (err) {
+        const code = err instanceof VertexAiError ? err.code : "vertex_error";
+        const msg = err instanceof Error ? err.message : String(err);
+        const status = err instanceof VertexAiError ? err.status : 502;
+        await admin
+          .from("prior_year_checklists")
+          .update({ status: "failed", error_message: `${code}: ${msg}`.slice(0, 500) })
+          .eq("id", checklist.id);
+        return json({ error: code, message: msg }, status);
+      }
+    }
+    console.log(
+      `[scan-prior-year-vertex] model=${MODEL} cache=${!!parsedFromCache} ms=${Date.now() - startedAt}`,
+    );
+
+    const parsed = (parsedFromCache ?? (result?.json ?? {})) as {
       income?: Array<{ label: string; code?: string }>;
       assets?: Array<{ label: string; code?: string }>;
       deductions?: Array<{ label: string; code?: string }>;
     };
+
+    if (!parsedFromCache) {
+      await setCached({
+        userId,
+        taxFilerId,
+        cacheKey,
+        functionName: FUNCTION_NAME,
+        model: MODEL,
+        fileHash,
+        payload: { parsed },
+      });
+    }
+
 
     await admin.from("prior_year_checklist_items").delete().eq("checklist_id", checklist.id);
 

@@ -157,6 +157,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_extraction_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          file_hash: string
+          function_name: string
+          id: string
+          last_used_at: string
+          model: string
+          payload: Json
+          tax_filer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          file_hash: string
+          function_name: string
+          id?: string
+          last_used_at?: string
+          model: string
+          payload: Json
+          tax_filer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          file_hash?: string
+          function_name?: string
+          id?: string
+          last_used_at?: string
+          model?: string
+          payload?: Json
+          tax_filer_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       asset_data: {
         Row: {
           created_at: string
