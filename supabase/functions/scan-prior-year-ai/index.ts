@@ -234,38 +234,35 @@ Deno.serve(async (req) => {
     }
     console.log(`[scan-prior-year-ai] azure ms=${Date.now() - startedAt}`);
 
-    // --- Category extraction (rule-based) ---
+    // --- Category extraction (code-based) ---
     const fullText = extractPlainText(result);
     const lines = fullText.split(/\r?\n/);
+    const activeCodes = extractActiveCodes(lines);
+    console.log(
+      `[scan-prior-year-ai] active codes: ${[...activeCodes].sort().join(",") || "(none)"}`,
+    );
 
     const found = new Set<string>(); // dedupe by label
     const orderedRows: Array<{ category: Category; label: string }> = [];
 
-    for (const item of CATEGORY_MAP) {
-      let matched = false;
-      for (const rx of item.patterns) {
-        // Find a line containing the pattern AND an amount > 0 nearby.
-        for (let i = 0; i < lines.length; i++) {
-          if (!rx.test(lines[i])) continue;
-          // amount on same line OR up to 2 following lines (column layouts)
-          const window = lines.slice(i, i + 3).join(" ");
-          if (AMOUNT_RX_LINE.test(window)) {
-            matched = true;
-            break;
-          }
-          // For pure-asset labels the form sometimes prints labels without
-          // amounts on the same row — accept the label-only match too for
-          // the major categories (we'd rather over-include than miss).
-          matched = true;
-          break;
-        }
-        if (matched) break;
-      }
-      if (matched && !found.has(item.label)) {
-        found.add(item.label);
-        orderedRows.push({ category: item.category, label: item.label });
-      }
+    // Canonical order: income → deductions → assets, by code.
+    const categoryOrder: Category[] = ["income", "deductions", "assets"];
+    const sortedCodes = [...activeCodes].sort((a, b) => {
+      const ca = AG_CODE_MAP[a], cb = AG_CODE_MAP[b];
+      if (!ca || !cb) return 0;
+      const oa = categoryOrder.indexOf(ca.category);
+      const ob = categoryOrder.indexOf(cb.category);
+      if (oa !== ob) return oa - ob;
+      return a.localeCompare(b);
+    });
+    for (const code of sortedCodes) {
+      const m = AG_CODE_MAP[code];
+      if (!m) continue;
+      if (found.has(m.label)) continue;
+      found.add(m.label);
+      orderedRows.push({ category: m.category, label: m.label });
     }
+
 
     // --- Bank/Depot account extraction (table-based) ---
     const accounts = extractAccountsFromTables(result);
