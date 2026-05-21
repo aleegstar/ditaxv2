@@ -8,7 +8,8 @@
 import { SignJWT, importPKCS8 } from "npm:jose@5";
 
 const DEFAULT_LOCATION = "europe-west6";
-const DEFAULT_MODEL = "gemini-2.5-pro";
+// gemini-2.5-pro ist in europe-west6 nicht verfügbar – flash ist es.
+const DEFAULT_MODEL = "gemini-2.5-flash";
 
 export class VertexAiError extends Error {
   constructor(public code: string, message: string, public status = 502) {
