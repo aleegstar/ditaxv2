@@ -500,17 +500,6 @@ const DocumentsContent: React.FC<{
           </div>
         </div>
 
-        {/* Slim info row */}
-        <div className="px-5 md:px-8 pt-1 pb-2">
-          <div className="max-w-[960px] mx-auto w-full">
-            <div data-tour="documents-hero" className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
-              <Shield className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" strokeWidth={2} />
-              <span>
-                Lade Lohnausweis, Belege und Bankauszüge übers Jahr hoch — Ende-zu-Ende verschlüsselt.
-              </span>
-            </div>
-          </div>
-        </div>
 
 
         {/* Sticky search + sort */}
