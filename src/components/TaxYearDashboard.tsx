@@ -324,7 +324,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       <div
         onClick={state !== 'locked' ? onAction : undefined}
         className={cn(
-          'relative rounded-[1.25rem] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all',
+          'relative rounded-[1.25rem] p-6 md:p-8 flex flex-col gap-6 transition-all',
           containerCls,
           state !== 'locked' && 'cursor-pointer'
         )}
@@ -352,7 +352,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         {state !== 'locked' && (
           <button
             onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
+            className="w-full px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center gap-2 shadow-sm transition-all shrink-0"
           >
             {actionLabel || 'Bearbeiten'}
             <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
