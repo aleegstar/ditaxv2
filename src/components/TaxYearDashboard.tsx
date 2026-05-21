@@ -317,8 +317,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     // ───── Done / Locked: compact row ─────
     const isDone = state === 'done';
     const containerCls = isDone
-      ? 'bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)]'
-      : 'bg-slate-50/40 border border-slate-200/50';
+      ? 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.10)] hover:shadow-[0_14px_44px_-12px_rgba(15,27,61,0.14)]'
+      : 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.08)]';
 
     return (
       <div
