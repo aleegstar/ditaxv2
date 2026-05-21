@@ -283,17 +283,14 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       return (
         <div
           onClick={onAction}
-          className="group cursor-pointer relative bg-card border border-slate-200/70 shadow-[0_10px_40px_-12px_rgba(15,27,61,0.12)] rounded-[1.5rem] overflow-hidden transition-all duration-300 hover:shadow-[0_16px_50px_-12px_rgba(15,27,61,0.18)]"
+          className="group cursor-pointer relative bg-card border-2 border-primary/70 shadow-[0_10px_40px_-12px_rgba(15,27,61,0.15)] rounded-[1.5rem] overflow-hidden transition-all duration-300 hover:shadow-[0_16px_50px_-12px_rgba(15,27,61,0.22)]"
         >
-          {/* Header band with badge instead of photo */}
-          <div className="relative h-20 bg-gradient-to-br from-[#EEF2FB] via-[#F4F1EA] to-[#FAE8DE]">
-            <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
-              <Star className="w-3 h-3 fill-white" strokeWidth={0} />
-              Empfohlen
-            </div>
-          </div>
-
           <div className="p-5 md:p-6 space-y-4">
+            <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
+              <Star className="w-3 h-3 fill-white" strokeWidth={0} />
+              Aktueller Schritt
+            </div>
+
             <div className="space-y-2">
               <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
                 {title}
@@ -314,6 +311,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         </div>
       );
     }
+
 
 
     // ───── Done / Locked: compact row ─────
