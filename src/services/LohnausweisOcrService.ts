@@ -68,7 +68,7 @@ export async function extractLohnausweisFromFile(
       const ctx: any = (error as any)?.context;
       if (ctx?.status === 429 && typeof ctx.json === 'function') {
         const body = await ctx.json();
-        if (body?.reason === 'daily_limit') {
+        if (body?.reason === 'daily_limit' || body?.reason === 'daily_limit_device') {
           throw new Error(
             'Die KI-Analyse für Lohnausweise ist heute aufgebraucht. Bitte morgen erneut versuchen oder Felder manuell ausfüllen.',
           );
