@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/contexts/I18nContext';
-import idleShield from '@/assets/idle-shield.webp';
+import idleCouple from '@/assets/idle-couple.webp';
 
 interface IdleWarningDialogProps {
   isOpen: boolean;
@@ -27,23 +27,34 @@ export function IdleWarningDialog({ isOpen, timeLeft, onExtendSession }: IdleWar
 
   return (
     <Drawer open={isOpen} dismissible={false}>
-      <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
-        <div className="mb-6" />
+      <DrawerContent variant="bottom-sheet" className="px-0 pb-8 pt-2 overflow-hidden">
+        <div className="mb-4" />
 
-        <div className="text-center space-y-2 mb-6">
-          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-2">
-            <img src={idleShield} alt="" className="w-full h-full object-contain drop-shadow-lg" />
+        {/* Hero card — matches dashboard "Vorjahres" card pattern */}
+        <div className="mx-5 sm:mx-6 rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+          <div className="relative h-36 sm:h-40 bg-muted overflow-hidden">
+            <img
+              src={idleCouple}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-card/95 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm border border-border tabular-nums">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+              {formatTime(timeLeft)}
+            </div>
           </div>
-          <DrawerTitle className="text-xl font-bold text-foreground">
-            {t.idle.title}
-          </DrawerTitle>
-          <DrawerDescription className="text-sm text-muted-foreground">
-            {t.idle.message}{' '}
-            <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span>.
-          </DrawerDescription>
+          <div className="px-5 py-5">
+            <DrawerTitle className="text-[17px] font-semibold text-foreground tracking-tight">
+              {t.idle.title}
+            </DrawerTitle>
+            <DrawerDescription className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">
+              {t.idle.message}{' '}
+              <span className="font-semibold text-orange-500 tabular-nums">{formatTime(timeLeft)}</span>.
+            </DrawerDescription>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="px-5 sm:px-6 mt-5">
           <Button
             className="w-full"
             onClick={onExtendSession}
