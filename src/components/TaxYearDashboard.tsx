@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2, FileUp, Pencil } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2, FileUp, Pencil, Star, Upload } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
 import documentsMessageImg from '@/assets/documents-message.svg';
 import intakeUploadImg from '@/assets/intake-upload.webp';
