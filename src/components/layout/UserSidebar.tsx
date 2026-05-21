@@ -49,7 +49,8 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
       )}
     >
       <Icon
-        className={cn('w-5 h-5 flex-shrink-0', isActive ? 'text-blue-600' : '')}
+        className="w-5 h-5 flex-shrink-0"
+        style={isActive ? { color: '#0F1B3D' } : undefined}
         strokeWidth={1.75}
       />
       <span className="truncate">{item.label}</span>
@@ -57,8 +58,9 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
         <span
           className={cn(
             'ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold tabular-nums',
-            isActive ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'
+            isActive ? 'text-white' : 'bg-slate-200 text-slate-600'
           )}
+          style={isActive ? { backgroundColor: '#0F1B3D' } : undefined}
         >
           {item.badge > 9 ? '9+' : item.badge}
         </span>
