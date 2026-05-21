@@ -283,44 +283,38 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       return (
         <div
           onClick={onAction}
-          className="group cursor-pointer relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[1.5rem] p-5 md:p-7 flex flex-col transition-all duration-500 hover:shadow-[0_12px_50px_-12px_rgba(37,99,235,0.08)]"
+          className="group cursor-pointer relative bg-card border border-slate-200/70 shadow-[0_10px_40px_-12px_rgba(15,27,61,0.12)] rounded-[1.5rem] overflow-hidden transition-all duration-300 hover:shadow-[0_16px_50px_-12px_rgba(15,27,61,0.18)]"
         >
-          <div className="flex items-center gap-2 mb-3">
-            <div className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+          {/* Header band with badge instead of photo */}
+          <div className="relative h-20 bg-gradient-to-br from-[#EEF2FB] via-[#F4F1EA] to-[#FAE8DE]">
+            <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
+              <Star className="w-3 h-3 fill-white" strokeWidth={0} />
+              Empfohlen
             </div>
-            <span className="text-[10.5px] font-semibold text-blue-600 uppercase tracking-widest">
-              Aktueller Schritt
-            </span>
           </div>
 
-          <div className="space-y-1.5 max-w-xl mb-2">
-            <h3 className="text-[17px] md:text-xl font-semibold text-slate-900 tracking-tight leading-snug">
-              {title}
-            </h3>
-            <p className="text-[13.5px] md:text-sm text-slate-500 leading-relaxed">
-              {desc}
-            </p>
-          </div>
-
-          <div className="mt-5 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-100/60 via-slate-100 to-transparent" />
-            <div className="flex items-center gap-2.5">
-              <span className={cn('w-1.5 h-1.5 rounded-full', dotCls)} />
-              <span className="text-[13px] text-slate-600 font-medium">{statusLabel}</span>
+          <div className="p-5 md:p-6 space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
+                {title}
+              </h3>
+              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed">
+                {desc}
+              </p>
             </div>
+
             <button
               onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[14px] font-medium flex items-center justify-center gap-2 shadow-[0_4px_16px_-4px_rgba(15,27,61,0.3)] hover:shadow-[0_8px_24px_-4px_rgba(15,27,61,0.4)] transition-all duration-300 transform group-hover:-translate-y-0.5"
+              className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[15px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(15,27,61,0.4)] hover:shadow-[0_12px_28px_-8px_rgba(15,27,61,0.5)] transition-all duration-300"
             >
+              <Upload className="w-4 h-4" strokeWidth={2} />
               {actionLabel}
-              <ChevronRight className="w-4 h-4 text-white/90" strokeWidth={2} />
             </button>
           </div>
         </div>
       );
     }
+
 
     // ───── Done / Locked: compact row ─────
     const isDone = state === 'done';
