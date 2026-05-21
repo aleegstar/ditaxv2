@@ -523,7 +523,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     >
       <div className="max-w-xl mx-auto pointer-events-auto md:mx-0 md:w-[360px]">
         <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] backdrop-blur-md">
-          <div className="relative h-14 w-full overflow-hidden bg-muted">
+          {/* Image only on desktop */}
+          <div className="relative h-14 w-full overflow-hidden bg-muted hidden md:block">
             <img
               src={nextStepMeta.image}
               alt=""
@@ -539,8 +540,16 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             </div>
           </div>
           <div className="p-3 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
+            <div className="min-w-0 space-y-1">
+              {/* Pill replaces "SCHRITT X VON Y" on mobile */}
+              <div className="md:hidden inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+                </span>
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Nächster Schritt</span>
+              </div>
+              <div className="hidden md:block text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
               <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate">{nextStepMeta.title}</h3>
             </div>
             <button
@@ -553,6 +562,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             </button>
           </div>
         </div>
+
       </div>
     </div>
   ) : null;
