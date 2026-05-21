@@ -31,8 +31,6 @@ interface DocumentUploadSheetProps {
   taxFilerId?: string | null;
   /** Called after upload + document reload completes. Can be async — sheet waits for it. */
   onUploaded: (itemId: string) => Promise<void> | void;
-  /** If provided when the sheet opens, the file picker is skipped and this file is processed directly. */
-  initialFile?: File | null;
 }
 
 type Phase = 'select' | 'validating' | 'result' | 'uploading' | 'success' | 'error';
@@ -44,7 +42,6 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   taxFilerId,
   onClose,
   onUploaded,
-  initialFile,
 }) => {
   const [phase, setPhase] = useState<Phase>('select');
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
@@ -211,18 +208,6 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     if (file) handleFileSelected(file);
     e.target.value = '';
   }, [handleFileSelected]);
-
-  // If sheet opens with a pre-selected file, skip the picker and process it directly
-  const processedInitialRef = useRef<File | null>(null);
-  useEffect(() => {
-    if (open && initialFile && processedInitialRef.current !== initialFile) {
-      processedInitialRef.current = initialFile;
-      handleFileSelected(initialFile);
-    }
-    if (!open) {
-      processedInitialRef.current = null;
-    }
-  }, [open, initialFile, handleFileSelected]);
 
   const handleConfirm = useCallback(() => {
     if (fileBufferRef.current && fileInfoRef.current) {
