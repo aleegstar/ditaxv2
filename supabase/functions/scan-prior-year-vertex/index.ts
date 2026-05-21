@@ -112,12 +112,13 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (filerErr || !filerRow) return json({ error: "forbidden tax_filer" }, 403);
 
-    // AI rate limit: 5/Tag/User + 3 lifetime pro filer+year
+    // AI rate limit: 5/Tag/User + 3 lifetime pro filer+year + 3 lifetime pro Gerät+year
     const rl = await checkAndLogAiUsage({
       userId,
       endpoint: "prior_year",
       taxFilerId,
       taxYear,
+      deviceId: extractDeviceId(req),
     });
     if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
 
