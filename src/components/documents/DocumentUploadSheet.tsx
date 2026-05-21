@@ -22,6 +22,7 @@ import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { isMobileAppContext } from '@/utils/platform';
 import documentScanImg from '@/assets/document-scan.webp';
+import uploadHeroCouple from '@/assets/upload-hero-couple.webp';
 
 interface DocumentUploadSheetProps {
   open: boolean;
@@ -270,7 +271,19 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
           {/* Phase: Select file source */}
           {phase === 'select' && (
             <div>
-              <div className="text-center mb-6 px-2">
+              {/* Hero image */}
+              <div className="-mx-5 -mt-3 mb-5 h-32 overflow-hidden rounded-t-[inherit] relative">
+                <img
+                  src={uploadHeroCouple}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+              </div>
+
+              <div className="text-center mb-5 px-2">
                 <h3 className="text-[22px] leading-tight font-semibold tracking-tight text-foreground">
                   {item?.title || 'Dokument hochladen'}
                 </h3>
@@ -309,7 +322,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
                       className={cardBtn}
                       style={{ touchAction: 'manipulation' }}
                     >
-                      <div className={iconWrap}><img src={documentScanImg} alt="" width={448} height={448} loading="lazy" decoding="async" className="w-8 h-8 object-contain" /></div>
+                      <div className={iconWrap}><Camera className="w-5 h-5 text-[#1E3A5F]" strokeWidth={2} /></div>
                       <span className="text-[15px] font-medium text-foreground">Dokument scannen</span>
                       {chevron}
                     </button>
