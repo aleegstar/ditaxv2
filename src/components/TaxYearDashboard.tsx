@@ -753,57 +753,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         taxYear={taxYear}
         hasInternalPriorYear={hasInternalPriorYear}
       />
-      {/* ═══════════ Floating next-step CTA (mobile) ═══════════ */}
-      {(() => {
-        if (intakeMode === null) return null;
-        const isPy = intakeMode === 'prior_year_upload';
-        const step = isPy ? pyNextStep : nextStep;
-        const canAct = isPy
-          ? (step === 1 || (step === 2 && pyStep1Done) || (step === 3 && pyCanSubmit))
-          : (step === 1 || (step === 2 && allAngabenComplete) || (step === 3 && canSubmit));
-        const remaining = isPy ? pyRemaining : remainingSteps;
-        if (remaining === 0 || !canAct) return null;
-        const onClick = isPy ? handlePyCtaClick : handleCtaClick;
-        const label =
-          step === 1
-            ? (isPy ? 'Vorjahres-Daten bestätigen' : 'Persönliche Angaben erfassen')
-            : step === 2
-              ? 'Belege & Unterlagen hochladen'
-              : 'Steuererklärung einreichen';
-        const Icon = step === 1 ? FileCheck2 : step === 2 ? UploadCloud : SendIcon;
-        return (
-          <AnimatePresence>
-            <motion.div
-              key={`${intakeMode}-${step}`}
-              initial={{ y: 80, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 80, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-              className="md:hidden fixed left-3 right-3 z-[10005] pointer-events-none"
-              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
-            >
-              <button
-                type="button"
-                onClick={onClick}
-                className="pointer-events-auto w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white shadow-[0_12px_32px_-8px_rgba(15,27,61,0.45),0_4px_12px_-4px_rgba(15,27,61,0.3)] active:scale-[0.98] transition-transform"
-              >
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                  <Icon className="w-[18px] h-[18px] text-white" strokeWidth={1.75} />
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="text-[10.5px] font-medium text-white/65 uppercase tracking-[0.12em] leading-none mb-1">
-                    Nächster Schritt
-                  </div>
-                  <div className="text-[14.5px] font-semibold text-white tracking-tight truncate">
-                    {label}
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/80 shrink-0" strokeWidth={2} />
-              </button>
-            </motion.div>
-          </AnimatePresence>
-        );
-      })()}
     </>
   );
 
