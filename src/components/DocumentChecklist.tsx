@@ -102,6 +102,24 @@ const DocumentChecklist: React.FC = () => {
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [uploadSheetOpen, setUploadSheetOpen] = useState(false);
   const [uploadSheetItem, setUploadSheetItem] = useState<ChecklistItem | null>(null);
+  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
+  const directUploadInputRef = useRef<HTMLInputElement>(null);
+  const pendingUploadItemRef = useRef<ChecklistItem | null>(null);
+
+  const triggerDirectUpload = (item: ChecklistItem) => {
+    pendingUploadItemRef.current = item;
+    directUploadInputRef.current?.click();
+  };
+
+  const handleDirectFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const item = pendingUploadItemRef.current;
+    e.target.value = '';
+    if (!file || !item) return;
+    setUploadSheetItem(item);
+    setPendingUploadFile(file);
+    setUploadSheetOpen(true);
+  };
   
   const hasShownCompletionDialog = useRef(false);
   const isMobile = useIsMobile();
@@ -573,7 +591,7 @@ return <div className="min-h-screen">
                         )}
                         <Button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
+                          onClick={(e) => { e.stopPropagation(); triggerDirectUpload(item); }}
                           className="flex-1"
                         >
                           Hochladen
@@ -698,15 +716,26 @@ return <div className="min-h-screen">
         </div>
       )}
 
+      {/* Hidden input for direct upload from checklist Hochladen button */}
+      <input
+        ref={directUploadInputRef}
+        type="file"
+        className="hidden"
+        accept="image/jpeg,image/png,image/jpg,image/heic,application/pdf"
+        onChange={handleDirectFileChange}
+      />
+
       {/* Unified Upload Bottom Sheet */}
       <DocumentUploadSheet
         open={uploadSheetOpen}
-        onClose={() => { setUploadSheetOpen(false); setUploadSheetItem(null); }}
+        onClose={() => { setUploadSheetOpen(false); setUploadSheetItem(null); setPendingUploadFile(null); }}
         item={uploadSheetItem}
         taxYear={taxYear}
         taxFilerId={activeTaxFilerId}
         onUploaded={handleSheetUploaded}
+        initialFile={pendingUploadFile}
       />
+
     </div>;
 
 };
