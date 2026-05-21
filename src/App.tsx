@@ -52,6 +52,7 @@ const TaxFilers = lazyWithRetry(() => import("./pages/TaxFilers"));
 const SelectPerson = lazyWithRetry(() => import("./pages/SelectPerson"));
 const Invoices = lazyWithRetry(() => import("./pages/Invoices"));
 const PersonalInfo = lazyWithRetry(() => import("./pages/PersonalInfo"));
+const PriorYearIntake = lazyWithRetry(() => import("./pages/PriorYearIntake"));
 const DevCanonical = lazyWithRetry(() => import("./pages/DevCanonical"));
 const DevAgExport = lazyWithRetry(() => import("./pages/DevAgExport"));
 const DevAgXml = lazyWithRetry(() => import("./pages/DevAgXml"));
@@ -244,6 +245,7 @@ const AuthenticatedApp = () => {
                 <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
                 <Route path="/form" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/personal-info" element={<ProtectedRoute><PersonalInfo /></ProtectedRoute>} />
+                <Route path="/prior-year" element={<ProtectedRoute><PriorYearIntake /></ProtectedRoute>} />
                 <Route path="/form/documents/upload/:itemId" element={<ProtectedRoute><DocumentUploadPage /></ProtectedRoute>} />
                 <Route path="/documents" element={
                   <ProtectedRoute>
