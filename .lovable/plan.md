@@ -1,75 +1,103 @@
+
+# Vault-gehärtetes AI-Rate-Limiting
+
 ## Ziel
+Verhindern, dass User die Gemini-Quotas (Vorjahres-Scan, Lohnausweis, OCR) durch Account-Löschen + Reinstall + neuen Account umgehen. Wir verankern die Quota zusätzlich an einer **geräteweiten ID**, die Despia in iCloud KVS / Google Backup speichert und Reinstall + Account-Wechsel überlebt.
 
-Missbrauch der teuren Vertex-AI-Endpunkte verhindern, ohne ehrliche Vielnutzer auszubremsen. Lokales OCR (Despia Vision / Tesseract) bleibt unbegrenzt.
-
-## Limits (server-enforced, nicht im Client)
-
-| Endpunkt | Limit | Begründung |
-|---|---|---|
-| `scan-prior-year-vertex` | **3 Scans pro `tax_filer_id` + `tax_year` (lifetime)** + zusätzlich max. 5/Tag pro User | Vorjahres-PDF ist der teuerste Call. 3 Versuche pro Steuerjahr/Person reichen für „Ersetzen" auch bei Fehlversuchen. |
-| `extract-lohnausweis` | **20 / Tag pro User** | Realistisch: Ehepaar mit mehreren Jobs ≈ 4–8 Lohnausweise. 20 ist grosszügig. |
-| `ocr-extract` (Checklisten-Keywords) | **100 / Tag pro User** | Checklisten-Klassifikation läuft pro Upload. Multi-Filer-Haushalte können 50+ Docs hochladen. |
-
-Alle Werte als Konstanten in `supabase/functions/_shared/rate-limits.ts` – einfach anpassbar.
-
-## Verhalten bei Überschreitung
-
-**Fallback statt Block.** Wenn das Tageslimit erreicht ist, gibt die Edge Function `429` mit `{ error: "rate_limited", fallback: "local" }` zurück. Der Client erkennt das und:
-
-- `PriorYearUpload`: zeigt Toast „Tageslimit für KI-Analyse erreicht – wir nutzen lokale Erkennung" und ruft den existierenden lokalen Pfad (`extractScanFromPdf` / `ocrPdfLocally`) auf.
-- `DocumentValidator` (Checklisten-OCR): fällt automatisch auf Despia Vision OCR bzw. Tesseract zurück (Logik existiert bereits).
-- Lohnausweis-Extraktion: kein Auto-Fallback (Strukturierung braucht KI). Hier erscheint Toast „KI-Analyse heute nicht mehr verfügbar – bitte morgen erneut versuchen oder Felder manuell ausfüllen."
-
-Beim **Lifetime-Limit** für Vorjahres-Scans (3x pro Filer/Jahr verbraucht) erscheint Hinweis „Du hast die 3 Analysen für dieses Steuerjahr aufgebraucht. Bitte fülle die Checkliste manuell aus oder kontaktiere den Support." – kein automatischer lokaler Fallback, weil sonst die Lifetime-Bremse umgangen würde.
-
-## Technische Umsetzung
-
-### 1. Neue Tabelle `ai_usage_log`
+## Konzept
 
 ```text
-id, user_id, tax_filer_id (nullable), tax_year (nullable),
-endpoint ('prior_year' | 'lohnausweis' | 'ocr_extract'),
-created_at, success bool
+   ┌──────────────┐                  ┌─────────────────────────┐
+   │ Despia App   │                  │ Edge Function           │
+   │ (iOS/Android)│   X-Device-Id    │ scan-prior-year-vertex  │
+   │              │ ───────────────▶ │ extract-lohnausweis     │
+   │ Vault:       │                  │ ocr-extract             │
+   │  ditax_did   │                  │                         │
+   └──────────────┘                  │ check user_id quota     │
+                                     │ check device_id quota   │
+                                     │ → blockiert wenn EINER  │
+                                     │   der beiden voll ist   │
+                                     └─────────────────────────┘
 ```
-RLS: User sieht nur eigene Zeilen (SELECT), INSERT nur via service_role aus Edge Functions.
 
-Index: `(user_id, endpoint, created_at)` für schnelle Tages-Counts; `(tax_filer_id, tax_year, endpoint)` für Lifetime-Count.
+- Beim ersten App-Start nach Login wird `vault.get("ditax_did")` versucht. Fehlt sie → neue UUID generieren und `vault.set("ditax_did", uuid)`.
+- Diese UUID wird bei JEDER AI-Edge-Function als Header `X-Device-Id` mitgeschickt.
+- Server **hashed** sie (SHA-256 + Pepper aus Secret) und speichert nur `device_hash` → DSGVO-konform pseudonym.
+- Limit-Check zählt PARALLEL `user_id`-Treffer UND `device_hash`-Treffer. Treffer auf einem der beiden ⇒ Block.
 
-### 2. Shared Helper `supabase/functions/_shared/ai-rate-limit.ts`
+## Limits (unverändert in Höhe, härter im Scope)
 
-```text
-checkAndLogAiUsage({ userId, endpoint, taxFilerId?, taxYear? })
-  → { allowed: true } | { allowed: false, reason, fallback }
-```
-- Verwendet `service_role`-Client (RLS bypass).
-- Zählt mit einer einzigen SQL-Query (`COUNT(*) FILTER ...`) Tages- und Lifetime-Treffer.
-- Loggt erfolgreichen Call vor der Vertex-Anfrage (pessimistisch), markiert bei Failure als `success=false` (zählt trotzdem gegen Tageslimit, um Retry-Storms zu verhindern).
+| Endpoint            | Tag (user_id) | Tag (device) | Lifetime           |
+|---------------------|---------------|--------------|--------------------|
+| prior_year          | 5             | 5            | 3 pro (device, year) ZUSÄTZLICH zu 3 pro (filer, year) |
+| lohnausweis         | 20            | 20           | –                  |
+| ocr_extract         | 100           | 100          | –                  |
 
-### 3. Integration in die 3 Edge Functions
+Web-User (kein Vault verfügbar) → Header fehlt → nur user_id-Quota greift (heutiger Stand, kein Regress).
 
-In `scan-prior-year-vertex/index.ts`, `extract-lohnausweis/index.ts`, `ocr-extract/index.ts` jeweils direkt nach der Auth-Prüfung den Helper aufrufen. Bei `allowed: false` → `429` mit JSON-Body.
+## Umsetzung
 
-### 4. Client-Anpassungen
+### 1. Client – Vault-Helper
+- **Neu** `src/lib/deviceVault.ts`:
+  - `getOrCreateDeviceId(): Promise<string | null>` – nur in `isDespiaNative()` aktiv, sonst `null`.
+  - Liest `readvault://?key=ditax_did`. Wenn leer: `crypto.randomUUID()` + `setvault://?key=ditax_did&value=…&locked=false`.
+  - Cached im Modul + sessionStorage, damit nicht jeder Call die Vault anfasst.
+- **Wrapper** `src/lib/aiFetch.ts`:
+  - `invokeAi(name, body)` ruft `supabase.functions.invoke` mit zusätzlich `headers: { 'x-device-id': deviceId }` wenn vorhanden.
+- **Refactor** der 3 Call-Sites:
+  - `src/components/intake/PriorYearUpload.tsx` (Aufruf `scan-prior-year-vertex`)
+  - `src/services/LohnausweisOcrService.ts` (Aufruf `extract-lohnausweis`)
+  - `src/services/CloudOcrService.ts` bzw. wo `ocr-extract` invoked wird
+  - Alle Stellen verwenden den Wrapper statt `supabase.functions.invoke` direkt.
 
-- `src/components/intake/PriorYearUpload.tsx`: bei `429`+`fallback==='local'` → automatisch lokalen Pfad ausführen, Toast informativ.
-- `src/services/LohnausweisOcrService.ts`: bei `429` → freundlicher Fehler-Toast, kein Fallback.
-- `src/services/DocumentValidator.ts` / `CloudOcrService.ts`: bei `429` → bereits vorhandener lokaler OCR-Pfad (Despia/Tesseract).
+### 2. Server – Hash + Quota erweitern
+- **Erweitern** `supabase/functions/_shared/ai-rate-limit.ts`:
+  - Neuer Param `deviceId?: string` (aus Header `x-device-id`, validiert UUID v4-Format, max 64 Zeichen).
+  - Hash: `sha256(deviceId + Deno.env.get('DEVICE_ID_PEPPER'))` → `device_hash`.
+  - Zwei zusätzliche SELECTs gegen `ai_usage_log` mit Filter `device_hash = …` für Tag & Lifetime.
+  - Reason-Codes erweitert: `daily_limit_device`, `lifetime_limit_device`.
+- **Migration**:
+  ```sql
+  ALTER TABLE public.ai_usage_log
+    ADD COLUMN device_hash text;
+  CREATE INDEX idx_ai_usage_log_device_endpoint_created
+    ON public.ai_usage_log (device_hash, endpoint, created_at DESC)
+    WHERE device_hash IS NOT NULL;
+  CREATE INDEX idx_ai_usage_log_device_year_endpoint
+    ON public.ai_usage_log (device_hash, tax_year, endpoint)
+    WHERE device_hash IS NOT NULL;
+  ```
+- **Secret hinzufügen**: `DEVICE_ID_PEPPER` (zufälliger 32-Byte hex String) via `add_secret`.
+- **3 Edge Functions** lesen den Header und übergeben ihn an `checkAndLogAiUsage`.
 
-### 5. Admin-Sichtbarkeit (optional, Phase 2)
+### 3. Fallback-Verhalten (gleiche Policy wie bisher)
+- `daily_limit*` bei `prior_year` und `ocr_extract` → 429 mit `fallback: "local"`, Client schaltet auf lokales OCR.
+- `lifetime_limit*` bei `prior_year` → 429 ohne Fallback, freundlicher Hinweis-Toast „max 3 Scans pro Steuerjahr".
+- `daily_limit*` bei `lohnausweis` → 429 mit Toast (kein Auto-Fallback, lokal kann das nicht).
 
-Neue Admin-Seite oder Erweiterung von `UserDetail.tsx`: zeigt AI-Usage der letzten 30 Tage pro User. Erlaubt Admin per Knopfdruck einen Tag-Reset (DELETE rows < heute). **Nicht in dieser Iteration enthalten** – nur die Tabelle ist bereits dafür vorbereitet.
+### 4. Admin-Sichtbarkeit
+- `UserDetail.tsx` zeigt zusätzlich „Geräte verknüpft mit diesem Account: N" (distinct `device_hash` in `ai_usage_log`).
+- Optional Phase 2 (nicht in diesem Plan): geräte-basiertes Aufheben durch Support.
 
-## Nicht im Scope
+## Was bewusst NICHT gemacht wird
+- Kein Biometrie-Lock (`locked=true`) auf der Device-ID – würde bei jedem Scan FaceID prompten.
+- Kein Vault-Sync für `user_id` selbst (Account-Identifikation läuft weiter über Supabase Auth).
+- Keine Captcha- oder IP-Limits.
+- Web-User bekommen keinen zusätzlichen Schutz (akzeptiertes Restrisiko).
 
-- Bezahltes Credit-System (kann später auf der `ai_usage_log`-Tabelle aufgebaut werden).
-- Limit für lokales OCR (bleibt absichtlich unlimitiert).
-- IP-basiertes Limit (User-basiert reicht, da Auth erzwungen).
+## Datenschutz
+- Vault enthält nur eine zufällige UUID, kein PII.
+- Server speichert nur den gepfefferten Hash, daraus ist die UUID nicht rückrechenbar.
+- Hinweis in Privacy-Policy ergänzen: „Zur Missbrauchsverhinderung speichern wir in der App eine pseudonyme Geräte-Kennung in der Plattform-Schlüsselablage (iCloud / Google Backup) und einen Hash davon auf unseren Servern."
 
-## Migration & Rollout
+## Risiken
+- iCloud / Google Backup kann von Power-Usern manuell geleert werden → Quota-Reset möglich, aber Aufwand >> Nutzen für 3 Vorjahres-Scans.
+- Familien-iCloud-Account (mehrere echte User auf einem iCloud) → kollidierende Device-ID, also striktere Quota für sie. Akzeptabel, kommt selten vor.
 
-1. Migration: Tabelle + RLS + Indizes.
-2. Shared Helper + 3 Edge-Function-Integrationen.
-3. Client-Fallback-Handling.
-4. Konstanten so wählen, dass auch der grösste reale Use-Case (Ehepaar, 2 Kinder, 3 Liegenschaften) komfortabel unter dem Limit bleibt – aktuelle Werte oben sind dafür ausgelegt.
-
-Nach Approval setze ich das in einem Rutsch um.
+## Reihenfolge
+1. Secret `DEVICE_ID_PEPPER` anlegen.
+2. Migration (Spalte + Indizes).
+3. `_shared/ai-rate-limit.ts` erweitern.
+4. 3 Edge Functions Header-Forwarding.
+5. Client `deviceVault.ts` + `aiFetch.ts` + 3 Call-Sites umstellen.
+6. Privacy-Hinweis Text ergänzen.
