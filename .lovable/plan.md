@@ -1,97 +1,113 @@
 ## Ziel
 
-Zwei Pfade liefern die Bank-/Depotkonten in die Dokumenten-Checkliste — jeweils **1 Eintrag pro Konto** (auch wenn ein Konto in Rubrik A und B vorkommt, gilt es als 1 Beleg, weil es als 1 Eintrag erfasst wird).
+Alle drei OCR-Pfade von Gemini (Lovable AI Gateway) auf **Azure Document Intelligence** (Region **Switzerland North**) umstellen. Dokumente verlassen damit weder die Schweiz noch werden sie an einen LLM-Anbieter geschickt. Strukturierte Felder werden in den Edge Functions per Regeln/Regex aus Azures Text+Tabellen-Output gewonnen — kein LLM-Fallback.
 
-1. **Yes/No-Flow:** Dropdown „Anzahl Bankkonten/Depots" → erzeugt generische Einträge „Bank 1", „Bank 2", …
-2. **Vorjahres-Import (OCR):** Wertschriften-Seiten werden ausgewertet → erzeugt pro erkanntem Konto einen benannten Eintrag, z. B. „UBS – CH19…", „Postfinance – CH81…", „Yuh – Depot 1666308".
+## Datenfluss neu
 
----
+```text
+Client (Browser/App)
+   │  PDF/Bild (base64, transient)
+   ▼
+Supabase Edge Function (Auth-gated)
+   │  POST .../prebuilt-layout:analyze    (Switzerland North, no-store)
+   ▼
+Azure Document Intelligence (CH-Region)
+   │  AnalyzeResult JSON (Pages, Lines, Tables, KV-Pairs)
+   ▼
+Regel-Mapper in Edge Function
+   │  Strukturierte Felder / Konten / Keyword-Matches
+   ▼
+Client (kein Rohtext, nur Resultate)
+```
+
+## Voraussetzungen (User-Aktion)
+
+1. In Azure Portal: **Document Intelligence**-Ressource in *Switzerland North* erstellen (Tier S0).
+2. Endpoint + Key 1 bereitlegen.
+3. Lovable fragt anschliessend zwei Secrets ab:
+   - `AZURE_DOC_INTEL_ENDPOINT` (z.B. `https://ditax-doc-intel.cognitiveservices.azure.com`)
+   - `AZURE_DOC_INTEL_KEY`
+4. (Optional, später) Customer-Managed Key + Private Endpoint für höchste Stufe.
 
 ## Änderungen
 
-### A. Datenmodell
+### A. Neues Shared-Modul `supabase/functions/_shared/azure-doc-intel.ts`
 
-**`src/contexts/form/defaults.ts`**
-- `assets.hasDepositAccount` entfernen.
-- Neu:
-  - `accountCount: number | undefined` — Anzahl aus Dropdown (Yes/No-Flow).
-  - `accounts: Array<{ id: string; institution: string; reference: string; source: 'manual' | 'prior-year' }>` — vom OCR befüllte Detailliste (überschreibt `accountCount`, wenn vorhanden).
+- `analyzeDocument(bytes: Uint8Array, mimeType, model = "prebuilt-layout")`:
+  - POST `${ENDPOINT}/documentintelligence/documentModels/${model}:analyze?api-version=2024-11-30` mit `Content-Type` aus `mimeType` (oder `application/json` + base64 für ältere Variante).
+  - Polling über `Operation-Location` (Intervall 1s, Timeout 60s).
+  - Liefert typisiertes `AnalyzeResult` (pages.lines, pages.words, tables, keyValuePairs).
+- `extractPlainText(result)` und `extractTables(result)` Helfer.
+- Fehlerbehandlung: 401/403 → `azure_unauthorized`, 429 → `rate_limited`, sonst `azure_error`.
+- Niemals Rohtext loggen, nur Statuscodes/Latenz.
 
-**`src/contexts/form/sanitizeImport.ts` / `FormContext.tsx`**
-- Migration: alter `hasDepositAccount: true` → `accountCount: 1`.
-- `hasAssetsData` (FormContext Zeile 574) auf `accountCount > 0 || accounts?.length > 0` umstellen.
+### B. `supabase/functions/ocr-extract/index.ts` (Upload-Keyword-Matching)
 
-### B. Yes/No-Flow (Dropdown)
+- Gemini-Vision-Call entfernen.
+- Bild → `analyzeDocument(..., "prebuilt-read")`.
+- `extractPlainText` → case-insensitives Substring-Matching gegen das `keywords`-Array (Logik wie heute auf Modellantwort).
+- Response-Shape (`{ matched: string[], duration }`) bleibt identisch, damit `CloudOcrService.ts` unverändert funktioniert.
 
-**`src/config/yesNoQuestions.ts`** und **`src/i18n/translations.ts`**
-- Frage `hasDepositAccount` ersetzen durch neue Frage `accountCount` vom Typ `dropdown` (Werte 0–10 + „Mehr als 10").
-- Übersetzungsstrings: `t.yesNoForm.questions.assets.accountCount.text` und `.explanation`.
+### C. `supabase/functions/extract-lohnausweis/index.ts`
 
-**`src/components/forms/multistep/MultiStepYesNoForm.tsx`**
-- Dropdown-Fragetyp unterstützen (falls nicht vorhanden → neuen `QuestionType: 'dropdown'` mit Select-Renderer).
-- Antwort schreibt direkt in `formData.assets.accountCount`.
+- Gemini-Tool-Calling entfernen.
+- PDF/Bild → `analyzeDocument(..., "prebuilt-layout")` (Tabellen + KV).
+- Neuer Mapper `mapLohnausweis(result): LohnausweisFields`:
+  - Ziff. 1–15 über deutsche Label-Regexes auf `pages[].lines` + Tabellen-Zellen (z.B. Zeile beginnt mit `1. `, `8. `, `11. `, `13.1.1`).
+  - Beträge: `parseChfAmount("1'234.55")`.
+  - Felder F/G: Boxen werden in Layout als Tabellenzellen mit `:selected:` / `:unselected:` markiert (Selection Marks API) → bool.
+  - AHV-Nr: Regex `756\.\d{4}\.\d{4}\.\d{2}`.
+  - Datum `dd.mm.yyyy` → ISO.
+  - `notes` (Ziff. 15): Text unterhalb der Ziff.-15-Zeile bis Seitenende.
+  - `confidence`: Mittelwert der relevanten Zellen-Confidences.
+- Response-Shape (`{ fields }`) bleibt identisch → `LohnausweisOcrService.ts` unverändert.
 
-**`src/components/forms/AssetsForm.tsx`** (Expert-Modus)
-- Checkbox `hasDepositAccount` ersetzen durch shadcn `Select` mit identischen Optionen, bindet auf `accountCount`.
+### D. `supabase/functions/scan-prior-year-ai/index.ts`
 
-### C. Vorjahres-Import / OCR (Wertschriften-Extraktion)
+- Gemini-Call entfernen, `MODEL`/`LOVABLE_API_KEY` entfernen.
+- PDF → `analyzeDocument(..., "prebuilt-layout")`.
+- Neuer Mapper `extractAccountsFromTables(result): Account[]`:
+  - Filter auf Tabellen, deren Header-Zellen `Kto-Nr`, `Valoren-Nr`, `Bezeichnung` enthalten (Rubrik A + B).
+  - Pro Detailzeile: `reference` aus Spalte „Kto-Nr/Valoren-Nr" (IBAN-Regex `CH\d{2}[A-Z0-9]{17}` oder Depot `\d{5,14}`), `institution` aus „Bezeichnung".
+  - Dedup nach `reference.replace(/\s+/g,'').toUpperCase()`.
+  - Sanity-Filter `IBAN_OK` / `DEPOT_OK` (wie heute schon vorhanden) behalten.
+- Bestehende Kategorien-Erkennung (`income`/`assets`/`deductions`) — heute LLM-basiert — wird ersetzt durch **Keyword-Erkennung im Layout-Text** (z.B. Vorkommen von „Lohnausweis" → `income: Lohnausweis`). `ALLOWED_LABELS` bleibt als Whitelist.
+- `raw_scan._source` → `"azure_layout"`.
+- Restliche DB-Logik (`prior_year_checklists` upsert, items insert, status-Updates) bleibt 1:1.
 
-**`src/services/PriorYearLocalExtractor.ts`**
-- Neue Funktion `extractAccountsFromRows(pages)`: scannt die Rubrik-A- und Rubrik-B-Tabellen (Wertschriften- und Guthabenverzeichnis) zeilenweise:
-  - Erkennt Konto-Identifier (IBAN-Muster `CH\d{2}[\s\d]{17,}` oder Depot-Nummer `\d{6,}`) in der Spalte „Kto-Nr Valoren-Nr".
-  - Erkennt die Bezeichnung in der Nachbarspalte („UBS Switzerland AG", „Post", „Yuh", „Plus500…").
-  - Erkennt Typ-Token in Spalte „T" (`BK`, `PC`, `Dep`).
-  - Dedupliziert nach normalisierter Konto-Nr (z. B. IBAN ohne Leerzeichen) — Yuh in A+B bleibt 1 Eintrag.
-- Neues Feld im `ExtractedScan`-Typ: `accounts: Array<{ institution: string; reference: string; type: 'BK'|'PC'|'Dep' }>`.
+### E. Aufräumen
 
-**`src/services/seedPriorYearChecklistFromInternal.ts`** und **`src/hooks/usePriorYearChecklist.ts`**
-- Beim Übernehmen der OCR-Resultate in den Form-State: extrahierte `accounts` in `formData.assets.accounts` schreiben (Source `'prior-year'`).
-- Bisheriges generisches Item „Depotauszug per 31.12." / „Bankkontoauszug per 31.12." aus der Asset-Liste entfernen — wird ersetzt durch die Einzeleinträge.
+- `LOVABLE_API_KEY` wird nicht mehr von diesen drei Functions referenziert (bleibt im Projekt für andere Features wie `chatbot-response`, `docs-chatbot` — **nicht löschen**).
+- `supabase/functions/_shared/ai-safety.ts` (`sanitizePromptInput`) bleibt für andere Functions.
+- Frontend-Services (`CloudOcrService`, `LohnausweisOcrService`, `seedPriorYearChecklistFromInternal`, `usePriorYearChecklist`) bleiben unverändert — gleiches Response-Schema.
 
-### D. Checklist-Generator
+### F. Datenschutz-Dokumentation
 
-**`src/contexts/form/checklistGenerator.ts`**
-- Items `bank-account-statement` und `deposit-account` entfernen.
-- Neuer Block (im `assets`-Branch):
-  ```ts
-  const accounts = formData.assets?.accounts ?? [];
-  if (accounts.length > 0) {
-    accounts.forEach((acc, i) => checklistItems.push({
-      id: `account-${acc.id}`,
-      title: `${acc.institution} – ${acc.reference}`,
-      description: 'Zins-/Saldobescheinigung oder Depotauszug per 31.12. (1 Beleg pro Konto, auch wenn Rubrik A + B kombiniert).',
-      category: 'assets',
-      uploaded: false,
-      required: true,
-    }));
-  } else if ((formData.assets?.accountCount ?? 0) > 0) {
-    const n = formData.assets.accountCount!;
-    for (let i = 1; i <= n; i++) checklistItems.push({
-      id: `account-generic-${i}`,
-      title: `Bank ${i}`,
-      description: `Zins-/Saldobescheinigung oder Depotauszug per 31.12. (Konto ${i} von ${n}).`,
-      category: 'assets',
-      uploaded: false,
-      required: true,
-    });
-  }
-  ```
-
-### E. Texte
-
-- DE (informell) + EN für `accountCount`-Frage, Dropdown-Optionen und neue Item-Beschreibungen in `src/i18n/translations.ts`.
-
----
+- `SECURITY.md`: OCR-Anbieter-Tabelle aktualisieren (Gemini → Azure DI CH-North, No-Retention, kein Training auf Kundendaten).
+- Datenschutzerklärung (`src/pages/Privacy.tsx`): Auftragsverarbeiter-Liste aktualisieren — Google LLC / Gemini entfernen für OCR, Microsoft Azure (CH) hinzufügen.
 
 ## Akzeptanzkriterien
 
-- Yes/No-Flow: Auswahl „3" → Checkliste zeigt „Bank 1", „Bank 2", „Bank 3" unter Vermögen.
-- Vorjahres-Import auf der Beispiel-PDF (Yuh + UBS×3 + Post×2 + Plus500): Checkliste zeigt 6 benannte Einträge — Yuh erscheint **einmal**, obwohl es in Rubrik A und B steht.
-- Alte `hasDepositAccount: true`-Daten laden migriert als `accountCount: 1` ohne UI-Fehler.
-- Keine „Zins- und Saldobescheinigung der Bankkonten"-Sammelposition mehr.
+- Upload eines Lohnausweis-PDFs liefert dieselben Felder wie bisher (manuelle Stichprobe an 3 Belegen).
+- `scan-prior-year-ai` auf Beispiel-PDF (Yuh + UBS×3 + Post×2 + Plus500): liefert 6 deduplizierte Konten.
+- Bild-Upload mit Keyword-Hint klassifiziert das Dokument identisch (`CloudOcrService` Response-Shape unverändert).
+- Keine ausgehenden Requests mehr an `ai.gateway.lovable.dev` aus diesen drei Functions (Logs prüfen).
+- 401 von Azure → User bekommt „OCR temporär nicht verfügbar"-Hinweis, kein Crash.
 
 ## Technische Details
 
-- shadcn `Select` mit semantischen Tokens (`bg-card`, `border`), navy Primary für Submit — keine Custom-Farben.
-- Dedup-Key fürs OCR: `reference.replace(/\s+/g,'').toUpperCase()`.
-- `tax_filer_id`-Partition und `_completed: true`-Flag bleiben unverändert; kein Supabase-Schema-Change (alles in `form_data` JSON).
+- API-Version: `2024-11-30` (GA, in Switzerland North verfügbar).
+- Modelle: `prebuilt-read` (nur Text, billiger) für `ocr-extract`; `prebuilt-layout` (Text + Tabellen + Selection Marks) für die beiden anderen.
+- Limits: 500 MB / 2000 Seiten pro Request — wir capen weiter bei 5 MB (Lohnausweis) und 20 MB (Vorjahr).
+- Polling: max 60s, sonst `azure_timeout`. Lohnausweis-PDFs liegen typisch bei 2–4s.
+- Auth gegenüber Azure: Header `Ocp-Apim-Subscription-Key: ${AZURE_DOC_INTEL_KEY}`.
+- Keine Speicherung — Azure DI verarbeitet transient, keine Trainingsverwendung (Subscription-Default).
+- Kosten-Hinweis: ~CHF 1.50 / 1000 Seiten (Read), ~CHF 10 / 1000 Seiten (Layout). Vorher Gemini-Tokens ähnlich, aber CH-Hosting ist der Trade-off.
+
+## Reihenfolge der Umsetzung
+
+1. Secrets-Request (`AZURE_DOC_INTEL_ENDPOINT`, `AZURE_DOC_INTEL_KEY`).
+2. Shared-Modul + `ocr-extract` migrieren, mit 1 Test-Upload validieren.
+3. `extract-lohnausweis` migrieren + Mapper, an 3 Lohnausweis-Mustern validieren.
+4. `scan-prior-year-ai` migrieren + Tabellen-Mapper, am Beispiel-PDF validieren.
+5. `SECURITY.md` + `Privacy.tsx` aktualisieren.
