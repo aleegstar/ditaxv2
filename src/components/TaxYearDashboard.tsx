@@ -484,7 +484,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   };
 
   const handlePyCtaClick = () => {
-    if (pyNextStep === 1) { setStep1Expanded(true); window?.scrollTo({ top: 0, behavior: 'smooth' }); }
+    if (pyNextStep === 1) { navigate(`/prior-year?year=${taxYear}`); }
     else if (pyNextStep === 2) handlePriorYearDocsClick();
     else if (pyCanSubmit) handleSubmitClick();
   };
