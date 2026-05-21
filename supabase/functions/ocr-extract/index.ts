@@ -1,252 +1,143 @@
+// OCR Extract Edge Function — Azure Document Intelligence (Switzerland North).
+//
+// DSGVO/FADP:
+// - Bild wird transient an Azure DI (Schweiz-Region) gesendet, nicht gespeichert.
+// - Nur Keyword-Matches werden zurückgegeben, niemals Rohtext.
+// - Kein Logging von Bildinhalten.
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { sanitizePromptInput } from "../_shared/ai-safety.ts";
+import {
+  analyzeDocument,
+  AzureDocIntelError,
+  extractPlainText,
+} from "../_shared/azure-doc-intel.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-/**
- * OCR Extract Edge Function
- * 
- * DSGVO-konform: 
- * - Bild wird nur temporär im RAM verarbeitet
- * - Nur Keyword-Matches werden zurückgegeben, nie Rohtext
- * - Kein Logging von Bildinhalten
- * - Transiente Verarbeitung über Lovable AI Gateway
- */
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+function base64ToBytes(b64: string): Uint8Array {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
 
-  // SECURITY: Require an authenticated Supabase user so anonymous callers cannot
-  // burn through the Lovable AI Gateway / Gemini credits.
+function detectMimeFromBase64(b64: string): string {
+  if (b64.startsWith("/9j/")) return "image/jpeg";
+  if (b64.startsWith("iVBORw")) return "image/png";
+  if (b64.startsWith("R0lGOD")) return "image/gif";
+  if (b64.startsWith("UklGR")) return "image/webp";
+  return "image/jpeg";
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // Auth gate
   try {
-    const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ error: "Unauthorized" }, 401);
     }
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.57.2');
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.57.2");
     const authClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } },
     );
-    const token = authHeader.replace('Bearer ', '');
+    const token = authHeader.replace("Bearer ", "");
     const { data: claims, error: claimsError } = await authClient.auth.getClaims(token);
-    if (claimsError || !claims?.claims?.sub) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-  } catch (authErr) {
-    console.error('Auth check failed', authErr);
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    if (claimsError || !claims?.claims?.sub) return json({ error: "Unauthorized" }, 401);
+  } catch (err) {
+    console.error("[ocr-extract] auth check failed", err);
+    return json({ error: "Unauthorized" }, 401);
   }
 
   try {
     const { imageBase64, keywords, mimeType: requestedMimeType } = await req.json();
 
-    // Validate input
-    if (!imageBase64 || typeof imageBase64 !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'imageBase64 is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!imageBase64 || typeof imageBase64 !== "string") {
+      return json({ error: "imageBase64 is required" }, 400);
     }
-
     if (!keywords || !Array.isArray(keywords) || keywords.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'keywords array is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return json({ error: "keywords array is required" }, 400);
     }
 
-    // Extract base64 data - handle both raw base64 and data URL format
+    // Strip data URL prefix
     let base64Data = imageBase64;
     let detectedMimeType: string | null = null;
-    
-    if (imageBase64.startsWith('data:')) {
-      const match = imageBase64.match(/^data:(image\/[^;]+);base64,(.+)$/);
-      if (match) {
-        detectedMimeType = match[1];
-        base64Data = match[2];
+    if (imageBase64.startsWith("data:")) {
+      const m = imageBase64.match(/^data:([^;]+);base64,(.+)$/);
+      if (m) {
+        detectedMimeType = m[1];
+        base64Data = m[2];
       }
     }
 
-    // Validate base64 data - must be substantial enough to be a valid image
-    if (base64Data.length < 1000) {
-      console.error('[OCR-Extract] Image data too small:', base64Data.length);
-      return new Response(
-        JSON.stringify({ error: 'Image data too small or invalid' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    if (base64Data.length < 1000) return json({ error: "Image data too small" }, 400);
+    if (base64Data.length > 1_400_000) return json({ error: "Image too large, max 1MB" }, 400);
 
-    // Check image size (max 1MB base64 = ~750KB actual)
-    if (base64Data.length > 1400000) {
-      return new Response(
-        JSON.stringify({ error: 'Image too large, max 1MB' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const mimeType =
+      requestedMimeType || detectedMimeType || detectMimeFromBase64(base64Data);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error('[OCR-Extract] LOVABLE_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: 'OCR service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Prepare the prompt - only extract specific keywords, never return full text
+    // Sanitize keywords (same logic as before — defense in depth)
     const safeKeywords = (keywords as unknown[])
-      .filter((k): k is string => typeof k === 'string')
-      .map(k => sanitizePromptInput(k, 50).replace(/[^\p{L}\p{N}\s\-_.]/gu, '').trim())
-      .filter(k => k.length > 0 && k.length <= 50)
-      .slice(0, 50);
-    const keywordList = safeKeywords.join(', '); // Max 50 keywords, sanitized
-    const systemPrompt = `Du bist ein Dokumenten-Scanner. Analysiere das Bild und finde NUR folgende Begriffe:
-${keywordList}
+      .filter((k): k is string => typeof k === "string")
+      .map((k) => sanitizePromptInput(k, 50).replace(/[^\p{L}\p{N}\s\-_.]/gu, "").trim())
+      .filter((k) => k.length > 0 && k.length <= 50)
+      .slice(0, 200);
 
-WICHTIGE REGELN:
-1. Antworte NUR mit gefundenen Begriffen als JSON-Array
-2. Gib NIEMALS anderen Text aus dem Dokument zurück (Datenschutz!)
-3. Bei Unsicherheit: Begriff nicht listen
-4. Antworte nur mit einem JSON-Array, keine Erklärungen
-
-Beispiel-Antwort: ["Lohnausweis", "Bruttolohn"]`;
-
-    console.log('[OCR-Extract] Sending to Lovable AI Gateway...');
-    const startTime = Date.now();
-
-    // Determine MIME type: client-provided > data URL > base64 detection > fallback
-    let mimeType = requestedMimeType || detectedMimeType;
-    
-    if (!mimeType) {
-      // Detect from base64 header bytes
-      if (base64Data.startsWith('/9j/')) {
-        mimeType = 'image/jpeg';
-      } else if (base64Data.startsWith('iVBORw')) {
-        mimeType = 'image/png';
-      } else if (base64Data.startsWith('R0lGOD')) {
-        mimeType = 'image/gif';
-      } else if (base64Data.startsWith('UklGR')) {
-        mimeType = 'image/webp';
-      } else {
-        mimeType = 'image/jpeg'; // Fallback
-      }
-    }
-    
-    console.log(`[OCR-Extract] Using mimeType: ${mimeType}, base64 length: ${base64Data.length}`);
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { 
-            role: "user", 
-            content: [
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:${mimeType};base64,${base64Data}`
-                }
-              },
-              {
-                type: "text",
-                text: "Welche der angegebenen Begriffe findest du in diesem Bild? Antworte nur mit JSON-Array."
-              }
-            ]
-          }
-        ],
-        max_tokens: 500,
-        temperature: 0.1 // Low temperature for consistent extraction
-      }),
-    });
-
-    const duration = Date.now() - startTime;
-    console.log(`[OCR-Extract] AI response in ${duration}ms, status: ${response.status}`);
-
-    if (!response.ok) {
-      // Handle rate limits
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded, please try again later' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Service credits exhausted' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      const errorText = await response.text();
-      console.error('[OCR-Extract] AI gateway error:', errorText);
-      return new Response(
-        JSON.stringify({ error: 'OCR processing failed' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (safeKeywords.length === 0) {
+      return json({ matched: [], count: 0, duration: 0 });
     }
 
-    const aiResponse = await response.json();
-    const content = aiResponse.choices?.[0]?.message?.content || '[]';
+    const bytes = base64ToBytes(base64Data);
+    const startedAt = Date.now();
 
-    // Parse the response - extract JSON array from response
-    let matchedKeywords: string[] = [];
+    let text: string;
     try {
-      // Try to extract JSON array from response
-      const jsonMatch = content.match(/\[[\s\S]*?\]/);
-      if (jsonMatch) {
-        matchedKeywords = JSON.parse(jsonMatch[0]);
-        // Filter to only include keywords that were requested
-        matchedKeywords = matchedKeywords.filter((k: string) => 
-          keywords.some((kw: string) => 
-            k.toLowerCase().includes(kw.toLowerCase()) || 
-            kw.toLowerCase().includes(k.toLowerCase())
-          )
-        );
+      const result = await analyzeDocument(bytes, mimeType, "prebuilt-read");
+      text = extractPlainText(result);
+    } catch (err) {
+      if (err instanceof AzureDocIntelError) {
+        if (err.code === "rate_limited") return json({ error: "rate_limited" }, 429);
+        if (err.code === "azure_unauthorized") return json({ error: "ocr_unauthorized" }, 502);
+        if (err.code === "azure_timeout") return json({ error: "ocr_timeout" }, 504);
+        return json({ error: "ocr_failed" }, 502);
       }
-    } catch (parseError) {
-      console.warn('[OCR-Extract] Failed to parse AI response:', parseError);
-      matchedKeywords = [];
+      throw err;
     }
 
-    console.log(`[OCR-Extract] Found ${matchedKeywords.length} keywords`);
+    const duration = Date.now() - startedAt;
+    const haystack = text.toLowerCase();
 
-    return new Response(
-      JSON.stringify({ 
-        matched: matchedKeywords,
-        count: matchedKeywords.length,
-        duration
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    // Case-insensitive substring match per keyword. Result preserves the
+    // requested keyword exactly (so downstream profile matching keeps working).
+    const matchedKeywords: string[] = [];
+    for (const kw of safeKeywords) {
+      if (haystack.includes(kw.toLowerCase())) matchedKeywords.push(kw);
+    }
 
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[OCR-Extract] Error:', errorMessage);
-    return new Response(
-      JSON.stringify({ error: 'OCR processing failed' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.log(`[ocr-extract] azure-read ms=${duration} matched=${matchedKeywords.length}`);
+
+    return json({
+      matched: matchedKeywords,
+      count: matchedKeywords.length,
+      duration,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    console.error("[ocr-extract] error:", msg);
+    return json({ error: "OCR processing failed" }, 500);
   }
 });
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
