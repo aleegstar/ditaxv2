@@ -519,10 +519,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const floatingNextStep = showFloatingNext ? (
     <div
-      className="fixed z-[60] pointer-events-none inset-x-0 px-4 bottom-[calc(env(safe-area-inset-bottom,0px)+76px)] md:inset-x-auto md:left-auto md:right-6 md:bottom-6 md:px-0"
+      className="fixed z-[60] pointer-events-none inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+64px)] md:inset-x-auto md:left-auto md:right-6 md:bottom-6 md:px-0 px-0 md:px-4"
     >
       <div className="max-w-xl mx-auto pointer-events-auto md:mx-0 md:w-[360px]">
-        <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] backdrop-blur-md">
+        <div className="relative md:rounded-2xl rounded-none border border-border md:border bg-card/95 backdrop-blur-md overflow-hidden md:shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] shadow-[0_-4px_12px_-6px_rgba(15,27,61,0.08)] border-x-0 md:border-x border-b-0 md:border-b">
           {/* Image only on desktop */}
           <div className="relative h-14 w-full overflow-hidden bg-muted hidden md:block">
             <img
@@ -539,15 +539,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <span className="text-[10.5px] font-semibold text-foreground uppercase tracking-wider">Nächster Schritt</span>
             </div>
           </div>
-          <div className="p-3 flex items-center justify-between gap-3">
+          <div className="px-4 py-3 md:p-3 flex items-center justify-between gap-3">
             <div className="min-w-0 space-y-1">
               {/* Pill replaces "SCHRITT X VON Y" on mobile */}
-              <div className="md:hidden inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+              <div className="md:hidden inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted/70 border border-border">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
                 </span>
-                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Nächster Schritt</span>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Nächster Schritt</span>
               </div>
               <div className="hidden md:block text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
               <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate">{nextStepMeta.title}</h3>
@@ -555,13 +555,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <button
               type="button"
               onClick={nextStepMeta.onClick}
-              className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
+              className="shrink-0 inline-flex items-center gap-1.5 h-9 md:h-10 px-3.5 md:px-4 rounded-xl border border-border bg-card hover:bg-muted/60 md:bg-gradient-to-b md:from-[#1E3A5F] md:to-[#0F1B3D] md:border-transparent text-foreground md:text-white text-[13px] font-medium md:shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
             >
               {nextStepMeta.action}
               <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
         </div>
+
+
 
       </div>
     </div>
