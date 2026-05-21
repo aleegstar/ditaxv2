@@ -5,7 +5,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
-import { checkAndLogAiUsage, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 
 const FUNCTION_NAME = "extract-lohnausweis";
 const MODEL = MODEL_FLASH;
