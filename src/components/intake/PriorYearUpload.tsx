@@ -138,10 +138,14 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     const projectId = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID;
     const url = `https://${projectId}.supabase.co/functions/v1/scan-prior-year-vertex`;
 
+    const { buildDeviceHeaders } = await import("@/lib/deviceVault");
+    const deviceHeaders = await buildDeviceHeaders();
+
     const resp = await fetch(url, {
       method: "POST",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...deviceHeaders,
       },
       body: form,
     });
