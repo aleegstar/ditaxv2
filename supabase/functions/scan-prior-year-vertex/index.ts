@@ -188,11 +188,24 @@ Deno.serve(async (req) => {
       `[scan-prior-year-vertex] model=${MODEL} cache=${!!parsedFromCache} ms=${Date.now() - startedAt}`,
     );
 
-    const parsed = (result.json ?? {}) as {
+    const parsed = (parsedFromCache ?? (result?.json ?? {})) as {
       income?: Array<{ label: string; code?: string }>;
       assets?: Array<{ label: string; code?: string }>;
       deductions?: Array<{ label: string; code?: string }>;
     };
+
+    if (!parsedFromCache) {
+      await setCached({
+        userId,
+        taxFilerId,
+        cacheKey,
+        functionName: FUNCTION_NAME,
+        model: MODEL,
+        fileHash,
+        payload: { parsed },
+      });
+    }
+
 
     await admin.from("prior_year_checklist_items").delete().eq("checklist_id", checklist.id);
 
