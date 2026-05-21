@@ -283,7 +283,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       return (
         <div
           onClick={onAction}
-          className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-hidden transition-all duration-300"
+          className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-hidden transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
         >
           <div className="p-5 md:p-6 space-y-4">
             <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
