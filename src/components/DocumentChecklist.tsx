@@ -430,20 +430,13 @@ return <div className="min-h-screen">
 
         {/* Bulk uploader entry — schneller Weg */}
         <div className="rounded-2xl border border-[#1450dc] bg-card p-5 sm:p-6">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Upload className="w-5 h-5 text-primary" strokeWidth={1.75} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
-                  Alle Unterlagen auf einmal hochladen
-                </h3>
-              </div>
-              <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
-                Zieh alle Dateien rein – wir erkennen die Kategorie automatisch und ordnen sie zu.
-              </p>
-            </div>
+          <div className="mb-4">
+            <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
+              Alle Unterlagen auf einmal hochladen
+            </h3>
+            <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
+              Zieh alle Dateien rein – wir erkennen die Kategorie automatisch und ordnen sie zu.
+            </p>
           </div>
           <Button
             type="button"
