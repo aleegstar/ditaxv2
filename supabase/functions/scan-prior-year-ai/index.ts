@@ -21,160 +21,111 @@ const corsHeaders = {
 
 type Category = "income" | "assets" | "deductions";
 
-interface CategoryItem {
+// ---------------------------------------------------------------------------
+// Aargau Ziffern-Code → Dokumenten-Label.
+// Eine Position gilt nur dann als aktiv, wenn auf einer Zeile genau dieser
+// Code + ein davon verschiedener Betrag > 0 erscheint (siehe POSITION_LINE_RX).
+// Das vermeidet False Positives durch Formular-Texte, die immer gedruckt sind.
+// ---------------------------------------------------------------------------
+interface CodeMapping {
   category: Category;
   label: string;
-  // Patterns: any match in the PDF text triggers this label.
-  // Use Aargau eTax Ziffer + SSK label keywords. Patterns are matched
-  // case-insensitively against the line-joined plain text.
-  patterns: RegExp[];
 }
 
-// Each row: when ANY pattern matches in the document, add this label.
-// Patterns intentionally focus on labels printed on the form, NOT on amounts —
-// the original form always prints these labels so presence ≈ "Ziffer in Gebrauch".
-// To stay conservative we additionally require that an amount > 0 appears on
-// the same line (see `lineHasAmount`).
-const CATEGORY_MAP: CategoryItem[] = [
+const AG_CODE_MAP: Record<string, CodeMapping> = {
   // EINKOMMEN
-  {
-    category: "income",
-    label: "Lohnausweis",
-    patterns: [/Lohnausweis/i, /Einkünfte aus unselbständiger/i, /\bHaupterwerb\b/i],
-  },
-  {
-    category: "income",
-    label: "Nachweis Selbständigerwerb",
-    patterns: [/Selbständige[r]?\s+Erwerbst/i, /Selbständigerwerb/i, /Personengesellschaft/i],
-  },
-  {
-    category: "income",
-    label: "Rentenbescheinigung (AHV/IV/PK)",
-    patterns: [/AHV[-\/\s]?Rente/i, /IV[-\/\s]?Rente/i, /Pensionskasse.*Rente/i, /\bRenten\b/i],
-  },
-  {
-    category: "income",
-    label: "Arbeitslosentaggeld-Abrechnung",
-    patterns: [/Arbeitslosen/i, /Taggeld/i, /\bALV\b/i],
-  },
-  {
-    category: "income",
-    label: "Bestätigung Familien-/Mutterschaftszulagen",
-    patterns: [/Familienzulage/i, /Mutterschaftsentschädig/i, /Kinderzulage/i],
-  },
-  {
-    category: "income",
-    label: "Wertschriften-/Depotverzeichnis",
-    patterns: [/Wertschriften[- ]?(?:und Guthaben)?verzeichnis/i, /Bruttoertr/i],
-  },
-  {
-    category: "income",
-    label: "Bestätigung Alimente/Unterhalt",
-    patterns: [/Alimente/i, /Unterhaltsbeitr/i],
-  },
-  {
-    category: "income",
-    label: "Beleg übrige Einkünfte",
-    patterns: [/Übrige Einkünfte/i, /Erbschaft/i, /Kapitalabfindung/i],
-  },
-  {
-    category: "income",
-    label: "Liegenschaftsertrag-Abrechnung",
-    patterns: [/Liegenschaftsertrag/i, /Eigenmietwert/i, /Mietertrag/i],
-  },
-
-  // VERMÖGEN
-  {
-    category: "assets",
-    label: "Depotauszug per 31.12.",
-    patterns: [/\bDepot\b/i, /Wertschriften.*Steuerwert/i],
-  },
-  {
-    category: "assets",
-    label: "Bankkontoauszug per 31.12.",
-    patterns: [/Bankkonto/i, /Sparkonto/i, /Privatkonto/i, /Postkonto/i],
-  },
-  {
-    category: "assets",
-    label: "Rückkaufswert Lebensversicherung",
-    patterns: [/Lebensversicherung/i, /Rückkaufswert/i],
-  },
-  {
-    category: "assets",
-    label: "Fahrzeugausweis / Eurotax",
-    patterns: [/Motorfahrzeug/i, /Fahrzeug.*Eurotax/i, /\bEurotax\b/i],
-  },
-  {
-    category: "assets",
-    label: "Liegenschaftsbeleg",
-    patterns: [/\bLiegenschaft\b/i, /Grundstück/i, /Steuerwert.*Liegenschaft/i],
-  },
+  "010": { category: "income", label: "Lohnausweis" },
+  "020": { category: "income", label: "Lohnausweis" },
+  "030": { category: "income", label: "Lohnausweis" },
+  "040": { category: "income", label: "Lohnausweis" },
+  "050": { category: "income", label: "Lohnausweis" },
+  "060": { category: "income", label: "Lohnausweis" },
+  "070": { category: "income", label: "Nachweis Selbständigerwerb" },
+  "090": { category: "income", label: "Nachweis Selbständigerwerb" },
+  "150": { category: "income", label: "Nachweis Personengesellschaft" },
+  "160": { category: "income", label: "Nachweis Personengesellschaft" },
+  "671": { category: "income", label: "Bestätigung Familien-/Mutterschaftszulagen" },
+  "672": { category: "income", label: "Bestätigung Familien-/Mutterschaftszulagen" },
+  "690": { category: "income", label: "Schwarzarbeit-Vereinfachtes Verfahren" },
+  "1701": { category: "income", label: "Rentenbescheinigung (AHV/IV/PK)" },
+  "1901": { category: "income", label: "Rentenbescheinigung (AHV/IV/PK)" },
+  "240": { category: "income", label: "Wertschriften-/Depotverzeichnis" },
+  "241": { category: "income", label: "Wertschriften-/Depotverzeichnis" },
+  "251": { category: "income", label: "Bestätigung Alimente/Unterhalt" },
+  "252": { category: "income", label: "Bestätigung Alimente/Unterhalt" },
+  "253": { category: "income", label: "Bescheinigung unverteilte Erbschaft" },
+  "254": { category: "income", label: "Beleg Kapitalabfindung wiederkehrende Leistungen" },
+  "255": { category: "income", label: "Beleg übrige Einkünfte" },
+  "2701": { category: "income", label: "Liegenschaftenverzeichnis" },
+  "2711": { category: "income", label: "Liegenschaftenverzeichnis" },
+  "2741": { category: "income", label: "Liegenschaftenverzeichnis" },
+  "2791": { category: "income", label: "Liegenschaftenverzeichnis" },
 
   // ABZÜGE
-  {
-    category: "deductions",
-    label: "Berufsauslagen-Belege",
-    patterns: [/Berufsauslagen/i, /Fahrkosten/i, /Mehrkosten.*Verpflegung/i, /ÖV[-\s]?Abo/i],
-  },
-  {
-    category: "deductions",
-    label: "Schuldzinsen-Bescheinigung",
-    patterns: [/Schuldzinsen/i, /Hypothekarzinsen/i],
-  },
-  {
-    category: "deductions",
-    label: "Beleg Unterhaltszahlung",
-    patterns: [/Unterhaltszahlung/i, /Alimente.*Abzug/i],
-  },
-  {
-    category: "deductions",
-    label: "PK-Einkauf-Beleg",
-    patterns: [/Einkauf.*(?:Pensionskasse|2\.?\s*Säule|BVG)/i, /PK[-\s]?Einkauf/i],
-  },
-  {
-    category: "deductions",
-    label: "Säule 3a-Einzahlungsbestätigung",
-    patterns: [/Säule\s*3a/i, /gebundene\s+Selbstvorsorge/i, /Säule 3 a/i],
-  },
-  {
-    category: "deductions",
-    label: "Krankenkassen-Prämienrechnung",
-    patterns: [/Krankenkasse/i, /Versicherungsprämien/i, /Krankenversicherung/i],
-  },
-  {
-    category: "deductions",
-    label: "Belege Weiterbildungskosten",
-    patterns: [/Weiterbildung/i, /Aus[-\s]?und\s+Weiterbildung/i],
-  },
-  {
-    category: "deductions",
-    label: "Beleg Liegenschaftsunterhalt",
-    patterns: [/Liegenschaftsunterhalt/i, /Unterhaltskosten.*Liegenschaft/i],
-  },
-  {
-    category: "deductions",
-    label: "Belege Krankheits-/Unfallkosten",
-    patterns: [/Krankheits[-\s]?(?:und\s)?Unfallkosten/i, /Krankheitskosten/i],
-  },
-  {
-    category: "deductions",
-    label: "Spendenbescheinigung",
-    patterns: [/\bSpenden\b/i, /freiwillige\s+Zuwendung/i, /gemeinnützig/i],
-  },
-  {
-    category: "deductions",
-    label: "Parteibeitrags-Beleg",
-    patterns: [/Parteibeitrag/i, /Mitgliederbeitr.*Partei/i],
-  },
-  {
-    category: "deductions",
-    label: "Kinderbetreuungs-Beleg",
-    patterns: [/Kinderbetreuung/i, /Fremdbetreuung/i, /Drittbetreuung/i],
-  },
-];
+  "300": { category: "deductions", label: "Total Abzüge (Übersicht)" },
+  "310": { category: "deductions", label: "Schuldzinsen-Bescheinigung" },
+  "311": { category: "deductions", label: "Schuldzinsen-Bescheinigung" },
+  "312": { category: "deductions", label: "Schuldzinsen-Bescheinigung" },
+  "361": { category: "deductions", label: "Beleg Unterhaltszahlung" },
+  "362": { category: "deductions", label: "Beleg Unterhaltszahlung" },
+  "363": { category: "deductions", label: "Bescheinigung Leibrente" },
+  "371": { category: "deductions", label: "PK-Einkauf-Beleg (Säule 2)" },
+  "372": { category: "deductions", label: "PK-Einkauf-Beleg (Säule 2)" },
+  "381": { category: "deductions", label: "Säule 3a-Einzahlungsbestätigung" },
+  "382": { category: "deductions", label: "Säule 3a-Einzahlungsbestätigung" },
+  "383": { category: "deductions", label: "Krankenkassen-Prämienrechnung" },
+  "387": { category: "deductions", label: "Beleg behinderungsbedingte Kosten" },
+  "390": { category: "deductions", label: "Kinderbetreuungs-Beleg" },
+  "391": { category: "deductions", label: "AHV/IV/EO-Beleg (Nichterwerbstätige)" },
+  "392": { category: "deductions", label: "Parteibeitrags-Beleg" },
+  "393": { category: "deductions", label: "Spendenbescheinigung" },
+  "243": { category: "deductions", label: "Vermögensverwaltungskosten-Aufstellung" },
+  "395": { category: "deductions", label: "Beleg weitere Abzüge" },
+  "397": { category: "deductions", label: "Belege Krankheits-/Unfallkosten" },
+  "650": { category: "deductions", label: "Belege Weiterbildungskosten" },
+  "655": { category: "deductions", label: "Belege Weiterbildungskosten" },
+  "2811": { category: "deductions", label: "Beleg Liegenschaftsunterhalt" },
+  "2821": { category: "deductions", label: "Beleg Liegenschaftsunterhalt" },
+  "2800": { category: "deductions", label: "Beleg Liegenschaftsunterhalt" },
 
-// "Has an amount > 0 nearby" check on the joined text (multiline).
-const AMOUNT_RX_LINE = /\b\d{1,3}(?:[' ]\d{3})*(?:\.\d{2})?\b/;
+  // VERMÖGEN
+  "710": { category: "assets", label: "Wertschriften-/Depotverzeichnis (Steuerwert)" },
+  "711": { category: "assets", label: "Wertschriften-/Depotverzeichnis (Steuerwert)" },
+  "713": { category: "assets", label: "Bankkontoauszug per 31.12." },
+  "716": { category: "assets", label: "Rückkaufswert Lebensversicherung" },
+  "717": { category: "assets", label: "Anteil unverteilte Erbschaft" },
+  "7181": { category: "assets", label: "Fahrzeugausweis / Eurotax" },
+  "7182": { category: "assets", label: "Fahrzeugausweis / Eurotax" },
+  "719": { category: "assets", label: "Beleg übrige Vermögenswerte" },
+  "7201": { category: "assets", label: "Liegenschaftenverzeichnis" },
+  "7202": { category: "assets", label: "Liegenschaftenverzeichnis" },
+  "730": { category: "assets", label: "Anteil Personengesellschaft" },
+  "740": { category: "assets", label: "Geschäftsaktiven-Bilanz" },
+  "750": { category: "assets", label: "Schuldenverzeichnis" },
+};
+
+// Code + Betrag am Zeilenende. Beispiel: "... 010   111'606".
+// Beträge: Schweizer Format mit Apostroph oder 1-6 Ziffern; Code 3-4-stellig.
+const POSITION_LINE_RX =
+  /(?:^|\s)(\d{3,4})\s+(\d{1,3}(?:[' ]\d{3})+(?:\.\d{2})?|\d{1,6}(?:\.\d{2})?)\s*$/;
+
+function extractActiveCodes(lines: string[]): Set<string> {
+  const active = new Set<string>();
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, "");
+    const m = line.match(POSITION_LINE_RX);
+    if (!m) continue;
+    const code = m[1];
+    const amountRaw = m[2].replace(/[' ]/g, "");
+    const amount = parseFloat(amountRaw);
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    // Code darf nicht identisch mit Betrag sein (sonst ist's nur der Code).
+    if (m[2].replace(/\s/g, "") === code) continue;
+    active.add(code);
+  }
+  return active;
+}
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
