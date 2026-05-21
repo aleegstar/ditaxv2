@@ -553,18 +553,18 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       ) : (
         <div
           onClick={() => setStep1Expanded(true)}
-          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] rounded-[1.25rem] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-5 transition-all"
+          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] rounded-[1.25rem] p-5 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-4 md:mb-5 transition-all"
         >
-          <div className="flex items-start gap-6">
-            <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-emerald-50 border border-emerald-100 text-emerald-600">
-              <Check className="w-5 h-5" strokeWidth={2} />
+          <div className="flex items-start gap-4 md:gap-6">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shrink-0 bg-emerald-50 border border-emerald-100 text-emerald-600">
+              <Check className="w-4 h-4 md:w-5 md:h-5" strokeWidth={2} />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Vorjahres-Daten bestätigt</h3>
-              <p className="text-[15px] text-slate-500 leading-relaxed">Alle Bereiche aus deiner Vorjahres-Steuererklärung sind bestätigt.</p>
-              <div className="flex items-center gap-2 pt-1">
+            <div className="space-y-1.5 md:space-y-2">
+              <h3 className="text-[15px] md:text-lg font-semibold text-slate-900 tracking-tight">Vorjahres-Daten bestätigt</h3>
+              <p className="text-[13px] md:text-[15px] text-slate-500 leading-relaxed">Alle Bereiche aus deiner Vorjahres-Steuererklärung sind bestätigt.</p>
+              <div className="flex items-center gap-2 pt-0.5 md:pt-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-sm text-slate-600 font-medium">{py.done} von {py.total} Bereichen bestätigt</span>
+                <span className="text-[12px] md:text-sm text-slate-600 font-medium">{py.done} von {py.total} Bereichen bestätigt</span>
               </div>
             </div>
           </div>
@@ -579,7 +579,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       )}
 
       {/* ═══════════ Steps 2 & 3 ═══════════ */}
-      <div className="space-y-5">
+      <div className="space-y-3 md:space-y-5">
+
         <StepRow
           n={2}
           state={!pyStep1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
