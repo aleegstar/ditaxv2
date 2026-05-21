@@ -492,92 +492,47 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const priorYearBranch = activeTaxFilerId ? (
     <>
+      {/* Hidden progress probe so the dashboard knows where the user stands
+          in step 1 without rendering the inline upload+confirm UI. */}
+      <div className="hidden">
+        <PriorYearChecklistBody
+          taxFilerId={activeTaxFilerId}
+          taxYear={taxYear}
+          onProgress={setPriorYearProgress}
+          hideHeader
+        />
+      </div>
+
       {/* ═══════════ Step 1: Vorjahres-Daten ═══════════ */}
-      {(!pyStep1Done || step1Expanded) ? (
-        <div className="group relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 mb-4 md:mb-5">
-          <div className="flex items-center justify-between gap-3 mb-4 md:mb-5">
-            <div className="flex items-center gap-2">
-              {pyStep1Done ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] md:text-[11px] font-semibold text-emerald-600 uppercase tracking-widest">Abgeschlossen</span>
-                </>
-              ) : (
-                <>
-                  <div className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
-                  </div>
-                  <span className="text-[10px] md:text-[11px] font-semibold text-blue-600 uppercase tracking-widest">Aktueller Schritt</span>
-                </>
-              )}
-            </div>
-            {pyStep1Done && (
-              <button
-                onClick={() => setStep1Expanded(false)}
-                className="text-[12px] font-medium text-slate-500 hover:text-slate-700 transition-colors"
-              >
-                Einklappen
-              </button>
-            )}
-          </div>
-
-          {(() => {
-            const isPending = !py.ready && (py.status === 'pending' || py.status === 'loading');
-            const isScanning = py.status === 'scanning';
-            const title = isPending
+      <div className="mb-3 md:mb-5">
+        <StepRow
+          n={1}
+          state={pyStep1Done ? 'done' : 'active'}
+          title={
+            !py.ready
               ? `Vorjahres-Steuererklärung ${Number(taxYear) - 1} hochladen`
-              : isScanning
-                ? 'Analyse läuft …'
-                : 'Deine persönliche Checkliste';
-            const desc = isPending
-              ? `Lade dein definitives PDF hoch – wir erstellen daraus deine persönliche Checkliste für ${taxYear}.`
-              : isScanning
-                ? 'Einen Moment, wir extrahieren die Positionen aus deinem PDF.'
-                : 'Bestätige die Bereiche aus deinem Vorjahr – so wissen wir, welche Belege du brauchst.';
-            return (
-              <div className="space-y-1.5 md:space-y-2 max-w-xl mb-5 md:mb-6">
-                <h3 className="text-[19px] md:text-3xl font-semibold text-slate-900 tracking-tight leading-tight">{title}</h3>
-                <p className="text-[14px] md:text-base text-slate-500 leading-relaxed">{desc}</p>
-              </div>
-            );
-          })()}
+              : 'Vorjahres-Daten bestätigen'
+          }
+          desc={
+            !py.ready
+              ? 'Lade dein definitives PDF hoch – wir erstellen daraus deine persönliche Checkliste.'
+              : 'Bestätige nacheinander die Bereiche aus deinem Vorjahr.'
+          }
+          statusLabel={
+            pyStep1Done
+              ? 'Abgeschlossen'
+              : py.ready
+                ? `${py.done} von ${py.total} Bereichen bestätigt`
+                : py.status === 'scanning'
+                  ? 'Analyse läuft …'
+                  : 'Noch nicht gestartet'
+          }
+          statusTone={pyStep1Done ? 'green' : py.ready ? 'orange' : 'slate'}
+          actionLabel={pyStep1Done ? 'Bearbeiten' : py.ready ? 'Fortfahren' : 'Jetzt hochladen'}
+          onAction={() => navigate(`/prior-year?year=${taxYear}`)}
+        />
+      </div>
 
-
-          <PriorYearChecklistBody
-            taxFilerId={activeTaxFilerId}
-            taxYear={taxYear}
-            onProgress={setPriorYearProgress}
-            hideHeader
-          />
-        </div>
-      ) : (
-        <div
-          onClick={() => setStep1Expanded(true)}
-          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] rounded-[1.25rem] p-5 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-4 md:mb-5 transition-all"
-        >
-          <div className="flex items-start gap-4 md:gap-6">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shrink-0 bg-emerald-50 border border-emerald-100 text-emerald-600">
-              <Check className="w-4 h-4 md:w-5 md:h-5" strokeWidth={2} />
-            </div>
-            <div className="space-y-1.5 md:space-y-2">
-              <h3 className="text-[15px] md:text-lg font-semibold text-slate-900 tracking-tight">Vorjahres-Daten bestätigt</h3>
-              <p className="text-[13px] md:text-[15px] text-slate-500 leading-relaxed">Alle Bereiche aus deiner Vorjahres-Steuererklärung sind bestätigt.</p>
-              <div className="flex items-center gap-2 pt-0.5 md:pt-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-[12px] md:text-sm text-slate-600 font-medium">{py.done} von {py.total} Bereichen bestätigt</span>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); setStep1Expanded(true); }}
-            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
-          >
-            Bearbeiten
-            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
-          </button>
-        </div>
-      )}
 
       {/* ═══════════ Steps 2 & 3 ═══════════ */}
       <div className="space-y-3 md:space-y-5">
