@@ -420,7 +420,7 @@ return <div className="min-h-screen">
         </div>
 
         {/* Bulk uploader entry — schneller Weg */}
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+        <div className="rounded-2xl border border-[#1450dc] bg-card p-5 sm:p-6">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Upload className="w-5 h-5 text-primary" strokeWidth={1.75} />
@@ -431,7 +431,7 @@ return <div className="min-h-screen">
                   Alle Unterlagen auf einmal hochladen
                 </h3>
                 <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10">
-                  <Sparkles className="w-2.5 h-2.5" /> Auto
+                  <GoogleGIcon className="w-2.5 h-2.5" /> Auto
                 </span>
               </div>
               <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
@@ -447,12 +447,13 @@ return <div className="min-h-screen">
             Dateien auswählen
           </Button>
           <div className="mt-3 flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5">
-            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+            <GoogleGIcon className="w-4 h-4 shrink-0 mt-0.5" />
             <p className="text-[12px] text-muted-foreground leading-[1.45]">
               KI-Erkennung verteilt deine Dokumente automatisch auf die richtige Kategorie.
             </p>
           </div>
         </div>
+
 
         {/* Divider between bulk and single upload */}
         <div className="flex items-center gap-3 pt-1">
