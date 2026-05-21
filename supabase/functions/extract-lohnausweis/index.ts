@@ -1,79 +1,65 @@
-// Lohnausweis OCR Extraction
-// - Auth-gated (per Lovable AI Gateway DSGVO model)
-// - Bytes received transiently in memory (base64), never persisted, never logged
-// - Returns structured Lohnausweis fields (CH Ziff. 1-15) via tool calling
-// - DSGVO: only requested structured fields are returned, no raw OCR text
+// Lohnausweis OCR Extraction — Azure Document Intelligence (Switzerland North).
+//
+// - Auth-gated
+// - Bytes transient im RAM, niemals persistiert
+// - Liefert strukturierte Felder (CH Ziff. 1–15) via regelbasiertem Mapper
+// - DSGVO/FADP: keine LLM-Aufrufe, kein Rohtext zurückgegeben
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  analyzeDocument,
+  AzureDocIntelError,
+  AzureAnalyzeResult,
+  AzurePage,
+  extractPlainText,
+} from "../_shared/azure-doc-intel.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const LOHNAUSWEIS_TOOL = {
-  type: "function",
-  function: {
-    name: "extract_lohnausweis_fields",
-    description:
-      "Extract structured fields from a Swiss salary statement (Lohnausweis). Only return fields actually present in the document. All amounts are in CHF.",
-    parameters: {
-      type: "object",
-      properties: {
-        employer_name: { type: "string", description: "Name of the employer (Arbeitgeber)" },
-        employer_address: { type: "string" },
-        employee_name: { type: "string", description: "Name of the employee" },
-        employee_ahv: { type: "string", description: "AHV/AVS number" },
-        period_from: { type: "string", description: "Anstellungsbeginn (ISO yyyy-mm-dd)" },
-        period_to: { type: "string", description: "Anstellungsende (ISO yyyy-mm-dd)" },
-        gross_salary: { type: "number", description: "Ziff. 1: Lohn (Bruttolohn)" },
-        company_car: { type: "number", description: "Ziff. 2.2: Privatanteil Geschäftswagen" },
-        other_fringe_benefits: { type: "number", description: "Ziff. 2.3: Andere Gehaltsnebenleistungen" },
-        irregular_pay: { type: "number", description: "Ziff. 3: Unregelmässige Leistungen" },
-        capital_payments: { type: "number", description: "Ziff. 4: Kapitalleistungen" },
-        employee_participation: { type: "number", description: "Ziff. 5: Mitarbeiterbeteiligungen" },
-        board_compensation: { type: "number", description: "Ziff. 6: Verwaltungsratsentschädigung" },
-        other_benefits: { type: "number", description: "Ziff. 7: Andere Leistungen" },
-        gross_total: { type: "number", description: "Ziff. 8: Bruttolohn total" },
-        ahv_iv_eo_alv_nbuv: { type: "number", description: "Ziff. 9: AHV/IV/EO/ALV/NBUV-Beiträge" },
-        bvg_ordinary: { type: "number", description: "Ziff. 10.1: Ordentliche BVG-Beiträge" },
-        bvg_purchase: { type: "number", description: "Ziff. 10.2: BVG-Einkauf" },
-        net_salary: { type: "number", description: "Ziff. 11: Nettolohn" },
-        withholding_tax: { type: "number", description: "Ziff. 12: Quellensteuerabzug" },
-        meal_allowance: { type: "number", description: "Ziff. 13.1.1: Effektive Spesen" },
-        flat_expenses: { type: "number", description: "Ziff. 13.2.1/2: Pauschalspesen" },
-        further_education: { type: "number", description: "Ziff. 13.3: Weiterbildung" },
-        free_transport: { type: "boolean", description: "Feld F: Unentgeltliche Beförderung zwischen Wohn- und Arbeitsort (X = angekreuzt)" },
-        free_meals: { type: "boolean", description: "Feld G: Kantinenverpflegung / Lunch-Checks (X = angekreuzt)" },
-        shift_days: { type: "number", description: "Anzahl Schichttage (falls in Bemerkungen Ziff. 15 oder separat aufgeführt)" },
-        notes: { type: "string", description: "Ziff. 15: Bemerkungen (nur wenn relevant: Schichtarbeit, Aussendienst, etc.)" },
-        currency: { type: "string", description: "Currency code (default CHF)" },
-        confidence: {
-          type: "number",
-          description: "Overall extraction confidence 0..1",
-        },
-      },
-      additionalProperties: false,
-    },
-  },
-} as const;
+interface LohnausweisFields {
+  employer_name?: string;
+  employer_address?: string;
+  employee_name?: string;
+  employee_ahv?: string;
+  period_from?: string;
+  period_to?: string;
+  gross_salary?: number;
+  company_car?: number;
+  other_fringe_benefits?: number;
+  irregular_pay?: number;
+  capital_payments?: number;
+  employee_participation?: number;
+  board_compensation?: number;
+  other_benefits?: number;
+  gross_total?: number;
+  ahv_iv_eo_alv_nbuv?: number;
+  bvg_ordinary?: number;
+  bvg_purchase?: number;
+  net_salary?: number;
+  withholding_tax?: number;
+  meal_allowance?: number;
+  flat_expenses?: number;
+  further_education?: number;
+  free_meals?: boolean;
+  free_transport?: boolean;
+  shift_days?: number;
+  notes?: string;
+  currency?: string;
+  confidence?: number;
+}
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Auth gate
   try {
     const authHeader =
       req.headers.get("Authorization") || req.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return json({ error: "Unauthorized" }, 401);
-    }
-    const { createClient } = await import(
-      "https://esm.sh/@supabase/supabase-js@2.57.2"
-    );
+    if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.57.2");
     const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -82,11 +68,9 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: claims, error: claimsError } =
       await authClient.auth.getClaims(token);
-    if (claimsError || !claims?.claims?.sub) {
-      return json({ error: "Unauthorized" }, 401);
-    }
+    if (claimsError || !claims?.claims?.sub) return json({ error: "Unauthorized" }, 401);
   } catch (err) {
-    console.error("[extract-lohnausweis] Auth check failed", err);
+    console.error("[extract-lohnausweis] auth check failed", err);
     return json({ error: "Unauthorized" }, 401);
   }
 
@@ -101,7 +85,7 @@ serve(async (req) => {
   if (!fileBase64 || typeof fileBase64 !== "string") {
     return json({ error: "fileBase64 required" }, 400);
   }
-  // Strip data URL prefix if present
+
   let b64 = fileBase64;
   let mt = mimeType;
   if (b64.startsWith("data:")) {
@@ -113,89 +97,28 @@ serve(async (req) => {
   }
   if (!mt) mt = "application/pdf";
   if (b64.length < 1000) return json({ error: "file_too_small" }, 400);
-  // ~7.5 MB base64 ≈ 5 MB binary
   if (b64.length > 7_500_000) return json({ error: "file_too_large" }, 413);
 
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!LOVABLE_API_KEY) {
-    return json({ error: "ai_not_configured" }, 500);
-  }
-
-  const systemPrompt =
-    "Du bist ein Experte für Schweizer Lohnausweise. Extrahiere ausschliesslich die im Dokument tatsächlich vorhandenen Felder. Achte besonders sorgfältig auf Feld F (Unentgeltliche Beförderung Wohn-/Arbeitsort) und Feld G (Kantinenverpflegung/Lunch-Checks) – ein 'X', Häkchen oder Kreuz im Kästchen bedeutet true, leeres Kästchen false. Suche in den Bemerkungen (Ziff. 15) nach Angaben zu Schichttagen / Schichtarbeit / Aussendienst und extrahiere die Anzahl Schichttage falls vorhanden. Gib KEINEN Rohtext zurück, sondern ausschliesslich strukturierte Felder via Funktion. Wenn ein Wert nicht eindeutig erkennbar ist, lasse das Feld weg. Beträge in CHF als Zahl, ohne Tausendertrennzeichen. Datumsangaben als ISO yyyy-mm-dd.";
-
-  const isPdf = mt === "application/pdf";
-  const userContent = isPdf
-    ? [
-        {
-          type: "file",
-          file: {
-            filename: "lohnausweis.pdf",
-            file_data: `data:application/pdf;base64,${b64}`,
-          },
-        },
-        { type: "text", text: "Extrahiere alle erkennbaren Lohnausweis-Felder." },
-      ]
-    : [
-        { type: "image_url", image_url: { url: `data:${mt};base64,${b64}` } },
-        { type: "text", text: "Extrahiere alle erkennbaren Lohnausweis-Felder." },
-      ];
+  const bytes = base64ToBytes(b64);
 
   try {
     const startedAt = Date.now();
-    const aiResp = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userContent },
-          ],
-          tools: [LOHNAUSWEIS_TOOL],
-          tool_choice: {
-            type: "function",
-            function: { name: "extract_lohnausweis_fields" },
-          },
-          temperature: 0.1,
-        }),
-      },
-    );
+    const result = await analyzeDocument(bytes, mt, "prebuilt-layout");
+    console.log(`[extract-lohnausweis] azure-layout ms=${Date.now() - startedAt}`);
 
-    console.log(
-      `[extract-lohnausweis] AI status=${aiResp.status} duration=${Date.now() - startedAt}ms`,
-    );
-
-    if (!aiResp.ok) {
-      if (aiResp.status === 429)
-        return json({ error: "rate_limited" }, 429);
-      if (aiResp.status === 402)
-        return json({ error: "credits_exhausted" }, 402);
-      const txt = await aiResp.text();
-      console.error("[extract-lohnausweis] AI error body:", txt.slice(0, 500));
-      return json({ error: "ai_error" }, 502);
-    }
-
-    const data = await aiResp.json();
-    const toolCall = data?.choices?.[0]?.message?.tool_calls?.[0];
-    const argsStr = toolCall?.function?.arguments;
-    if (!argsStr) {
+    const fields = mapLohnausweis(result);
+    if (Object.keys(fields).length === 0) {
       return json({ error: "no_extraction" }, 422);
     }
-    let fields: Record<string, unknown> = {};
-    try {
-      fields = JSON.parse(argsStr);
-    } catch {
-      return json({ error: "invalid_extraction" }, 422);
-    }
-
     return json({ fields });
   } catch (err) {
+    if (err instanceof AzureDocIntelError) {
+      if (err.code === "rate_limited") return json({ error: "rate_limited" }, 429);
+      if (err.code === "azure_unauthorized") return json({ error: "ocr_unauthorized" }, 502);
+      if (err.code === "azure_timeout") return json({ error: "ocr_timeout" }, 504);
+      if (err.code === "azure_not_configured") return json({ error: "ocr_not_configured" }, 500);
+      return json({ error: "ocr_failed" }, 502);
+    }
     console.error("[extract-lohnausweis] error", err);
     return json({ error: "internal_error" }, 500);
   }
@@ -206,4 +129,231 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function base64ToBytes(b64: string): Uint8Array {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// ============================================================================
+// Lohnausweis-Mapper
+// ============================================================================
+//
+// Strategie: Azure DI liefert pro Seite Lines (mit Polygon-Koordinaten).
+// Wir suchen Zeilen mit Ziffer-Präfixen (z.B. "1.", "8.", "11.", "13.1.1")
+// und extrahieren den letzten Geldbetrag aus derselben Zeile ODER der
+// nächsten Zeile (rechts daneben, Spaltenlayout).
+
+const CHF_AMOUNT_RX = /-?\d{1,3}(?:[' ]\d{3})*(?:\.\d{2})?|-?\d+\.\d{2}|-?\d+/;
+// Match a number anywhere; we'll then pick the rightmost one in the relevant line(s).
+
+function parseChfAmount(raw: string): number | undefined {
+  if (!raw) return undefined;
+  const cleaned = raw.replace(/['\s]/g, "").replace(",", ".");
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function lastAmountIn(text: string): number | undefined {
+  if (!text) return undefined;
+  const matches = text.match(/-?\d{1,3}(?:[' ]\d{3})+(?:\.\d{2})?|-?\d+\.\d{2}/g);
+  if (!matches?.length) return undefined;
+  return parseChfAmount(matches[matches.length - 1]);
+}
+
+function parseSwissDate(raw: string): string | undefined {
+  const m = raw.match(/(\d{1,2})\.(\d{1,2})\.((?:19|20)\d{2})/);
+  if (!m) return undefined;
+  const dd = m[1].padStart(2, "0");
+  const mm = m[2].padStart(2, "0");
+  return `${m[3]}-${mm}-${dd}`;
+}
+
+interface LineRef {
+  page: number;
+  lineIndex: number;
+  content: string;
+  yCenter: number;
+  xMin: number;
+}
+
+function buildLineIndex(pages: AzurePage[]): LineRef[] {
+  const out: LineRef[] = [];
+  for (const page of pages) {
+    const lines = page.lines ?? [];
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      const poly = l.polygon ?? [];
+      // polygon: [x0,y0, x1,y1, x2,y2, x3,y3] in inches
+      let yCenter = 0;
+      let xMin = 0;
+      if (poly.length >= 8) {
+        const ys = [poly[1], poly[3], poly[5], poly[7]];
+        const xs = [poly[0], poly[2], poly[4], poly[6]];
+        yCenter = (Math.min(...ys) + Math.max(...ys)) / 2;
+        xMin = Math.min(...xs);
+      }
+      out.push({
+        page: page.pageNumber,
+        lineIndex: i,
+        content: l.content ?? "",
+        yCenter,
+        xMin,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * For a Lohnausweis the typical layout has the Ziffer-label on the left and
+ * the amount on the right of the SAME visual row. We collect all line content
+ * within ±0.15 inches of the label's y-center on the same page, then pick the
+ * rightmost number.
+ */
+function amountInSameRow(label: LineRef, lines: LineRef[]): number | undefined {
+  const sameRow = lines.filter(
+    (l) =>
+      l.page === label.page &&
+      l.lineIndex !== label.lineIndex &&
+      Math.abs(l.yCenter - label.yCenter) < 0.18 &&
+      l.xMin > label.xMin, // right of the label
+  );
+  // Also include the label's own text in case the amount is on the same line
+  const candidates = [label.content, ...sameRow.map((l) => l.content)];
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    const n = lastAmountIn(candidates[i]);
+    if (n !== undefined) return n;
+  }
+  return undefined;
+}
+
+// Each entry: regex matching the start of a Lohnausweis Ziffer label.
+const NUMERIC_FIELDS: Array<{ key: keyof LohnausweisFields; rx: RegExp }> = [
+  { key: "gross_salary",            rx: /^\s*1\.\s/ },
+  { key: "company_car",             rx: /^\s*2\.2\s/ },
+  { key: "other_fringe_benefits",   rx: /^\s*2\.3\s/ },
+  { key: "irregular_pay",           rx: /^\s*3\.\s/ },
+  { key: "capital_payments",        rx: /^\s*4\.\s/ },
+  { key: "employee_participation",  rx: /^\s*5\.\s/ },
+  { key: "board_compensation",      rx: /^\s*6\.\s/ },
+  { key: "other_benefits",          rx: /^\s*7\.\s/ },
+  { key: "gross_total",             rx: /^\s*8\.\s/ },
+  { key: "ahv_iv_eo_alv_nbuv",      rx: /^\s*9\.\s/ },
+  { key: "bvg_ordinary",            rx: /^\s*10\.1\s/ },
+  { key: "bvg_purchase",            rx: /^\s*10\.2\s/ },
+  { key: "net_salary",              rx: /^\s*11\.\s/ },
+  { key: "withholding_tax",         rx: /^\s*12\.\s/ },
+  { key: "meal_allowance",          rx: /^\s*13\.1\.1\s/ },
+  { key: "flat_expenses",           rx: /^\s*13\.2\.[12]\s/ },
+  { key: "further_education",       rx: /^\s*13\.3\s/ },
+];
+
+function mapLohnausweis(result: AzureAnalyzeResult): LohnausweisFields {
+  const fields: LohnausweisFields = { currency: "CHF" };
+  const pages = result.pages ?? [];
+  const lines = buildLineIndex(pages);
+  const fullText = extractPlainText(result);
+
+  // --- Numeric fields (Ziff. 1–13) ---
+  for (const { key, rx } of NUMERIC_FIELDS) {
+    const label = lines.find((l) => rx.test(l.content));
+    if (!label) continue;
+    const val = amountInSameRow(label, lines);
+    if (val !== undefined) {
+      (fields as Record<string, unknown>)[key] = val;
+    }
+  }
+
+  // --- AHV ---
+  const ahvMatch = fullText.match(/756[.\s]\d{4}[.\s]\d{4}[.\s]\d{2}/);
+  if (ahvMatch) fields.employee_ahv = ahvMatch[0].replace(/\s/g, ".");
+
+  // --- Dates: Anstellungsbeginn/-ende ---
+  // Look for "vom dd.mm.yyyy bis dd.mm.yyyy" or labelled lines.
+  const periodRx =
+    /(?:vom|von)\s+(\d{1,2}\.\d{1,2}\.\d{4})\s+(?:bis|–|-)\s+(\d{1,2}\.\d{1,2}\.\d{4})/i;
+  const pm = fullText.match(periodRx);
+  if (pm) {
+    fields.period_from = parseSwissDate(pm[1]);
+    fields.period_to = parseSwissDate(pm[2]);
+  }
+
+  // --- Selection marks (Felder F & G) ---
+  // Layout pages expose selectionMarks; we pair them with neighbour text.
+  for (const page of pages) {
+    for (const mark of page.selectionMarks ?? []) {
+      const poly = mark.polygon ?? [];
+      if (poly.length < 8) continue;
+      const ys = [poly[1], poly[3], poly[5], poly[7]];
+      const xs = [poly[0], poly[2], poly[4], poly[6]];
+      const yc = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const xMax = Math.max(...xs);
+      const neighbours = lines
+        .filter(
+          (l) =>
+            l.page === page.pageNumber &&
+            Math.abs(l.yCenter - yc) < 0.18 &&
+            l.xMin >= xMax - 0.1 &&
+            l.xMin <= xMax + 3.0,
+        )
+        .map((l) => l.content)
+        .join(" ")
+        .toLowerCase();
+      const isSelected = mark.state === "selected";
+      if (/unentgeltlich.*beförder|wohn.*arbeitsort|feld\s*f\b|^f\s/i.test(neighbours)) {
+        fields.free_transport = isSelected;
+      }
+      if (/kantinen|lunch|verpflegung|feld\s*g\b|^g\s/i.test(neighbours)) {
+        fields.free_meals = isSelected;
+      }
+    }
+  }
+
+  // --- Notes (Ziff. 15: Bemerkungen) ---
+  const notesIdx = lines.findIndex((l) => /^\s*15\.\s|bemerkungen/i.test(l.content));
+  if (notesIdx >= 0) {
+    const label = lines[notesIdx];
+    const notesLines = lines
+      .filter(
+        (l) =>
+          l.page === label.page &&
+          l.yCenter > label.yCenter &&
+          l.yCenter - label.yCenter < 2.0, // up to ~2 inches below
+      )
+      .map((l) => l.content);
+    const notes = notesLines.join(" ").trim();
+    if (notes && notes.length > 5) {
+      fields.notes = notes.slice(0, 1000);
+      // Try to extract shift days
+      const sd = notes.match(/(\d{1,3})\s*Schichttag/i);
+      if (sd) fields.shift_days = Number(sd[1]);
+    }
+  }
+
+  // --- Employer / Employee names: take the first two non-trivial lines on page 1 ---
+  // (Lohnausweis: oben links Arbeitgeber-Block, oben rechts Arbeitnehmer-Block)
+  // We avoid hard-coding fragile heuristics here — leave empty if not obvious.
+  const page1Lines = lines.filter((l) => l.page === 1).slice(0, 30);
+  const employerCandidate = page1Lines.find(
+    (l) =>
+      l.xMin < 3.5 &&
+      l.content.length > 3 &&
+      !/lohnausweis|^seite|^page|salary|gehalts/i.test(l.content) &&
+      !/^\d/.test(l.content),
+  );
+  if (employerCandidate) fields.employer_name = employerCandidate.content.trim().slice(0, 200);
+
+  // --- Confidence: rough average over numeric fields found ---
+  const totalNumericFound = NUMERIC_FIELDS.filter(
+    ({ key }) => (fields as Record<string, unknown>)[key] !== undefined,
+  ).length;
+  if (totalNumericFound > 0) {
+    fields.confidence = Math.min(1, 0.6 + totalNumericFound * 0.03);
+  }
+
+  return fields;
 }
