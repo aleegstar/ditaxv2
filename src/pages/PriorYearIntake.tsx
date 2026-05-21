@@ -29,7 +29,7 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
     } catch (e) {
       // non-blocking
     }
-    navigate('/');
+    navigate(`/documents?year=${taxYear}`);
   };
 
   return (
