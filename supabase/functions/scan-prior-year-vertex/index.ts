@@ -140,37 +140,53 @@ Deno.serve(async (req) => {
       .single();
     if (cErr || !checklist) throw new Error(cErr?.message ?? "checklist upsert failed");
 
-    // --- Vertex AI Gemini call ---
+    // --- Vertex AI Gemini call (mit Cache) ---
     const bytes = new Uint8Array(await file.arrayBuffer());
     const pdfBase64 = bytesToBase64(bytes);
+    const fileHash = await sha256Hex(bytes);
+    const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
     const startedAt = Date.now();
-    let result;
-    try {
-      result = await generateContent(
-        [
-          { inlineData: { mimeType: "application/pdf", data: pdfBase64 } },
-          { text: "Analysiere diese Schweizer Steuererklärung und liefere die Checkliste als JSON." },
-        ],
-        {
-          systemInstruction: SYSTEM_PROMPT,
-          responseMimeType: "application/json",
-          responseSchema: RESPONSE_SCHEMA,
-          temperature: 0.0,
-          maxOutputTokens: 4096,
-          timeoutMs: 120_000,
-        },
-      );
-    } catch (err) {
-      const code = err instanceof VertexAiError ? err.code : "vertex_error";
-      const msg = err instanceof Error ? err.message : String(err);
-      const status = err instanceof VertexAiError ? err.status : 502;
-      await admin
-        .from("prior_year_checklists")
-        .update({ status: "failed", error_message: `${code}: ${msg}`.slice(0, 500) })
-        .eq("id", checklist.id);
-      return json({ error: code, message: msg }, status);
+
+    let parsedFromCache:
+      | { income?: any[]; assets?: any[]; deductions?: any[] }
+      | null = null;
+    const cached = (await getCached(userId, cacheKey)) as
+      | { parsed?: { income?: any[]; assets?: any[]; deductions?: any[] } }
+      | null;
+    if (cached?.parsed) parsedFromCache = cached.parsed;
+
+    let result: { text: string; json?: unknown } | null = null;
+    if (!parsedFromCache) {
+      try {
+        result = await generateContent(
+          [
+            { inlineData: { mimeType: "application/pdf", data: pdfBase64 } },
+            { text: "Analysiere diese Schweizer Steuererklärung und liefere die Checkliste als JSON." },
+          ],
+          {
+            model: MODEL,
+            systemInstruction: SYSTEM_PROMPT,
+            responseMimeType: "application/json",
+            responseSchema: RESPONSE_SCHEMA,
+            temperature: 0.0,
+            maxOutputTokens: 2048,
+            timeoutMs: 120_000,
+          },
+        );
+      } catch (err) {
+        const code = err instanceof VertexAiError ? err.code : "vertex_error";
+        const msg = err instanceof Error ? err.message : String(err);
+        const status = err instanceof VertexAiError ? err.status : 502;
+        await admin
+          .from("prior_year_checklists")
+          .update({ status: "failed", error_message: `${code}: ${msg}`.slice(0, 500) })
+          .eq("id", checklist.id);
+        return json({ error: code, message: msg }, status);
+      }
     }
-    console.log(`[scan-prior-year-vertex] vertex ms=${Date.now() - startedAt}`);
+    console.log(
+      `[scan-prior-year-vertex] model=${MODEL} cache=${!!parsedFromCache} ms=${Date.now() - startedAt}`,
+    );
 
     const parsed = (result.json ?? {}) as {
       income?: Array<{ label: string; code?: string }>;
