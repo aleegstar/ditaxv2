@@ -132,3 +132,94 @@ export const triggerDespiaPasskeyAuth = (email?: string): void => {
   // Use the same mechanism as OAuth to open in system browser
   triggerDespiaOAuth(authUrl);
 };
+
+/**
+ * Despia Vision OCR (on-device, iOS Vision Kit / Android ML Kit)
+ * Docs: https://setup.despia.com/machine-learning/vision/ocr
+ *
+ * Bilddaten verlassen das Gerät NICHT. Liefert nur Roh-Text zurück.
+ * Wir multiplexen window.onVisionEvent anhand der Request-ID, damit
+ * mehrere parallele Aufrufe (und evtl. fremde Handler) koexistieren.
+ */
+type VisionEvent = {
+  type: 'ocr';
+  id: string;
+  status: 'queued' | 'success' | 'error' | 'dismissed';
+  text?: string;
+  lines?: Array<{ text?: string } | string>;
+  error?: { code?: string; message?: string };
+};
+
+type Pending = {
+  resolve: (v: { text: string; lines: string[] }) => void;
+  reject: (e: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
+};
+
+const visionPending = new Map<string, Pending>();
+let visionDispatcherInstalled = false;
+
+function ensureVisionDispatcher() {
+  if (visionDispatcherInstalled || typeof window === 'undefined') return;
+  const prev = (window as any).onVisionEvent as ((e: VisionEvent) => void) | undefined;
+  (window as any).onVisionEvent = (evt: VisionEvent) => {
+    try { prev?.(evt); } catch { /* ignore */ }
+    if (!evt || evt.type !== 'ocr') return;
+    const p = visionPending.get(evt.id);
+    if (!p) return;
+    if (evt.status === 'success') {
+      clearTimeout(p.timer);
+      visionPending.delete(evt.id);
+      const lines = (evt.lines ?? [])
+        .map((l) => (typeof l === 'string' ? l : l?.text ?? ''))
+        .filter((s) => s && s.trim().length > 0);
+      p.resolve({ text: evt.text ?? '', lines });
+    } else if (evt.status === 'error' || evt.status === 'dismissed') {
+      clearTimeout(p.timer);
+      visionPending.delete(evt.id);
+      p.reject(new Error(evt.error?.code ?? evt.status));
+    }
+  };
+  visionDispatcherInstalled = true;
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as string);
+    r.onerror = () => reject(r.error ?? new Error('file_read_failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+export async function despiaVisionOcr(
+  file: File,
+  opts: { lang?: string; timeoutMs?: number } = {}
+): Promise<{ text: string; lines: string[] }> {
+  if (!isDespiaNative()) throw new Error('not_despia');
+  ensureVisionDispatcher();
+
+  const dataUrl = await fileToDataUrl(file);
+  const id = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+    ? crypto.randomUUID()
+    : `ocr-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const lang = opts.lang ?? 'de-CH,de-DE,en-US,fr-CH,it-CH';
+  const timeoutMs = opts.timeoutMs ?? 15000;
+
+  return new Promise<{ text: string; lines: string[] }>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      visionPending.delete(id);
+      reject(new Error('timeout'));
+    }, timeoutMs);
+    visionPending.set(id, { resolve, reject, timer });
+    try {
+      despia(
+        `vision://ocr?id=${encodeURIComponent(id)}&src=${encodeURIComponent(dataUrl)}&lang=${encodeURIComponent(lang)}`
+      );
+    } catch (e) {
+      clearTimeout(timer);
+      visionPending.delete(id);
+      reject(e instanceof Error ? e : new Error('despia_call_failed'));
+    }
+  });
+}
