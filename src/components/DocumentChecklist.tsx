@@ -591,7 +591,7 @@ return <div className="min-h-screen">
                         )}
                         <Button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
+                          onClick={(e) => { e.stopPropagation(); triggerDirectUpload(item); }}
                           className="flex-1"
                         >
                           Hochladen
