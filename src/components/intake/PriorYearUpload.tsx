@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   FileUp,
   Loader2,
@@ -8,17 +8,10 @@ import {
   ScanLine,
   Brain,
   CheckCircle2,
+  Cloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  AppDialog,
-  AppDialogContent,
-  AppDialogDescription,
-  AppDialogFooter,
-  AppDialogHeader,
-  AppDialogTitle,
-} from "@/components/ui/app-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -26,22 +19,19 @@ import {
   extractTextFromPdf,
   extractScanFromPdf,
   extractItemsFromText,
-  pseudonymize,
-  isLocalResultSufficient,
   hasUsableTextLayer,
   ocrPdfLocally,
   type ExtractedScan,
 } from "@/services/PriorYearLocalExtractor";
 
-const CONSENT_KEY = "ditax.aiScanConsent.v1";
-
-const GoogleG: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
-    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z" />
-    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.5 6.3 14.7z" />
-    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.5 5C9.5 39.4 16.2 44 24 44z" />
-    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.5l6.2 5.2c6.4-5.9 7.1-13.5 6.6-19z" />
-  </svg>
+const AzureMark: React.FC<{ className?: string }> = ({ className }) => (
+  <div
+    className={
+      "flex items-center justify-center rounded-md bg-primary/10 text-primary " + (className ?? "")
+    }
+  >
+    <Cloud className="w-3.5 h-3.5" strokeWidth={1.75} />
+  </div>
 );
 
 interface Props {
@@ -61,29 +51,13 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const [working, setWorking] = useState(false);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring" | "ai">("idle");
   const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
-  const [aiEnabled, setAiEnabled] = useState(false);
-  const [consentDialogOpen, setConsentDialogOpen] = useState(false);
-
-  // KEIN Auto-Aktivieren aus localStorage: die KI-Analyse muss bei jedem
-  // Upload bewusst eingeschaltet und (beim ersten Mal) bestätigt werden.
+  // Azure Document Intelligence (Schweiz Nord) ist Standard – DSGVO-konform, keine Speicherung.
+  const [aiEnabled, setAiEnabled] = useState(true);
 
   const handleToggleAi = (checked: boolean) => {
-    if (!checked) {
-      setAiEnabled(false);
-      return;
-    }
-    // Immer Bestätigungsdialog zeigen – nie still aus gespeichertem Consent
-    // aktivieren. Der User muss aktiv zustimmen.
-    setConsentDialogOpen(true);
+    setAiEnabled(checked);
   };
 
-  const confirmConsent = () => {
-    try {
-      localStorage.setItem(CONSENT_KEY, new Date().toISOString());
-    } catch {}
-    setAiEnabled(true);
-    setConsentDialogOpen(false);
-  };
 
   const persistChecklist = async (
     scan: ExtractedScan,
