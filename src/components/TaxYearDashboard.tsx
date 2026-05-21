@@ -536,10 +536,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const floatingNextStep = showFloatingNext ? (
     <div
-      className="fixed inset-x-0 z-[60] px-4 pointer-events-none"
+      className="fixed z-[60] pointer-events-none inset-x-0 px-4 md:inset-x-auto md:left-auto md:right-6 md:px-0"
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
     >
-      <div className="max-w-xl mx-auto pointer-events-auto">
+      <div className="max-w-xl mx-auto pointer-events-auto md:mx-0 md:w-[360px]">
         <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] backdrop-blur-md">
           <div className="relative h-14 w-full overflow-hidden bg-muted">
             <img
