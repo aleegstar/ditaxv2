@@ -172,13 +172,19 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       // damit Du es später ersetzen kannst und unser Team es bei Bedarf einsehen kann.
       const storagePath = await uploadPdfToStorage(file);
 
-      // Opt-in: AI-Analyse direkt über Edge Function (PDF wird übermittelt)
+      // Standardpfad: Azure Document Intelligence (Schweiz Nord) über Edge Function.
       if (aiEnabled) {
-        await runAiScan(file);
-        return;
+        try {
+          await runAiScan(file);
+          return;
+        } catch (azureErr: any) {
+          console.warn("[PriorYearUpload] Azure DI failed, falling back to local", azureErr);
+          toast.message("Azure-Analyse nicht verfügbar – nutze lokale Erkennung.");
+          // weiter mit lokalem Fallback unten
+        }
       }
 
-      // Sonst: rein lokaler Pfad — positionsbasiert direkt aus dem PDF.
+      // Lokaler Pfad — positionsbasiert direkt aus dem PDF.
       setPhase("parsing");
       let localScan: ExtractedScan | null = null;
       let usedOcr = false;
@@ -188,14 +194,12 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         console.warn("[PriorYearUpload] positional extraction failed", e);
       }
 
-      // Wenn der Textlayer nichts hergibt → OCR + zeilenbasierte Heuristik.
       const positionalTotal =
         (localScan?.income.length ?? 0) +
         (localScan?.assets.length ?? 0) +
         (localScan?.deductions.length ?? 0);
 
       if (positionalTotal === 0) {
-        // Prüfe ob überhaupt Text im PDF ist, sonst OCR.
         const flatText = await extractTextFromPdf(file);
         let usableText = flatText;
         if (!hasUsableTextLayer(flatText)) {
@@ -212,7 +216,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         }
         if (!hasUsableTextLayer(usableText)) {
           toast.error(
-            "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Aktiviere die KI-Analyse oder fülle die Angaben manuell aus.",
+            "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Bitte fülle die Angaben manuell aus.",
           );
           return;
         }
@@ -224,7 +228,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         localScan!.income.length + localScan!.assets.length + localScan!.deductions.length;
       if (total === 0) {
         toast.message(
-          "Keine Positionen automatisch erkannt – bitte ergänze die Checkliste manuell oder aktiviere die KI-Analyse.",
+          "Keine Positionen automatisch erkannt – bitte ergänze die Checkliste manuell.",
         );
       } else {
         toast.success(
@@ -232,6 +236,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         );
       }
       onScanStarted?.();
+
     } catch (e: any) {
       console.error(e);
       toast.error(`Analyse fehlgeschlagen: ${e?.message ?? "unbekannt"}`);
