@@ -8,7 +8,6 @@ import {
   ScanLine,
   Brain,
   CheckCircle2,
-  Cloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
