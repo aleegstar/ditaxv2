@@ -654,41 +654,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         />
       </div>
 
-      {/* Resume CTA */}
-      {pyRemaining > 0 && py.ready && (
-        <div
-          onClick={handlePyCtaClick}
-          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] rounded-[1.25rem] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 mt-5 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] transition-all"
-        >
-          <div className="flex items-center gap-5">
-            <div className="relative w-16 h-16 flex items-center justify-center shrink-0">
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-slate-100" />
-                <circle
-                  cx="32" cy="32" r="28"
-                  stroke="currentColor" strokeWidth="5" fill="transparent"
-                  strokeDasharray={2 * Math.PI * 28}
-                  strokeDashoffset={2 * Math.PI * 28 * (1 - pyPct / 100)}
-                  className="text-[#1E3A5F] transition-all duration-1000 ease-in-out"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="absolute text-sm font-semibold text-slate-900 tabular-nums">{pyPct}%</span>
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{pyCtaHeadline}</h3>
-              <p className="text-base text-slate-500">{pyCtaSubline}</p>
-            </div>
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); handlePyCtaClick(); }}
-            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
-          >
-            Fortsetzen
-            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
-          </button>
-        </div>
-      )}
     </>
   ) : null;
 
