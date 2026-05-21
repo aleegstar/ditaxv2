@@ -31,6 +31,8 @@ interface DocumentUploadSheetProps {
   taxFilerId?: string | null;
   /** Called after upload + document reload completes. Can be async — sheet waits for it. */
   onUploaded: (itemId: string) => Promise<void> | void;
+  /** If provided when the sheet opens, the file picker is skipped and this file is processed directly. */
+  initialFile?: File | null;
 }
 
 type Phase = 'select' | 'validating' | 'result' | 'uploading' | 'success' | 'error';
@@ -42,6 +44,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   taxFilerId,
   onClose,
   onUploaded,
+  initialFile,
 }) => {
   const [phase, setPhase] = useState<Phase>('select');
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
