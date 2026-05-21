@@ -122,21 +122,22 @@ class NativeOcrService {
    */
   private async detectTextWithDespia(file: File): Promise<string[]> {
     try {
-      const dataUrl = await this.fileToDataUrl(file);
-      
-      console.log('[NativeOCR] Calling Despia OCR...');
-      const result = await (window as any).despia.ocr.recognizeText(dataUrl);
-      
-      if (!result || !result.text) {
+      console.log('[NativeOCR] Calling Despia vision://ocr...');
+      const { text, lines } = await despiaVisionOcr(file);
+
+      if (!text && (!lines || lines.length === 0)) {
         console.log('[NativeOCR] Despia: No text detected');
         return [];
       }
-      
-      // Split result into lines
-      const texts = result.text
-        .split('\n')
-        .filter((text: string) => text && text.trim().length > 0);
-      
+
+      // Prefer per-line breakdown when available, else split normalized text
+      const texts = (lines && lines.length > 0
+        ? lines
+        : text.split('\n')
+      )
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
       console.log(`[NativeOCR] Despia: Detected ${texts.length} text blocks`);
       return texts;
     } catch (error) {
