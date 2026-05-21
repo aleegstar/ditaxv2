@@ -522,7 +522,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       className="fixed z-[60] pointer-events-none inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+64px)] md:inset-x-auto md:left-auto md:right-6 md:bottom-6 md:px-0 px-0 md:px-4"
     >
       <div className="max-w-xl mx-auto pointer-events-auto md:mx-0 md:w-[360px]">
-        <div className="relative md:rounded-2xl rounded-t-2xl rounded-b-none border border-border md:border bg-card/95 backdrop-blur-md overflow-hidden md:shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] shadow-[0_-6px_20px_-8px_rgba(15,27,61,0.1)] border-b-0 md:border-b">
+        <div className="relative md:rounded-2xl rounded-t-2xl rounded-b-none border border-white md:border-border bg-card/95 backdrop-blur-md overflow-hidden md:shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] shadow-[0_-6px_20px_-8px_rgba(15,27,61,0.1)] border-b-0 md:border-b">
           {/* Image only on desktop */}
           <div className="relative h-14 w-full overflow-hidden bg-muted hidden md:block">
             <img
