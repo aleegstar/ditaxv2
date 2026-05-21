@@ -9,7 +9,9 @@ import { SignJWT, importPKCS8 } from "npm:jose@5";
 
 const DEFAULT_LOCATION = "europe-west6";
 // gemini-2.5-pro ist in europe-west6 nicht verfügbar – flash ist es.
-const DEFAULT_MODEL = "gemini-2.5-flash";
+export const MODEL_FLASH = "gemini-2.5-flash";
+export const MODEL_FLASH_LITE = "gemini-2.5-flash-lite";
+const DEFAULT_MODEL = MODEL_FLASH;
 
 export class VertexAiError extends Error {
   constructor(public code: string, message: string, public status = 502) {
@@ -123,7 +125,7 @@ export async function generateContent(
 
   const generationConfig: Record<string, unknown> = {
     temperature: opts.temperature ?? 0.1,
-    maxOutputTokens: opts.maxOutputTokens ?? 8192,
+    maxOutputTokens: opts.maxOutputTokens ?? 2048,
   };
   if (opts.responseMimeType) generationConfig.responseMimeType = opts.responseMimeType;
   if (opts.responseSchema) generationConfig.responseSchema = opts.responseSchema;
