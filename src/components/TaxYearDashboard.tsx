@@ -281,42 +281,52 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     // ───── Active step: prominent hero-style card ─────
     if (state === 'active') {
       return (
-        <div
-          onClick={onAction}
-          className="group cursor-pointer relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[1.5rem] p-5 md:p-7 flex flex-col transition-all duration-500 hover:shadow-[0_12px_50px_-12px_rgba(37,99,235,0.08)]"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <div className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
-            </div>
-            <span className="text-[10.5px] font-semibold text-blue-600 uppercase tracking-widest">
-              Aktueller Schritt
-            </span>
-          </div>
+        <div className="relative">
+          {/* Ambient glow to lift the card off the page */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-blue-500/10 via-blue-400/5 to-transparent blur-2xl opacity-80"
+          />
+          <div
+            onClick={onAction}
+            className="group cursor-pointer relative bg-white border border-blue-200/70 ring-1 ring-blue-500/10 shadow-[0_20px_60px_-20px_rgba(30,58,95,0.25),0_8px_24px_-12px_rgba(30,58,95,0.18)] rounded-[1.5rem] p-6 md:p-8 flex flex-col transition-all duration-500 hover:shadow-[0_28px_70px_-20px_rgba(30,58,95,0.3),0_12px_30px_-12px_rgba(30,58,95,0.22)] hover:-translate-y-0.5 overflow-hidden"
+          >
+            {/* Accent bar */}
+            <div className="absolute left-0 top-6 bottom-6 w-[3px] rounded-r-full bg-gradient-to-b from-blue-500 to-blue-600" />
 
-          <div className="space-y-1.5 max-w-xl mb-2">
-            <h3 className="text-[17px] md:text-xl font-semibold text-slate-900 tracking-tight leading-snug">
-              {title}
-            </h3>
-            <p className="text-[13.5px] md:text-sm text-slate-500 leading-relaxed">
-              {desc}
-            </p>
-          </div>
-
-          <div className="mt-5 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-100/60 via-slate-100 to-transparent" />
-            <div className="flex items-center gap-2.5">
-              <span className={cn('w-1.5 h-1.5 rounded-full', dotCls)} />
-              <span className="text-[13px] text-slate-600 font-medium">{statusLabel}</span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+              </div>
+              <span className="text-[10.5px] font-semibold text-blue-600 uppercase tracking-widest">
+                Aktueller Schritt
+              </span>
             </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[14px] font-medium flex items-center justify-center gap-2 shadow-[0_4px_16px_-4px_rgba(15,27,61,0.3)] hover:shadow-[0_8px_24px_-4px_rgba(15,27,61,0.4)] transition-all duration-300 transform group-hover:-translate-y-0.5"
-            >
-              {actionLabel}
-              <ChevronRight className="w-4 h-4 text-white/90" strokeWidth={2} />
-            </button>
+
+            <div className="space-y-2 max-w-xl mb-2">
+              <h3 className="text-[20px] md:text-[26px] font-semibold text-slate-900 tracking-tight leading-[1.2]">
+                {title}
+              </h3>
+              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed">
+                {desc}
+              </p>
+            </div>
+
+            <div className="mt-6 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-100 via-slate-100 to-transparent" />
+              <div className="flex items-center gap-2.5">
+                <span className={cn('w-1.5 h-1.5 rounded-full', dotCls)} />
+                <span className="text-[13px] text-slate-600 font-medium">{statusLabel}</span>
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+                className="w-full sm:w-auto h-12 px-6 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[15px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(15,27,61,0.45)] hover:shadow-[0_12px_28px_-8px_rgba(15,27,61,0.55)] transition-all duration-300 transform group-hover:-translate-y-0.5"
+              >
+                {actionLabel}
+                <ChevronRight className="w-4 h-4 text-white/90" strokeWidth={2} />
+              </button>
+            </div>
           </div>
         </div>
       );
