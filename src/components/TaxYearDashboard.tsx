@@ -724,6 +724,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         taxYear={taxYear}
         hasInternalPriorYear={hasInternalPriorYear}
       />
+      {floatingNextStep}
     </>
   );
 
