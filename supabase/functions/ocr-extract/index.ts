@@ -135,7 +135,7 @@ serve(async (req) => {
       cacheHit = true;
     } else {
       // AI rate limit (nur bei echtem Vertex-Call, Cache zählt nicht)
-      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "ocr_extract" });
+      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "ocr_extract", deviceId: extractDeviceId(req) });
       if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
       try {
         text = await runOcr(mimeType, base64Data, PRIMARY_MODEL);
