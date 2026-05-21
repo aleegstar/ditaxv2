@@ -1,29 +1,18 @@
-// OCR Extract Edge Function — Azure Document Intelligence (Switzerland North).
+// OCR Extract — Gemini 2.5 Flash via Vertex AI (Schweiz, europe-west6).
 //
 // DSGVO/FADP:
-// - Bild wird transient an Azure DI (Schweiz-Region) gesendet, nicht gespeichert.
+// - Bild bleibt physisch in der Schweiz (europe-west6).
 // - Nur Keyword-Matches werden zurückgegeben, niemals Rohtext.
-// - Kein Logging von Bildinhalten.
+// - Kein Modelltraining auf Kundendaten.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { sanitizePromptInput } from "../_shared/ai-safety.ts";
-import {
-  analyzeDocument,
-  AzureDocIntelError,
-  extractPlainText,
-} from "../_shared/azure-doc-intel.ts";
+import { generateContent, VertexAiError } from "../_shared/vertex-ai.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-function base64ToBytes(b64: string): Uint8Array {
-  const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-}
 
 function detectMimeFromBase64(b64: string): string {
   if (b64.startsWith("/9j/")) return "image/jpeg";
@@ -39,9 +28,7 @@ serve(async (req) => {
   // Auth gate
   try {
     const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return json({ error: "Unauthorized" }, 401);
-    }
+    if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.57.2");
     const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -66,7 +53,6 @@ serve(async (req) => {
       return json({ error: "keywords array is required" }, 400);
     }
 
-    // Strip data URL prefix
     let base64Data = imageBase64;
     let detectedMimeType: string | null = null;
     if (imageBase64.startsWith("data:")) {
@@ -80,10 +66,8 @@ serve(async (req) => {
     if (base64Data.length < 1000) return json({ error: "Image data too small" }, 400);
     if (base64Data.length > 1_400_000) return json({ error: "Image too large, max 1MB" }, 400);
 
-    const mimeType =
-      requestedMimeType || detectedMimeType || detectMimeFromBase64(base64Data);
+    const mimeType = requestedMimeType || detectedMimeType || detectMimeFromBase64(base64Data);
 
-    // Sanitize keywords (same logic as before — defense in depth)
     const safeKeywords = (keywords as unknown[])
       .filter((k): k is string => typeof k === "string")
       .map((k) => sanitizePromptInput(k, 50).replace(/[^\p{L}\p{N}\s\-_.]/gu, "").trim())
@@ -94,18 +78,32 @@ serve(async (req) => {
       return json({ matched: [], count: 0, duration: 0 });
     }
 
-    const bytes = base64ToBytes(base64Data);
     const startedAt = Date.now();
-
-    let text: string;
+    let text = "";
     try {
-      const result = await analyzeDocument(bytes, mimeType, "prebuilt-read");
-      text = extractPlainText(result);
+      const result = await generateContent(
+        [
+          { inlineData: { mimeType, data: base64Data } },
+          {
+            text:
+              "Transkribiere den gesamten sichtbaren Text aus diesem Dokument/Bild " +
+              "(OCR). Nur reiner Text als Antwort, keine Erklärung, keine Markdown-Formatierung.",
+          },
+        ],
+        {
+          model: "gemini-2.5-flash",
+          responseMimeType: "text/plain",
+          temperature: 0.0,
+          maxOutputTokens: 4096,
+          timeoutMs: 60_000,
+        },
+      );
+      text = result.text;
     } catch (err) {
-      if (err instanceof AzureDocIntelError) {
-        if (err.code === "rate_limited") return json({ error: "rate_limited" }, 429);
-        if (err.code === "azure_unauthorized") return json({ error: "ocr_unauthorized" }, 502);
-        if (err.code === "azure_timeout") return json({ error: "ocr_timeout" }, 504);
+      if (err instanceof VertexAiError) {
+        if (err.code === "vertex_quota") return json({ error: "rate_limited" }, 429);
+        if (err.code === "vertex_unauthorized") return json({ error: "ocr_unauthorized" }, 502);
+        if (err.code === "vertex_timeout") return json({ error: "ocr_timeout" }, 504);
         return json({ error: "ocr_failed" }, 502);
       }
       throw err;
@@ -114,20 +112,14 @@ serve(async (req) => {
     const duration = Date.now() - startedAt;
     const haystack = text.toLowerCase();
 
-    // Case-insensitive substring match per keyword. Result preserves the
-    // requested keyword exactly (so downstream profile matching keeps working).
     const matchedKeywords: string[] = [];
     for (const kw of safeKeywords) {
       if (haystack.includes(kw.toLowerCase())) matchedKeywords.push(kw);
     }
 
-    console.log(`[ocr-extract] azure-read ms=${duration} matched=${matchedKeywords.length}`);
+    console.log(`[ocr-extract] vertex ms=${duration} matched=${matchedKeywords.length}`);
 
-    return json({
-      matched: matchedKeywords,
-      count: matchedKeywords.length,
-      duration,
-    });
+    return json({ matched: matchedKeywords, count: matchedKeywords.length, duration });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown error";
     console.error("[ocr-extract] error:", msg);
