@@ -39,9 +39,9 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
         onBack={() => navigate('/')}
       />
 
-      <main className="max-w-xl mx-auto px-5 sm:px-8 pt-2 pb-40">
-        <div className="mb-5 space-y-1.5">
-          <div className="flex items-center gap-2">
+      <main className="max-w-xl lg:max-w-3xl xl:max-w-4xl mx-auto px-5 sm:px-8 lg:px-12 pt-2 lg:pt-8 pb-40">
+        <div className="mb-5 lg:mb-8 space-y-1.5 lg:space-y-3 lg:text-center lg:max-w-2xl lg:mx-auto">
+          <div className="flex items-center gap-2 lg:justify-center">
             {allDone ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -61,10 +61,10 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
               </>
             )}
           </div>
-          <h1 className="text-[22px] md:text-3xl font-semibold text-foreground tracking-tight leading-tight">
+          <h1 className="text-[22px] md:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight leading-tight">
             {allDone ? 'Deine Vorjahres-Daten sind bestätigt' : 'Bestätige deine Vorjahres-Daten'}
           </h1>
-          <p className="text-[14px] md:text-base text-muted-foreground leading-relaxed">
+          <p className="text-[14px] md:text-base lg:text-[15px] text-muted-foreground leading-relaxed lg:max-w-xl lg:mx-auto">
             {allDone
               ? `Du bist bereit für Schritt 2 – lade nun deine Belege für ${taxYear} hoch.`
               : 'Lade dein definitives PDF hoch und bestätige nacheinander die Bereiche aus deinem Vorjahr. So wissen wir, welche Belege du brauchst.'}
@@ -86,7 +86,7 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
         className="fixed inset-x-0 bottom-0 z-[10005] bg-gradient-to-t from-background via-background to-background/0 pt-6 pb-4 px-5 sm:px-8"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
-        <div className="max-w-xl mx-auto">
+        <div className="max-w-xl lg:max-w-md mx-auto">
           <button
             type="button"
             onClick={handleContinue}
