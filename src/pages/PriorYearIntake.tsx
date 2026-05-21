@@ -4,15 +4,13 @@ import { ChevronRight } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { PriorYearChecklistBody, type PriorYearProgress } from '@/components/intake/PriorYearChecklist';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
-import { useFormContext } from '@/contexts';
+import { FormProvider, useFormContext } from '@/contexts';
 import { mapPriorYearToFormFlags } from '@/components/intake/priorYearMapping';
 
-export default function PriorYearIntake() {
+function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { activeTaxFilerId } = useTaxFiler();
-  const { taxYear: ctxYear, saveSection, formData } = useFormContext();
-  const taxYear = searchParams.get('year') || ctxYear;
+  const { saveSection, formData } = useFormContext();
 
   const [progress, setProgress] = useState<PriorYearProgress>({
     done: 0, total: 0, ready: false, status: 'loading', items: [],
