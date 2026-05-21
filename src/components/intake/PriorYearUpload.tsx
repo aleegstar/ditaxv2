@@ -146,6 +146,20 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       body: form,
     });
     if (!resp.ok) {
+      // Rate-Limit: lokalen Fallback signalisieren oder hartes Lifetime-Limit melden
+      if (resp.status === 429) {
+        let parsed: any = null;
+        try { parsed = await resp.json(); } catch {}
+        if (parsed?.reason === "lifetime_limit") {
+          throw new Error(
+            `Du hast die ${parsed.limit ?? 3} KI-Analysen für dieses Steuerjahr aufgebraucht. Bitte fülle die Checkliste manuell aus oder kontaktiere den Support.`,
+          );
+        }
+        // Tageslimit → lokaler Fallback
+        const err: any = new Error("ai_rate_limited");
+        err.rateLimited = true;
+        throw err;
+      }
       const txt = await resp.text();
       throw new Error(`KI-Analyse fehlgeschlagen (${resp.status}): ${txt.slice(0, 200)}`);
     }
@@ -178,7 +192,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           return;
         } catch (vertexErr: any) {
           console.warn("[PriorYearUpload] Vertex AI failed, falling back to local", vertexErr);
-          toast.message("KI-Analyse nicht verfügbar – nutze lokale Erkennung.");
+          if (vertexErr?.rateLimited) {
+            toast.message("KI-Tageslimit erreicht – nutze lokale Erkennung.");
+          } else {
+            toast.message("KI-Analyse nicht verfügbar – nutze lokale Erkennung.");
+          }
           // weiter mit lokalem Fallback unten
         }
       }
