@@ -299,7 +299,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
             const aiFlow = aiEnabled;
             const stages = aiFlow
               ? [
-                  { key: "ai", icon: Sparkles, label: "Google Gemini analysiert dein PDF", done: "PDF analysiert" },
+                  { key: "ai", icon: Sparkles, label: "Microsoft Azure analysiert dein PDF", done: "PDF analysiert" },
                   { key: "structuring", icon: Brain, label: "Erstelle Dokumenten-Checkliste", done: "Checkliste erstellt" },
                 ]
               : [
@@ -354,16 +354,16 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         </div>
       )}
 
-      {/* AI-Toggle */}
+      {/* Azure-Toggle */}
       <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 p-3">
         <div className="flex items-start gap-3 min-w-0">
-          <GoogleG className="w-5 h-5 shrink-0 mt-0.5" />
+          <AzureMark className="w-7 h-7 shrink-0 mt-0.5" />
           <div className="min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              KI-Analyse mit Google Gemini
+              Azure Document Intelligence (Schweiz)
             </div>
             <div className="text-[12px] text-muted-foreground leading-snug">
-              Genauer für gescannte PDFs · DSGVO-konform
+              DSGVO-konform · Server in Zürich · keine Speicherung
             </div>
           </div>
         </div>
@@ -371,7 +371,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           checked={aiEnabled}
           onCheckedChange={handleToggleAi}
           disabled={working}
-          aria-label="KI-Analyse mit Google Gemini aktivieren"
+          aria-label="Azure Document Intelligence aktivieren"
         />
       </div>
 
@@ -382,41 +382,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           <strong className="text-foreground">Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert</strong> –
           nur Du und unser Steuer-Team haben Zugriff. So kannst Du es jederzeit ersetzen.
           {aiEnabled
-            ? " Für die Analyse wird es einmalig an Google Gemini übermittelt; Google speichert es nicht."
+            ? " Für die Analyse wird es einmalig an Microsoft Azure Document Intelligence (Schweiz, Zürich) übermittelt und nicht gespeichert."
             : " Die Analyse erfolgt lokal auf deinem Gerät."}
         </p>
       </div>
-
-      {/* Einwilligungs-Dialog */}
-      <AppDialog open={consentDialogOpen} onOpenChange={setConsentDialogOpen}>
-        <AppDialogContent size="default">
-          <AppDialogHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <GoogleG className="w-6 h-6" />
-              <AppDialogTitle>KI-Analyse aktivieren</AppDialogTitle>
-            </div>
-            <AppDialogDescription className="leading-relaxed">
-              Wenn Du die KI-gestützte Analyse aktivierst, übermitteln wir Dein hochgeladenes
-              PDF einmalig an <strong>Google Gemini</strong> (über das Lovable AI Gateway) zur
-              Auswertung. Dabei gilt:
-            </AppDialogDescription>
-          </AppDialogHeader>
-
-          <ul className="text-[13px] text-foreground/90 space-y-2 list-disc pl-5">
-            <li>Es werden <strong>nur</strong> die benötigten Dokumenten-Kategorien zurückgegeben – keine Beträge, Namen, AHV oder Adressen.</li>
-            <li>Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert (nur Du und unser Steuer-Team sehen es); Google speichert es nicht.</li>
-            <li>Die Verarbeitung erfolgt ausschliesslich zur Erstellung Deiner Checkliste.</li>
-            <li>Du kannst die KI-Analyse jederzeit wieder deaktivieren.</li>
-          </ul>
-
-          <AppDialogFooter>
-            <Button variant="outline" onClick={() => setConsentDialogOpen(false)}>
-              Abbrechen
-            </Button>
-            <Button onClick={confirmConsent}>Zustimmen &amp; aktivieren</Button>
-          </AppDialogFooter>
-        </AppDialogContent>
-      </AppDialog>
     </div>
   );
+
 };
