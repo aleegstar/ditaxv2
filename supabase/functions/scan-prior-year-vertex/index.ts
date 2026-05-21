@@ -4,7 +4,11 @@
 // kein Logging des PDF-Inhalts. PDF wird im privaten Supabase-Storage gespeichert.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { generateContent, VertexAiError } from "../_shared/vertex-ai.ts";
+import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
+import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
+
+const FUNCTION_NAME = "scan-prior-year-vertex";
+const MODEL = MODEL_FLASH;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,23 +58,16 @@ const RESPONSE_SCHEMA = {
   required: ["income", "assets", "deductions"],
 };
 
-const SYSTEM_PROMPT = `Du bist ein Schweizer Steuerexperte. Du analysierst eine \
-definitive Schweizer Steuererklärung des Kantons Aargau (PDF).
-
-AUFGABE: Erstelle eine Checkliste der Belege/Dokumente, die der Steuerpflichtige \
-für das Folgejahr brauchen wird – basierend ausschliesslich auf den Positionen, \
-die in dieser Vorjahres-Erklärung TATSÄCHLICH MIT BETRAG AUSGEFÜLLT sind \
-(Code + Schweizer-Franken-Betrag > 0). Leere/nicht ausgefüllte Formularzeilen \
-ignorieren.
+const SYSTEM_PROMPT = `Schweizer Steuerexperte. Du analysierst eine definitive \
+Schweizer Steuererklärung Kanton Aargau (PDF) und erstellst eine Belegliste fürs Folgejahr.
 
 REGELN:
-- Nur reale Positionen mit Betrag aufnehmen (keine Formular-Defaults).
-- Code = Aargauer Ziffer (z.B. "010", "240", "381", "710") wenn erkennbar.
-- Kategorien: "income" (Einkommen), "deductions" (Abzüge), "assets" (Vermögen/Wertschriften/Liegenschaften/Schulden).
-- Label = kurzer deutscher Belegname (z.B. "Lohnausweis", "Säule 3a-Einzahlungsbestätigung", 
-  "Wertschriften-/Depotverzeichnis", "Schuldzinsen-Bescheinigung", "Krankenkassen-Prämienrechnung",
-  "Liegenschaftenverzeichnis", "Beleg Bankkonto/Depot – <Institut>").
-- Wenn mehrere Wertschriftendepots oder Bankkonten ausgewiesen sind, je einen Eintrag pro Konto/Depot mit Institut.
+- Nur Positionen mit ausgefülltem CHF-Betrag > 0 aufnehmen (keine Formular-Defaults).
+- code = Aargauer Ziffer wenn erkennbar (z.B. "010", "240", "381", "710").
+- Kategorien: income, deductions, assets (Vermögen/Wertschriften/Liegenschaften/Schulden).
+- label = kurzer deutscher Belegname (z.B. "Lohnausweis", "Säule 3a-Bestätigung",
+  "Depotverzeichnis", "Schuldzinsen-Bescheinigung", "Beleg Bankkonto – <Institut>").
+- Bei mehreren Depots/Konten: ein Eintrag pro Konto inkl. Institut.
 - Keine Beträge, keine Personendaten, keine AHV-Nummern im Output.
 - Antwort ausschliesslich als JSON gemäss Schema.`;
 

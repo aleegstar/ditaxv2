@@ -1,4 +1,4 @@
-// OCR Extract — Gemini 2.5 Flash via Vertex AI (Schweiz, europe-west6).
+// OCR Extract — Gemini 2.5 Flash-Lite via Vertex AI (Schweiz, europe-west6).
 //
 // DSGVO/FADP:
 // - Bild bleibt physisch in der Schweiz (europe-west6).
@@ -7,11 +7,26 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { sanitizePromptInput } from "../_shared/ai-safety.ts";
-import { generateContent, VertexAiError } from "../_shared/vertex-ai.ts";
+import {
+  generateContent,
+  MODEL_FLASH,
+  MODEL_FLASH_LITE,
+  VertexAiError,
+} from "../_shared/vertex-ai.ts";
+import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
+
+const FUNCTION_NAME = "ocr-extract";
+const PRIMARY_MODEL = MODEL_FLASH_LITE;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const OCR_SCHEMA = {
+  type: "object",
+  properties: { text: { type: "string" } },
+  required: ["text"],
 };
 
 function detectMimeFromBase64(b64: string): string {
@@ -22,10 +37,34 @@ function detectMimeFromBase64(b64: string): string {
   return "image/jpeg";
 }
 
+async function runOcr(
+  mimeType: string,
+  base64Data: string,
+  model: string,
+): Promise<string> {
+  const result = await generateContent(
+    [
+      { inlineData: { mimeType, data: base64Data } },
+      { text: "OCR: liefere den sichtbaren Text des Dokuments als JSON {\"text\": \"...\"}." },
+    ],
+    {
+      model,
+      responseMimeType: "application/json",
+      responseSchema: OCR_SCHEMA,
+      temperature: 0.0,
+      maxOutputTokens: 1536,
+      timeoutMs: 60_000,
+    },
+  );
+  const json = (result.json ?? {}) as { text?: string };
+  return typeof json.text === "string" ? json.text : result.text;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Auth gate
+  let userId: string | null = null;
   try {
     const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
@@ -38,6 +77,7 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: claims, error: claimsError } = await authClient.auth.getClaims(token);
     if (claimsError || !claims?.claims?.sub) return json({ error: "Unauthorized" }, 401);
+    userId = claims.claims.sub as string;
   } catch (err) {
     console.error("[ocr-extract] auth check failed", err);
     return json({ error: "Unauthorized" }, 401);
@@ -78,46 +118,59 @@ serve(async (req) => {
       return json({ matched: [], count: 0, duration: 0 });
     }
 
-    const startedAt = Date.now();
+    // Cache lookup (key includes binary content + function + model)
+    const fileBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+    const fileHash = await sha256Hex(fileBytes);
+    const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, PRIMARY_MODEL);
+    const cached = (await getCached(userId!, cacheKey)) as { text?: string } | null;
+
     let text = "";
-    try {
-      const result = await generateContent(
-        [
-          { inlineData: { mimeType, data: base64Data } },
-          {
-            text:
-              "Transkribiere den gesamten sichtbaren Text aus diesem Dokument/Bild " +
-              "(OCR). Nur reiner Text als Antwort, keine Erklärung, keine Markdown-Formatierung.",
-          },
-        ],
-        {
-          model: "gemini-2.5-flash",
-          responseMimeType: "text/plain",
-          temperature: 0.0,
-          maxOutputTokens: 4096,
-          timeoutMs: 60_000,
-        },
-      );
-      text = result.text;
-    } catch (err) {
-      if (err instanceof VertexAiError) {
-        if (err.code === "vertex_quota") return json({ error: "rate_limited" }, 429);
-        if (err.code === "vertex_unauthorized") return json({ error: "ocr_unauthorized" }, 502);
-        if (err.code === "vertex_timeout") return json({ error: "ocr_timeout" }, 504);
-        return json({ error: "ocr_failed" }, 502);
+    let modelUsed = PRIMARY_MODEL;
+    let cacheHit = false;
+    const startedAt = Date.now();
+
+    if (cached?.text) {
+      text = cached.text;
+      cacheHit = true;
+    } else {
+      try {
+        text = await runOcr(mimeType, base64Data, PRIMARY_MODEL);
+      } catch (err) {
+        // Auto-Fallback Flash-Lite → Flash bei 404 (Modell nicht verfügbar)
+        if (err instanceof VertexAiError && /404/.test(err.message)) {
+          console.warn("[ocr-extract] flash-lite 404, fallback to flash");
+          modelUsed = MODEL_FLASH;
+          text = await runOcr(mimeType, base64Data, MODEL_FLASH);
+        } else if (err instanceof VertexAiError) {
+          if (err.code === "vertex_quota") return json({ error: "rate_limited" }, 429);
+          if (err.code === "vertex_unauthorized") return json({ error: "ocr_unauthorized" }, 502);
+          if (err.code === "vertex_timeout") return json({ error: "ocr_timeout" }, 504);
+          return json({ error: "ocr_failed" }, 502);
+        } else {
+          throw err;
+        }
       }
-      throw err;
+
+      await setCached({
+        userId: userId!,
+        cacheKey: buildCacheKey(fileHash, FUNCTION_NAME, modelUsed),
+        functionName: FUNCTION_NAME,
+        model: modelUsed,
+        fileHash,
+        payload: { text },
+      });
     }
 
     const duration = Date.now() - startedAt;
     const haystack = text.toLowerCase();
-
     const matchedKeywords: string[] = [];
     for (const kw of safeKeywords) {
       if (haystack.includes(kw.toLowerCase())) matchedKeywords.push(kw);
     }
 
-    console.log(`[ocr-extract] vertex ms=${duration} matched=${matchedKeywords.length}`);
+    console.log(
+      `[ocr-extract] model=${modelUsed} cache=${cacheHit} ms=${duration} matched=${matchedKeywords.length}`,
+    );
 
     return json({ matched: matchedKeywords, count: matchedKeywords.length, duration });
   } catch (err: unknown) {

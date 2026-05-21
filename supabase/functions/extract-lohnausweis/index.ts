@@ -1,9 +1,13 @@
-// Lohnausweis Extraktion — Gemini 2.5 Pro via Vertex AI (Schweiz, europe-west6).
+// Lohnausweis Extraktion — Gemini 2.5 Flash via Vertex AI (Schweiz, europe-west6).
 //
 // DSGVO/FADP: Inference in Zürich, kein Modelltraining auf Daten, keine Persistenz.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { generateContent, VertexAiError } from "../_shared/vertex-ai.ts";
+import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
+import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
+
+const FUNCTION_NAME = "extract-lohnausweis";
+const MODEL = MODEL_FLASH;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,23 +48,19 @@ const LOHNAUSWEIS_SCHEMA = {
   },
 };
 
-const SYSTEM_PROMPT = `Du bist ein Schweizer Lohnausweis-Parser. Extrahiere aus dem \
-hochgeladenen Schweizer Lohnausweis (Formular Eidg. Steuerverwaltung) die folgenden \
-Felder gemäss Ziffern 1–15. 
-
-REGELN:
-- Beträge als reine Zahlen in CHF (z.B. 85432.50), keine Apostrophe/Tausendertrennzeichen.
-- Datumsfelder im Format YYYY-MM-DD.
-- AHV-Nummer im Format 756.XXXX.XXXX.XX.
-- Nur Felder zurückgeben, die im Dokument tatsächlich vorhanden sind. Keine Schätzungen.
-- Bei Selection Marks F/G: true wenn angekreuzt.
-- "currency" = "CHF" wenn nicht anders angegeben.
+const SYSTEM_PROMPT = `Schweizer Lohnausweis-Parser (Ziffern 1–15).
+- Beträge als reine Zahlen in CHF, keine Apostrophe.
+- Datumsfelder YYYY-MM-DD. AHV 756.XXXX.XXXX.XX.
+- Nur tatsächlich vorhandene Felder; keine Schätzungen.
+- F/G Selection Marks: true wenn angekreuzt.
+- currency = "CHF" wenn nicht anders angegeben.
 - Antwort ausschliesslich als JSON gemäss Schema.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Auth gate
+  let userId: string | null = null;
   try {
     const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
@@ -73,6 +73,7 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: claims, error: claimsError } = await authClient.auth.getClaims(token);
     if (claimsError || !claims?.claims?.sub) return json({ error: "Unauthorized" }, 401);
+    userId = claims.claims.sub as string;
   } catch (err) {
     console.error("[extract-lohnausweis] auth check failed", err);
     return json({ error: "Unauthorized" }, 401);
@@ -104,6 +105,16 @@ serve(async (req) => {
   if (b64.length > 7_500_000) return json({ error: "file_too_large" }, 413);
 
   try {
+    const fileBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const fileHash = await sha256Hex(fileBytes);
+    const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
+
+    const cached = (await getCached(userId!, cacheKey)) as { fields?: Record<string, unknown> } | null;
+    if (cached?.fields && Object.keys(cached.fields).length > 0) {
+      console.log(`[extract-lohnausweis] cache hit`);
+      return json({ fields: cached.fields, _cache: true });
+    }
+
     const startedAt = Date.now();
     const result = await generateContent(
       [
@@ -111,11 +122,12 @@ serve(async (req) => {
         { text: "Extrahiere die Lohnausweis-Felder als JSON." },
       ],
       {
+        model: MODEL,
         systemInstruction: SYSTEM_PROMPT,
         responseMimeType: "application/json",
         responseSchema: LOHNAUSWEIS_SCHEMA,
         temperature: 0.0,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 1536,
         timeoutMs: 90_000,
       },
     );
@@ -126,6 +138,16 @@ serve(async (req) => {
       return json({ error: "no_extraction" }, 422);
     }
     if (!fields.currency) fields.currency = "CHF";
+
+    await setCached({
+      userId: userId!,
+      cacheKey,
+      functionName: FUNCTION_NAME,
+      model: MODEL,
+      fileHash,
+      payload: { fields },
+    });
+
     return json({ fields });
   } catch (err) {
     if (err instanceof VertexAiError) {
