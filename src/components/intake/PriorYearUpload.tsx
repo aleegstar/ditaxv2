@@ -8,7 +8,6 @@ import {
   ScanLine,
   Brain,
   CheckCircle2,
-  Cloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -24,13 +23,13 @@ import {
   type ExtractedScan,
 } from "@/services/PriorYearLocalExtractor";
 
-const AzureMark: React.FC<{ className?: string }> = ({ className }) => (
+const VertexMark: React.FC<{ className?: string }> = ({ className }) => (
   <div
     className={
       "flex items-center justify-center rounded-md bg-primary/10 text-primary " + (className ?? "")
     }
   >
-    <Cloud className="w-3.5 h-3.5" strokeWidth={1.75} />
+    <Sparkles className="w-3.5 h-3.5" strokeWidth={1.75} />
   </div>
 );
 
@@ -51,7 +50,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const [working, setWorking] = useState(false);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring" | "ai">("idle");
   const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
-  // Azure Document Intelligence (Schweiz Nord) ist Standard – DSGVO-konform, keine Speicherung.
+  // Vertex AI Gemini 2.5 Pro (Schweiz, europe-west6/Zürich) ist Standard – DSGVO-konform, keine Speicherung.
   const [aiEnabled, setAiEnabled] = useState(true);
 
   const handleToggleAi = (checked: boolean) => {
@@ -137,7 +136,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
     const projectId = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID;
-    const url = `https://${projectId}.supabase.co/functions/v1/scan-prior-year-ai`;
+    const url = `https://${projectId}.supabase.co/functions/v1/scan-prior-year-vertex`;
 
     const resp = await fetch(url, {
       method: "POST",
@@ -172,14 +171,14 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       // damit Du es später ersetzen kannst und unser Team es bei Bedarf einsehen kann.
       const storagePath = await uploadPdfToStorage(file);
 
-      // Standardpfad: Azure Document Intelligence (Schweiz Nord) über Edge Function.
+      // Standardpfad: Gemini 2.5 Pro via Vertex AI (Schweiz, europe-west6) über Edge Function.
       if (aiEnabled) {
         try {
           await runAiScan(file);
           return;
-        } catch (azureErr: any) {
-          console.warn("[PriorYearUpload] Azure DI failed, falling back to local", azureErr);
-          toast.message("Azure-Analyse nicht verfügbar – nutze lokale Erkennung.");
+        } catch (vertexErr: any) {
+          console.warn("[PriorYearUpload] Vertex AI failed, falling back to local", vertexErr);
+          toast.message("KI-Analyse nicht verfügbar – nutze lokale Erkennung.");
           // weiter mit lokalem Fallback unten
         }
       }
@@ -299,7 +298,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
             const aiFlow = aiEnabled;
             const stages = aiFlow
               ? [
-                  { key: "ai", icon: Sparkles, label: "Microsoft Azure analysiert dein PDF", done: "PDF analysiert" },
+                  { key: "ai", icon: Sparkles, label: "Gemini analysiert dein PDF (Schweizer Server)", done: "PDF analysiert" },
                   { key: "structuring", icon: Brain, label: "Erstelle Dokumenten-Checkliste", done: "Checkliste erstellt" },
                 ]
               : [
@@ -354,16 +353,16 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         </div>
       )}
 
-      {/* Azure-Toggle */}
+      {/* Vertex AI Toggle */}
       <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 p-3">
         <div className="flex items-start gap-3 min-w-0">
-          <AzureMark className="w-7 h-7 shrink-0 mt-0.5" />
+          <VertexMark className="w-7 h-7 shrink-0 mt-0.5" />
           <div className="min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              Azure Document Intelligence (Schweiz)
+              Gemini 2.5 Pro · Vertex AI (Schweiz, Zürich)
             </div>
             <div className="text-[12px] text-muted-foreground leading-snug">
-              DSGVO-konform · Server in Zürich · keine Speicherung
+              Google Cloud · Region europe-west6 · DSGVO-konform · kein Modelltraining
             </div>
           </div>
         </div>
@@ -371,7 +370,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           checked={aiEnabled}
           onCheckedChange={handleToggleAi}
           disabled={working}
-          aria-label="Azure Document Intelligence aktivieren"
+          aria-label="Vertex AI Gemini aktivieren"
         />
       </div>
 
@@ -382,7 +381,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           <strong className="text-foreground">Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert</strong> –
           nur Du und unser Steuer-Team haben Zugriff. So kannst Du es jederzeit ersetzen.
           {aiEnabled
-            ? " Für die Analyse wird es einmalig an Microsoft Azure Document Intelligence (Schweiz, Zürich) übermittelt und nicht gespeichert."
+            ? " Für die Analyse wird es einmalig an Google Cloud Vertex AI in Zürich (europe-west6) übermittelt, dort nicht gespeichert und nicht für Modelltraining verwendet."
             : " Die Analyse erfolgt lokal auf deinem Gerät."}
         </p>
       </div>
