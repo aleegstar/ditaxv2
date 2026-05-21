@@ -11,6 +11,7 @@
 
 import { Capacitor } from '@capacitor/core';
 import { isDespiaEnvironment } from '@/utils/platform';
+import { despiaVisionOcr } from '@/lib/despia';
 
 // Dynamic import to avoid errors when not on native
 let OcrModule: any = null;
