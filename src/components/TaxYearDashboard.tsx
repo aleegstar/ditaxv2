@@ -537,28 +537,40 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <span className="text-[10px] font-semibold text-foreground uppercase tracking-[0.08em] leading-none">Nächster Schritt</span>
             </div>
           </div>
-          <div className="px-4 py-3.5 md:p-3 flex items-center justify-between gap-3">
+          {/* Mobile: single compact row "x/y · Title · Weiter >" */}
+          <div className="md:hidden px-3 py-2.5 flex items-center gap-2.5">
+            <span className="shrink-0 inline-flex items-center justify-center h-6 px-2 rounded-full bg-primary/8 border border-primary/15 text-[11px] font-semibold text-primary tabular-nums leading-none">
+              {(nextStepMeta.badge.match(/(\d+)\s*\D+\s*(\d+)/) ?? ['','?','?'])[1]}/{(nextStepMeta.badge.match(/(\d+)\s*\D+\s*(\d+)/) ?? ['','?','?'])[2]}
+            </span>
+            <h3 className="flex-1 min-w-0 text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">
+              {nextStepMeta.title}
+            </h3>
+            <button
+              type="button"
+              onClick={nextStepMeta.onClick}
+              className="shrink-0 inline-flex items-center gap-1 h-8 px-3 rounded-full border border-border bg-card hover:bg-muted/60 text-foreground text-[12.5px] font-medium active:scale-[0.97] transition-all"
+            >
+              Weiter
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+            </button>
+          </div>
+
+          {/* Desktop: original two-line layout */}
+          <div className="hidden md:flex p-3 items-center justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1.5">
-              {/* Pill replaces "SCHRITT X VON Y" on mobile */}
-              <div className="md:hidden inline-flex items-center gap-1.5 h-5 px-2 rounded-full bg-primary/8 border border-primary/15">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
-                </span>
-                <span className="text-[10px] font-semibold text-primary uppercase tracking-[0.08em] leading-none">Nächster Schritt</span>
-              </div>
-              <div className="hidden md:block text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
-              <h3 className="text-[15px] md:text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">{nextStepMeta.title}</h3>
+              <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
+              <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">{nextStepMeta.title}</h3>
             </div>
             <button
               type="button"
               onClick={nextStepMeta.onClick}
-              className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl border border-border bg-card hover:bg-muted/60 md:bg-gradient-to-b md:from-[#1E3A5F] md:to-[#0F1B3D] md:border-transparent text-foreground md:text-white text-[13px] font-medium md:shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
+              className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
             >
               {nextStepMeta.action}
               <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
+
 
         </div>
 
