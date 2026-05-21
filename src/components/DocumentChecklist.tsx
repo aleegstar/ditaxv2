@@ -439,9 +439,6 @@ return <div className="min-h-screen">
                 <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
                   Alle Unterlagen auf einmal hochladen
                 </h3>
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10">
-                  <GoogleGIcon className="w-2.5 h-2.5" /> Auto
-                </span>
               </div>
               <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
                 Zieh alle Dateien rein – wir erkennen die Kategorie automatisch und ordnen sie zu.
