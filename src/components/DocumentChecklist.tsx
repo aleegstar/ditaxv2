@@ -716,15 +716,26 @@ return <div className="min-h-screen">
         </div>
       )}
 
+      {/* Hidden input for direct upload from checklist Hochladen button */}
+      <input
+        ref={directUploadInputRef}
+        type="file"
+        className="hidden"
+        accept="image/jpeg,image/png,image/jpg,image/heic,application/pdf"
+        onChange={handleDirectFileChange}
+      />
+
       {/* Unified Upload Bottom Sheet */}
       <DocumentUploadSheet
         open={uploadSheetOpen}
-        onClose={() => { setUploadSheetOpen(false); setUploadSheetItem(null); }}
+        onClose={() => { setUploadSheetOpen(false); setUploadSheetItem(null); setPendingUploadFile(null); }}
         item={uploadSheetItem}
         taxYear={taxYear}
         taxFilerId={activeTaxFilerId}
         onUploaded={handleSheetUploaded}
+        initialFile={pendingUploadFile}
       />
+
     </div>;
 
 };
