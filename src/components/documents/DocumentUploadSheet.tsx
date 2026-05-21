@@ -212,6 +212,18 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     e.target.value = '';
   }, [handleFileSelected]);
 
+  // If sheet opens with a pre-selected file, skip the picker and process it directly
+  const processedInitialRef = useRef<File | null>(null);
+  useEffect(() => {
+    if (open && initialFile && processedInitialRef.current !== initialFile) {
+      processedInitialRef.current = initialFile;
+      handleFileSelected(initialFile);
+    }
+    if (!open) {
+      processedInitialRef.current = null;
+    }
+  }, [open, initialFile, handleFileSelected]);
+
   const handleConfirm = useCallback(() => {
     if (fileBufferRef.current && fileInfoRef.current) {
       performUpload(fileBufferRef.current, fileInfoRef.current.name, fileInfoRef.current.type);
