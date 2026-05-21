@@ -196,6 +196,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_log: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          success: boolean
+          tax_filer_id: string | null
+          tax_year: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          success?: boolean
+          tax_filer_id?: string | null
+          tax_year?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          success?: boolean
+          tax_filer_id?: string | null
+          tax_year?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       asset_data: {
         Row: {
           created_at: string
