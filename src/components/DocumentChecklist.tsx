@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import checklistEmptyImg from '@/assets/checklist-empty.webp';
-import checklistHero from '@/assets/checklist-hero.webp';
+import checklistHero from '@/assets/b615d00a-67e3-46e8-b781-808187e8bd95.webp';
 
 import documentsCompleteHero from '@/assets/documents-complete-hero.jpg';
 import { Button } from "@/components/ui/button";
