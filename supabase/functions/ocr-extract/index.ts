@@ -14,14 +14,14 @@ import {
   VertexAiError,
 } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
-import { checkAndLogAiUsage, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 
 const FUNCTION_NAME = "ocr-extract";
 const PRIMARY_MODEL = MODEL_FLASH_LITE;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-device-id",
 };
 
 const OCR_SCHEMA = {
@@ -135,7 +135,7 @@ serve(async (req) => {
       cacheHit = true;
     } else {
       // AI rate limit (nur bei echtem Vertex-Call, Cache zählt nicht)
-      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "ocr_extract" });
+      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "ocr_extract", deviceId: extractDeviceId(req) });
       if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
       try {
         text = await runOcr(mimeType, base64Data, PRIMARY_MODEL);

@@ -56,8 +56,11 @@ export async function extractLohnausweisFromFile(
     (file instanceof Blob ? file.type : '') ||
     'application/pdf';
 
+  const { buildDeviceHeaders } = await import('@/lib/deviceVault');
+  const deviceHeaders = await buildDeviceHeaders();
   const { data, error } = await supabase.functions.invoke('extract-lohnausweis', {
     body: { fileBase64, mimeType },
+    headers: deviceHeaders,
   });
   if (error) {
     // Versuch, Body aus FunctionsHttpError zu lesen für freundliche Rate-Limit-Meldung
@@ -65,7 +68,7 @@ export async function extractLohnausweisFromFile(
       const ctx: any = (error as any)?.context;
       if (ctx?.status === 429 && typeof ctx.json === 'function') {
         const body = await ctx.json();
-        if (body?.reason === 'daily_limit') {
+        if (body?.reason === 'daily_limit' || body?.reason === 'daily_limit_device') {
           throw new Error(
             'Die KI-Analyse für Lohnausweise ist heute aufgebraucht. Bitte morgen erneut versuchen oder Felder manuell ausfüllen.',
           );

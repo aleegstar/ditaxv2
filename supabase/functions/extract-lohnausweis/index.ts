@@ -5,14 +5,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
-import { checkAndLogAiUsage, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 
 const FUNCTION_NAME = "extract-lohnausweis";
 const MODEL = MODEL_FLASH;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-device-id",
 };
 
 const LOHNAUSWEIS_SCHEMA = {
@@ -113,7 +113,7 @@ serve(async (req) => {
     const cached = (await getCached(userId!, cacheKey)) as { fields?: Record<string, unknown> } | null;
     // Cache-Hit gilt nicht gegen Limit
     if (!cached?.fields) {
-      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "lohnausweis" });
+      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "lohnausweis", deviceId: extractDeviceId(req) });
       if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
     }
     if (cached?.fields && Object.keys(cached.fields).length > 0) {

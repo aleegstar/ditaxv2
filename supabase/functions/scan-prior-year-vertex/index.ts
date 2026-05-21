@@ -6,14 +6,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
-import { checkAndLogAiUsage, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 
 const FUNCTION_NAME = "scan-prior-year-vertex";
 const MODEL = MODEL_FLASH;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-device-id",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -112,12 +112,13 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (filerErr || !filerRow) return json({ error: "forbidden tax_filer" }, 403);
 
-    // AI rate limit: 5/Tag/User + 3 lifetime pro filer+year
+    // AI rate limit: 5/Tag/User + 3 lifetime pro filer+year + 3 lifetime pro Gerät+year
     const rl = await checkAndLogAiUsage({
       userId,
       endpoint: "prior_year",
       taxFilerId,
       taxYear,
+      deviceId: extractDeviceId(req),
     });
     if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
 

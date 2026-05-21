@@ -138,10 +138,14 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     const projectId = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID;
     const url = `https://${projectId}.supabase.co/functions/v1/scan-prior-year-vertex`;
 
+    const { buildDeviceHeaders } = await import("@/lib/deviceVault");
+    const deviceHeaders = await buildDeviceHeaders();
+
     const resp = await fetch(url, {
       method: "POST",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...deviceHeaders,
       },
       body: form,
     });
@@ -150,7 +154,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       if (resp.status === 429) {
         let parsed: any = null;
         try { parsed = await resp.json(); } catch {}
-        if (parsed?.reason === "lifetime_limit") {
+        if (parsed?.reason === "lifetime_limit" || parsed?.reason === "lifetime_limit_device") {
           throw new Error(
             `Du hast die ${parsed.limit ?? 3} KI-Analysen für dieses Steuerjahr aufgebraucht. Bitte fülle die Checkliste manuell aus oder kontaktiere den Support.`,
           );
