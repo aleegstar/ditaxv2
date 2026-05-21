@@ -99,7 +99,7 @@ const ModeCard: React.FC<{
     <div
       className={`group relative w-full text-left rounded-2xl bg-card overflow-hidden transition-all flex flex-col sm:flex-row ${
         recommended
-          ? "border border-primary/30 shadow-[0_4px_20px_-8px_hsl(var(--primary)/0.18)]"
+          ? "border-2 border-[#1450dc] shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)]"
           : "border border-border"
       }`}
     >
