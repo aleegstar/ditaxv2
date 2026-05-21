@@ -101,3 +101,13 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
     </div>
   );
 }
+
+export default function PriorYearIntake() {
+  const [searchParams] = useSearchParams();
+  const taxYear = searchParams.get('year') || String(new Date().getFullYear() - 1);
+  return (
+    <FormProvider taxYear={taxYear}>
+      <PriorYearIntakeInner taxYear={taxYear} />
+    </FormProvider>
+  );
+}
