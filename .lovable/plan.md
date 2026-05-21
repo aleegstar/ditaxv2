@@ -1,109 +1,96 @@
-# Quick Wins: Vertex AI Gemini Kostenoptimierung
 
-Ziel: Sofort 40–60 % Kosten sparen, ohne neue Komplexität. Keine Änderungen an PDF-Preprocessing, lokalem Fallback oder Monitoring.
+## Ziel
 
-## 1. Model-Tiering in `_shared/vertex-ai.ts`
+Despias neue **on-device Vision OCR** (iOS Vision Kit + Android ML Kit, in jeder Despia-App ab heute kostenlos enthalten) als zusätzliche OCR-Quelle für die Dokumenten-Checkliste nutzen. Läuft komplett offline auf dem Gerät, sendet keine Bilddaten – passt perfekt zu unseren Schweizer Datenschutz-Anforderungen und reduziert Vertex-AI-Kosten, wenn die Klassifikation bereits lokal gelingt.
 
-Konstanten exportieren, Default unverändert:
+## Was Despia jetzt liefert
 
-```ts
-export const MODEL_FLASH_LITE = "gemini-2.5-flash-lite"; // nur reine Text-/OCR-Extraktion
-export const MODEL_FLASH      = "gemini-2.5-flash";       // Default
-const DEFAULT_MODEL           = MODEL_FLASH;              // bleibt unverändert
-```
+- Aufruf: `despia('vision://ocr?id=<id>&src=<encodeURIComponent(url|dataURI|base64)>')`
+- Ergebnis: Event auf `window.onVisionEvent` (`status: 'queued' | 'success' | 'error' | 'dismissed'`), bei `success` mit `evt.text` (normalisiert) und `evt.lines[]`.
+- Quellen: HTTPS-URL, `data:`-URI, `@imagepicker`, `@filepicker`, `@documentscanner`.
+- Optionaler `lang`-Hint (BCP-47, kommagetrennt) – standardmässig Auto-Detect.
 
-Region bleibt `europe-west6`. Falls Flash-Lite dort nicht verfügbar ist, fällt der Caller automatisch zurück auf Flash (try/catch um den Call mit `VertexAiError` Code-Check auf 404 → Retry mit `MODEL_FLASH`).
+## Wo es eingebaut wird
 
-## 2. Einheitliche strukturierte JSON-Responses erzwingen
+Bestehender Code in `src/services/NativeOcrService.ts` hat bereits einen Despia-Pfad, der aber auf eine alte/nicht existierende API (`window.despia.ocr.recognizeText`) zielt – diese ist nie aktiv. Wir ersetzen diesen Pfad durch die echte `vision://ocr`-Integration. Aufrufer in `DocumentValidator.ts` (`detectKeywordsWithNativeOcr`) bleiben unverändert – gleiche Schnittstelle (`detectTextFromFile(file): Promise<string[]>`, `matchKeywords(...)`).
 
-Neuer Helper im `_shared/vertex-ai.ts`:
+## Umsetzung (klein gehalten, Quick-Win)
 
-```ts
-export async function generateJson<T>(parts, opts: GenerateOptions & { responseSchema: unknown }): Promise<T>
-```
+1. **`src/lib/despia.ts`**
+   - Neue Helper-Funktion `despiaVisionOcr(file: File, opts?: { lang?: string; timeoutMs?: number }): Promise<{ text: string; lines: string[] }>`.
+   - Initialisiert genau einmal einen globalen Dispatcher: `window.onVisionEvent` wird als Multiplexer registriert, der Events anhand der `id` an die jeweilige Promise weiterleitet (UUID per Request).
+   - Bestehende `onVisionEvent`-Handler dürfen nicht überschrieben werden → wir wrappen einen evtl. vorhandenen Handler.
+   - Erstellt `data:`-URI via `FileReader.readAsDataURL`, kodiert mit `encodeURIComponent` und ruft `despia(`vision://ocr?id=${id}&src=${src}${lang ? `&lang=${lang}` : ''}`)`.
+   - Timeout (Default 15 s) → reject; bei `error`-Event → reject mit `evt.error.code`; bei `success` → resolve.
+   - Sprache-Hint: `de-CH,de-DE,en-US,fr-CH,it-CH` als Standard-Hint für Schweizer Steuerdokumente.
 
-- Setzt zwingend `responseMimeType: "application/json"`.
-- Wirft `VertexAiError("vertex_invalid_json", ...)` wenn Parse fehlschlägt.
-- Wird in `extract-lohnausweis` und `scan-prior-year-vertex` benutzt.
-- `ocr-extract` bekommt ein minimales Schema `{ text: string }` statt freiem Plain-Text → konsistent + planbare Tokens.
+2. **`src/services/NativeOcrService.ts`**
+   - In `initialize()`: Despia-Zweig prüft jetzt nur noch `isDespiaEnvironment()` und markiert `useDespia = true` (kein Check auf `window.despia.ocr.recognizeText` mehr).
+   - `detectTextWithDespia(file)` ersetzen: nutzt `despiaVisionOcr(file)`, splittet `text` an `\n`, filtert leere Zeilen → `string[]`. Errors werden gefangen, leeres Array zurück (verhält sich wie bisher).
+   - Keine Änderung am öffentlichen Interface, an Privacy-Logik (nur Match-Counts werden weitergegeben) oder an `matchKeywords`.
 
-## 3. Prompt- & Schema-Slimming
+3. **PDFs**
+   - Despia OCR akzeptiert keine PDFs direkt. Für die Checklist-Klassifikation: bestehende PDF→Image-Konvertierung in `DocumentValidator` (Tesseract-Pfad) unverändert lassen – Despia OCR greift nur bei Bild-Uploads (JPG/PNG/HEIC). Falls Despia-Native iOS bereits in HEIC liefert, wird das nativ unterstützt.
 
-- **Lohnausweis-Prompt**: von ~12 Zeilen auf 5 kompakte Bullets. Schema bleibt (Felder werden gebraucht), aber Reihenfolge unverändert.
-- **scan-prior-year**: System-Prompt um ~40 % kürzen (Beispiele konsolidieren, redundante Erklärungen raus). Schema bleibt funktional gleich, aber `required: ["label"]` auf Item-Ebene reicht – keine Änderung nötig.
-- **ocr-extract**: einzeilige Instruction.
+4. **Keine Auswirkungen auf**
+   - Vertex-AI-Pfade (`ocr-extract`, `extract-lohnausweis`, `scan-prior-year-vertex`) – bleiben Fallback/Master für strukturierte JSON-Extraktion. Despia-OCR liefert nur Roh-Text fürs Keyword-Matching der Checklist.
+   - Encryption / RLS / tax_filer-Isolation – Bilddaten verlassen nie das Gerät; Roh-Text wird sofort verworfen.
 
-## 4. `maxOutputTokens` reduzieren
-
-| Function | Vorher | Nachher |
-|---|---|---|
-| `ocr-extract` | 4096 | **1536** |
-| `extract-lohnausweis` | 2048 | **1536** |
-| `scan-prior-year-vertex` | 4096 | **2048** |
-
-Realistische Obergrenzen basierend auf Schema-Größe.
-
-## 5. Modell-Zuordnung
-
-| Function | Modell |
-|---|---|
-| `ocr-extract` | **`MODEL_FLASH_LITE`** (mit Auto-Fallback auf Flash bei 404) |
-| `extract-lohnausweis` | `MODEL_FLASH` (Default, Präzision wichtig) |
-| `scan-prior-year-vertex` | `MODEL_FLASH` (Default) |
-
-## 6. Response-Cache (Supabase Tabelle)
-
-Migration `ai_extraction_cache`:
-
-| Spalte | Typ | Zweck |
-|---|---|---|
-| `id` | uuid PK | |
-| `cache_key` | text UNIQUE | SHA-256(file_bytes) + `:` + function_name + `:` + model |
-| `function_name` | text | z. B. `extract-lohnausweis` |
-| `model` | text | z. B. `gemini-2.5-flash` |
-| `file_hash` | text | SHA-256 hex |
-| `payload` | jsonb | extrahiertes JSON-Resultat |
-| `tax_filer_id` | uuid NULL | Isolation, NULL für OCR |
-| `user_id` | uuid NOT NULL | Owner |
-| `created_at` | timestamptz default now() | |
-| `last_used_at` | timestamptz default now() | |
-
-- RLS: User darf nur eigene Zeilen lesen/schreiben (`auth.uid() = user_id`).
-- Index auf `cache_key`.
-- Kein TTL-Job nötig (Quick Win) – Cleanup später.
-
-Cache-Logik in jeder Function:
+## Technische Details
 
 ```ts
-const fileHash = sha256Hex(fileBytes);
-const cacheKey = `${fileHash}:${FUNCTION_NAME}:${MODEL}`;
-// 1. SELECT payload FROM ai_extraction_cache WHERE cache_key=$1 AND user_id=$2
-// 2. Hit → update last_used_at, return cached payload
-// 3. Miss → Vertex-Call → INSERT
+// src/lib/despia.ts (neu)
+type VisionEvent = { type: 'ocr'; id: string; status: 'queued'|'success'|'error'|'dismissed'; text?: string; lines?: any[]; error?: { code: string; message?: string } };
+
+const pending = new Map<string, { resolve: (v: any) => void; reject: (e: any) => void; timer: number }>();
+let installed = false;
+
+function ensureDispatcher() {
+  if (installed) return;
+  const prev = (window as any).onVisionEvent;
+  (window as any).onVisionEvent = (evt: VisionEvent) => {
+    try { prev?.(evt); } catch {}
+    const p = pending.get(evt.id);
+    if (!p) return;
+    if (evt.status === 'success') { clearTimeout(p.timer); pending.delete(evt.id); p.resolve({ text: evt.text ?? '', lines: (evt.lines ?? []).map((l:any)=>l?.text ?? '').filter(Boolean) }); }
+    else if (evt.status === 'error' || evt.status === 'dismissed') { clearTimeout(p.timer); pending.delete(evt.id); p.reject(new Error(evt.error?.code ?? evt.status)); }
+  };
+  installed = true;
+}
+
+export async function despiaVisionOcr(file: File, opts: { lang?: string; timeoutMs?: number } = {}) {
+  if (!isDespiaNative()) throw new Error('not_despia');
+  ensureDispatcher();
+  const dataUrl = await new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result as string); r.onerror = () => rej(r.error); r.readAsDataURL(file); });
+  const id = crypto.randomUUID();
+  const lang = opts.lang ?? 'de-CH,de-DE,en-US,fr-CH,it-CH';
+  return new Promise<{text:string; lines:string[]}>((resolve, reject) => {
+    const timer = window.setTimeout(() => { pending.delete(id); reject(new Error('timeout')); }, opts.timeoutMs ?? 15000);
+    pending.set(id, { resolve, reject, timer });
+    despia(`vision://ocr?id=${id}&src=${encodeURIComponent(dataUrl)}&lang=${encodeURIComponent(lang)}`);
+  });
+}
 ```
 
-SHA-256 via `crypto.subtle.digest("SHA-256", bytes)` (Web Crypto, in Deno verfügbar).
+In `NativeOcrService.detectTextWithDespia`:
+```ts
+const { text } = await despiaVisionOcr(file);
+return text.split('\n').map(s => s.trim()).filter(Boolean);
+```
 
-## Dateien, die geändert werden
+## Was wir bewusst NICHT machen (jetzt)
 
-- `supabase/functions/_shared/vertex-ai.ts` — Model-Konstanten, `generateJson` Helper.
-- `supabase/functions/_shared/ai-cache.ts` *(neu)* — `sha256Hex`, `getCached`, `setCached`.
-- `supabase/functions/ocr-extract/index.ts` — Flash-Lite, Cache, JSON-Schema, maxOutputTokens 1536, Prompt slimming.
-- `supabase/functions/extract-lohnausweis/index.ts` — Cache, Prompt slimming, maxOutputTokens 1536, `generateJson`.
-- `supabase/functions/scan-prior-year-vertex/index.ts` — Cache, Prompt slimming, maxOutputTokens 2048, `generateJson`.
-- DB-Migration: Tabelle `ai_extraction_cache` + RLS.
+- Keine Nutzung von `@documentscanner` / `@imagepicker`-Tokens – wir wollen die bestehenden Upload-Flows nicht ändern.
+- Keine Kombination mit Despia Intelligence (Gemma 3 on-device) für JSON-Extraktion – das wäre ein zweiter, grösserer Schritt. Vertex-AI bleibt Master für strukturierte Felder.
+- Kein UI-Hinweis "OCR läuft lokal" – verhält sich genauso wie der bisherige Native-OCR-Pfad (silent).
 
-## Was bewusst NICHT gemacht wird
+## Test / Validation
 
-- Kein PDF-Preprocessing / Seiten-Filter.
-- Kein lokaler Fallback-Vorrang.
-- Kein `ai_usage_log` / Monitoring-Widget.
-- Keine Pro-Modell-Integration.
+- Web/Desktop: `isDespiaNative()` false → kein Pfad-Wechsel, bestehendes Verhalten (Tesseract WASM / Vertex).
+- Despia iOS/Android nach nächstem Native-Build: Upload eines JPG-Lohnausweises → Console-Log `[NativeOCR] Despia: Detected N text blocks`, Keywords matchen → Checklist-Item wird vorgeschlagen.
+- Timeout-Pfad: bei Funkloch reject → Fallback auf nachgelagerten Vertex-Call funktioniert wie heute.
 
-## Risiken
+## Geänderte Dateien
 
-- Flash-Lite-Verfügbarkeit in `europe-west6`: Auto-Fallback auf Flash absichert.
-- Cache-Hit für OCR ist eher selten (unterschiedliche Scans desselben Belegs), aber Lohnausweis/Vorjahres-PDF profitieren stark bei Re-Uploads.
-- `maxOutputTokens` Reduktion: Schema-Größe wurde geprüft, Werte sind sicher.
-
-Soll ich so umsetzen?
+- `src/lib/despia.ts` (Erweiterung um `despiaVisionOcr`)
+- `src/services/NativeOcrService.ts` (Despia-Branch ersetzt)

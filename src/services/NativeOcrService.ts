@@ -11,6 +11,7 @@
 
 import { Capacitor } from '@capacitor/core';
 import { isDespiaEnvironment } from '@/utils/platform';
+import { despiaVisionOcr } from '@/lib/despia';
 
 // Dynamic import to avoid errors when not on native
 let OcrModule: any = null;
@@ -43,20 +44,13 @@ class NativeOcrService {
 
     // Check for Despia environment first (WebView with native bridge)
     if (isDespiaEnvironment()) {
-      console.log('[NativeOCR] Despia environment detected');
-      
-      // Check if Despia has OCR capability
-      if (typeof (window as any).despia?.ocr?.recognizeText === 'function') {
-        console.log('[NativeOCR] Using Despia OCR');
-        this.useDespia = true;
-        this.available = true;
-        return true;
-      }
-      
-      // Despia without OCR - still mark as mobile context
-      console.log('[NativeOCR] Despia without OCR capability - will skip OCR');
-      this.available = false;
-      return false;
+      // Despia ships on-device Vision OCR (iOS Vision Kit / Android ML Kit)
+      // in every build from May 2026 onwards. Bundled for free, fully offline.
+      // https://setup.despia.com/machine-learning/vision/ocr
+      console.log('[NativeOCR] Despia environment detected - using vision://ocr');
+      this.useDespia = true;
+      this.available = true;
+      return true;
     }
 
     // Only available on native platforms (Capacitor)
@@ -128,21 +122,22 @@ class NativeOcrService {
    */
   private async detectTextWithDespia(file: File): Promise<string[]> {
     try {
-      const dataUrl = await this.fileToDataUrl(file);
-      
-      console.log('[NativeOCR] Calling Despia OCR...');
-      const result = await (window as any).despia.ocr.recognizeText(dataUrl);
-      
-      if (!result || !result.text) {
+      console.log('[NativeOCR] Calling Despia vision://ocr...');
+      const { text, lines } = await despiaVisionOcr(file);
+
+      if (!text && (!lines || lines.length === 0)) {
         console.log('[NativeOCR] Despia: No text detected');
         return [];
       }
-      
-      // Split result into lines
-      const texts = result.text
-        .split('\n')
-        .filter((text: string) => text && text.trim().length > 0);
-      
+
+      // Prefer per-line breakdown when available, else split normalized text
+      const texts = (lines && lines.length > 0
+        ? lines
+        : text.split('\n')
+      )
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
       console.log(`[NativeOCR] Despia: Detected ${texts.length} text blocks`);
       return texts;
     } catch (error) {
