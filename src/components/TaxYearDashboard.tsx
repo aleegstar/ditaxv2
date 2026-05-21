@@ -415,37 +415,120 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       };
 
   const modeSwitcher = (
-    <div className="mb-5">
-      <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
-        <div className="relative h-16 sm:h-28 w-full overflow-hidden bg-muted">
-          <img
-            src={modeMeta.image}
-            alt={modeMeta.imageAlt}
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
-            {modeMeta.icon}
-            <span className="text-[11px] font-medium text-foreground">{modeMeta.badge}</span>
-          </div>
+    <button
+      type="button"
+      onClick={() => setModeSheetOpen(true)}
+      className="group mb-4 w-full flex items-center justify-between gap-3 px-1 py-1 text-left"
+    >
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="w-7 h-7 rounded-full bg-primary/[0.06] flex items-center justify-center shrink-0">
+          {modeMeta.icon}
         </div>
-        <div className="p-4 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="text-[14.5px] font-semibold text-foreground tracking-tight truncate">{modeMeta.title}</h3>
-            <p className="text-[12px] text-muted-foreground mt-0.5 line-clamp-1">{modeMeta.desc}</p>
+        <div className="min-w-0">
+          <div className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-widest">Modus</div>
+          <div className="text-[13px] font-medium text-foreground truncate">{modeMeta.title}</div>
+        </div>
+      </div>
+      <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+        <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+        Wechseln
+      </span>
+    </button>
+  );
+
+  // Floating "Nächster Schritt" card (style of old mode switcher card)
+  const nextStepMeta = (() => {
+    if (intakeMode === 'prior_year_upload') {
+      if (pyNextStep === 1) return {
+        image: intakeUploadImg,
+        badge: 'Schritt 1 von 3',
+        title: !py.ready ? `Vorjahres-PDF hochladen` : 'Vorjahres-Daten bestätigen',
+        action: 'Weiter',
+        onClick: () => navigate(`/prior-year?year=${taxYear}`),
+      };
+      if (pyNextStep === 2) return {
+        image: documentsMessageImg,
+        badge: 'Schritt 2 von 3',
+        title: 'Belege hochladen',
+        action: 'Hochladen',
+        onClick: handlePriorYearDocsClick,
+      };
+      return {
+        image: intakeManualImg,
+        badge: 'Schritt 3 von 3',
+        title: 'Prüfung & Versand',
+        action: 'Einreichen',
+        onClick: handleSubmitClick,
+      };
+    }
+    if (nextStep === 1) return {
+      image: intakeManualImg,
+      badge: 'Schritt 1 von 3',
+      title: 'Persönliche Angaben',
+      action: 'Fortfahren',
+      onClick: handleCtaClick,
+    };
+    if (nextStep === 2) return {
+      image: documentsMessageImg,
+      badge: 'Schritt 2 von 3',
+      title: 'Belege hochladen',
+      action: 'Hochladen',
+      onClick: handleCtaClick,
+    };
+    return {
+      image: intakeUploadImg,
+      badge: 'Schritt 3 von 3',
+      title: 'Prüfung & Versand',
+      action: 'Einreichen',
+      onClick: handleCtaClick,
+    };
+  })();
+
+  const showFloatingNext =
+    intakeMode !== null &&
+    (intakeMode === 'prior_year_upload' ? pyRemaining > 0 : remainingSteps > 0);
+
+  const floatingNextStep = showFloatingNext ? (
+    <div
+      className="fixed inset-x-0 z-[60] px-4 pointer-events-none"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
+    >
+      <div className="max-w-xl mx-auto pointer-events-auto">
+        <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] backdrop-blur-md">
+          <div className="relative h-14 w-full overflow-hidden bg-muted">
+            <img
+              src={nextStepMeta.image}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-card/95 backdrop-blur-sm border border-border/60">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+              </span>
+              <span className="text-[10.5px] font-semibold text-foreground uppercase tracking-wider">Nächster Schritt</span>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setModeSheetOpen(true)}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-white hover:bg-slate-50 text-[12px] font-medium text-foreground transition-colors"
-          >
-            <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-            Wechseln
-          </button>
+          <div className="p-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
+              <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate">{nextStepMeta.title}</h3>
+            </div>
+            <button
+              type="button"
+              onClick={nextStepMeta.onClick}
+              className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
+            >
+              {nextStepMeta.action}
+              <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  );
+  ) : null;
+
 
 
   // ─── Prior-year mode derived state ───
