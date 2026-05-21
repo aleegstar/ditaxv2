@@ -521,8 +521,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     >
       <div className="max-w-xl mx-auto pointer-events-auto md:mx-0 md:w-[360px]">
         <div className="relative md:rounded-2xl rounded-t-2xl rounded-b-none border border-white md:border-border bg-card/95 backdrop-blur-md overflow-hidden md:shadow-[0_12px_32px_-8px_rgba(15,27,61,0.18)] shadow-[0_-6px_20px_-8px_rgba(15,27,61,0.1)] border-b-0 md:border-b">
-          {/* Image only on desktop */}
-          <div className="relative h-14 w-full overflow-hidden bg-muted hidden md:block">
+          {/* Image header with "Nächster Schritt" pill */}
+          <div className="relative h-14 w-full overflow-hidden bg-muted">
             <img
               src={nextStepMeta.image}
               alt=""
@@ -537,27 +537,9 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <span className="text-[10px] font-semibold text-foreground uppercase tracking-[0.08em] leading-none">Nächster Schritt</span>
             </div>
           </div>
-          <div className="md:hidden px-3 py-2.5 flex items-center gap-2.5">
-            <span className="shrink-0 inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-primary/8 border border-primary/15">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              <span className="text-[10px] font-semibold text-primary uppercase tracking-[0.08em] leading-none">Nächster Schritt</span>
-            </span>
-            <h3 className="flex-1 min-w-0 text-[13.5px] font-semibold text-foreground tracking-tight truncate leading-tight">
-              {nextStepMeta.title}
-            </h3>
-            <button
-              type="button"
-              onClick={nextStepMeta.onClick}
-              className="shrink-0 inline-flex items-center gap-1 h-8 px-3 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[12.5px] font-medium active:scale-[0.97] transition-all"
-            >
-              Weiter
-              <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
-            </button>
-          </div>
 
-
-          {/* Desktop: original two-line layout */}
-          <div className="hidden md:flex p-3 items-center justify-between gap-3">
+          {/* Body: badge + title + action (same on mobile and desktop) */}
+          <div className="flex p-3 items-center justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1.5">
               <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
               <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">{nextStepMeta.title}</h3>
@@ -571,6 +553,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
+
 
 
         </div>
