@@ -102,6 +102,24 @@ const DocumentChecklist: React.FC = () => {
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [uploadSheetOpen, setUploadSheetOpen] = useState(false);
   const [uploadSheetItem, setUploadSheetItem] = useState<ChecklistItem | null>(null);
+  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
+  const directUploadInputRef = useRef<HTMLInputElement>(null);
+  const pendingUploadItemRef = useRef<ChecklistItem | null>(null);
+
+  const triggerDirectUpload = (item: ChecklistItem) => {
+    pendingUploadItemRef.current = item;
+    directUploadInputRef.current?.click();
+  };
+
+  const handleDirectFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const item = pendingUploadItemRef.current;
+    e.target.value = '';
+    if (!file || !item) return;
+    setUploadSheetItem(item);
+    setPendingUploadFile(file);
+    setUploadSheetOpen(true);
+  };
   
   const hasShownCompletionDialog = useRef(false);
   const isMobile = useIsMobile();
