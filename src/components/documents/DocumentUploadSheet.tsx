@@ -284,16 +284,14 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
               <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
 
               {(() => {
-                const glassBtn = "group relative w-full h-16 rounded-[22px] flex items-center gap-4 px-4 text-[16px] font-medium text-foreground bg-white/55 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_8px_24px_-12px_rgba(15,23,42,0.18)] active:scale-[0.985] transition-all duration-200 overflow-hidden";
-                const sheen = <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[22px] bg-gradient-to-b from-white/70 to-transparent opacity-80" />;
-                const iconWrap = "relative w-11 h-11 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_4px_10px_-6px_rgba(29,100,255,0.25)] flex items-center justify-center flex-shrink-0";
-                const chevron = <span aria-hidden className="ml-auto text-muted-foreground/50 text-lg leading-none">›</span>;
+                const cardBtn = "group w-full flex items-center gap-4 p-4 rounded-2xl bg-card border border-border hover:border-foreground/20 hover:shadow-sm active:scale-[0.99] transition-all text-left";
+                const iconWrap = "w-11 h-11 rounded-xl bg-muted/60 border border-border/60 flex items-center justify-center flex-shrink-0";
+                const chevron = <span aria-hidden className="ml-auto text-muted-foreground/40 text-xl leading-none">›</span>;
                 return (
-                  <div className="space-y-3">
-                    <button onClick={() => photoInputRef.current?.click()} className={glassBtn} style={{ touchAction: 'manipulation' }}>
-                      {sheen}
-                      <div className={iconWrap}><Image className="w-5 h-5 text-[#1D64FF]" strokeWidth={2} /></div>
-                      <span className="relative">Fotos hochladen</span>
+                  <div className="space-y-2.5">
+                    <button onClick={() => photoInputRef.current?.click()} className={cardBtn} style={{ touchAction: 'manipulation' }}>
+                      <div className={iconWrap}><Image className="w-5 h-5 text-[#1E3A5F]" strokeWidth={2} /></div>
+                      <span className="text-[15px] font-medium text-foreground">Fotos hochladen</span>
                       {chevron}
                     </button>
                     <button
@@ -308,18 +306,16 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
                         };
                         input.click();
                       }}
-                      className={glassBtn}
+                      className={cardBtn}
                       style={{ touchAction: 'manipulation' }}
                     >
-                      {sheen}
-                      <div className={iconWrap}><img src={documentScanImg} alt="" width={448} height={448} loading="lazy" decoding="async" className="w-9 h-9 object-contain" /></div>
-                      <span className="relative">Dokument scannen</span>
+                      <div className={iconWrap}><img src={documentScanImg} alt="" width={448} height={448} loading="lazy" decoding="async" className="w-8 h-8 object-contain" /></div>
+                      <span className="text-[15px] font-medium text-foreground">Dokument scannen</span>
                       {chevron}
                     </button>
-                    <button onClick={() => fileInputRef.current?.click()} className={glassBtn} style={{ touchAction: 'manipulation' }}>
-                      {sheen}
-                      <div className={iconWrap}><FileText className="w-5 h-5 text-[#1D64FF]" strokeWidth={2} /></div>
-                      <span className="relative">Dateien (PDF, Docs...)</span>
+                    <button onClick={() => fileInputRef.current?.click()} className={cardBtn} style={{ touchAction: 'manipulation' }}>
+                      <div className={iconWrap}><FileText className="w-5 h-5 text-[#1E3A5F]" strokeWidth={2} /></div>
+                      <span className="text-[15px] font-medium text-foreground">Dateien (PDF, Docs...)</span>
                       {chevron}
                     </button>
                   </div>
