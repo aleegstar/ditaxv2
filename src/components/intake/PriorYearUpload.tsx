@@ -353,16 +353,21 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         </div>
       )}
 
-      {/* Vertex AI Toggle */}
+      {/* AI-Hinweis */}
       <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 p-3">
         <div className="flex items-start gap-3 min-w-0">
-          <VertexMark className="w-7 h-7 shrink-0 mt-0.5" />
+          <svg viewBox="0 0 48 48" className="w-7 h-7 shrink-0 mt-0.5" aria-hidden="true">
+            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C41.1 35.9 44 30.4 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+          </svg>
           <div className="min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              Gemini 2.5 Flash · Vertex AI (Schweiz, Zürich)
+              Analyse mit Google KI in der Schweiz
             </div>
             <div className="text-[12px] text-muted-foreground leading-snug">
-              Google Cloud · Region europe-west6 · DSGVO-konform · kein Modelltraining
+              Daten bleiben in der Schweiz · kein KI-Training mit deinen Daten
             </div>
           </div>
         </div>
@@ -370,7 +375,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           checked={aiEnabled}
           onCheckedChange={handleToggleAi}
           disabled={working}
-          aria-label="Vertex AI Gemini aktivieren"
+          aria-label="Google KI-Analyse aktivieren"
         />
       </div>
 
@@ -381,10 +386,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           <strong className="text-foreground">Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert</strong> –
           nur Du und unser Steuer-Team haben Zugriff. So kannst Du es jederzeit ersetzen.
           {aiEnabled
-            ? " Für die Analyse wird es einmalig an Google Cloud Vertex AI in Zürich (europe-west6) übermittelt, dort nicht gespeichert und nicht für Modelltraining verwendet."
+            ? " Für die Analyse wird es einmalig an Google in der Schweiz übermittelt, dort nicht gespeichert und nicht zum KI-Training verwendet."
             : " Die Analyse erfolgt lokal auf deinem Gerät."}
         </p>
       </div>
+
     </div>
   );
 
