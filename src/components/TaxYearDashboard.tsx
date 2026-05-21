@@ -415,25 +415,16 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       };
 
   const modeSwitcher = (
-    <button
-      type="button"
-      onClick={() => setModeSheetOpen(true)}
-      className="group mb-4 w-full flex items-center justify-between gap-3 px-1 py-1 text-left"
-    >
-      <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-7 h-7 rounded-full bg-primary/[0.06] flex items-center justify-center shrink-0">
-          {modeMeta.icon}
-        </div>
-        <div className="min-w-0">
-          <div className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-widest">Modus</div>
-          <div className="text-[13px] font-medium text-foreground truncate">{modeMeta.title}</div>
-        </div>
-      </div>
-      <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+    <div className="mb-4 flex justify-end">
+      <button
+        type="button"
+        onClick={() => setModeSheetOpen(true)}
+        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-border bg-card hover:bg-muted/60 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >
         <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-        Wechseln
-      </span>
-    </button>
+        Modus wechseln
+      </button>
+    </div>
   );
 
 
