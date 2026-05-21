@@ -44,20 +44,13 @@ class NativeOcrService {
 
     // Check for Despia environment first (WebView with native bridge)
     if (isDespiaEnvironment()) {
-      console.log('[NativeOCR] Despia environment detected');
-      
-      // Check if Despia has OCR capability
-      if (typeof (window as any).despia?.ocr?.recognizeText === 'function') {
-        console.log('[NativeOCR] Using Despia OCR');
-        this.useDespia = true;
-        this.available = true;
-        return true;
-      }
-      
-      // Despia without OCR - still mark as mobile context
-      console.log('[NativeOCR] Despia without OCR capability - will skip OCR');
-      this.available = false;
-      return false;
+      // Despia ships on-device Vision OCR (iOS Vision Kit / Android ML Kit)
+      // in every build from May 2026 onwards. Bundled for free, fully offline.
+      // https://setup.despia.com/machine-learning/vision/ocr
+      console.log('[NativeOCR] Despia environment detected - using vision://ocr');
+      this.useDespia = true;
+      this.available = true;
+      return true;
     }
 
     // Only available on native platforms (Capacitor)
