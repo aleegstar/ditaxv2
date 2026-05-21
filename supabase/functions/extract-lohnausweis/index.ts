@@ -5,6 +5,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
+import { checkAndLogAiUsage, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 
 const FUNCTION_NAME = "extract-lohnausweis";
 const MODEL = MODEL_FLASH;
@@ -110,6 +111,11 @@ serve(async (req) => {
     const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
 
     const cached = (await getCached(userId!, cacheKey)) as { fields?: Record<string, unknown> } | null;
+    // Cache-Hit gilt nicht gegen Limit
+    if (!cached?.fields) {
+      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "lohnausweis" });
+      if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
+    }
     if (cached?.fields && Object.keys(cached.fields).length > 0) {
       console.log(`[extract-lohnausweis] cache hit`);
       return json({ fields: cached.fields, _cache: true });
