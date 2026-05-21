@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2, FileUp, Pencil, Star, Upload, BadgeCheck } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
-import documentsMessageImg from '@/assets/documents-message.svg';
+import documentsMessageImg from '@/assets/documents-message.webp';
 import intakeUploadImg from '@/assets/intake-upload.webp';
 import intakeManualImg from '@/assets/intake-manual.webp';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
