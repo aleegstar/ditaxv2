@@ -52,6 +52,7 @@ const TaxFilers = lazyWithRetry(() => import("./pages/TaxFilers"));
 const SelectPerson = lazyWithRetry(() => import("./pages/SelectPerson"));
 const Invoices = lazyWithRetry(() => import("./pages/Invoices"));
 const PersonalInfo = lazyWithRetry(() => import("./pages/PersonalInfo"));
+const PriorYearIntake = lazyWithRetry(() => import("./pages/PriorYearIntake"));
 const DevCanonical = lazyWithRetry(() => import("./pages/DevCanonical"));
 const DevAgExport = lazyWithRetry(() => import("./pages/DevAgExport"));
 const DevAgXml = lazyWithRetry(() => import("./pages/DevAgXml"));
