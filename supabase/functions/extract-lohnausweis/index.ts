@@ -113,7 +113,7 @@ serve(async (req) => {
     const cached = (await getCached(userId!, cacheKey)) as { fields?: Record<string, unknown> } | null;
     // Cache-Hit gilt nicht gegen Limit
     if (!cached?.fields) {
-      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "lohnausweis" });
+      const rl = await checkAndLogAiUsage({ userId: userId!, endpoint: "lohnausweis", deviceId: extractDeviceId(req) });
       if (!rl.allowed) return rateLimitResponse(rl, corsHeaders);
     }
     if (cached?.fields && Object.keys(cached.fields).length > 0) {
