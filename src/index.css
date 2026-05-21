@@ -132,6 +132,28 @@
     --sar: var(--safe-area-right, env(safe-area-inset-right, 0px));
   }
 
+  /*
+   * Despia native safe-area floor.
+   * Despia WebViews don't always emit reliable env(safe-area-inset-*) values,
+   * so we force a minimum padding so content never disappears under the
+   * status bar / dynamic island / gesture bar of the host OS.
+   * iOS: ~50px top (notch/dynamic island), 20px bottom (home indicator)
+   * Android: ~28px top (status bar), 12px bottom (gesture bar)
+   */
+  html.despia-native {
+    --safe-area-top: max(env(safe-area-inset-top, 0px), 28px);
+    --safe-area-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+    --sat: var(--safe-area-top);
+    --sab: var(--safe-area-bottom);
+  }
+  html.despia-ios {
+    --safe-area-top: max(env(safe-area-inset-top, 0px), 50px);
+    --safe-area-bottom: max(env(safe-area-inset-bottom, 0px), 20px);
+    --sat: var(--safe-area-top);
+    --sab: var(--safe-area-bottom);
+  }
+
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
