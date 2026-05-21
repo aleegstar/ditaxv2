@@ -59,8 +59,29 @@ export async function extractLohnausweisFromFile(
   const { data, error } = await supabase.functions.invoke('extract-lohnausweis', {
     body: { fileBase64, mimeType },
   });
-  if (error) throw error;
+  if (error) {
+    // Versuch, Body aus FunctionsHttpError zu lesen für freundliche Rate-Limit-Meldung
+    try {
+      const ctx: any = (error as any)?.context;
+      if (ctx?.status === 429 && typeof ctx.json === 'function') {
+        const body = await ctx.json();
+        if (body?.reason === 'daily_limit') {
+          throw new Error(
+            'Die KI-Analyse für Lohnausweise ist heute aufgebraucht. Bitte morgen erneut versuchen oder Felder manuell ausfüllen.',
+          );
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('KI-Analyse')) throw e;
+    }
+    throw error;
+  }
   if (!data || (data as any).error) {
+    if ((data as any)?.error === 'rate_limited') {
+      throw new Error(
+        'Die KI-Analyse für Lohnausweise ist heute aufgebraucht. Bitte morgen erneut versuchen oder Felder manuell ausfüllen.',
+      );
+    }
     throw new Error((data as any)?.error || 'OCR fehlgeschlagen');
   }
   return ((data as any).fields ?? {}) as LohnausweisFields;
