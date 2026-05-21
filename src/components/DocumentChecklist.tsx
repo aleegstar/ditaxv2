@@ -28,6 +28,15 @@ import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
 import DocumentUploadSheet from '@/components/documents/DocumentUploadSheet';
 
+const GoogleGIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+    <path fill="#FF3D00" d="M6.3 14.1l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.1z"/>
+    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.4-4.5 2.2-7.2 2.2-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.5 16.2 44 24 44z"/>
+    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.2 5.2c-.4.4 6.7-4.9 6.7-14.8 0-1.3-.1-2.4-.4-3.5z"/>
+  </svg>
+);
+
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
   const {
@@ -420,7 +429,7 @@ return <div className="min-h-screen">
         </div>
 
         {/* Bulk uploader entry — schneller Weg */}
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+        <div className="rounded-2xl border border-[#1450dc] bg-card p-5 sm:p-6">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Upload className="w-5 h-5 text-primary" strokeWidth={1.75} />
@@ -431,7 +440,7 @@ return <div className="min-h-screen">
                   Alle Unterlagen auf einmal hochladen
                 </h3>
                 <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10">
-                  <Sparkles className="w-2.5 h-2.5" /> Auto
+                  <GoogleGIcon className="w-2.5 h-2.5" /> Auto
                 </span>
               </div>
               <p className="text-[13px] text-muted-foreground leading-[1.5] mt-1">
@@ -447,12 +456,13 @@ return <div className="min-h-screen">
             Dateien auswählen
           </Button>
           <div className="mt-3 flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5">
-            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+            <GoogleGIcon className="w-4 h-4 shrink-0 mt-0.5" />
             <p className="text-[12px] text-muted-foreground leading-[1.45]">
               KI-Erkennung verteilt deine Dokumente automatisch auf die richtige Kategorie.
             </p>
           </div>
         </div>
+
 
         {/* Divider between bulk and single upload */}
         <div className="flex items-center gap-3 pt-1">
