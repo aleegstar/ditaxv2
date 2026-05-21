@@ -657,6 +657,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       ) : (
         <>
       {modeSwitcher}
+      {inlineNextStepMobile}
       {intakeMode === 'prior_year_upload' ? priorYearBranch : (
         <>
       <DashboardPriorYearBanner taxYear={taxYear} />
