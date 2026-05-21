@@ -22,6 +22,7 @@ import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { isMobileAppContext } from '@/utils/platform';
 import documentScanImg from '@/assets/document-scan.webp';
+import uploadHeroCouple from '@/assets/upload-hero-couple.webp';
 
 interface DocumentUploadSheetProps {
   open: boolean;
