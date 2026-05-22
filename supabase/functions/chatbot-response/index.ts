@@ -26,6 +26,7 @@ const chatRequestSchema = z.object({
   activeTaxFilerId: z.string().uuid().optional().nullable(),
   activeTaxFilerName: z.string().max(100).optional().nullable(),
   activeTaxYear: z.number().int().min(2000).max(2100).optional().nullable(),
+  ephemeral: z.boolean().optional().nullable(),
 })
 
 /**
