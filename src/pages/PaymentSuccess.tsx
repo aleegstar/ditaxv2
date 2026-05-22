@@ -1,10 +1,11 @@
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Sparkles, Mail, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import paymentSuccessHero from "@/assets/payment-success-hero.png";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
