@@ -138,7 +138,7 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
               </div>
             </div>
 
-            <div className="px-5 sm:px-6 pt-5 max-w-xl mx-auto">
+            <div className="px-5 sm:px-6 pt-5">
               <h2 className="text-[20px] sm:text-[22px] font-semibold text-foreground tracking-[-0.012em] mb-1.5">
                 Vorjahres-Daten bestätigt!
               </h2>
