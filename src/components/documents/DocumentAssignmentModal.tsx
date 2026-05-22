@@ -428,7 +428,48 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-8 pb-32 pt-6 relative z-20">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_1.6fr] gap-6">
+              {/* Hero Card – left column */}
+              <aside className="hidden lg:block">
+                <div className="sticky top-6 bg-card rounded-3xl border border-border shadow-[0_20px_60px_-20px_rgba(15,27,61,0.12)] overflow-hidden">
+                  <div className="relative h-56">
+                    <img src={assignmentHero} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F1B3D]/85 via-[#0F1B3D]/15 to-transparent" />
+                    <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-lg">
+                      <Folder className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+                      <span className="text-[11px] font-semibold text-foreground">Zuordnen</span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-1.5">Schnell erledigt</p>
+                      <h2 className="text-xl font-semibold leading-tight">Wähle dein Dokument.</h2>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-[13px] text-muted-foreground leading-relaxed mb-4">
+                      Wähle das passende Dokument aus deinen Uploads und ordne es{' '}
+                      <span className="font-medium text-foreground">{checklistItemTitle}</span> zu.
+                    </p>
+                    <div className="space-y-2.5 text-[12.5px] text-muted-foreground">
+                      <div className="flex items-start gap-2.5">
+                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        <span>Mehrfachauswahl möglich</span>
+                      </div>
+                      <div className="flex items-start gap-2.5">
+                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        <span>Vorschau über das Augen-Symbol</span>
+                      </div>
+                      <div className="flex items-start gap-2.5">
+                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        <span>Wir prüfen den Inhalt automatisch</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              {/* Right column – search + list */}
+              <div className="min-w-0">
+
               {/* Search */}
               <div className="relative mb-4 group">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
