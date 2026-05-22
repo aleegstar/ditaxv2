@@ -21,6 +21,8 @@ import {
   ModernUploadDialogTitle,
   ModernUploadDialogDescription,
 } from '@/components/ui/modern-upload-dialog';
+import assignmentHero from '@/assets/assignment-hero.png';
+
 
 // Thumbnail with lazy decryption for images, styled tile for PDFs/others
 const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
