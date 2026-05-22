@@ -95,25 +95,21 @@ export const DashboardPriorYearBanner: React.FC<{ taxYear: string }> = ({
       >
         <X className="w-4 h-4" strokeWidth={1.75} />
       </button>
-      <div className="flex items-start gap-3 pr-6">
-        <div className="w-9 h-9 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary" strokeWidth={1.75} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-[14px] font-semibold text-foreground tracking-tight leading-snug">
-            Mit Vorjahres-Daten starten
-          </h3>
-          <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">
-            Übernimm Strukturen (Arbeitgeber, Liegenschaften, Abzüge) aus {previousYear}
-            – aktuelle Beträge musst du selbst eintragen.
-          </p>
-          <div className="mt-3">
-            <Button size="sm" onClick={handleImport} disabled={loading} className="h-9 px-4">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Übernehmen'}
-            </Button>
-          </div>
+      <div className="pr-6">
+        <h3 className="text-[14px] font-semibold text-foreground tracking-tight leading-snug">
+          Mit Vorjahres-Daten starten
+        </h3>
+        <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">
+          Übernimm Strukturen (Arbeitgeber, Liegenschaften, Abzüge) aus {previousYear}
+          – aktuelle Beträge musst du selbst eintragen.
+        </p>
+        <div className="mt-3">
+          <Button size="sm" onClick={handleImport} disabled={loading} className="h-9 px-4">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Übernehmen'}
+          </Button>
         </div>
       </div>
+
     </div>
   );
 };
