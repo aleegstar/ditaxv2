@@ -378,25 +378,24 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
         )}
 
-        {/* Number circle */}
+        {/* Number circle / Check when done */}
         <div
           className={cn(
             'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
-            circleCls
+            isDone
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-600'
+              : circleCls
           )}
         >
-          {n}
+          {isDone ? <Check className="w-4 h-4" strokeWidth={2.5} /> : n}
         </div>
 
-        {/* Status icon: top-right */}
-        <div className={cn(
-          'absolute top-5 right-5 w-7 h-7 rounded-full flex items-center justify-center',
-          isDone
-            ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
-            : 'bg-slate-100/80 border border-slate-200/60 text-slate-400'
-        )}>
-          {isDone ? <Check className="w-3.5 h-3.5" strokeWidth={2.25} /> : <Lock className="w-3 h-3" strokeWidth={2} />}
-        </div>
+        {/* Status icon: top-right (only when locked) */}
+        {!isDone && (
+          <div className="absolute top-5 right-5 w-7 h-7 rounded-full flex items-center justify-center bg-slate-100/80 border border-slate-200/60 text-slate-400">
+            <Lock className="w-3 h-3" strokeWidth={2} />
+          </div>
+        )}
 
         <div className="pl-16 pr-14 py-6 md:py-7 flex flex-col gap-5">
           <div className={cn('min-w-0', !isDone && 'opacity-70')}>
