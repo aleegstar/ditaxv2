@@ -22,7 +22,10 @@ const chatRequestSchema = z.object({
   attachmentId: z.string()
     .uuid('Invalid attachment ID format')
     .optional()
-    .nullable()
+    .nullable(),
+  activeTaxFilerId: z.string().uuid().optional().nullable(),
+  activeTaxFilerName: z.string().max(100).optional().nullable(),
+  activeTaxYear: z.number().int().min(2000).max(2100).optional().nullable(),
 })
 
 /**
