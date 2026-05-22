@@ -281,7 +281,6 @@ const PaymentSuccess = () => {
                 onClick={() => storedTaxReturnId ? navigate(`/tax-return-tracking/${storedTaxReturnId}`) : navigate('/')}
                 className="w-full h-12 rounded-2xl"
               >
-                <FileText className="w-4 h-4 mr-2" />
                 Steuererklärung anzeigen
               </Button>
 
