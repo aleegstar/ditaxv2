@@ -588,7 +588,9 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
                   })
                 )}
               </div>
+              </div>
             </div>
+
           </div>
 
           {/* Footer Bar */}
