@@ -231,7 +231,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
       </main>
 
       <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
-        <DrawerContent variant="bottom-sheet" className="p-0 overflow-hidden bg-card max-w-md mx-auto">
+        <DrawerContent variant="bottom-sheet" className="p-0 overflow-hidden bg-card w-full">
           <div className="px-4 pt-3 pb-5">
             {/* Hero card */}
             <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] bg-card">
