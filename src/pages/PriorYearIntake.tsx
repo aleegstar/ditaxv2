@@ -49,6 +49,7 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
       <SubpageHeader
         title={`Vorjahres-Daten ${Number(taxYear) - 1}`}
         onBack={() => navigate('/')}
+        innerClassName="max-w-xl lg:max-w-6xl xl:max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 h-16 mt-[calc(0.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] flex items-center gap-3"
       />
 
       <main className="max-w-xl lg:max-w-6xl xl:max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-2 lg:pt-10 pb-16 lg:pb-32">
