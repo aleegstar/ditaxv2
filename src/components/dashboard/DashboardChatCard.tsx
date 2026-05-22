@@ -36,6 +36,7 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => uuidv4());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const currentTaxYear = taxYear ?? new Date().getFullYear() - 1;
   const filerLabel = activeTaxFiler?.first_name || null;
