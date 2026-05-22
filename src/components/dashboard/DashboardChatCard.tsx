@@ -278,6 +278,8 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
           </p>
         </div>
       </div>
+      </>
+      )}
     </section>
   );
 };
