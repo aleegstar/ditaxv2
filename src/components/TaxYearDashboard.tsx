@@ -272,20 +272,58 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     statusTone: 'green' | 'orange' | 'slate';
     actionLabel?: string;
     onAction?: () => void;
-  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction }) => {
+    isFirst?: boolean;
+    isLast?: boolean;
+  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction, isFirst, isLast }) => {
     const dotCls =
       statusTone === 'green'  ? 'bg-emerald-500'
       : statusTone === 'orange' ? 'bg-amber-400'
       : 'bg-slate-300';
 
-    // ───── Active step: prominent hero-style card ─────
-    if (state === 'active') {
+    const isDone = state === 'done';
+    const isActive = state === 'active';
+
+    // Circle styling per state
+    const circleCls = isActive
+      ? 'bg-[#1450dc] text-white border-[3px] border-white ring-4 ring-[#1450dc]/15 shadow-[0_4px_12px_-2px_rgba(20,80,220,0.35)]'
+      : isDone
+        ? 'bg-white text-emerald-600 border-2 border-emerald-400'
+        : 'bg-white text-slate-400 border-2 border-slate-200';
+
+    // Vertical connector line color (segment from circle downward, within card)
+    const lineColorCls = isDone
+      ? 'bg-emerald-400'
+      : isActive
+        ? 'bg-[#1450dc]'
+        : 'bg-slate-200';
+
+    // ───── Active step: prominent card ─────
+    if (isActive) {
       return (
         <div
           onClick={onAction}
-          className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-hidden transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
+          className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-visible transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
         >
-          <div className="p-5 md:p-6 space-y-4">
+          {/* Top connector (above circle) — only if not first */}
+          {!isFirst && (
+            <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', lineColorCls)} />
+          )}
+          {/* Bottom connector (below circle, to card bottom) — only if not last */}
+          {!isLast && (
+            <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
+          )}
+
+          {/* Number circle — absolute left */}
+          <div
+            className={cn(
+              'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
+              circleCls
+            )}
+          >
+            {n}
+          </div>
+
+          <div className="pl-16 pr-5 md:pr-6 py-5 md:py-6 space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
                 <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
@@ -297,15 +335,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0F1B3D] text-white text-[15px] font-bold tabular-nums shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
-                  {n}
-                </span>
-                <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
-                  {title}
-                </h3>
-              </div>
-              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed pl-12">
+              <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
+                {title}
+              </h3>
+              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed">
                 {desc}
               </p>
             </div>
@@ -322,10 +355,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       );
     }
 
-
-
-    // ───── Done / Locked: compact row ─────
-    const isDone = state === 'done';
+    // ───── Done / Locked: compact card ─────
     const containerCls = isDone
       ? 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.10)] hover:shadow-[0_14px_44px_-12px_rgba(15,27,61,0.14)]'
       : 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.08)]';
@@ -334,14 +364,33 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       <div
         onClick={state !== 'locked' ? onAction : undefined}
         className={cn(
-          'relative rounded-[1.25rem] p-6 md:p-8 flex flex-col gap-6 transition-all',
+          'relative rounded-[1.25rem] overflow-visible transition-all',
           containerCls,
           state !== 'locked' && 'cursor-pointer'
         )}
       >
-        {/* Status icon: top-right, small */}
+        {/* Top connector */}
+        {!isFirst && (
+          <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', lineColorCls)} />
+        )}
+        {/* Bottom connector */}
+        {!isLast && (
+          <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
+        )}
+
+        {/* Number circle */}
+        <div
+          className={cn(
+            'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
+            circleCls
+          )}
+        >
+          {n}
+        </div>
+
+        {/* Status icon: top-right */}
         <div className={cn(
-          'absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center',
+          'absolute top-5 right-5 w-7 h-7 rounded-full flex items-center justify-center',
           isDone
             ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
             : 'bg-slate-100/80 border border-slate-200/60 text-slate-400'
@@ -349,35 +398,27 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           {isDone ? <Check className="w-3.5 h-3.5" strokeWidth={2.25} /> : <Lock className="w-3 h-3" strokeWidth={2} />}
         </div>
 
-        <div className={cn('flex-1 min-w-0 pr-10', !isDone && 'opacity-70')}>
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span className={cn(
-                'inline-flex items-center justify-center w-8 h-8 rounded-full text-[14px] font-bold tabular-nums',
-                isDone
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                  : 'bg-slate-100 text-slate-400 border border-slate-200'
-              )}>
-                {n}
-              </span>
+        <div className="pl-16 pr-14 py-6 md:py-7 flex flex-col gap-5">
+          <div className={cn('min-w-0', !isDone && 'opacity-70')}>
+            <div className="space-y-2">
               <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
-            </div>
-            <p className="text-[15px] text-slate-500 leading-relaxed pl-11">{desc}</p>
-            <div className="flex items-center gap-2 pt-1 pl-11">
-              <span className={cn('w-2 h-2 rounded-full', dotCls)} />
-              <span className="text-sm text-slate-600 font-medium">{statusLabel}</span>
+              <p className="text-[15px] text-slate-500 leading-relaxed">{desc}</p>
+              <div className="flex items-center gap-2 pt-1">
+                <span className={cn('w-2 h-2 rounded-full', dotCls)} />
+                <span className="text-sm text-slate-600 font-medium">{statusLabel}</span>
+              </div>
             </div>
           </div>
+          {state !== 'locked' && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+              className="w-full px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center gap-2 shadow-sm transition-all shrink-0"
+            >
+              {actionLabel || 'Bearbeiten'}
+              <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+            </button>
+          )}
         </div>
-        {state !== 'locked' && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-            className="w-full px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center gap-2 shadow-sm transition-all shrink-0"
-          >
-            {actionLabel || 'Bearbeiten'}
-            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
-          </button>
-        )}
       </div>
     );
   };
