@@ -94,118 +94,150 @@ const MissingItems: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <SubpageHeader 
         title="Fehlende Unterlagen/Angaben" 
         onBack={() => navigate('/')} 
       />
 
-      {/* Content */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
         {pendingRequests.length === 0 ? (
-          /* Empty State */
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+          /* Empty State – Card mit Hero */
+          <div className="bg-card rounded-3xl border border-border shadow-[0_20px_60px_-20px_rgba(15,27,61,0.12)] overflow-hidden grid lg:grid-cols-2">
+            <div className="relative h-56 lg:h-auto lg:min-h-[420px]">
+              <img src={missingItemsHero} alt="Alles erledigt" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F1B3D]/80 via-[#0F1B3D]/15 to-transparent" />
+              <div className="absolute top-5 left-5 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-lg">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-xs font-semibold text-foreground">Alles erledigt</span>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+                <h2 className="text-2xl lg:text-3xl font-semibold leading-tight">Lehn dich zurück.</h2>
+              </div>
             </div>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">
-              Alles erledigt!
-            </h2>
-            <p className="text-slate-500 mb-6">
-              Es gibt aktuell keine offenen Anfragen.
-            </p>
-            <Button
-              onClick={() => navigate('/')}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Zurück zur Übersicht
-            </Button>
+            <div className="p-6 sm:p-10 lg:p-12 flex flex-col">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-6">
+                <CheckCircle2 className="w-8 h-8 text-white stroke-[2.5]" />
+              </div>
+              <h2 className="text-2xl font-semibold text-foreground tracking-tight mb-2">
+                Keine offenen Anfragen
+              </h2>
+              <p className="text-base text-muted-foreground leading-relaxed mb-8">
+                Du hast aktuell nichts zu tun. Wir melden uns, sobald wir etwas von dir brauchen.
+              </p>
+              <Button
+                onClick={() => navigate('/')}
+                className="w-full h-12 rounded-2xl mt-auto"
+              >
+                Zurück zur Übersicht
+              </Button>
+            </div>
           </div>
         ) : (
-          /* Main Card */
-          <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 ring-1 ring-slate-200 overflow-hidden">
-            {/* Header Section */}
-            <div className="p-6 pb-5 border-b border-slate-50 bg-white/50">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100/50 flex items-center justify-center shadow-sm">
-                      <FileQuestion className="w-6 h-6 text-amber-600 stroke-[1.5]" />
-                    </div>
-                  </div>
-                  <div className="space-y-0.5">
-                    <h3 className="text-lg font-semibold text-slate-900 tracking-tight">
-                      Offene Anfragen
-                    </h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">
-                      Bitte beantworten Sie alle {pendingRequests.length} Anfrage(n)
-                    </p>
-                  </div>
+          /* Active State – Hero links, Aufgaben rechts */
+          <div className="grid lg:grid-cols-[1fr_1.4fr] gap-6">
+            {/* Hero / Intro Card */}
+            <div className="bg-card rounded-3xl border border-border shadow-[0_20px_60px_-20px_rgba(15,27,61,0.12)] overflow-hidden flex flex-col">
+              <div className="relative h-56 lg:h-64">
+                <img src={missingItemsHero} alt="Wir kümmern uns gemeinsam" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F1B3D]/85 via-[#0F1B3D]/20 to-transparent" />
+                <div className="absolute top-5 left-5 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-lg">
+                  <FileQuestion className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-foreground">{pendingRequests.length} offen</span>
                 </div>
-                <div className="flex-shrink-0">
-                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-white border border-amber-200 text-amber-700 shadow-sm">
-                    {answeredCount}/{pendingRequests.length} beantwortet
-                  </span>
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/70 mb-2">Letzter Schritt</p>
+                  <h2 className="text-2xl font-semibold leading-tight">Fast geschafft.</h2>
+                </div>
+              </div>
+              <div className="p-6 lg:p-8 flex-1 flex flex-col">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                  Beantworte die offenen Anfragen, damit unser Steuer-Team deine Erklärung abschliessen kann.
+                </p>
+
+                {/* Progress */}
+                <div className="space-y-3 mt-auto">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-foreground">Fortschritt</span>
+                    <span className="text-muted-foreground">{answeredCount}/{pendingRequests.length}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-background overflow-hidden border border-border">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"
+                      style={{ width: `${(answeredCount / pendingRequests.length) * 100}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Content Area */}
-            <div className="p-6 pt-5 space-y-5">
-              {/* Document Requests */}
-              {documentRequests.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2.5 text-slate-900">
-                    <AlertCircle className="w-5 h-5 text-orange-500 stroke-[1.5]" />
-                    <span className="text-base font-medium">
-                      Fehlende Unterlagen ({documentRequests.length})
-                    </span>
-                  </div>
-                  {documentRequests.map(request => (
-                    <MissingItemCard
-                      key={request.id}
-                      request={request}
-                      onResponseAdded={handleResponseAdded}
-                      localResponse={localResponses[request.id]}
-                    />
-                  ))}
+            {/* Tasks Card */}
+            <div className="bg-card rounded-3xl border border-border shadow-[0_20px_60px_-20px_rgba(15,27,61,0.12)] overflow-hidden flex flex-col">
+              <div className="p-6 lg:p-8 border-b border-border flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground tracking-tight">Offene Anfragen</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Bitte beantworte alle {pendingRequests.length} Anfrage(n)
+                  </p>
                 </div>
-              )}
+                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-background border border-border text-foreground whitespace-nowrap">
+                  {answeredCount}/{pendingRequests.length}
+                </span>
+              </div>
 
-              {/* Information Requests */}
-              {informationRequests.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2.5 text-slate-900">
-                    <AlertCircle className="w-5 h-5 text-blue-600 stroke-[1.5]" />
-                    <span className="text-base font-medium">
-                      Fehlende Angaben ({informationRequests.length})
-                    </span>
+              <div className="p-6 lg:p-8 space-y-6 flex-1">
+                {documentRequests.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2.5 text-foreground">
+                      <AlertCircle className="w-5 h-5 text-orange-500 stroke-[1.5]" />
+                      <span className="text-sm font-semibold">
+                        Fehlende Unterlagen ({documentRequests.length})
+                      </span>
+                    </div>
+                    {documentRequests.map(request => (
+                      <MissingItemCard
+                        key={request.id}
+                        request={request}
+                        onResponseAdded={handleResponseAdded}
+                        localResponse={localResponses[request.id]}
+                      />
+                    ))}
                   </div>
-                  {informationRequests.map(request => (
-                    <MissingItemCard
-                      key={request.id}
-                      request={request}
-                      onResponseAdded={handleResponseAdded}
-                      localResponse={localResponses[request.id]}
-                    />
-                  ))}
-                </div>
-              )}
+                )}
 
-              {/* Footer Status Bar */}
-              <div className="mt-6">
+                {informationRequests.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2.5 text-foreground">
+                      <AlertCircle className="w-5 h-5 text-primary stroke-[1.5]" />
+                      <span className="text-sm font-semibold">
+                        Fehlende Angaben ({informationRequests.length})
+                      </span>
+                    </div>
+                    {informationRequests.map(request => (
+                      <MissingItemCard
+                        key={request.id}
+                        request={request}
+                        onResponseAdded={handleResponseAdded}
+                        localResponse={localResponses[request.id]}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6 lg:p-8 border-t border-border bg-background/50">
                 {allRequestsAnswered ? (
                   <Button
                     onClick={handleSubmitAll}
                     disabled={isSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 text-base font-medium shadow-lg shadow-blue-600/20 transition-all active:scale-[0.99]"
+                    className="w-full h-12 rounded-2xl"
                   >
                     {isSubmitting ? (
                       <>
@@ -213,16 +245,13 @@ const MissingItems: React.FC = () => {
                         Wird eingereicht...
                       </>
                     ) : (
-                      <>
-                        <Send className="h-5 w-5 mr-2" />
-                        Alle {pendingRequests.length} Angaben einreichen
-                      </>
+                      <>Alle {pendingRequests.length} Angaben einreichen</>
                     )}
                   </Button>
                 ) : (
-                  <div className="w-full bg-orange-400 rounded-xl py-4 px-6 flex items-center justify-center gap-3 text-white shadow-lg shadow-orange-500/20 border border-orange-300">
-                    <Clock className="w-5 h-5 stroke-[1.5]" />
-                    <span className="text-base font-medium tracking-wide">
+                  <div className="w-full h-12 rounded-2xl bg-background border border-border flex items-center justify-center gap-3 text-foreground">
+                    <Clock className="w-4 h-4 text-muted-foreground stroke-[1.5]" />
+                    <span className="text-sm font-medium">
                       {openCount} Anfrage(n) noch offen
                     </span>
                   </div>
