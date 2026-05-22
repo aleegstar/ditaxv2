@@ -310,29 +310,33 @@ serve(async (req) => {
       message.toLowerCase().includes(keyword)
     )
 
-    // Save user message FIRST
-    console.log('=== SAVING USER MESSAGE ===')
-    const userMessageData = {
-      sender_id: userId,
-      recipient_id: null,
-      content: message,
-      chat_type: 'human',
-      bot_session_id: sessionId || null,
-      escalation_requested: shouldEscalate,
-      attachment_id: attachmentId || null
-    }
-    
-    const { error: userMessageError, data: savedUserMessage } = await supabase
-      .from('chat_messages')
-      .insert(userMessageData)
-      .select()
-      .single()
+    // Save user message FIRST (skip for ephemeral chats — inline dashboard widget)
+    if (!ephemeral) {
+      console.log('=== SAVING USER MESSAGE ===')
+      const userMessageData = {
+        sender_id: userId,
+        recipient_id: null,
+        content: message,
+        chat_type: 'human',
+        bot_session_id: sessionId || null,
+        escalation_requested: shouldEscalate,
+        attachment_id: attachmentId || null
+      }
 
-    if (userMessageError) {
-      console.error('ERROR saving user message:', userMessageError)
-      throw new Error(`Failed to save user message: ${userMessageError.message}`)
+      const { error: userMessageError } = await supabase
+        .from('chat_messages')
+        .insert(userMessageData)
+        .select()
+        .single()
+
+      if (userMessageError) {
+        console.error('ERROR saving user message:', userMessageError)
+        throw new Error(`Failed to save user message: ${userMessageError.message}`)
+      } else {
+        console.log('✓ User message saved successfully')
+      }
     } else {
-      console.log('✓ User message saved successfully')
+      console.log('Ephemeral chat — skipping user message persistence')
     }
 
     if (shouldEscalate) {
