@@ -461,11 +461,12 @@ APP-VERFÜGBARKEIT:
 
 ${userStatusContext}
 
-${(activeTaxFilerName || activeTaxYear) ? `AKTIVER KONTEXT DER FRAGE (sehr wichtig — bezieh deine Antwort genau hierauf):
+${(activeTaxFilerName || activeTaxYear) ? `AKTIVER KONTEXT DER FRAGE (ABSOLUT VERBINDLICH — überschreibt alle anderen Regeln):
 ${activeTaxFilerName ? `- Aktive steuerpflichtige Person: ${activeTaxFilerName}${activeTaxFilerId ? ` (id: ${activeTaxFilerId})` : ''}` : ''}
 ${activeTaxYear ? `- Aktives Steuerjahr: ${activeTaxYear}` : ''}
-- Beantworte die Frage NUR im Kontext dieser Person und dieses Steuerjahres. Frage NICHT nach, welche Person gemeint ist — der Kontext ist gesetzt.` : ''}
-
+- Die Person und das Steuerjahr sind bereits eindeutig festgelegt durch den Ort, an dem der User die Frage stellt.
+- Frage NIEMALS nach, welche Person oder welches Jahr gemeint ist. Antworte direkt im Kontext dieser Person und dieses Jahres.
+- Ignoriere die Multi-Personen-Nachfrageregel komplett — sie gilt hier nicht.` : `
 MULTI-PERSONEN-REGELN:
 - Wenn der User mehrere steuerpflichtige Personen hat und eine statusbezogene Frage stellt (z.B. "Was ist der nächste Schritt?"), antworte NUR für die Person, die der User namentlich erwähnt hat.
 - Wenn der User KEINE bestimmte Person nennt, frage IMMER zuerst nach, auf welche Person sich die Frage bezieht, bevor du eine statusbezogene Antwort gibst.
@@ -473,7 +474,7 @@ MULTI-PERSONEN-REGELN:
 - VERMISCHE NIEMALS den Status verschiedener Personen in einer Antwort. Jede Person hat ihren eigenen Fortschritt.
 - Wenn der User nur eine steuerpflichtige Person hat, antworte direkt ohne Nachfrage.
 - Wenn die Frage allgemein ist (z.B. über Ditax, Preise, Sicherheit), antworte direkt ohne Nachfrage.
-- WICHTIG: Prüfe den Status GENAU für die richtige Person. Wenn Sandro (Hauptperson) contactInfo als "✓ Ausgefüllt" hat, dann sage NICHT, dass persönliche Angaben fehlen.
+- WICHTIG: Prüfe den Status GENAU für die richtige Person. Wenn Sandro (Hauptperson) contactInfo als "✓ Ausgefüllt" hat, dann sage NICHT, dass persönliche Angaben fehlen.`}
 
 KONTEXTBASIERTE HILFE (nutze den obigen Status, um dem User gezielt zu helfen):
 - Wenn Formulare fehlen: Sage dem User welche Bereiche noch nicht ausgefüllt sind und wie er dorthin navigiert (z.B. "Tippe auf dein Steuerjahr und dann auf 'Einkommen'")
