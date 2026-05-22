@@ -39,36 +39,50 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
         onBack={() => navigate('/')}
       />
 
-      <main className="max-w-xl lg:max-w-3xl xl:max-w-4xl mx-auto px-5 sm:px-8 lg:px-12 pt-2 lg:pt-8 pb-40">
-        <div className="mb-5 lg:mb-8 space-y-1.5 lg:space-y-3 lg:text-center lg:max-w-2xl lg:mx-auto">
-          <div className="flex items-center gap-2 lg:justify-center">
-            {allDone ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span className="text-[10.5px] font-semibold text-emerald-600 uppercase tracking-widest">
-                  Abgeschlossen
-                </span>
-              </>
-            ) : (
-              <>
-                <div className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-                </div>
-                <span className="text-[10.5px] font-semibold text-primary uppercase tracking-widest">
-                  Schritt 1 von 3
-                </span>
-              </>
-            )}
+      <main className="max-w-xl lg:max-w-6xl xl:max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-2 lg:pt-10 pb-40 lg:pb-32">
+        <div className="mb-5 lg:mb-10 space-y-1.5 lg:space-y-3 lg:flex lg:items-end lg:justify-between lg:gap-8 lg:space-y-0">
+          <div className="space-y-1.5 lg:space-y-3 lg:max-w-2xl">
+            <div className="flex items-center gap-2">
+              {allDone ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[10.5px] font-semibold text-emerald-600 uppercase tracking-widest">
+                    Abgeschlossen
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+                  </div>
+                  <span className="text-[10.5px] font-semibold text-primary uppercase tracking-widest">
+                    Schritt 1 von 3
+                  </span>
+                </>
+              )}
+            </div>
+            <h1 className="text-[22px] md:text-3xl lg:text-[34px] font-semibold text-foreground tracking-tight leading-tight">
+              {allDone ? 'Deine Vorjahres-Daten sind bestätigt' : 'Bestätige deine Vorjahres-Daten'}
+            </h1>
+            <p className="text-[14px] md:text-base lg:text-[15px] text-muted-foreground leading-relaxed">
+              {allDone
+                ? `Du bist bereit für Schritt 2 – lade nun deine Belege für ${taxYear} hoch.`
+                : 'Lade dein definitives PDF hoch und bestätige nacheinander die Bereiche aus deinem Vorjahr. So wissen wir, welche Belege du brauchst.'}
+            </p>
           </div>
-          <h1 className="text-[22px] md:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight leading-tight">
-            {allDone ? 'Deine Vorjahres-Daten sind bestätigt' : 'Bestätige deine Vorjahres-Daten'}
-          </h1>
-          <p className="text-[14px] md:text-base lg:text-[15px] text-muted-foreground leading-relaxed lg:max-w-xl lg:mx-auto">
-            {allDone
-              ? `Du bist bereit für Schritt 2 – lade nun deine Belege für ${taxYear} hoch.`
-              : 'Lade dein definitives PDF hoch und bestätige nacheinander die Bereiche aus deinem Vorjahr. So wissen wir, welche Belege du brauchst.'}
-          </p>
+          {/* Inline desktop CTA */}
+          <div className="hidden lg:block shrink-0">
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!allDone}
+              className="h-12 px-6 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[14px] font-semibold inline-flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(15,27,61,0.4)] transition-all active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none whitespace-nowrap"
+            >
+              {allDone ? 'Weiter zu Schritt 2' : `Noch ${Math.max(progress.total - progress.done, 0)} bestätigen`}
+              {allDone && <ChevronRight className="w-4 h-4" strokeWidth={2} />}
+            </button>
+          </div>
         </div>
 
         {activeTaxFilerId && (
@@ -83,7 +97,7 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
 
       {/* Sticky footer CTA */}
       <div
-        className="fixed inset-x-0 bottom-0 z-[10005] bg-gradient-to-t from-background via-background to-background/0 pt-6 pb-4 px-5 sm:px-8"
+        className="fixed inset-x-0 bottom-0 z-[10005] bg-gradient-to-t from-background via-background to-background/0 pt-6 pb-4 px-5 sm:px-8 lg:hidden"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
         <div className="max-w-xl lg:max-w-md mx-auto">
