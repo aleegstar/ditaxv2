@@ -535,34 +535,38 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
                                   botResponse.toLowerCase().includes('mitarbeiter') ||
                                   botResponse.toLowerCase().includes('kollegen')
 
-    // Save bot response
-    console.log('=== SAVING BOT MESSAGE ===')
-    const botMessageData = {
-      sender_id: null,
-      recipient_id: userId,
-      content: botResponse,
-      chat_type: 'bot',
-      bot_session_id: sessionId || null,
-      escalation_requested: botSuggestsEscalation
-    }
-    
-    const { error: botMessageError } = await supabase
-      .from('chat_messages')
-      .insert(botMessageData)
-      .select()
-      .single()
+    // Save bot response (skip for ephemeral chats)
+    if (!ephemeral) {
+      console.log('=== SAVING BOT MESSAGE ===')
+      const botMessageData = {
+        sender_id: null,
+        recipient_id: userId,
+        content: botResponse,
+        chat_type: 'bot',
+        bot_session_id: sessionId || null,
+        escalation_requested: botSuggestsEscalation
+      }
 
-    if (botMessageError) {
-      console.error('ERROR saving bot message:', botMessageError)
-      throw new Error(`Failed to save bot message: ${botMessageError.message}`)
+      const { error: botMessageError } = await supabase
+        .from('chat_messages')
+        .insert(botMessageData)
+        .select()
+        .single()
+
+      if (botMessageError) {
+        console.error('ERROR saving bot message:', botMessageError)
+        throw new Error(`Failed to save bot message: ${botMessageError.message}`)
+      } else {
+        console.log('✓ Bot message saved successfully')
+      }
     } else {
-      console.log('✓ Bot message saved successfully')
+      console.log('Ephemeral chat — skipping bot message persistence')
     }
 
     console.log('=== CHATBOT REQUEST END ===')
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         response: botResponse,
         escalated: false,
         suggestsEscalation: botSuggestsEscalation
