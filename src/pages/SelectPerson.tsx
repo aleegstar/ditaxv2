@@ -460,7 +460,9 @@ const SelectPerson: React.FC = () => {
               </Button>
             </div>
           </form>
+          </div>
         </DrawerContent>
+
       </Drawer>
 
       {/* Delete Confirmation Dialog */}
