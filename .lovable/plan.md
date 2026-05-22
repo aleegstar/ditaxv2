@@ -1,18 +1,57 @@
 ## Ziel
-Aktive Sidebar-Icons (UserSidebar) sollen die Farbe `#0F1B3D` (Marken-Navy) statt des aktuellen `text-blue-600` haben.
 
-## Änderung
-Datei: `src/components/layout/UserSidebar.tsx`
+Im Dashboard (`TaxYearDashboard.tsx`) hängt der „Modus wechseln"-Knopf aktuell oben rechts über allen Karten und ersetzt — je nach Modus — die komplette 3-Karten-Liste durch zwei unterschiedliche Branches. Dadurch springen auch Card 2 („Belege & Unterlagen") und Card 3 („Prüfung & Versand") in Titel, Status und Aktion herum.
 
-1. Zeile 52 — Icon-Farbe im aktiven Zustand:
-   - Vorher: `isActive ? 'text-blue-600' : ''`
-   - Nachher: Inline-Style `style={{ color: isActive ? '#0F1B3D' : undefined }}` (konsistent zu anderen Stellen wie Next-Step-Card, die `#0F1B3D` direkt nutzen).
+Ziel: Der Moduswechsel betrifft **ausschließlich Card 1**. Cards 2 und 3 sind in beiden Modi identisch (gleicher Titel, gleicher Status, gleiche Logik) und behalten ihren Zustand beim Umschalten.
 
-2. Zeile 60 — Badge im aktiven Zustand bekommt ebenfalls den Navy-Hintergrund statt `bg-blue-600`, damit Icon und Badge farblich konsistent bleiben:
-   - Vorher: `isActive ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'`
-   - Nachher: Badge nutzt `text-white` + Inline-Style `backgroundColor: '#0F1B3D'` im aktiven Zustand.
+## Änderungen in `src/components/TaxYearDashboard.tsx`
 
-Nicht betroffen: AdminSidebar, DocsSidebar (separate Komponenten, kein User-Wunsch).
+### 1. „Modus wechseln"-Pille umziehen
+- Den globalen `modeSwitcher`-Block oben (Zeile ~407–418, `mb-4 flex justify-end`) entfernen.
+- Stattdessen Card 1 mit einem dezenten Switcher direkt in der Karte ergänzen — z. B. eine kleine Pille mit `Settings2`-Icon und Label „Modus wechseln" in der rechten oberen Ecke der Card-1-Zeile (über `StepRow` als zusätzliches Element gerendert, ohne `StepRow` selbst zu verändern). Klick öffnet weiterhin `setModeSheetOpen(true)`.
 
-## Frage
-Soll die Badge ebenfalls in `#0F1B3D` umgefärbt werden (empfohlen für visuelle Konsistenz), oder nur das Icon?
+### 2. Karten-Struktur vereinheitlichen
+Statt zweier kompletter Branches (`priorYearBranch` vs. manueller Branch) eine einzige Liste mit 3 StepRows:
+
+```text
+[Card 1]  — variabel je nach intakeMode
+[Card 2]  — IMMER „Belege & Unterlagen" (gleiche Logik)
+[Card 3]  — IMMER „Prüfung & Versand" (gleiche Logik)
+```
+
+**Card 1 (variabel):**
+- `intakeMode === 'manual'` → wie heute: Titel „Persönliche Angaben", Status aus `angabenProgress`, Action navigiert zu `/personal-info`.
+- `intakeMode === 'prior_year_upload'` → wie heute: Titel „Vorjahres-Steuererklärung … hochladen" / „Vorjahres-Daten bestätigen", Status aus `py`, Action navigiert zu `/prior-year`.
+- Die versteckte `PriorYearChecklistBody`-Probe (Zeilen 569–576) bleibt erhalten, damit der Progress auch im manuellen Modus nicht crasht — sie wird in beiden Modi gemountet (oder nur bei `prior_year_upload`, da `pyStep1Done` sonst nicht benötigt wird).
+
+**Card 2 (fix) — neuer einheitlicher „step1Done"-Gate:**
+
+```ts
+const step1Done = intakeMode === 'prior_year_upload' ? pyStep1Done : allAngabenComplete;
+```
+
+- Titel: „Belege & Unterlagen"
+- `state`: `!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'`
+- Action: `handleDocumentsClick` in beiden Modi (der bisherige `handlePriorYearDocsClick` schreibt zusätzlich Flags aus der Vorjahres-Checkliste in `formData`; dieser Schritt bleibt erhalten und wird nur ausgeführt, wenn `intakeMode === 'prior_year_upload'`).
+
+**Card 3 (fix):**
+
+```ts
+const submitReady = step1Done && isDocumentsComplete;
+```
+
+- Titel: „Prüfung & Versand"
+- `state`: `!submitReady ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'`
+- Action: `handleSubmitClick`
+
+### 3. Aufräumarbeiten
+- `priorYearBranch`-Variable entfernen (durch unified-Liste ersetzt).
+- `pyCanSubmit`, `pyNextStep`, `pyCtaHeadline`, `pyCtaSubline` bleiben, soweit sie der „Floating Nächster Schritt"-Card dienen — `nextStepMeta` weiterhin pro Modus, da sich der nächste Schritt unterscheidet.
+- `IntakeModePicker` (initiale Auswahl, wenn `intakeMode === null`) unverändert.
+
+## Verhalten nach der Änderung
+
+- Beim Klick auf „Modus wechseln" in Card 1 ändert sich **nur** Card 1 (Titel/Status/Action).
+- Card 2 zeigt durchgehend „Belege & Unterlagen" mit ihrem korrekten Status (locked → active → done) basierend auf dem einheitlichen `step1Done`.
+- Card 3 zeigt durchgehend „Prüfung & Versand" mit Status basierend auf `submitReady` und `paymentStatus`.
+- Modus-Wechsel sortiert keine Karten mehr um und ändert keine Status-Labels in Cards 2/3.
