@@ -1,4 +1,4 @@
-import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield, Home, Zap, LogIn, CalendarPlus, User, Wallet, PiggyBank, Receipt, ClipboardCheck, ScanLine, Send, BarChart3, FileCheck, DollarSign, CreditCard as CardIcon, Lock, UserCog, HelpCircle } from 'lucide-react';
+import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield, Home, Zap, LogIn, CalendarPlus, User, Wallet, PiggyBank, Receipt, ClipboardCheck, ScanLine, Send, BarChart3, FileCheck, DollarSign, CreditCard as CardIcon, Lock, UserCog, HelpCircle, Sparkles } from 'lucide-react';
 
 export interface DocsArticle {
   id: string;
@@ -82,6 +82,47 @@ Du kannst die Steuererklärung auch für deinen **Ehepartner/in** oder deine **K
 
 Musst du noch Steuererklärungen aus Vorjahren nachreichen? Kein Problem – lege einfach mehrere Steuerjahre an. Jedes wird separat auf dem Dashboard angezeigt und kann unabhängig bearbeitet werden.`,
         keywords: ['steuerjahr', 'anlegen', 'hinzufügen', 'dashboard', 'express', 'standard', 'familie'],
+      },
+      {
+        id: 'start-mode',
+        icon: Sparkles,
+        title: 'Vorjahres-Upload oder manuelle Erfassung?',
+        subtitle: 'Wähle den Startweg, der für dich am schnellsten ist – du kannst jederzeit wechseln.',
+        content: `## Zwei Wege, deine Steuererklärung zu starten
+
+Sobald du ein neues Steuerjahr öffnest, fragt Ditax dich: **Wie möchtest du starten?** Du hast die Wahl zwischen zwei Wegen. Beide führen zum gleichen Ergebnis – sie unterscheiden sich nur darin, wie schnell und mit wie viel Aufwand du loslegst.
+
+## Option 1: Vorjahres-Upload (empfohlen)
+
+Du lädst deine **Steuererklärung des Vorjahres als PDF** hoch. Ditax analysiert das Dokument automatisch und erstellt daraus eine **persönliche Checkliste** – mit allen Positionen, die du letztes Jahr hattest (Lohn, Bankkonten, Versicherungen, Abzüge usw.).
+
+Du musst dann nur noch **bestätigen, was gleich geblieben ist** und **anpassen, was sich geändert hat** – z.B. neuer Arbeitgeber, zusätzliches Konto, neues Kind.
+
+> **Wann ideal?** Wenn sich dein Leben seit letztem Jahr nicht grundlegend verändert hat. Spart dir bis zu 80% der Zeit.
+
+### Spezialfall: Vorjahres-Daten aus Ditax
+
+Hast du deine Steuererklärung **letztes Jahr bereits über Ditax** gemacht? Dann kennen wir deine Daten schon. Du brauchst nichts hochzuladen – wir übernehmen alles automatisch und du bestätigst nur die Änderungen.
+
+## Option 2: Daten manuell erfassen
+
+Du startest mit einer leeren Steuererklärung und füllst alle Bereiche **Schritt für Schritt** aus. Der Assistent führt dich begleitet durch:
+
+1. Persönliche Angaben
+2. Einkommen
+3. Abzüge
+4. Vermögen
+
+> **Wann ideal?** Wenn du das **erste Mal** mit Ditax startest und keine Vorjahres-Erklärung greifbar hast – oder wenn sich **vieles verändert** hat (Heirat, Umzug in einen anderen Kanton, Selbstständigkeit, etc.).
+
+## Kann ich später wechseln?
+
+**Ja.** Deine bereits erfassten Daten bleiben dabei erhalten. Du kannst den Modus jederzeit über die Auswahl auf dem Dashboard ändern.
+
+## Was passiert mit meinem Upload?
+
+Dein hochgeladenes Vorjahres-PDF wird **Ende-zu-Ende verschlüsselt** gespeichert und ausschliesslich zur Erstellung deiner Checkliste verwendet. Mehr dazu im Bereich **Sicherheit & Datenschutz**.`,
+        keywords: ['vorjahr', 'upload', 'manuell', 'startmodus', 'intake', 'checkliste', 'pdf', 'erfassung', 'guided', 'wechseln'],
       },
     ],
   },

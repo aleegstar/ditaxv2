@@ -7,9 +7,6 @@ import { DocsSidebar } from '@/components/docs/DocsSidebar';
 import { DocsArticleContent } from '@/components/docs/DocsArticleContent';
 import { DocsChatBot } from '@/components/docs/DocsChatBot';
 import { docsCategories, getAllArticles } from '@/components/docs/DocsContent';
-import { IntakeModePicker } from '@/components/intake/IntakeModePicker';
-import type { IntakeMode } from '@/components/intake/IntakeModeSheet';
-import { getLatestFilingTaxYear } from '@/config/availableTaxYears';
 
 const HEADER_H = 'h-14';
 const HEADER_TOP = 'top-14';
@@ -213,19 +210,7 @@ const Help = () => {
                 </div>
               </div>
 
-              {/* Start-Modus Auswahl: Vorjahres-Upload oder manuelle Erfassung */}
-              <section className="mb-10">
-                <IntakeModePicker
-                  taxYear={getLatestFilingTaxYear()}
-                  onSelect={(mode: IntakeMode) => {
-                    if (mode === 'prior_year_upload') {
-                      navigate('/prior-year');
-                    } else {
-                      navigate('/');
-                    }
-                  }}
-                />
-              </section>
+
 
 
 
