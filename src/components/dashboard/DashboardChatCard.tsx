@@ -22,7 +22,11 @@ const SUGGESTIONS = [
   { label: 'Was kann ich abziehen?', icon: Sparkles },
 ];
 
-export const DashboardChatCard: React.FC = () => {
+interface DashboardChatCardProps {
+  taxYear?: number;
+}
+
+export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear }) => {
   const navigate = useNavigate();
   const { activeTaxFiler } = useTaxFiler();
   const { userId } = useAuthValidation();
@@ -33,7 +37,7 @@ export const DashboardChatCard: React.FC = () => {
   const [sessionId] = useState(() => uuidv4());
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const currentTaxYear = new Date().getFullYear() - 1;
+  const currentTaxYear = taxYear ?? new Date().getFullYear() - 1;
   const filerLabel = activeTaxFiler?.first_name || null;
 
   useEffect(() => {
