@@ -404,17 +404,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         desc: 'Wir führen dich begleitet durch alle Bereiche.',
       };
 
-  const modeSwitcher = (
-    <div className="mb-4 flex justify-end">
-      <button
-        type="button"
-        onClick={() => setModeSheetOpen(true)}
-        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-border bg-card hover:bg-muted/60 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-        Modus wechseln
-      </button>
-    </div>
+  const modeSwitcherPill = (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); setModeSheetOpen(true); }}
+      className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-border bg-card/90 backdrop-blur hover:bg-muted/60 text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors shadow-sm"
+    >
+      <Settings2 className="w-3 h-3" strokeWidth={1.75} />
+      Modus wechseln
+    </button>
   );
 
 
