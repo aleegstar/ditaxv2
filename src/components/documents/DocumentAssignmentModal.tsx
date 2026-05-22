@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { FileText, Search, Eye, Image as ImageIcon, Folder, ArrowLeft, Loader2, X } from 'lucide-react';
+import { FileText, Search, Eye, Image as ImageIcon, Folder, Loader2, X, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,7 @@ import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 import AIDocumentValidation from '@/components/ui/ai-document-validation';
 import { isMobileAppContext } from '@/utils/platform';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import {
   ModernUploadDialog,
   ModernUploadDialogContent,
@@ -20,6 +21,61 @@ import {
   ModernUploadDialogTitle,
   ModernUploadDialogDescription,
 } from '@/components/ui/modern-upload-dialog';
+
+// Thumbnail with lazy decryption for images, styled tile for PDFs/others
+const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
+  const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  const isImage = doc.file_type?.startsWith('image/');
+  const isPdf = doc.file_type === 'application/pdf' || doc.file_name?.toLowerCase().endsWith('.pdf');
+  const ext = (doc.file_name?.split('.').pop() || '').toUpperCase().slice(0, 4);
+
+  useEffect(() => {
+    if (!isImage) return;
+    let revoke: string | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const svc = EncryptedDocumentService.getInstance();
+        const { blob } = await svc.downloadOwnDecryptedDocument(doc.id, user.id);
+        if (cancelled) return;
+        const objectUrl = URL.createObjectURL(blob);
+        revoke = objectUrl;
+        setUrl(objectUrl);
+      } catch {
+        if (!cancelled) setFailed(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (revoke) URL.revokeObjectURL(revoke);
+    };
+  }, [doc.id, isImage]);
+
+  if (isImage && url) {
+    return (
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
+        <img src={url} alt="" className="w-full h-full object-cover" />
+      </div>
+    );
+  }
+  if (isImage && !failed) {
+    return (
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-muted flex items-center justify-center shrink-0 border border-border">
+        <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl shrink-0 border border-border flex flex-col items-center justify-center gap-1 ${isPdf ? 'bg-rose-50' : 'bg-muted'}`}>
+      <FileText className={`w-5 h-5 ${isPdf ? 'text-rose-500' : 'text-muted-foreground'}`} strokeWidth={1.5} />
+      <span className={`text-[9px] font-semibold tracking-wider ${isPdf ? 'text-rose-600' : 'text-muted-foreground'}`}>{ext || 'DOC'}</span>
+    </div>
+  );
+};
+
 
 interface DocumentAssignmentModalProps {
   open: boolean;
