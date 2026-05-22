@@ -97,7 +97,7 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
 
       {/* Sticky footer CTA */}
       <div
-        className="fixed inset-x-0 bottom-0 z-[10005] bg-gradient-to-t from-background via-background to-background/0 pt-6 pb-4 px-5 sm:px-8"
+        className="fixed inset-x-0 bottom-0 z-[10005] bg-gradient-to-t from-background via-background to-background/0 pt-6 pb-4 px-5 sm:px-8 lg:hidden"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
         <div className="max-w-xl lg:max-w-md mx-auto">
