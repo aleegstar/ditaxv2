@@ -552,21 +552,14 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     </div>
   );
 
-  // Inline at the top on mobile (where the mode card used to be)
+  // Inline at the top on both mobile and desktop
   const inlineNextStepMobile = showFloatingNext ? (
-    <div className="md:hidden mb-4">
+    <div className="mb-4">
       {nextStepCardInner}
     </div>
   ) : null;
 
-  // Floating bottom-right on desktop only
-  const floatingNextStep = showFloatingNext ? (
-    <div className="hidden md:block fixed z-[60] pointer-events-none right-6 bottom-6">
-      <div className="w-[360px] pointer-events-auto">
-        {nextStepCardInner}
-      </div>
-    </div>
-  ) : null;
+  const floatingNextStep = null;
 
 
   const priorYearBranch = activeTaxFilerId ? (
