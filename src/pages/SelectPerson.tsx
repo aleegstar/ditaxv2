@@ -166,15 +166,16 @@ const SelectPerson: React.FC = () => {
             <h1 className="text-[15px] md:text-lg font-semibold text-foreground tracking-tight">
               {editMode
                 ? 'Profile verwalten'
-                : (t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?')}
+                : (t.taxFilers?.selectPerson || 'Person wählen')}
             </h1>
             <p className="text-[12.5px] md:text-sm text-muted-foreground mt-1 leading-relaxed">
               {editMode
                 ? 'Bearbeite, ergänze oder lösche deine Profile.'
-                : (t.taxFilers?.addPersonHint || 'Wähle ein Profil aus, um fortzufahren.')}
+                : 'Du kannst weitere Personen hinzufügen, um deren Steuererklärungen zu verwalten.'}
             </p>
           </div>
         </div>
+
 
         {/* Section label + edit toggle */}
         <div className="flex items-center justify-between px-1 mb-2.5">
@@ -333,28 +334,46 @@ const SelectPerson: React.FC = () => {
         )}
       </div>
 
-      {/* Add/Edit Bottom Sheet */}
+      {/* Add/Edit Bottom Sheet — matched to dashboard aesthetic */}
       <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
-          <div className="mb-6" />
-          <div className="text-center space-y-2 mb-6">
-            <DrawerTitle className="text-xl font-bold text-foreground">
+        <DrawerContent variant="bottom-sheet" className="px-6 sm:px-8 pb-8 pt-3 overflow-hidden max-w-[560px] mx-auto">
+          {/* Avatar preview header — like dashboard hero card */}
+          <div className="flex flex-col items-center text-center pt-2 pb-6">
+            <div className="w-16 h-16 rounded-2xl bg-[hsla(var(--primary)/0.07)] border border-black/[0.06] flex items-center justify-center mb-4">
+              {editingFiler ? (
+                <Avatar className="w-14 h-14">
+                  <AvatarImage src={getAvatarUrl(editingFiler)} className="object-cover" />
+                  <AvatarFallback
+                    className="text-base font-semibold tracking-tight"
+                    style={{
+                      background: 'hsla(var(--primary) / 0.10)',
+                      color: 'hsl(var(--primary))',
+                    }}
+                  >
+                    {`${editingFiler.first_name.charAt(0)}${editingFiler.last_name.charAt(0)}`.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <Plus className="w-7 h-7 text-primary" strokeWidth={1.75} />
+              )}
+            </div>
+            <DrawerTitle className="text-[18px] font-semibold text-foreground tracking-tight">
               {editingFiler
                 ? (t.taxFilers?.editPerson || 'Person bearbeiten')
                 : (t.taxFilers?.addPerson || 'Person hinzufügen')}
             </DrawerTitle>
-            <DrawerDescription className="text-sm text-muted-foreground">
+            <DrawerDescription className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed max-w-sm">
               {editingFiler
-                ? (t.taxFilers?.editDescription || 'Ändere die Daten der Person.')
-                : (t.taxFilers?.addDescription || 'Füge eine neue Person hinzu, für die du Steuererklärungen erstellen möchtest.')}
+                ? 'Aktualisiere die Daten dieser Person.'
+                : 'Lege eine zusätzliche Person an – z.B. Partner:in, Kind oder Angehörige.'}
             </DrawerDescription>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-sm text-muted-foreground">
-                  {t.taxFilers?.firstName || 'Vorname'} *
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName" className="text-[12px] font-medium text-muted-foreground/80 tracking-tight">
+                  {t.taxFilers?.firstName || 'Vorname'}
                 </Label>
                 <Input
                   id="firstName"
@@ -362,12 +381,12 @@ const SelectPerson: React.FC = () => {
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                   autoComplete="given-name"
-                  className="rounded-xl border-border"
+                  className="h-12 rounded-xl border-black/[0.09] bg-white text-[14.5px] focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-sm text-muted-foreground">
-                  {t.taxFilers?.lastName || 'Nachname'} *
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName" className="text-[12px] font-medium text-muted-foreground/80 tracking-tight">
+                  {t.taxFilers?.lastName || 'Nachname'}
                 </Label>
                 <Input
                   id="lastName"
@@ -375,13 +394,13 @@ const SelectPerson: React.FC = () => {
                   onChange={(e) => setLastName(e.target.value)}
                   required
                   autoComplete="family-name"
-                  className="rounded-xl border-border"
+                  className="h-12 rounded-xl border-black/[0.09] bg-white text-[14.5px] focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dateOfBirth" className="text-sm text-muted-foreground">
+            <div className="space-y-1.5">
+              <Label htmlFor="dateOfBirth" className="text-[12px] font-medium text-muted-foreground/80 tracking-tight">
                 {t.taxFilers?.dateOfBirth || 'Geburtsdatum'}
               </Label>
               <Input
@@ -390,20 +409,20 @@ const SelectPerson: React.FC = () => {
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
                 autoComplete="bday"
-                className="rounded-xl border-border"
+                className="h-12 rounded-xl border-black/[0.09] bg-white text-[14.5px] focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="relationship" className="text-sm text-muted-foreground">
-                {t.taxFilers?.relationship || 'Beziehung'} *
+            <div className="space-y-1.5">
+              <Label htmlFor="relationship" className="text-[12px] font-medium text-muted-foreground/80 tracking-tight">
+                {t.taxFilers?.relationship || 'Beziehung'}
               </Label>
               <Select
                 value={relationship}
                 onValueChange={(val) => setRelationship(val as RelationshipType)}
                 disabled={editingFiler?.is_primary}
               >
-                <SelectTrigger className="rounded-xl border-border">
+                <SelectTrigger className="h-12 rounded-xl border-black/[0.09] bg-white text-[14.5px] focus:border-primary/40 focus:ring-2 focus:ring-primary/15">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -415,6 +434,7 @@ const SelectPerson: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
+
 
             <div className="flex flex-col gap-3 pt-2">
               <Button
