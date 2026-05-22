@@ -306,7 +306,7 @@ serve(async (req) => {
       'support', 'agent', 'mensch'
     ]
     
-    const shouldEscalate = escalationKeywords.some(keyword => 
+    const shouldEscalate = !ephemeral && escalationKeywords.some(keyword =>
       message.toLowerCase().includes(keyword)
     )
 
