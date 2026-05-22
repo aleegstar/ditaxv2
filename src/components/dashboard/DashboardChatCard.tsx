@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, FolderOpen, Sparkles, Headphones, ArrowUpRight, Paperclip, User, ArrowUp, Loader2 } from 'lucide-react';
+import { FileText, FolderOpen, Sparkles, Headphones, ArrowUpRight, Paperclip, User, ArrowUp, Loader2, ChevronDown, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ditaxLogo from '@/assets/ditax-logo-icon.png';
