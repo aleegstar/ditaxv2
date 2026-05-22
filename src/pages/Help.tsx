@@ -213,6 +213,22 @@ const Help = () => {
                 </div>
               </div>
 
+              {/* Start-Modus Auswahl: Vorjahres-Upload oder manuelle Erfassung */}
+              <section className="mb-10">
+                <IntakeModePicker
+                  taxYear={getLatestFilingTaxYear()}
+                  onSelect={(mode: IntakeMode) => {
+                    if (mode === 'prior_year_upload') {
+                      navigate('/prior-year');
+                    } else {
+                      navigate('/');
+                    }
+                  }}
+                />
+              </section>
+
+
+
               <DocsArticleContent
                 articleId={selectedArticle.articleId}
                 categoryId={selectedArticle.categoryId}
