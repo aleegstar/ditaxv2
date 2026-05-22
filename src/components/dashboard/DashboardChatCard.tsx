@@ -54,6 +54,7 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
   const sendMessage = async (override?: string) => {
     const text = (override ?? input).trim();
     if (!text || isLoading || !userId) return;
+    setExpanded(true);
     setInput('');
 
     const userMsg: InlineMsg = { id: uuidv4(), role: 'user', content: text };
