@@ -403,10 +403,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
               <p className="text-[15px] text-slate-500 leading-relaxed">{desc}</p>
-              <div className="flex items-center gap-2 pt-1">
-                <span className={cn('w-2 h-2 rounded-full', dotCls)} />
-                <span className="text-sm text-slate-600 font-medium">{statusLabel}</span>
-              </div>
             </div>
           </div>
           {state !== 'locked' && (
