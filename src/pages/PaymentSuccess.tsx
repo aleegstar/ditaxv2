@@ -1,10 +1,11 @@
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Sparkles, Mail, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import paymentSuccessHero from "@/assets/payment-success-hero.png";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -199,59 +200,98 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 relative">
-      
-      <div className="w-full max-w-sm text-center relative z-10">
-        <div className="mb-12">
-          <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-8 w-auto mx-auto opacity-90" />
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8 sm:py-12">
+      <div className="w-full max-w-5xl">
+        <div className="mb-8 flex justify-center lg:hidden">
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-8 w-auto" />
         </div>
-        
-        <div className="space-y-8">
-          {/* Success icon with gradient glow */}
-          <div className="relative mx-auto w-24 h-24">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-green-500/20 blur-2xl animate-pulse" />
-            <div className="absolute inset-2 rounded-full bg-emerald-500/10 blur-xl" />
-            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 animate-in zoom-in-50 duration-500">
-              <CheckCircle className="w-12 h-12 text-white stroke-[2.5]" />
+
+        <div className="bg-card rounded-3xl border border-border shadow-[0_20px_60px_-20px_rgba(15,27,61,0.15)] overflow-hidden grid lg:grid-cols-2">
+          {/* Hero image side */}
+          <div className="relative h-64 lg:h-auto lg:min-h-[560px] overflow-hidden">
+            <img
+              src={paymentSuccessHero}
+              alt="Glückliches Paar"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F1B3D]/80 via-[#0F1B3D]/20 to-transparent lg:bg-gradient-to-t lg:from-[#0F1B3D]/85 lg:via-[#0F1B3D]/10 lg:to-transparent" />
+
+            {/* Floating success badge */}
+            <div className="absolute top-5 left-5 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-lg">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-xs font-semibold text-foreground">Bestätigt</span>
             </div>
-          </div>
-          
-          {/* Title & description */}
-          <div className="space-y-3">
-            <h1 className="text-2xl font-semibold text-[#111827] tracking-tight">
-              Zahlung erfolgreich!
-            </h1>
-            <p className="text-sm text-[#6B7280] leading-relaxed">
-              Vielen Dank für deine Zahlung. Deine Steuererklärung für {taxYear} wurde erfolgreich bezahlt.
-            </p>
+
+            {/* Overlay text at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+              <p className="text-xs uppercase tracking-[0.2em] text-white/70 mb-2">Steuerjahr {taxYear}</p>
+              <h2 className="text-2xl lg:text-3xl font-semibold leading-tight">
+                Zurücklehnen,<br />wir übernehmen.
+              </h2>
+            </div>
           </div>
 
-          {/* Status card */}
-          <div className="bg-white/75 backdrop-blur-lg rounded-2xl border border-slate-200/60 p-5 shadow-sm">
-            <div className="flex items-center justify-center gap-2 mb-1.5">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <p className="text-sm font-semibold text-[#111827]">In Bearbeitung</p>
+          {/* Content side */}
+          <div className="p-6 sm:p-10 lg:p-12 flex flex-col">
+            <div className="hidden lg:flex mb-8">
+              <img src="/ditax-logo-new.svg" alt="Ditax" className="h-7 w-auto" />
             </div>
-            <p className="text-xs text-[#6B7280]">
-              Du erhältst in Kürze eine Bestätigung per E-Mail.
+
+            {/* Success icon */}
+            <div className="relative w-16 h-16 mb-6">
+              <div className="absolute inset-0 rounded-full bg-emerald-400/30 blur-2xl animate-pulse" />
+              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 animate-in zoom-in-50 duration-500">
+                <CheckCircle className="w-9 h-9 text-white stroke-[2.5]" />
+              </div>
+            </div>
+
+            <h1 className="text-3xl lg:text-4xl font-semibold text-foreground tracking-tight mb-3">
+              Zahlung erfolgreich!
+            </h1>
+            <p className="text-base text-muted-foreground leading-relaxed mb-8">
+              Vielen Dank für deine Zahlung. Deine Steuererklärung für {taxYear} wurde erfolgreich bezahlt und wird jetzt von unserem Team bearbeitet.
             </p>
-          </div>
-          {/* Actions */}
-          <div className="space-y-3 pt-2">
-            <Button 
-              onClick={() => storedTaxReturnId ? navigate(`/tax-return-tracking/${storedTaxReturnId}`) : navigate('/')}
-              className="w-full h-12 rounded-xl"
-            >
-              Steuererklärung anzeigen
-            </Button>
-            
-            <Button 
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="w-full h-12 rounded-xl"
-            >
-              Zurück zur Übersicht
-            </Button>
+
+            {/* Status rows */}
+            <div className="space-y-3 mb-8">
+              <div className="flex items-start gap-3 p-4 rounded-2xl bg-background border border-border">
+                <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">In Bearbeitung</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Unser Steuer-Team beginnt mit deiner Erklärung.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-4 rounded-2xl bg-background border border-border">
+                <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Mail className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">Bestätigung per E-Mail</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Du erhältst in Kürze alle Details in dein Postfach.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-3 mt-auto">
+              <Button
+                onClick={() => storedTaxReturnId ? navigate(`/tax-return-tracking/${storedTaxReturnId}`) : navigate('/')}
+                className="w-full h-12 rounded-2xl"
+              >
+                Steuererklärung anzeigen
+              </Button>
+
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="w-full h-12 rounded-2xl"
+              >
+                Zurück zur Übersicht
+              </Button>
+            </div>
           </div>
         </div>
       </div>
