@@ -336,35 +336,53 @@ const SelectPerson: React.FC = () => {
 
       {/* Add/Edit Bottom Sheet — matched to dashboard aesthetic */}
       <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DrawerContent variant="bottom-sheet" className="px-6 sm:px-10 pb-8 pt-3 overflow-hidden w-full">
-          <div className="w-full max-w-[720px] mx-auto">
+        <DrawerContent variant="bottom-sheet" className="px-0 pb-8 pt-3 overflow-hidden w-full">
+          <div className="w-full max-w-[640px] mx-auto px-6 sm:px-8">
 
-          {/* Avatar preview header — like dashboard hero card */}
-          <div className="flex flex-col items-center text-center pt-2 pb-6">
-            <div className="w-16 h-16 rounded-2xl bg-[hsla(var(--primary)/0.07)] border border-black/[0.06] flex items-center justify-center mb-4">
+          {/* Hero image header — matches dashboard hero card aesthetic */}
+          <div className="relative -mx-6 sm:-mx-8 mb-5 mt-1">
+            <div className="relative h-44 sm:h-52 overflow-hidden">
               {editingFiler ? (
-                <Avatar className="w-14 h-14">
-                  <AvatarImage src={getAvatarUrl(editingFiler)} className="object-cover" />
-                  <AvatarFallback
-                    className="text-base font-semibold tracking-tight"
-                    style={{
-                      background: 'hsla(var(--primary) / 0.10)',
-                      color: 'hsl(var(--primary))',
-                    }}
-                  >
-                    {`${editingFiler.first_name.charAt(0)}${editingFiler.last_name.charAt(0)}`.toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[hsl(var(--primary)/0.08)] to-[hsl(var(--primary)/0.02)]">
+                  <Avatar className="w-24 h-24 ring-4 ring-white shadow-lg">
+                    <AvatarImage src={getAvatarUrl(editingFiler)} className="object-cover" />
+                    <AvatarFallback
+                      className="text-2xl font-semibold tracking-tight"
+                      style={{
+                        background: 'hsla(var(--primary) / 0.10)',
+                        color: 'hsl(var(--primary))',
+                      }}
+                    >
+                      {`${editingFiler.first_name.charAt(0)}${editingFiler.last_name.charAt(0)}`.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               ) : (
-                <Plus className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                <>
+                  <img
+                    src={selectPersonHero}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background via-background/70 to-transparent" />
+                  <div className="absolute top-3 left-6 sm:left-8">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm border border-black/[0.04] shadow-sm">
+                      <Plus className="w-3.5 h-3.5 text-primary" strokeWidth={2.25} />
+                      <span className="text-[11.5px] font-medium text-foreground tracking-tight">Neue Person</span>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
-            <DrawerTitle className="text-[18px] font-semibold text-foreground tracking-tight">
+          </div>
+
+          <div className="text-center pb-6">
+            <DrawerTitle className="text-[20px] font-semibold text-foreground tracking-tight">
               {editingFiler
                 ? (t.taxFilers?.editPerson || 'Person bearbeiten')
                 : (t.taxFilers?.addPerson || 'Person hinzufügen')}
             </DrawerTitle>
-            <DrawerDescription className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed max-w-sm">
+            <DrawerDescription className="text-[13.5px] text-muted-foreground mt-1.5 leading-relaxed max-w-sm mx-auto">
               {editingFiler
                 ? 'Aktualisiere die Daten dieser Person.'
                 : 'Lege eine zusätzliche Person an – z.B. Partner:in, Kind oder Angehörige.'}
