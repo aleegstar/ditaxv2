@@ -166,15 +166,16 @@ const SelectPerson: React.FC = () => {
             <h1 className="text-[15px] md:text-lg font-semibold text-foreground tracking-tight">
               {editMode
                 ? 'Profile verwalten'
-                : (t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?')}
+                : (t.taxFilers?.selectPerson || 'Person wählen')}
             </h1>
             <p className="text-[12.5px] md:text-sm text-muted-foreground mt-1 leading-relaxed">
               {editMode
                 ? 'Bearbeite, ergänze oder lösche deine Profile.'
-                : (t.taxFilers?.addPersonHint || 'Wähle ein Profil aus, um fortzufahren.')}
+                : 'Du kannst weitere Personen hinzufügen, um deren Steuererklärungen zu verwalten.'}
             </p>
           </div>
         </div>
+
 
         {/* Section label + edit toggle */}
         <div className="flex items-center justify-between px-1 mb-2.5">
