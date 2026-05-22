@@ -123,7 +123,7 @@ const Chat: React.FC = () => {
     : null;
 
   return (
-    <div className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background">
+    <div className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:z-auto md:h-full md:inset-auto">
       {/* Header */}
       <div
         className="border-b border-border/70 bg-background/95 backdrop-blur-sm"
