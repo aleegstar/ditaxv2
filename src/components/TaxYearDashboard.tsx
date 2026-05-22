@@ -351,9 +351,19 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
         <div className={cn('flex-1 min-w-0 pr-10', !isDone && 'opacity-70')}>
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
-            <p className="text-[15px] text-slate-500 leading-relaxed">{desc}</p>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-3">
+              <span className={cn(
+                'inline-flex items-center justify-center w-8 h-8 rounded-full text-[14px] font-bold tabular-nums',
+                isDone
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                  : 'bg-slate-100 text-slate-400 border border-slate-200'
+              )}>
+                {n}
+              </span>
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
+            </div>
+            <p className="text-[15px] text-slate-500 leading-relaxed pl-11">{desc}</p>
+            <div className="flex items-center gap-2 pt-1 pl-11">
               <span className={cn('w-2 h-2 rounded-full', dotCls)} />
               <span className="text-sm text-slate-600 font-medium">{statusLabel}</span>
             </div>
