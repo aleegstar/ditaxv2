@@ -105,9 +105,10 @@ const MissingItems: React.FC = () => {
       <SubpageHeader 
         title="Fehlende Unterlagen/Angaben" 
         onBack={() => navigate('/')} 
+        innerClassName="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 mt-[calc(0.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] flex items-center gap-3"
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         {pendingRequests.length === 0 ? (
           /* Empty State – Card mit Hero */
           <div className="bg-card rounded-3xl border border-border shadow-[0_20px_60px_-20px_rgba(15,27,61,0.12)] overflow-hidden grid lg:grid-cols-2">
