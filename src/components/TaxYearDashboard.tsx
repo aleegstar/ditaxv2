@@ -661,7 +661,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         </div>
       )}
 
-      {intakeMode === 'manual' && <DashboardPriorYearBanner taxYear={taxYear} />}
+      {intakeMode !== 'prior_year_upload' && <DashboardPriorYearBanner taxYear={taxYear} />}
 
       {(() => {
         const isPriorMode = intakeMode === 'prior_year_upload';
