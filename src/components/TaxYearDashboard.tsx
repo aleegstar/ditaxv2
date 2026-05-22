@@ -404,17 +404,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         desc: 'Wir führen dich begleitet durch alle Bereiche.',
       };
 
-  const modeSwitcher = (
-    <div className="mb-4 flex justify-end">
-      <button
-        type="button"
-        onClick={() => setModeSheetOpen(true)}
-        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-border bg-card hover:bg-muted/60 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-        Modus wechseln
-      </button>
-    </div>
+  const modeSwitcherPill = (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); setModeSheetOpen(true); }}
+      className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-border bg-card/90 backdrop-blur hover:bg-muted/60 text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors shadow-sm"
+    >
+      <Settings2 className="w-3 h-3" strokeWidth={1.75} />
+      Modus wechseln
+    </button>
   );
 
 
@@ -649,58 +647,106 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} hasInternalPriorYear={hasInternalPriorYear} />
       ) : (
         <>
-      {modeSwitcher}
       {inlineNextStepMobile}
-      {intakeMode === 'prior_year_upload' ? priorYearBranch : (
-        <>
-      <DashboardPriorYearBanner taxYear={taxYear} />
 
-      {/* ═══════════ Step list ═══════════ */}
-      <div className="space-y-5">
-        <StepRow
-          n={1}
-          state={allAngabenComplete ? 'done' : 'active'}
-          title={t.formDashboard.personalInfo}
-          desc="Adresse, Familie, Zivilstand und weitere Angaben."
-          statusLabel={allAngabenComplete ? 'Abgeschlossen' : `${angabenProgress.completed} von ${angabenProgress.total} Bereichen erfasst`}
-          statusTone={allAngabenComplete ? 'green' : 'orange'}
-          actionLabel={allAngabenComplete ? 'Bearbeiten' : 'Fortfahren'}
-          onAction={() => { formTour?.skipTour(); navigate(`/personal-info?year=${taxYear}`); }}
-        />
-
-        <StepRow
-          n={2}
-          state={!allAngabenComplete ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
-          title="Belege & Unterlagen"
-          desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
-          statusLabel={
-            !allAngabenComplete ? 'Noch nicht gestartet'
-            : isDocumentsComplete ? 'Abgeschlossen'
-            : 'Dokumente ausstehend'
-          }
-          statusTone={!allAngabenComplete ? 'slate' : isDocumentsComplete ? 'green' : 'orange'}
-          actionLabel={isDocumentsComplete ? 'Ansehen' : 'Jetzt hochladen'}
-          onAction={handleDocumentsClick}
-        />
-
-        <StepRow
-          n={3}
-          state={!canSubmit ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
-          title="Prüfung & Versand"
-          desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
-          statusLabel={
-            !canSubmit ? 'Noch nicht gestartet'
-            : paymentStatus === 'paid' ? 'Abgeschlossen'
-            : 'Bereit zur Einreichung'
-          }
-          statusTone={!canSubmit ? 'slate' : paymentStatus === 'paid' ? 'green' : 'orange'}
-          actionLabel={paymentStatus === 'paid' ? 'Ansehen' : 'Einreichen'}
-          onAction={handleSubmitClick}
-        />
-      </div>
-
-        </>
+      {/* Hidden probe: always mount so pyStep1Done is known regardless of mode */}
+      {activeTaxFilerId && (
+        <div className="hidden">
+          <PriorYearChecklistBody
+            taxFilerId={activeTaxFilerId}
+            taxYear={taxYear}
+            onProgress={setPriorYearProgress}
+            hideHeader
+          />
+        </div>
       )}
+
+      {intakeMode !== 'prior_year_upload' && <DashboardPriorYearBanner taxYear={taxYear} />}
+
+      {(() => {
+        const isPriorMode = intakeMode === 'prior_year_upload';
+        const step1Done = isPriorMode ? pyStep1Done : allAngabenComplete;
+        const submitReady = step1Done && isDocumentsComplete;
+
+        // Card 1 props vary by mode
+        const card1 = isPriorMode
+          ? {
+              title: !py.ready
+                ? `Vorjahres-Steuererklärung ${Number(taxYear) - 1} hochladen`
+                : 'Vorjahres-Daten bestätigen',
+              desc: !py.ready
+                ? 'Lade dein definitives PDF hoch – wir erstellen daraus deine persönliche Checkliste.'
+                : 'Bestätige nacheinander die Bereiche aus deinem Vorjahr.',
+              statusLabel: pyStep1Done
+                ? 'Abgeschlossen'
+                : py.ready
+                  ? `${py.done} von ${py.total} Bereichen bestätigt`
+                  : py.status === 'scanning'
+                    ? 'Analyse läuft …'
+                    : 'Noch nicht gestartet',
+              statusTone: (pyStep1Done ? 'green' : py.ready ? 'orange' : 'slate') as 'green' | 'orange' | 'slate',
+              actionLabel: pyStep1Done ? 'Bearbeiten' : py.ready ? 'Fortfahren' : 'Jetzt hochladen',
+              onAction: () => navigate(`/prior-year?year=${taxYear}`),
+            }
+          : {
+              title: t.formDashboard.personalInfo,
+              desc: 'Adresse, Familie, Zivilstand und weitere Angaben.',
+              statusLabel: allAngabenComplete
+                ? 'Abgeschlossen'
+                : `${angabenProgress.completed} von ${angabenProgress.total} Bereichen erfasst`,
+              statusTone: (allAngabenComplete ? 'green' : 'orange') as 'green' | 'orange' | 'slate',
+              actionLabel: allAngabenComplete ? 'Bearbeiten' : 'Fortfahren',
+              onAction: () => { formTour?.skipTour(); navigate(`/personal-info?year=${taxYear}`); },
+            };
+
+        const card2Action = isPriorMode ? handlePriorYearDocsClick : handleDocumentsClick;
+
+        return (
+          <div className="space-y-5">
+            {/* Card 1 — variable per mode, with in-card mode switcher */}
+            <div className="relative">
+              {modeSwitcherPill}
+              <StepRow
+                n={1}
+                state={step1Done ? 'done' : 'active'}
+                {...card1}
+              />
+            </div>
+
+            {/* Card 2 — identical in both modes */}
+            <StepRow
+              n={2}
+              state={!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
+              title="Belege & Unterlagen"
+              desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
+              statusLabel={
+                !step1Done ? 'Noch nicht gestartet'
+                : isDocumentsComplete ? 'Abgeschlossen'
+                : 'Dokumente ausstehend'
+              }
+              statusTone={!step1Done ? 'slate' : isDocumentsComplete ? 'green' : 'orange'}
+              actionLabel={isDocumentsComplete ? 'Ansehen' : 'Jetzt hochladen'}
+              onAction={card2Action}
+            />
+
+            {/* Card 3 — identical in both modes */}
+            <StepRow
+              n={3}
+              state={!submitReady ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
+              title="Prüfung & Versand"
+              desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
+              statusLabel={
+                !submitReady ? 'Noch nicht gestartet'
+                : paymentStatus === 'paid' ? 'Abgeschlossen'
+                : 'Bereit zur Einreichung'
+              }
+              statusTone={!submitReady ? 'slate' : paymentStatus === 'paid' ? 'green' : 'orange'}
+              actionLabel={paymentStatus === 'paid' ? 'Ansehen' : 'Einreichen'}
+              onAction={handleSubmitClick}
+            />
+          </div>
+        );
+      })()}
         </>
       )}
       <IntakeModeSheet
