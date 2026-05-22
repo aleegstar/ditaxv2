@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   FileQuestion,
-  Send,
   Loader2,
   Clock,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { MissingItemCard } from '@/components/chat/MissingItemCard';
@@ -15,6 +15,7 @@ import { usePendingMissingItems, useMissingItemRequests, type MissingItemRespons
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import missingItemsHero from '@/assets/missing-items-hero.png';
 
 const MissingItems: React.FC = () => {
   const navigate = useNavigate();
