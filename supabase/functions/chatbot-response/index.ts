@@ -218,7 +218,7 @@ serve(async (req) => {
       throw validationError
     }
 
-    const { message, sessionId, attachmentId } = validatedData
+    const { message, sessionId, attachmentId, activeTaxFilerId, activeTaxFilerName, activeTaxYear, ephemeral } = validatedData
 
     console.log('=== CHATBOT REQUEST START ===')
     console.log('Message length:', message.length)
