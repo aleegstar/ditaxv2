@@ -336,7 +336,9 @@ const SelectPerson: React.FC = () => {
 
       {/* Add/Edit Bottom Sheet — matched to dashboard aesthetic */}
       <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DrawerContent variant="bottom-sheet" className="px-6 sm:px-8 pb-8 pt-3 overflow-hidden max-w-[560px] mx-auto">
+        <DrawerContent variant="bottom-sheet" className="px-6 sm:px-10 pb-8 pt-3 overflow-hidden w-full">
+          <div className="w-full max-w-[720px] mx-auto">
+
           {/* Avatar preview header — like dashboard hero card */}
           <div className="flex flex-col items-center text-center pt-2 pb-6">
             <div className="w-16 h-16 rounded-2xl bg-[hsla(var(--primary)/0.07)] border border-black/[0.06] flex items-center justify-center mb-4">
