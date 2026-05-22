@@ -705,7 +705,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           <div className="space-y-5">
             {/* Card 1 — variable per mode, with in-card mode switcher */}
             <div className="relative">
-              {modeSwitcherPill}
+              {!step1Done && modeSwitcherPill}
               <StepRow
                 n={1}
                 state={step1Done ? 'done' : 'active'}
