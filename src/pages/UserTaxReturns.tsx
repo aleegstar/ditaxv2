@@ -404,7 +404,7 @@ const UserTaxReturns = () => {
         </motion.div>
 
         {/* Desktop blog posts */}
-        <DashboardChatCard />
+        <DashboardChatCard taxYear={selectedYear ? parseInt(selectedYear, 10) : undefined} />
         </div>
       </main>
 
