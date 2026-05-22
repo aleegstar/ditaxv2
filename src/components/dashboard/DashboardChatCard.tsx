@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, FolderOpen, Sparkles, Headphones, ArrowUpRight, Paperclip, User, ArrowUp, Loader2 } from 'lucide-react';
+import { FileText, FolderOpen, Sparkles, Headphones, ArrowUpRight, Paperclip, User, ArrowUp, Loader2, ChevronDown, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ditaxLogo from '@/assets/ditax-logo-icon.png';
@@ -36,6 +36,7 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => uuidv4());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const currentTaxYear = taxYear ?? new Date().getFullYear() - 1;
   const filerLabel = activeTaxFiler?.first_name || null;
@@ -53,6 +54,7 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
   const sendMessage = async (override?: string) => {
     const text = (override ?? input).trim();
     if (!text || isLoading || !userId) return;
+    setExpanded(true);
     setInput('');
 
     const userMsg: InlineMsg = { id: uuidv4(), role: 'user', content: text };
@@ -101,6 +103,31 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
         <div className="h-px flex-1 bg-border" />
       </div>
 
+      {!expanded ? (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="group w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-card border border-border hover:border-foreground/15 hover:bg-muted/30 transition-colors text-left shadow-[0_1px_2px_rgba(15,27,61,0.03)]"
+        >
+          <div className="w-8 h-8 rounded-full ring-1 ring-border bg-muted flex items-center justify-center flex-shrink-0">
+            <img src={ditaxLogo} alt="" className="w-5 h-5 object-contain" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13.5px] font-medium text-foreground/90 tracking-[-0.005em] truncate">
+              Brauchst du Hilfe? Stell deine Frage
+            </p>
+            <p className="text-[11.5px] text-muted-foreground/70 truncate">
+              Persönlicher Assistent für die Steuererklärung {currentTaxYear}
+              {filerLabel && <span className="text-muted-foreground/45"> · {filerLabel}</span>}
+            </p>
+          </div>
+          <ChevronDown
+            className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground/70 transition-colors flex-shrink-0"
+            strokeWidth={2}
+          />
+        </button>
+      ) : (
+      <>
       <div className="mb-5 text-center">
         <h2 className="text-[20px] font-semibold text-foreground tracking-[-0.018em]">
           Brauchst du Hilfe?
@@ -251,6 +278,8 @@ export const DashboardChatCard: React.FC<DashboardChatCardProps> = ({ taxYear })
           </p>
         </div>
       </div>
+      </>
+      )}
     </section>
   );
 };
