@@ -286,16 +286,26 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-hidden transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
         >
           <div className="p-5 md:p-6 space-y-4">
-            <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
-              <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
-              Aktueller Schritt
+            <div className="flex items-center justify-between gap-3">
+              <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
+                <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
+                Aktueller Schritt
+              </div>
+              <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-slate-400 tabular-nums">
+                Schritt {n} / 3
+              </span>
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
-                {title}
-              </h3>
-              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0F1B3D] text-white text-[15px] font-bold tabular-nums shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
+                  {n}
+                </span>
+                <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
+                  {title}
+                </h3>
+              </div>
+              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed pl-12">
                 {desc}
               </p>
             </div>
