@@ -461,6 +461,11 @@ APP-VERFÜGBARKEIT:
 
 ${userStatusContext}
 
+${(activeTaxFilerName || activeTaxYear) ? `AKTIVER KONTEXT DER FRAGE (sehr wichtig — bezieh deine Antwort genau hierauf):
+${activeTaxFilerName ? `- Aktive steuerpflichtige Person: ${activeTaxFilerName}${activeTaxFilerId ? ` (id: ${activeTaxFilerId})` : ''}` : ''}
+${activeTaxYear ? `- Aktives Steuerjahr: ${activeTaxYear}` : ''}
+- Beantworte die Frage NUR im Kontext dieser Person und dieses Steuerjahres. Frage NICHT nach, welche Person gemeint ist — der Kontext ist gesetzt.` : ''}
+
 MULTI-PERSONEN-REGELN:
 - Wenn der User mehrere steuerpflichtige Personen hat und eine statusbezogene Frage stellt (z.B. "Was ist der nächste Schritt?"), antworte NUR für die Person, die der User namentlich erwähnt hat.
 - Wenn der User KEINE bestimmte Person nennt, frage IMMER zuerst nach, auf welche Person sich die Frage bezieht, bevor du eine statusbezogene Antwort gibst.
