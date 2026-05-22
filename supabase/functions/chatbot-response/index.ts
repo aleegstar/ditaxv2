@@ -26,6 +26,7 @@ const chatRequestSchema = z.object({
   activeTaxFilerId: z.string().uuid().optional().nullable(),
   activeTaxFilerName: z.string().max(100).optional().nullable(),
   activeTaxYear: z.number().int().min(2000).max(2100).optional().nullable(),
+  ephemeral: z.boolean().optional().nullable(),
 })
 
 /**
@@ -217,7 +218,7 @@ serve(async (req) => {
       throw validationError
     }
 
-    const { message, sessionId, attachmentId } = validatedData
+    const { message, sessionId, attachmentId, activeTaxFilerId, activeTaxFilerName, activeTaxYear, ephemeral } = validatedData
 
     console.log('=== CHATBOT REQUEST START ===')
     console.log('Message length:', message.length)
@@ -305,33 +306,37 @@ serve(async (req) => {
       'support', 'agent', 'mensch'
     ]
     
-    const shouldEscalate = escalationKeywords.some(keyword => 
+    const shouldEscalate = !ephemeral && escalationKeywords.some(keyword =>
       message.toLowerCase().includes(keyword)
     )
 
-    // Save user message FIRST
-    console.log('=== SAVING USER MESSAGE ===')
-    const userMessageData = {
-      sender_id: userId,
-      recipient_id: null,
-      content: message,
-      chat_type: 'human',
-      bot_session_id: sessionId || null,
-      escalation_requested: shouldEscalate,
-      attachment_id: attachmentId || null
-    }
-    
-    const { error: userMessageError, data: savedUserMessage } = await supabase
-      .from('chat_messages')
-      .insert(userMessageData)
-      .select()
-      .single()
+    // Save user message FIRST (skip for ephemeral chats — inline dashboard widget)
+    if (!ephemeral) {
+      console.log('=== SAVING USER MESSAGE ===')
+      const userMessageData = {
+        sender_id: userId,
+        recipient_id: null,
+        content: message,
+        chat_type: 'human',
+        bot_session_id: sessionId || null,
+        escalation_requested: shouldEscalate,
+        attachment_id: attachmentId || null
+      }
 
-    if (userMessageError) {
-      console.error('ERROR saving user message:', userMessageError)
-      throw new Error(`Failed to save user message: ${userMessageError.message}`)
+      const { error: userMessageError } = await supabase
+        .from('chat_messages')
+        .insert(userMessageData)
+        .select()
+        .single()
+
+      if (userMessageError) {
+        console.error('ERROR saving user message:', userMessageError)
+        throw new Error(`Failed to save user message: ${userMessageError.message}`)
+      } else {
+        console.log('✓ User message saved successfully')
+      }
     } else {
-      console.log('✓ User message saved successfully')
+      console.log('Ephemeral chat — skipping user message persistence')
     }
 
     if (shouldEscalate) {
@@ -456,6 +461,11 @@ APP-VERFÜGBARKEIT:
 
 ${userStatusContext}
 
+${(activeTaxFilerName || activeTaxYear) ? `AKTIVER KONTEXT DER FRAGE (sehr wichtig — bezieh deine Antwort genau hierauf):
+${activeTaxFilerName ? `- Aktive steuerpflichtige Person: ${activeTaxFilerName}${activeTaxFilerId ? ` (id: ${activeTaxFilerId})` : ''}` : ''}
+${activeTaxYear ? `- Aktives Steuerjahr: ${activeTaxYear}` : ''}
+- Beantworte die Frage NUR im Kontext dieser Person und dieses Steuerjahres. Frage NICHT nach, welche Person gemeint ist — der Kontext ist gesetzt.` : ''}
+
 MULTI-PERSONEN-REGELN:
 - Wenn der User mehrere steuerpflichtige Personen hat und eine statusbezogene Frage stellt (z.B. "Was ist der nächste Schritt?"), antworte NUR für die Person, die der User namentlich erwähnt hat.
 - Wenn der User KEINE bestimmte Person nennt, frage IMMER zuerst nach, auf welche Person sich die Frage bezieht, bevor du eine statusbezogene Antwort gibst.
@@ -525,34 +535,38 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
                                   botResponse.toLowerCase().includes('mitarbeiter') ||
                                   botResponse.toLowerCase().includes('kollegen')
 
-    // Save bot response
-    console.log('=== SAVING BOT MESSAGE ===')
-    const botMessageData = {
-      sender_id: null,
-      recipient_id: userId,
-      content: botResponse,
-      chat_type: 'bot',
-      bot_session_id: sessionId || null,
-      escalation_requested: botSuggestsEscalation
-    }
-    
-    const { error: botMessageError } = await supabase
-      .from('chat_messages')
-      .insert(botMessageData)
-      .select()
-      .single()
+    // Save bot response (skip for ephemeral chats)
+    if (!ephemeral) {
+      console.log('=== SAVING BOT MESSAGE ===')
+      const botMessageData = {
+        sender_id: null,
+        recipient_id: userId,
+        content: botResponse,
+        chat_type: 'bot',
+        bot_session_id: sessionId || null,
+        escalation_requested: botSuggestsEscalation
+      }
 
-    if (botMessageError) {
-      console.error('ERROR saving bot message:', botMessageError)
-      throw new Error(`Failed to save bot message: ${botMessageError.message}`)
+      const { error: botMessageError } = await supabase
+        .from('chat_messages')
+        .insert(botMessageData)
+        .select()
+        .single()
+
+      if (botMessageError) {
+        console.error('ERROR saving bot message:', botMessageError)
+        throw new Error(`Failed to save bot message: ${botMessageError.message}`)
+      } else {
+        console.log('✓ Bot message saved successfully')
+      }
     } else {
-      console.log('✓ Bot message saved successfully')
+      console.log('Ephemeral chat — skipping bot message persistence')
     }
 
     console.log('=== CHATBOT REQUEST END ===')
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         response: botResponse,
         escalated: false,
         suggestsEscalation: botSuggestsEscalation
