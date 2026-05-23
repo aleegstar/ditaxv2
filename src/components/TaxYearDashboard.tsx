@@ -294,66 +294,82 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     // Outgoing line (circle → bottom of card, into gap below) uses THIS state.
     // Incoming line (top of card → circle) uses the PREVIOUS step's state
     // so the timeline reads as one continuous coloured stroke between cards.
-    const colorFor = (s?: StepState) =>
-      s === 'done' ? 'bg-emerald-400'
-      : s === 'active' ? 'bg-[#1450dc]'
-      : 'bg-slate-200';
-    const lineColorCls = colorFor(state);
-    const topLineColorCls = colorFor(prevState ?? state);
+    // Soft timeline rendered OUTSIDE the card on the left.
+    // Lines are uniformly soft slate; only the dot color differs per state.
+    const lineColorCls = 'bg-slate-200';
+    const topLineColorCls = 'bg-slate-200';
+    const dotCircleCls = isActive
+      ? 'bg-[#1450dc] ring-4 ring-[#1450dc]/15'
+      : isDone
+        ? 'bg-emerald-400'
+        : 'bg-slate-300';
+
+    const Timeline = (
+      <div className="relative w-3 shrink-0 flex justify-center">
+        {/* line above dot — bridges gap from previous card */}
+        {!isFirst && (
+          <div className={cn('absolute left-1/2 -translate-x-1/2 -top-3 md:-top-5 w-px', topLineColorCls)}
+               style={{ height: 'calc(2.375rem + 0.75rem)' }} />
+        )}
+        {/* line below dot — bridges gap to next card */}
+        {!isLast && (
+          <div className={cn('absolute left-1/2 -translate-x-1/2 -bottom-3 md:-bottom-5 w-px', lineColorCls)}
+               style={{ top: 'calc(2.375rem + 0.5rem)' }} />
+        )}
+        {/* the dot */}
+        <div className={cn('relative z-10 mt-[2.375rem] w-2 h-2 rounded-full', dotCircleCls)} />
+      </div>
+    );
+
+
 
     // ───── Active step: prominent card ─────
     if (isActive) {
       return (
-        <div
-          onClick={onAction}
-          className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-visible transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
-        >
-          {/* Top connector (above circle, within card) — only if not first */}
-          {!isFirst && (
-            <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', topLineColorCls)} />
-          )}
-          {/* Bottom connector (below circle, within card) — only if not last */}
-          {!isLast && (
-            <div className={cn('absolute left-[1.875rem] top-[3.75rem] bottom-0 w-[2px]', lineColorCls)} />
-          )}
-
-          {/* Number circle — absolute left */}
+        <div className="flex gap-3 md:gap-4 items-stretch">
+          {Timeline}
           <div
-            className={cn(
-              'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
-              circleCls
-            )}
+            onClick={onAction}
+            className="flex-1 min-w-0 group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-visible transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
           >
-            {n}
-          </div>
-
-          <div className="pl-16 pr-5 md:pr-6 py-5 md:py-6 space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
-                <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
-                Aktueller Schritt
-              </div>
-              <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-slate-400 tabular-nums">
-                Schritt {n} / 3
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
-                {title}
-              </h3>
-              <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed">
-                {desc}
-              </p>
-            </div>
-
-            <button
-              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-              className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[15px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(15,27,61,0.4)] hover:shadow-[0_12px_28px_-8px_rgba(15,27,61,0.5)] transition-all duration-300"
+            {/* Number circle — absolute left */}
+            <div
+              className={cn(
+                'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
+                circleCls
+              )}
             >
-              <Upload className="w-4 h-4" strokeWidth={2} />
-              {actionLabel}
-            </button>
+              {n}
+            </div>
+
+            <div className="pl-16 pr-5 md:pr-6 py-5 md:py-6 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
+                  <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
+                  Aktueller Schritt
+                </div>
+                <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-slate-400 tabular-nums">
+                  Schritt {n} / 3
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-[19px] md:text-[22px] font-semibold text-slate-900 tracking-tight leading-snug">
+                  {title}
+                </h3>
+                <p className="text-[14px] md:text-[15px] text-slate-500 leading-relaxed">
+                  {desc}
+                </p>
+              </div>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+                className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[15px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(15,27,61,0.4)] hover:shadow-[0_12px_28px_-8px_rgba(15,27,61,0.5)] transition-all duration-300"
+              >
+                <Upload className="w-4 h-4" strokeWidth={2} />
+                {actionLabel}
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -365,22 +381,16 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       : 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.08)]';
 
     return (
-      <div
-        onClick={state !== 'locked' ? onAction : undefined}
-        className={cn(
-          'relative rounded-[1.25rem] overflow-visible transition-all',
-          containerCls,
-          state !== 'locked' && 'cursor-pointer'
-        )}
-      >
-        {/* Top connector (within card) */}
-        {!isFirst && (
-          <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', topLineColorCls)} />
-        )}
-        {/* Bottom connector (within card) */}
-        {!isLast && (
-          <div className={cn('absolute left-[1.875rem] top-[3.75rem] bottom-0 w-[2px]', lineColorCls)} />
-        )}
+      <div className="flex gap-3 md:gap-4 items-stretch">
+        {Timeline}
+        <div
+          onClick={state !== 'locked' ? onAction : undefined}
+          className={cn(
+            'flex-1 min-w-0 relative rounded-[1.25rem] overflow-visible transition-all',
+            containerCls,
+            state !== 'locked' && 'cursor-pointer'
+          )}
+        >
 
         {/* Number circle / Check when done */}
         <div
@@ -417,6 +427,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
             </button>
           )}
+        </div>
         </div>
       </div>
     );
