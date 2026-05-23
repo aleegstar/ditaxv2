@@ -342,17 +342,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             onClick={onAction}
             className="flex-1 min-w-0 group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-visible transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
           >
-            {/* Number circle — absolute left */}
-            <div
-              className={cn(
-                'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
-                circleCls
-              )}
-            >
-              {n}
-            </div>
+            <div className="px-5 md:px-6 py-5 md:py-6 space-y-4">
 
-            <div className="pl-16 pr-5 md:pr-6 py-5 md:py-6 space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
                   <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
