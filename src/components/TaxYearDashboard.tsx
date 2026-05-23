@@ -332,7 +332,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           {/* subtle pulse halo for active step */}
           {isActive && (
             <span
-              className="absolute -inset-1 rounded-full bg-[#1450dc]/20 animate-ping"
+              className="absolute -inset-1 rounded-full bg-[#0F1B3D]/20 animate-ping"
               style={{ animationDuration: '2.4s' }}
               aria-hidden
             />
