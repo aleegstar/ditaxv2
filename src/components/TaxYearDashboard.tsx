@@ -274,7 +274,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     onAction?: () => void;
     isFirst?: boolean;
     isLast?: boolean;
-  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction, isFirst, isLast }) => {
+    prevState?: StepState;
+  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction, isFirst, isLast, prevState }) => {
     const dotCls =
       statusTone === 'green'  ? 'bg-emerald-500'
       : statusTone === 'orange' ? 'bg-amber-400'
@@ -290,12 +291,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         ? 'bg-white text-emerald-600 border-2 border-emerald-400'
         : 'bg-white text-slate-400 border-2 border-slate-200';
 
-    // Vertical connector line color (segment from circle downward, within card)
-    const lineColorCls = isDone
-      ? 'bg-emerald-400'
-      : isActive
-        ? 'bg-[#1450dc]'
-        : 'bg-slate-200';
+    // Outgoing line (circle → bottom of card, into gap below) uses THIS state.
+    // Incoming line (top of card → circle) uses the PREVIOUS step's state
+    // so the timeline reads as one continuous coloured stroke between cards.
+    const colorFor = (s?: StepState) =>
+      s === 'done' ? 'bg-emerald-400'
+      : s === 'active' ? 'bg-[#1450dc]'
+      : 'bg-slate-200';
+    const lineColorCls = colorFor(state);
+    const topLineColorCls = colorFor(prevState ?? state);
 
     // ───── Active step: prominent card ─────
     if (isActive) {
