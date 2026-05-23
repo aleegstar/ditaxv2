@@ -294,12 +294,30 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     // Outgoing line (circle → bottom of card, into gap below) uses THIS state.
     // Incoming line (top of card → circle) uses the PREVIOUS step's state
     // so the timeline reads as one continuous coloured stroke between cards.
-    const colorFor = (s?: StepState) =>
-      s === 'done' ? 'bg-emerald-400'
-      : s === 'active' ? 'bg-[#1450dc]'
-      : 'bg-slate-200';
-    const lineColorCls = colorFor(state);
-    const topLineColorCls = colorFor(prevState ?? state);
+    // Soft timeline rendered OUTSIDE the card on the left.
+    // Lines are uniformly soft slate; only the dot color differs per state.
+    const lineColorCls = 'bg-slate-200';
+    const topLineColorCls = 'bg-slate-200';
+    const dotCircleCls = isActive
+      ? 'bg-[#1450dc] ring-4 ring-[#1450dc]/15'
+      : isDone
+        ? 'bg-emerald-400'
+        : 'bg-slate-300';
+
+    const Timeline = (
+      <div className="relative w-3 shrink-0 flex justify-center">
+        {/* line above dot — bridges gap from previous card */}
+        {!isFirst && (
+          <div className={cn('absolute left-1/2 -translate-x-1/2 -top-3 md:-top-5 h-[calc(2rem+0.75rem)] md:h-[calc(2rem+1.25rem)] w-px', topLineColorCls)} />
+        )}
+        {/* line below dot — bridges gap to next card */}
+        {!isLast && (
+          <div className={cn('absolute left-1/2 -translate-x-1/2 top-8 -bottom-3 md:-bottom-5 w-px', lineColorCls)} />
+        )}
+        {/* the dot */}
+        <div className={cn('relative z-10 mt-7 w-2 h-2 rounded-full', dotCircleCls)} />
+      </div>
+    );
 
     // ───── Active step: prominent card ─────
     if (isActive) {
