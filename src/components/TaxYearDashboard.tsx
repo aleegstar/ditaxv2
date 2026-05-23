@@ -373,13 +373,13 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           state !== 'locked' && 'cursor-pointer'
         )}
       >
-        {/* Top connector */}
+        {/* Top connector (within card) */}
         {!isFirst && (
-          <div className={cn('absolute left-[1.875rem] -top-3 h-9 w-[2px]', topLineColorCls)} />
+          <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', topLineColorCls)} />
         )}
-        {/* Bottom connector */}
+        {/* Bottom connector (within card) */}
         {!isLast && (
-          <div className={cn('absolute left-[1.875rem] top-[4.25rem] -bottom-3 w-[2px]', lineColorCls)} />
+          <div className={cn('absolute left-[1.875rem] top-[3.75rem] bottom-0 w-[2px]', lineColorCls)} />
         )}
 
         {/* Number circle / Check when done */}
