@@ -308,14 +308,19 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       <div className="relative w-3 shrink-0 flex justify-center">
         {/* line above dot — bridges gap from previous card */}
         {!isFirst && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 -top-3 md:-top-5 h-[calc(2rem+0.75rem)] md:h-[calc(2rem+1.25rem)] w-px', topLineColorCls)} />
+          <div className={cn('absolute left-1/2 -translate-x-1/2 -top-3 md:-top-5 w-px', topLineColorCls)}
+               style={{ height: 'calc(2.375rem + 0.75rem)' }} />
         )}
         {/* line below dot — bridges gap to next card */}
         {!isLast && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 top-8 -bottom-3 md:-bottom-5 w-px', lineColorCls)} />
+          <div className={cn('absolute left-1/2 -translate-x-1/2 -bottom-3 md:-bottom-5 w-px', lineColorCls)}
+               style={{ top: 'calc(2.375rem + 0.5rem)' }} />
         )}
         {/* the dot */}
         <div className={cn('relative z-10 mt-[2.375rem] w-2 h-2 rounded-full', dotCircleCls)} />
+      </div>
+    );
+
       </div>
     );
 
