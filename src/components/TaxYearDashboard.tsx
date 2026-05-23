@@ -305,21 +305,31 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         : 'bg-slate-300';
 
     const Timeline = (
-      <div className="relative w-3 shrink-0 flex justify-center">
-        {/* line above dot — bridges gap from previous card */}
+      <div className="relative w-9 shrink-0 flex justify-center">
+        {/* line above circle — bridges gap from previous card */}
         {!isFirst && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 -top-3 md:-top-5 w-px', topLineColorCls)}
-               style={{ height: 'calc(2.375rem + 0.75rem)' }} />
+          <div className={cn('absolute left-1/2 -translate-x-1/2 w-px', topLineColorCls)}
+               style={{ top: 'calc(-1 * 0.75rem)', height: 'calc(1.25rem + 0.75rem)' }} />
         )}
-        {/* line below dot — bridges gap to next card */}
+        {/* line below circle — bridges gap to next card */}
         {!isLast && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 -bottom-3 md:-bottom-5 w-px', lineColorCls)}
-               style={{ top: 'calc(2.375rem + 0.5rem)' }} />
+          <div className={cn('absolute left-1/2 -translate-x-1/2 w-px', lineColorCls)}
+               style={{ top: 'calc(1.25rem + 2.25rem)', bottom: 'calc(-1 * 0.75rem)' }} />
         )}
-        {/* the dot */}
-        <div className={cn('relative z-10 mt-[2.375rem] w-2 h-2 rounded-full', dotCircleCls)} />
+        {/* numbered circle / check */}
+        <div
+          className={cn(
+            'relative z-10 mt-5 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
+            isDone
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-600'
+              : circleCls
+          )}
+        >
+          {isDone ? <Check className="w-4 h-4" strokeWidth={2.5} /> : n}
+        </div>
       </div>
     );
+
 
 
 
