@@ -308,13 +308,13 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           onClick={onAction}
           className="group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-visible transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
         >
-          {/* Top connector (above circle) — only if not first */}
+          {/* Top connector (above circle, within card) — only if not first */}
           {!isFirst && (
-            <div className={cn('absolute left-[1.875rem] -top-3 h-9 w-[2px]', topLineColorCls)} />
+            <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', topLineColorCls)} />
           )}
-          {/* Bottom connector (below circle, through to next card) — only if not last */}
+          {/* Bottom connector (below circle, within card) — only if not last */}
           {!isLast && (
-            <div className={cn('absolute left-[1.875rem] top-[4.25rem] -bottom-3 w-[2px]', lineColorCls)} />
+            <div className={cn('absolute left-[1.875rem] top-[3.75rem] bottom-0 w-[2px]', lineColorCls)} />
           )}
 
           {/* Number circle — absolute left */}
