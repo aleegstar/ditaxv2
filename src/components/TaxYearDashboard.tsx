@@ -315,7 +315,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           <div className={cn('absolute left-1/2 -translate-x-1/2 top-8 -bottom-3 md:-bottom-5 w-px', lineColorCls)} />
         )}
         {/* the dot */}
-        <div className={cn('relative z-10 mt-7 w-2 h-2 rounded-full', dotCircleCls)} />
+        <div className={cn('relative z-10 mt-[2.375rem] w-2 h-2 rounded-full', dotCircleCls)} />
       </div>
     );
 
