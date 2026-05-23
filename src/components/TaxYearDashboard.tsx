@@ -304,39 +304,52 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         ? 'bg-emerald-400'
         : 'bg-slate-300';
 
-    // Dot styling — minimal, Linear/Stripe-like
-    const dotInner = isActive
-      ? 'bg-[#1450dc]'
+    // Step badge styling — minimal, Linear/Stripe-like, shows the number
+    const badgeCls = isActive
+      ? 'bg-[#1450dc] text-white border border-[#1450dc]'
       : isDone
-        ? 'bg-slate-400'
-        : 'bg-transparent border border-slate-300';
+        ? 'bg-white text-slate-500 border border-slate-200'
+        : 'bg-white text-slate-400 border border-slate-200';
 
     const Timeline = (
-      <div className="relative w-4 shrink-0 flex justify-center">
-        {/* hairline above dot — bridges gap from previous card */}
+      <div className="relative w-6 shrink-0 flex justify-center">
+        {/* hairline above badge — bridges gap from previous card */}
         {!isFirst && (
           <div
             className="absolute left-1/2 -translate-x-1/2 w-px bg-slate-200/70"
-            style={{ top: 'calc(-1 * 0.75rem)', height: 'calc(1.625rem + 0.75rem)' }}
+            style={{ top: 'calc(-1 * 0.75rem)', height: 'calc(1.5rem + 0.75rem)' }}
           />
         )}
-        {/* hairline below dot — bridges gap to next card */}
+        {/* hairline below badge — bridges gap to next card */}
         {!isLast && (
           <div
             className="absolute left-1/2 -translate-x-1/2 w-px bg-slate-200/70"
-            style={{ top: 'calc(1.625rem + 0.5rem)', bottom: 'calc(-1 * 0.75rem)' }}
+            style={{ top: 'calc(1.5rem + 1.25rem)', bottom: 'calc(-1 * 0.75rem)' }}
           />
         )}
-        {/* minimal dot */}
-        <div
-          className={cn(
-            'relative z-10 mt-[1.625rem] w-1.5 h-1.5 rounded-full',
-            dotInner,
-            isActive && 'ring-[3px] ring-[#1450dc]/12'
+        {/* numbered badge */}
+        <div className="relative z-10 mt-6 w-5 h-5">
+          {/* subtle pulse halo for active step */}
+          {isActive && (
+            <span
+              className="absolute inset-0 rounded-full bg-[#1450dc]/25 animate-ping"
+              style={{ animationDuration: '2.4s' }}
+              aria-hidden
+            />
           )}
-        />
+          <div
+            className={cn(
+              'relative w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-semibold tabular-nums leading-none',
+              badgeCls
+            )}
+          >
+            {isDone ? <Check className="w-2.5 h-2.5" strokeWidth={3} /> : n}
+          </div>
+        </div>
       </div>
     );
+
+
 
 
 
