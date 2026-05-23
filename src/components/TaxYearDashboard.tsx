@@ -321,8 +321,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       </div>
     );
 
-      </div>
-    );
+
 
     // ───── Active step: prominent card ─────
     if (isActive) {
