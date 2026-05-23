@@ -345,7 +345,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     // ───── Active step: prominent card ─────
     if (isActive) {
       return (
-        <div className="flex gap-3 md:gap-4 items-stretch">
+        <div className="flex gap-2 md:gap-3 items-stretch">
           {Timeline}
           <div
             onClick={onAction}
@@ -391,7 +391,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       : 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.08)]';
 
     return (
-      <div className="flex gap-3 md:gap-4 items-stretch">
+      <div className="flex gap-2 md:gap-3 items-stretch">
         {Timeline}
         <div
           onClick={state !== 'locked' ? onAction : undefined}
