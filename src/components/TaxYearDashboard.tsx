@@ -304,31 +304,40 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         ? 'bg-emerald-400'
         : 'bg-slate-300';
 
+    // Dot styling — minimal, Linear/Stripe-like
+    const dotInner = isActive
+      ? 'bg-[#1450dc]'
+      : isDone
+        ? 'bg-slate-400'
+        : 'bg-transparent border border-slate-300';
+
     const Timeline = (
-      <div className="relative w-9 shrink-0 flex justify-center">
-        {/* line above circle — bridges gap from previous card */}
+      <div className="relative w-4 shrink-0 flex justify-center">
+        {/* hairline above dot — bridges gap from previous card */}
         {!isFirst && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 w-px', topLineColorCls)}
-               style={{ top: 'calc(-1 * 0.75rem)', height: 'calc(1.25rem + 0.75rem)' }} />
+          <div
+            className="absolute left-1/2 -translate-x-1/2 w-px bg-slate-200/70"
+            style={{ top: 'calc(-1 * 0.75rem)', height: 'calc(1.625rem + 0.75rem)' }}
+          />
         )}
-        {/* line below circle — bridges gap to next card */}
+        {/* hairline below dot — bridges gap to next card */}
         {!isLast && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 w-px', lineColorCls)}
-               style={{ top: 'calc(1.25rem + 2.25rem)', bottom: 'calc(-1 * 0.75rem)' }} />
+          <div
+            className="absolute left-1/2 -translate-x-1/2 w-px bg-slate-200/70"
+            style={{ top: 'calc(1.625rem + 0.5rem)', bottom: 'calc(-1 * 0.75rem)' }}
+          />
         )}
-        {/* numbered circle / check */}
+        {/* minimal dot */}
         <div
           className={cn(
-            'relative z-10 mt-5 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
-            isDone
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-600'
-              : circleCls
+            'relative z-10 mt-[1.625rem] w-1.5 h-1.5 rounded-full',
+            dotInner,
+            isActive && 'ring-[3px] ring-[#1450dc]/12'
           )}
-        >
-          {isDone ? <Check className="w-4 h-4" strokeWidth={2.5} /> : n}
-        </div>
+        />
       </div>
     );
+
 
 
 
@@ -336,7 +345,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     // ───── Active step: prominent card ─────
     if (isActive) {
       return (
-        <div className="flex gap-3 md:gap-4 items-stretch">
+        <div className="flex gap-2 md:gap-3 items-stretch">
           {Timeline}
           <div
             onClick={onAction}
@@ -382,7 +391,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       : 'bg-card border border-border shadow-[0_10px_40px_-12px_rgba(15,27,61,0.08)]';
 
     return (
-      <div className="flex gap-3 md:gap-4 items-stretch">
+      <div className="flex gap-2 md:gap-3 items-stretch">
         {Timeline}
         <div
           onClick={state !== 'locked' ? onAction : undefined}
