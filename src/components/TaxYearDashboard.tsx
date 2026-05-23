@@ -274,7 +274,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     onAction?: () => void;
     isFirst?: boolean;
     isLast?: boolean;
-  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction, isFirst, isLast }) => {
+    prevState?: StepState;
+  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction, isFirst, isLast, prevState }) => {
     const dotCls =
       statusTone === 'green'  ? 'bg-emerald-500'
       : statusTone === 'orange' ? 'bg-amber-400'
@@ -290,12 +291,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         ? 'bg-white text-emerald-600 border-2 border-emerald-400'
         : 'bg-white text-slate-400 border-2 border-slate-200';
 
-    // Vertical connector line color (segment from circle downward, within card)
-    const lineColorCls = isDone
-      ? 'bg-emerald-400'
-      : isActive
-        ? 'bg-[#1450dc]'
-        : 'bg-slate-200';
+    // Outgoing line (circle → bottom of card, into gap below) uses THIS state.
+    // Incoming line (top of card → circle) uses the PREVIOUS step's state
+    // so the timeline reads as one continuous coloured stroke between cards.
+    const colorFor = (s?: StepState) =>
+      s === 'done' ? 'bg-emerald-400'
+      : s === 'active' ? 'bg-[#1450dc]'
+      : 'bg-slate-200';
+    const lineColorCls = colorFor(state);
+    const topLineColorCls = colorFor(prevState ?? state);
 
     // ───── Active step: prominent card ─────
     if (isActive) {
@@ -306,11 +310,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         >
           {/* Top connector (above circle) — only if not first */}
           {!isFirst && (
-            <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', lineColorCls)} />
+            <div className={cn('absolute left-[1.875rem] -top-3 h-9 w-[2px]', topLineColorCls)} />
           )}
-          {/* Bottom connector (below circle, to card bottom) — only if not last */}
+          {/* Bottom connector (below circle, through to next card) — only if not last */}
           {!isLast && (
-            <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
+            <div className={cn('absolute left-[1.875rem] top-[4.25rem] -bottom-3 w-[2px]', lineColorCls)} />
           )}
 
           {/* Number circle — absolute left */}
@@ -371,11 +375,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       >
         {/* Top connector */}
         {!isFirst && (
-          <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', lineColorCls)} />
+          <div className={cn('absolute left-[1.875rem] -top-3 h-9 w-[2px]', topLineColorCls)} />
         )}
         {/* Bottom connector */}
         {!isLast && (
-          <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
+          <div className={cn('absolute left-[1.875rem] top-[4.25rem] -bottom-3 w-[2px]', lineColorCls)} />
         )}
 
         {/* Number circle / Check when done */}
@@ -759,9 +763,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
         return (
           <div className="relative space-y-3">
-            {/* Background dotted timeline visible only in gaps between cards */}
-            <div className="pointer-events-none absolute left-[1.875rem] top-12 bottom-12 w-px border-l border-dashed border-slate-300" aria-hidden />
-
             {/* Card 1 — variable per mode, with in-card mode switcher */}
             <div className="relative">
               {!step1Done && modeSwitcherPill}
@@ -777,6 +778,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <StepRow
               n={2}
               state={!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
+              prevState={step1Done ? 'done' : 'active'}
               title="Belege & Unterlagen"
               desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
               statusLabel={
@@ -793,6 +795,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <StepRow
               n={3}
               state={!submitReady ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
+              prevState={!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
               isLast
               title="Prüfung & Versand"
               desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
