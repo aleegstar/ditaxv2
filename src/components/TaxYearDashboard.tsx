@@ -328,22 +328,22 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           />
         )}
         {/* numbered badge */}
-        <div className="relative z-10 mt-6 w-5 h-5">
+        <div className="relative z-10 mt-5 w-6 h-6">
           {/* subtle pulse halo for active step */}
           {isActive && (
             <span
-              className="absolute inset-0 rounded-full bg-[#1450dc]/25 animate-ping"
+              className="absolute -inset-1 rounded-full bg-[#1450dc]/20 animate-ping"
               style={{ animationDuration: '2.4s' }}
               aria-hidden
             />
           )}
           <div
             className={cn(
-              'relative w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-semibold tabular-nums leading-none',
+              'relative w-6 h-6 rounded-full flex items-center justify-center text-[13px] font-bold leading-none',
               badgeCls
             )}
           >
-            {isDone ? <Check className="w-2.5 h-2.5" strokeWidth={3} /> : n}
+            {isDone ? <Check className="w-3 h-3" strokeWidth={3} /> : n}
           </div>
         </div>
       </div>
