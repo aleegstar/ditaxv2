@@ -305,21 +305,31 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         : 'bg-slate-300';
 
     const Timeline = (
-      <div className="relative w-3 shrink-0 flex justify-center">
-        {/* line above dot — bridges gap from previous card */}
+      <div className="relative w-9 shrink-0 flex justify-center">
+        {/* line above circle — bridges gap from previous card */}
         {!isFirst && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 -top-3 md:-top-5 w-px', topLineColorCls)}
-               style={{ height: 'calc(2.375rem + 0.75rem)' }} />
+          <div className={cn('absolute left-1/2 -translate-x-1/2 w-px', topLineColorCls)}
+               style={{ top: 'calc(-1 * 0.75rem)', height: 'calc(1.25rem + 0.75rem)' }} />
         )}
-        {/* line below dot — bridges gap to next card */}
+        {/* line below circle — bridges gap to next card */}
         {!isLast && (
-          <div className={cn('absolute left-1/2 -translate-x-1/2 -bottom-3 md:-bottom-5 w-px', lineColorCls)}
-               style={{ top: 'calc(2.375rem + 0.5rem)' }} />
+          <div className={cn('absolute left-1/2 -translate-x-1/2 w-px', lineColorCls)}
+               style={{ top: 'calc(1.25rem + 2.25rem)', bottom: 'calc(-1 * 0.75rem)' }} />
         )}
-        {/* the dot */}
-        <div className={cn('relative z-10 mt-[2.375rem] w-2 h-2 rounded-full', dotCircleCls)} />
+        {/* numbered circle / check */}
+        <div
+          className={cn(
+            'relative z-10 mt-5 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
+            isDone
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-600'
+              : circleCls
+          )}
+        >
+          {isDone ? <Check className="w-4 h-4" strokeWidth={2.5} /> : n}
+        </div>
       </div>
     );
+
 
 
 
@@ -332,17 +342,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             onClick={onAction}
             className="flex-1 min-w-0 group cursor-pointer relative bg-card border border-[#1450dc] rounded-[1.5rem] overflow-visible transition-all duration-300 shadow-[0_10px_40px_-12px_rgba(20,80,220,0.18)] hover:shadow-[0_14px_44px_-12px_rgba(20,80,220,0.22)]"
           >
-            {/* Number circle — absolute left */}
-            <div
-              className={cn(
-                'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
-                circleCls
-              )}
-            >
-              {n}
-            </div>
+            <div className="px-5 md:px-6 py-5 md:py-6 space-y-4">
 
-            <div className="pl-16 pr-5 md:pr-6 py-5 md:py-6 space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
                   <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
@@ -392,18 +393,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           )}
         >
 
-        {/* Number circle / Check when done */}
-        <div
-          className={cn(
-            'absolute left-[0.875rem] top-6 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[14px] font-bold tabular-nums',
-            isDone
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-600'
-              : circleCls
-          )}
-        >
-          {isDone ? <Check className="w-4 h-4" strokeWidth={2.5} /> : n}
-        </div>
-
         {/* Status icon: top-right (only when locked) */}
         {!isDone && (
           <div className="absolute top-5 right-5 w-7 h-7 rounded-full flex items-center justify-center bg-slate-100/80 border border-slate-200/60 text-slate-400">
@@ -411,7 +400,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           </div>
         )}
 
-        <div className="pl-16 pr-14 py-6 md:py-7 flex flex-col gap-5">
+        <div className="px-5 md:px-6 pr-14 py-6 md:py-7 flex flex-col gap-5">
+
           <div className={cn('min-w-0', !isDone && 'opacity-70')}>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
