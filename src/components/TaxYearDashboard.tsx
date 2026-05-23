@@ -763,9 +763,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
         return (
           <div className="relative space-y-3">
-            {/* Background dotted timeline visible only in gaps between cards */}
-            <div className="pointer-events-none absolute left-[1.875rem] top-12 bottom-12 w-px border-l border-dashed border-slate-300" aria-hidden />
-
             {/* Card 1 — variable per mode, with in-card mode switcher */}
             <div className="relative">
               {!step1Done && modeSwitcherPill}
@@ -781,6 +778,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <StepRow
               n={2}
               state={!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
+              prevState={step1Done ? 'done' : 'active'}
               title="Belege & Unterlagen"
               desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
               statusLabel={
@@ -797,6 +795,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <StepRow
               n={3}
               state={!submitReady ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
+              prevState={!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
               isLast
               title="Prüfung & Versand"
               desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
