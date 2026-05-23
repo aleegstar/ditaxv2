@@ -375,11 +375,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       >
         {/* Top connector */}
         {!isFirst && (
-          <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', lineColorCls)} />
+          <div className={cn('absolute left-[1.875rem] -top-3 h-9 w-[2px]', topLineColorCls)} />
         )}
         {/* Bottom connector */}
         {!isLast && (
-          <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
+          <div className={cn('absolute left-[1.875rem] top-[4.25rem] -bottom-3 w-[2px]', lineColorCls)} />
         )}
 
         {/* Number circle / Check when done */}
