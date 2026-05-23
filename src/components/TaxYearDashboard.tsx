@@ -310,11 +310,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         >
           {/* Top connector (above circle) — only if not first */}
           {!isFirst && (
-            <div className={cn('absolute left-[1.875rem] top-0 h-6 w-[2px]', lineColorCls)} />
+            <div className={cn('absolute left-[1.875rem] -top-3 h-9 w-[2px]', topLineColorCls)} />
           )}
-          {/* Bottom connector (below circle, to card bottom) — only if not last */}
+          {/* Bottom connector (below circle, through to next card) — only if not last */}
           {!isLast && (
-            <div className={cn('absolute left-[1.875rem] top-[4.25rem] bottom-0 w-[2px]', lineColorCls)} />
+            <div className={cn('absolute left-[1.875rem] top-[4.25rem] -bottom-3 w-[2px]', lineColorCls)} />
           )}
 
           {/* Number circle — absolute left */}
