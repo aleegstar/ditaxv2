@@ -306,7 +306,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
     // Step badge styling — minimal, Linear/Stripe-like, shows the number
     const badgeCls = isActive
-      ? 'bg-[#0F1B3D] text-white border border-[#0F1B3D]'
+      ? 'bg-[#0F1B3D] text-white'
       : isDone
         ? 'bg-white text-slate-500 border border-slate-200'
         : 'bg-white text-slate-400 border border-slate-200';
@@ -329,12 +329,17 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         )}
         {/* numbered badge */}
         <div className="relative z-10 mt-5 w-6 h-6">
-          {/* subtle pulse halo for active step */}
+          {/* subtle rainbow ring for active step */}
           {isActive && (
             <span
-              className="absolute -inset-1 rounded-full bg-[#0F1B3D]/20 animate-ping"
-              style={{ animationDuration: '2.4s' }}
               aria-hidden
+              className="absolute -inset-[2px] rounded-full opacity-80"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, #6366f1, #ec4899, #f59e0b, #10b981, #3b82f6, #6366f1)',
+                animation: 'spin 4s linear infinite',
+                filter: 'blur(0.4px)',
+              }}
             />
           )}
           <div
