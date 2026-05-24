@@ -333,12 +333,12 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           {isActive && (
             <span
               aria-hidden
-              className="absolute left-1/2 -translate-x-1/2 bottom-[-35%] h-1/2 w-[80%] rounded-full opacity-70"
+              className="absolute left-1/2 -translate-x-1/2 bottom-[-2px] h-2 w-[70%] rounded-full opacity-60"
               style={{
                 background:
                   'linear-gradient(90deg, #ff80b5, #9089fc, #38bdf8, #34d399, #fbbf24, #ff80b5)',
                 backgroundSize: '200% 100%',
-                filter: 'blur(6px)',
+                filter: 'blur(4px)',
                 animation: 'rainbow-glow-slide 4s linear infinite',
               }}
             />
