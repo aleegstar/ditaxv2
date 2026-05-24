@@ -329,16 +329,17 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         )}
         {/* numbered badge */}
         <div className="relative z-10 mt-5 w-6 h-6">
-          {/* subtle rainbow ring for active step */}
+          {/* Magic UI–style rainbow glow underneath (shadow, not border) */}
           {isActive && (
             <span
               aria-hidden
-              className="absolute -inset-[2px] rounded-full opacity-80"
+              className="absolute left-1/2 -translate-x-1/2 bottom-[-35%] h-1/2 w-[80%] rounded-full opacity-70"
               style={{
                 background:
-                  'conic-gradient(from 0deg, #6366f1, #ec4899, #f59e0b, #10b981, #3b82f6, #6366f1)',
-                animation: 'spin 4s linear infinite',
-                filter: 'blur(0.4px)',
+                  'linear-gradient(90deg, #ff80b5, #9089fc, #38bdf8, #34d399, #fbbf24, #ff80b5)',
+                backgroundSize: '200% 100%',
+                filter: 'blur(6px)',
+                animation: 'rainbow-glow-slide 4s linear infinite',
               }}
             />
           )}
