@@ -47,6 +47,7 @@ const DocumentsContent: React.FC<{
   
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const [completedYears, setCompletedYears] = useState<string[]>([]);
+  const [signedYearInfo, setSignedYearInfo] = useState<Record<string, { signed_at: string; documents_deleted_at: string | null }>>({});
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [uploaderKey, setUploaderKey] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
