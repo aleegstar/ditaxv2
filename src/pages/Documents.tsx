@@ -105,7 +105,10 @@ const DocumentsContent: React.FC<{
       } = await supabase.auth.getUser();
       if (!user) return;
       
-      let query = supabase.from('completed_tax_returns').select('tax_year').eq('user_id', user.id);
+      let query = supabase
+        .from('completed_tax_returns')
+        .select('tax_year, signed_at, documents_deleted_at')
+        .eq('user_id', user.id);
       
       if (activeTaxFilerId) {
         query = query.eq('tax_filer_id', activeTaxFilerId);
@@ -115,6 +118,16 @@ const DocumentsContent: React.FC<{
       if (error) throw error;
       const completed = data?.map(item => item.tax_year) || [];
       setCompletedYears(completed);
+      const info: Record<string, { signed_at: string; documents_deleted_at: string | null }> = {};
+      for (const item of data || []) {
+        if (item.signed_at) {
+          info[item.tax_year] = {
+            signed_at: item.signed_at,
+            documents_deleted_at: item.documents_deleted_at,
+          };
+        }
+      }
+      setSignedYearInfo(info);
     } catch (error) {
       console.error('Error loading completed tax years:', error);
     }
