@@ -1,57 +1,51 @@
-## Ziel
+# 30-Tage-Löschung nach elektronischer Unterschrift
 
-Im Dashboard (`TaxYearDashboard.tsx`) hängt der „Modus wechseln"-Knopf aktuell oben rechts über allen Karten und ersetzt — je nach Modus — die komplette 3-Karten-Liste durch zwei unterschiedliche Branches. Dadurch springen auch Card 2 („Belege & Unterlagen") und Card 3 („Prüfung & Versand") in Titel, Status und Aktion herum.
+Nach der elektronischen Unterschrift einer Steuererklärung werden die hochgeladenen Belege und die Dokumentensammlung des Nutzers für dieses Steuerjahr nach 30 Tagen automatisch gelöscht. Übrig bleibt nur die signierte Steuererklärung als PDF. Der Nutzer wird transparent darüber informiert — vor, während und nach der Unterschrift.
 
-Ziel: Der Moduswechsel betrifft **ausschließlich Card 1**. Cards 2 und 3 sind in beiden Modi identisch (gleicher Titel, gleicher Status, gleiche Logik) und behalten ihren Zustand beim Umschalten.
+## 1. Backend — automatische Löschung
 
-## Änderungen in `src/components/TaxYearDashboard.tsx`
+**Neue Edge Function: `cleanup-signed-tax-year-documents`** (täglich per Cron)
 
-### 1. „Modus wechseln"-Pille umziehen
-- Den globalen `modeSwitcher`-Block oben (Zeile ~407–418, `mb-4 flex justify-end`) entfernen.
-- Stattdessen Card 1 mit einem dezenten Switcher direkt in der Karte ergänzen — z. B. eine kleine Pille mit `Settings2`-Icon und Label „Modus wechseln" in der rechten oberen Ecke der Card-1-Zeile (über `StepRow` als zusätzliches Element gerendert, ohne `StepRow` selbst zu verändern). Klick öffnet weiterhin `setModeSheetOpen(true)`.
+Pro `completed_tax_returns`-Eintrag mit `signed_at < now() - interval '30 days'` und Status nicht bereits gelöscht:
+- Alle `uploaded_documents` für `(tax_filer_id, tax_year)` ermitteln
+- Zugehörige Dateien im Storage-Bucket `tax-documents` löschen (verschlüsselt abgelegte Originale)
+- Datenbankzeilen in `uploaded_documents` löschen
+- Lösch-Status auf `completed_tax_returns` markieren (neue Spalte `documents_deleted_at`), damit kein Re-Run
 
-### 2. Karten-Struktur vereinheitlichen
-Statt zweier kompletter Branches (`priorYearBranch` vs. manueller Branch) eine einzige Liste mit 3 StepRows:
+**Nicht gelöscht** wird:
+- `completed_tax_returns` (signiertes PDF im Bucket `completed-tax-returns`)
+- `tax_return_signatures` (rechtlicher Nachweis der Unterschrift)
+- `form_data` (Stammdaten, evtl. fürs Folgejahr nützlich) — *siehe offene Frage unten*
 
-```text
-[Card 1]  — variabel je nach intakeMode
-[Card 2]  — IMMER „Belege & Unterlagen" (gleiche Logik)
-[Card 3]  — IMMER „Prüfung & Versand" (gleiche Logik)
-```
+**Migration:**
+- Spalte `documents_deleted_at timestamptz` auf `completed_tax_returns`
+- Cron-Job (pg_cron) ruft die Edge Function 1×/Tag auf
 
-**Card 1 (variabel):**
-- `intakeMode === 'manual'` → wie heute: Titel „Persönliche Angaben", Status aus `angabenProgress`, Action navigiert zu `/personal-info`.
-- `intakeMode === 'prior_year_upload'` → wie heute: Titel „Vorjahres-Steuererklärung … hochladen" / „Vorjahres-Daten bestätigen", Status aus `py`, Action navigiert zu `/prior-year`.
-- Die versteckte `PriorYearChecklistBody`-Probe (Zeilen 569–576) bleibt erhalten, damit der Progress auch im manuellen Modus nicht crasht — sie wird in beiden Modi gemountet (oder nur bei `prior_year_upload`, da `pyStep1Done` sonst nicht benötigt wird).
+## 2. UI — Nutzer informieren
 
-**Card 2 (fix) — neuer einheitlicher „step1Done"-Gate:**
+**a) Im `SignatureDialog` (vor Bestätigung)**
+Direkt über dem „Einreichen"-Button ein dezenter Hinweisblock:
+> „Nach der Unterschrift werden deine hochgeladenen Belege und die Dokumentensammlung für {jahr} nach 30 Tagen automatisch gelöscht. Die unterschriebene Steuererklärung bleibt dauerhaft als PDF verfügbar."
 
-```ts
-const step1Done = intakeMode === 'prior_year_upload' ? pyStep1Done : allAngabenComplete;
-```
+**b) Auf `/documents` für bereits unterschriebene Steuerjahre**
+Banner oben in der Dokumentenliste (wenn `signed_at` gesetzt und noch nicht gelöscht):
+> „Diese Belege werden am {signed_at + 30 Tage} gelöscht. Lade sie bei Bedarf vorher herunter."
+Mit Countdown ("noch X Tage").
 
-- Titel: „Belege & Unterlagen"
-- `state`: `!step1Done ? 'locked' : isDocumentsComplete ? 'done' : 'active'`
-- Action: `handleDocumentsClick` in beiden Modi (der bisherige `handlePriorYearDocsClick` schreibt zusätzlich Flags aus der Vorjahres-Checkliste in `formData`; dieser Schritt bleibt erhalten und wird nur ausgeführt, wenn `intakeMode === 'prior_year_upload'`).
+**c) Im Dashboard `CompletedContent` / abgeschlossenen Steuerjahr-Card**
+Kleiner Vermerk: „Belege bis {datum} verfügbar — danach nur noch PDF".
 
-**Card 3 (fix):**
+**d) Nach erfolgter Löschung (`documents_deleted_at` gesetzt)**
+Empty-State auf `/documents` für dieses Jahr: „Die Belege für {jahr} wurden gemäss unserer 30-Tage-Regel gelöscht. Deine unterschriebene Steuererklärung ist weiterhin als PDF verfügbar."
 
-```ts
-const submitReady = step1Done && isDocumentsComplete;
-```
+## 3. Offene Frage
 
-- Titel: „Prüfung & Versand"
-- `state`: `!submitReady ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'`
-- Action: `handleSubmitClick`
+Sollen wir auch `form_data` (eingegebene Formularantworten) nach 30 Tagen löschen, oder nur die **hochgeladenen Belege/Dateien**? Aktueller Plan: nur Uploads + Dokumentensammlung löschen, `form_data` behalten (nützlich für Folgejahr-Import). Bitte bestätigen oder korrigieren.
 
-### 3. Aufräumarbeiten
-- `priorYearBranch`-Variable entfernen (durch unified-Liste ersetzt).
-- `pyCanSubmit`, `pyNextStep`, `pyCtaHeadline`, `pyCtaSubline` bleiben, soweit sie der „Floating Nächster Schritt"-Card dienen — `nextStepMeta` weiterhin pro Modus, da sich der nächste Schritt unterscheidet.
-- `IntakeModePicker` (initiale Auswahl, wenn `intakeMode === null`) unverändert.
+## Technische Details
 
-## Verhalten nach der Änderung
-
-- Beim Klick auf „Modus wechseln" in Card 1 ändert sich **nur** Card 1 (Titel/Status/Action).
-- Card 2 zeigt durchgehend „Belege & Unterlagen" mit ihrem korrekten Status (locked → active → done) basierend auf dem einheitlichen `step1Done`.
-- Card 3 zeigt durchgehend „Prüfung & Versand" mit Status basierend auf `submitReady` und `paymentStatus`.
-- Modus-Wechsel sortiert keine Karten mehr um und ändert keine Status-Labels in Cards 2/3.
+- Storage-Pfade aus `uploaded_documents.file_path` einsammeln und in Batches via `supabase.storage.from('tax-documents').remove([...])` löschen
+- Filterung strikt nach `tax_filer_id` + `tax_year` (Multi-Person-Isolation)
+- Idempotent: `documents_deleted_at IS NULL` als Vorbedingung
+- Text durchgehend Du-Form (Ditax Konvention)
+- Datum-Berechnung in UI: `signed_at + 30d`, Format `de-CH`
