@@ -1483,6 +1483,7 @@ export type Database = {
       completed_tax_returns: {
         Row: {
           created_at: string
+          documents_deleted_at: string | null
           file_name: string
           file_path: string
           file_type: string
@@ -1500,6 +1501,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          documents_deleted_at?: string | null
           file_name: string
           file_path: string
           file_type?: string
@@ -1517,6 +1519,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          documents_deleted_at?: string | null
           file_name?: string
           file_path?: string
           file_type?: string
