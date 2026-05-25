@@ -47,6 +47,7 @@ const DocumentsContent: React.FC<{
   
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const [completedYears, setCompletedYears] = useState<string[]>([]);
+  const [signedYearInfo, setSignedYearInfo] = useState<Record<string, { signed_at: string; documents_deleted_at: string | null }>>({});
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [uploaderKey, setUploaderKey] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -104,7 +105,10 @@ const DocumentsContent: React.FC<{
       } = await supabase.auth.getUser();
       if (!user) return;
       
-      let query = supabase.from('completed_tax_returns').select('tax_year').eq('user_id', user.id);
+      let query = supabase
+        .from('completed_tax_returns')
+        .select('tax_year, signed_at, documents_deleted_at')
+        .eq('user_id', user.id);
       
       if (activeTaxFilerId) {
         query = query.eq('tax_filer_id', activeTaxFilerId);
@@ -114,6 +118,16 @@ const DocumentsContent: React.FC<{
       if (error) throw error;
       const completed = data?.map(item => item.tax_year) || [];
       setCompletedYears(completed);
+      const info: Record<string, { signed_at: string; documents_deleted_at: string | null }> = {};
+      for (const item of data || []) {
+        if (item.signed_at) {
+          info[item.tax_year] = {
+            signed_at: item.signed_at,
+            documents_deleted_at: item.documents_deleted_at,
+          };
+        }
+      }
+      setSignedYearInfo(info);
     } catch (error) {
       console.error('Error loading completed tax years:', error);
     }
@@ -567,6 +581,47 @@ const DocumentsContent: React.FC<{
             </div>
           </div>
         )}
+
+        {/* Retention Banner: 30 Tage nach Unterschrift werden Belege gelöscht */}
+        {(() => {
+          const info = signedYearInfo[selectedYear];
+          if (!info) return null;
+          const signedAt = new Date(info.signed_at);
+          const deletionDate = new Date(signedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+          const now = new Date();
+          const deletionDateStr = deletionDate.toLocaleDateString('de-CH', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+          });
+
+          if (info.documents_deleted_at) {
+            return (
+              <div className="max-w-[960px] w-full mx-auto px-5 md:px-8 pt-2">
+                <div className="p-3 bg-muted/60 border border-border rounded-xl flex items-start gap-3">
+                  <Shield className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" strokeWidth={2} />
+                  <p className="text-[12.5px] text-muted-foreground leading-relaxed">
+                    Die hochgeladenen Belege für {selectedYear} wurden gemäss unserer 30-Tage-Regel gelöscht.
+                    Deine unterschriebene Steuererklärung bleibt als PDF verfügbar.
+                  </p>
+                </div>
+              </div>
+            );
+          }
+
+          const daysLeft = Math.max(0, Math.ceil((deletionDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+          return (
+            <div className="max-w-[960px] w-full mx-auto px-5 md:px-8 pt-2">
+              <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-3">
+                <Shield className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" strokeWidth={2} />
+                <p className="text-[12.5px] text-amber-900 leading-relaxed">
+                  Diese Belege werden am <span className="font-medium">{deletionDateStr}</span> automatisch gelöscht
+                  {daysLeft > 0 ? ` (noch ${daysLeft} ${daysLeft === 1 ? 'Tag' : 'Tage'})` : ''}.
+                  Lade sie bei Bedarf vorher herunter. Deine unterschriebene Steuererklärung bleibt als PDF verfügbar.
+                </p>
+              </div>
+            </div>
+          );
+        })()}
+
 
         {/* Document workspace */}
         <div

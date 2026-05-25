@@ -200,6 +200,13 @@ E-Mail: ${userProfile.email}`;
                   />
                 </div>
 
+                <div className="mb-4 rounded-xl border border-border bg-muted/40 p-3">
+                  <p className="text-[11.5px] leading-relaxed text-muted-foreground">
+                    <span className="font-medium text-foreground">Hinweis zur Datenaufbewahrung:</span>{' '}
+                    Deine hochgeladenen Belege und die Dokumentensammlung für {completedTaxReturn.tax_year} werden 30 Tage nach der Unterschrift automatisch gelöscht. Die unterschriebene Steuererklärung bleibt dauerhaft als PDF verfügbar.
+                  </p>
+                </div>
+
                 <div className="flex gap-3">
                   <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-12 rounded-2xl border-border bg-card hover:bg-muted text-foreground font-medium">
                     Abbrechen

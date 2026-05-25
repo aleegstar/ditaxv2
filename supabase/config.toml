@@ -45,3 +45,7 @@ verify_jwt = false
 [functions.extract-lohnausweis]
 verify_jwt = false
 
+
+[functions.cleanup-signed-tax-year-documents]
+verify_jwt = false
+
