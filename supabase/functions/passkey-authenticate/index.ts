@@ -318,19 +318,24 @@ serve(async (req) => {
       clientDataJSON
     } = requestBody
 
-    // Validate required parameters
-    if (!credentialId || !challenge || !signature || !email) {
-      console.log('❌ Missing required parameters:', { 
-        credentialId: !!credentialId, 
-        challenge: !!challenge, 
-        signature: !!signature, 
-        email: !!email 
+    // SECURITY: Full cryptographic verification is now mandatory.
+    // The legacy "limited verification mode" fallback (which accepted
+    // requests without authenticatorData/clientDataJSON) has been removed
+    // because it allowed authentication bypass given only a credential_id
+    // and email.
+    if (!credentialId || !signature || !email || !authenticatorData || !clientDataJSON) {
+      console.log('❌ Missing required parameters:', {
+        credentialId: !!credentialId,
+        signature: !!signature,
+        email: !!email,
+        authenticatorData: !!authenticatorData,
+        clientDataJSON: !!clientDataJSON,
       })
       return new Response(
         JSON.stringify({ error: 'Missing required parameters' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
