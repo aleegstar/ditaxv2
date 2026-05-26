@@ -749,7 +749,7 @@ const DocumentsContent: React.FC<{
         {/* Sticky bottom upload bar — mobile only, sits above bottom nav */}
         {!isLocked && createPortal(
           <div
-            className="fixed right-5 z-[10005] md:hidden pointer-events-none"
+            className="fixed right-5 md:right-8 z-[10005] pointer-events-none"
             style={{ bottom: 'calc(88px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
           >
             <button
