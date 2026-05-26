@@ -665,26 +665,43 @@ serve(async (req) => {
   }
 })
 
-// Helper function to generate a strong password that meets Supabase requirements
+// Helper function to generate a strong password that meets Supabase requirements.
+// SECURITY: Uses crypto.getRandomValues (CSPRNG) instead of Math.random.
 function generateStrongPassword(): string {
   const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const lowercase = 'abcdefghijklmnopqrstuvwxyz'
   const numbers = '0123456789'
   const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?'
-  
-  // Ensure we have at least one character from each required category
-  let password = ''
-  password += uppercase[Math.floor(Math.random() * uppercase.length)]
-  password += lowercase[Math.floor(Math.random() * lowercase.length)]
-  password += numbers[Math.floor(Math.random() * numbers.length)]
-  password += symbols[Math.floor(Math.random() * symbols.length)]
-  
-  // Fill the rest with random characters from all categories
   const allChars = uppercase + lowercase + numbers + symbols
-  for (let i = 4; i < 16; i++) {
-    password += allChars[Math.floor(Math.random() * allChars.length)]
+
+  const pickSecure = (set: string): string => {
+    // Rejection sampling to avoid modulo bias.
+    const max = Math.floor(0xffffffff / set.length) * set.length
+    const buf = new Uint32Array(1)
+    while (true) {
+      crypto.getRandomValues(buf)
+      if (buf[0] < max) return set[buf[0] % set.length]
+    }
   }
-  
-  // Shuffle the password to randomize the order
-  return password.split('').sort(() => Math.random() - 0.5).join('')
+
+  const chars: string[] = [
+    pickSecure(uppercase),
+    pickSecure(lowercase),
+    pickSecure(numbers),
+    pickSecure(symbols),
+  ]
+  for (let i = 4; i < 24; i++) chars.push(pickSecure(allChars))
+
+  // Cryptographically secure Fisher–Yates shuffle.
+  for (let i = chars.length - 1; i > 0; i--) {
+    const buf = new Uint32Array(1)
+    const max = Math.floor(0xffffffff / (i + 1)) * (i + 1)
+    let j: number
+    do {
+      crypto.getRandomValues(buf)
+    } while (buf[0] >= max)
+    j = buf[0] % (i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+  return chars.join('')
 }
