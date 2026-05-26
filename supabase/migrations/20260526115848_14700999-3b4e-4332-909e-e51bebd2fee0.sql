@@ -1,0 +1,1 @@
+ALTER TABLE public.passkey_challenges ALTER COLUMN credential_id DROP NOT NULL;

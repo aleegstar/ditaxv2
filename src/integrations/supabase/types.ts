@@ -2469,7 +2469,7 @@ export type Database = {
         Row: {
           challenge: string
           created_at: string
-          credential_id: string
+          credential_id: string | null
           email: string
           expires_at: string
           id: string
@@ -2477,7 +2477,7 @@ export type Database = {
         Insert: {
           challenge: string
           created_at?: string
-          credential_id: string
+          credential_id?: string | null
           email: string
           expires_at?: string
           id?: string
@@ -2485,7 +2485,7 @@ export type Database = {
         Update: {
           challenge?: string
           created_at?: string
-          credential_id?: string
+          credential_id?: string | null
           email?: string
           expires_at?: string
           id?: string
