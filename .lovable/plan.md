@@ -1,27 +1,38 @@
+# Plan: Chat-Input auf Mobile/WebView robust neu aufbauen
+
 ## Ziel
-Der Composer auf `/chat` soll auf Mobile/WebView zuverlässig direkt oberhalb der geöffneten Tastatur bleiben und beim Schließen sauber an seine normale Position zurückkehren.
+Das Chat-Input auf `/chat` soll auf iPhone, Android und WebView zuverlässig sichtbar bleiben, sobald die Tastatur aufgeht. Wenn der bestehende Composer dafür zu fragil ist, ersetze ich ihn durch ein neues, isoliertes Input-Feld.
 
-## Umsetzungsplan
-1. `useKeyboardDetection` robuster machen
-   - Keyboard-Offset konsequent aus `visualViewport.height` und `visualViewport.offsetTop` ableiten.
-   - Einen stabilen `bottomInset`/`safe offset` für feste Bottom-Elemente bereitstellen statt nur `isKeyboardOpen` + `keyboardHeight`.
-   - Glättung gegen kurze Resize-/Focus-Sprünge in WebViews beibehalten.
+## Umsetzung
+1. **Composer neu kapseln**
+   - Das aktuelle Input-Feld aus `src/pages/Chat.tsx` in eine eigene Composer-Komponente auslagern.
+   - Diese neue Komponente bekommt eine klare, eigenständige Positionierungslogik statt von der gesamten Page-Struktur abzuhängen.
 
-2. `/chat` auf viewport-basierte Positionierung umstellen
-   - Den festen Composer nicht mehr nur mit `bottom: keyboardHeight + 8px` platzieren.
-   - Stattdessen die Bottom-Position am echten sichtbaren Viewport ausrichten, damit der Input über der Tastatur sitzt.
-   - Das Padding der Message-Liste daran koppeln, damit die letzten Nachrichten nicht hinter Composer/Tastatur verschwinden.
+2. **Viewport-basierte Positionierung korrigieren**
+   - Die Composer-Position direkt an `visualViewport` koppeln, inklusive `offsetTop`, sichtbarer Höhe und Safe-Area.
+   - Nicht nur `bottomInset` verwenden, sondern die sichtbare Unterkante des echten Viewports als Quelle für die Platzierung.
 
-3. Mobile/WebView-Sonderfälle absichern
-   - Safe-Area und Tastatur-Offset korrekt kombinieren, damit iOS/Android/Despia keine doppelte oder fehlende Bottom-Lücke bekommen.
-   - Fokus-/Blur-Übergänge prüfen, damit der Composer nicht springt oder hängen bleibt.
+3. **Scrollbereich sauber daran anpassen**
+   - Die Nachrichtenliste bekommt dynamisches Bottom-Spacing basierend auf der echten Composer-Höhe plus Keyboard-Abstand.
+   - Dadurch bleibt die letzte Nachricht immer sichtbar und wird nicht vom Input oder der Tastatur verdeckt.
 
-4. Validierung
-   - `/chat` mit geöffneter Tastatur im mobilen Viewport prüfen.
-   - Sicherstellen, dass Input sichtbar bleibt, Messages scrollbar sind und sich der Zustand nach Keyboard-Close sauber zurücksetzt.
+4. **Fallback für problematische WebViews**
+   - Falls `visualViewport` unzuverlässig meldet, nutze ich einen defensiven Fallback über Fokusstatus + Fensterhöhe.
+   - Ziel ist: lieber minimal höher positioniert als unter der Tastatur versteckt.
+
+5. **Validierung der kritischen Fälle**
+   - Prüfen: Fokus auf Textarea, Öffnen/Schließen der Tastatur, mehrzeilige Eingabe, Anhänge, Escalation-Banner, Scroll-to-bottom.
+   - Speziell sicherstellen, dass die neue Lösung nicht `/auth` oder andere mobile Layouts beeinflusst.
+
+## Betroffene Dateien
+- `src/pages/Chat.tsx`
+- `src/hooks/useKeyboardDetection.ts`
+- ggf. neue Komponente unter `src/components/chat/...`
 
 ## Technische Details
-- Betroffene Dateien voraussichtlich:
-  - `src/hooks/useKeyboardDetection.ts`
-  - `src/pages/Chat.tsx`
-- Kein Scope-Creep: nur die Chat-/Keyboard-Positionierung, keine Design- oder Funktionsänderungen.
+- Ich ersetze keinen Chat-Flow und keine Business-Logik, nur die Darstellung und Verankerung des Eingabefelds.
+- Wenn nötig, setze ich den Composer als eigenständiges `fixed`/portalartiges Bottom-Layer mit gemessener Höhe um, statt das bestehende Inline-Konstrukt weiter zu flicken.
+- Styling bleibt im Ditax-Designsystem; keine funktionalen Nebenänderungen.
+
+## Ergebnis
+Ein neues bzw. neu aufgebautes Chat-Input, das auch dann oberhalb der Tastatur bleibt, wenn die bisherige Footer-Logik im WebView versagt.

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -6,9 +6,6 @@ import remarkGfm from 'remark-gfm';
 import {
   User,
   X,
-  ArrowUp,
-  Paperclip,
-  UserRound,
   MoreHorizontal,
   Sparkles,
   FileText,
@@ -16,11 +13,11 @@ import {
   Headphones,
   ArrowUpRight,
 } from 'lucide-react';
+import { ChatComposer } from '@/components/chat/ChatComposer';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
-import { useKeyboardDetection } from '@/hooks/useKeyboardDetection';
 import assistantAvatar from '@/assets/ditax-logo-icon.png';
 
 const formatTime = (date: Date) =>
@@ -45,18 +42,10 @@ const Chat: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [composerReserve, setComposerReserve] = useState(180);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, bottomInset } = useKeyboardDetection();
-  // Composer sits exactly above the keyboard (bottomInset) on mobile, and at
-  // the safe-area bottom otherwise. We use max() so that when the keyboard is
-  // closed the safe-area floor still applies.
-  const composerBottom = isKeyboardOpen
-    ? `${bottomInset}px`
-    : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 8px)';
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
@@ -66,40 +55,32 @@ const Chat: React.FC = () => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       });
     }
-  }, [messages, isLoading, isKeyboardOpen]);
+  }, [messages, isLoading, composerReserve]);
 
-  useEffect(() => {
-    setTimeout(() => textareaRef.current?.focus(), 100);
-  }, []);
+  const handleSend = useCallback(
+    async (override?: string) => {
+      const msg = (override ?? inputValue).trim();
+      if (!msg || isLoading) return;
+      if (!override) setInputValue('');
+      const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
+      if (showEscalation) setShowEscalation(false);
+      await sendMessage(formatted);
+    },
+    [inputValue, isLoading, showEscalation, sendMessage]
+  );
 
-  const handleSend = async (override?: string) => {
-    const msg = (override ?? inputValue).trim();
-    if (!msg || isLoading) return;
-    if (!override) setInputValue('');
-    const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
-    if (showEscalation) setShowEscalation(false);
-    await sendMessage(formatted);
-  };
+  const handleFiles = useCallback(
+    async (fileArr: File[]) => {
+      const caption = inputValue.trim();
+      if (caption) setInputValue('');
+      const content = caption || fileArr[0].name;
+      const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${content}]` : content;
+      if (showEscalation) setShowEscalation(false);
+      await sendMessage(formatted, fileArr);
+    },
+    [inputValue, showEscalation, sendMessage]
+  );
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const fileArr = Array.from(files);
-    e.target.value = '';
-    const caption = inputValue.trim();
-    if (caption) setInputValue('');
-    const content = caption || fileArr[0].name;
-    const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${content}]` : content;
-    if (showEscalation) setShowEscalation(false);
-    await sendMessage(formatted, fileArr);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
 
   if (!isValid || !userId) {
     return (
@@ -231,9 +212,8 @@ const Chat: React.FC = () => {
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
         style={{
-          // Reserve room for the composer (~180px) plus the keyboard inset so
-          // the last message never hides behind the composer or keyboard.
-          paddingBottom: `calc(${bottomInset}px + 180px)`,
+          // Reserve exactly the composer's measured height (incl. keyboard inset).
+          paddingBottom: `${composerReserve}px`,
         }}
       >
         <motion.div
@@ -453,97 +433,25 @@ const Chat: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Input */}
-      <div
-        className="fixed inset-x-0 z-[45] px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
-        style={{
-          bottom: composerBottom,
-          paddingBottom: isKeyboardOpen ? '10px' : '14px',
-        }}
-      >
-        <div className="max-w-[680px] mx-auto">
-          {showEscalation && (
-            <div className="mb-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/60 text-[11.5px] text-emerald-700">
-              <UserRound className="w-3 h-3" strokeWidth={2} />
-              <span className="font-medium">Deine Nachricht geht direkt an unser Support-Team</span>
-              <button
-                onClick={() => setShowEscalation(false)}
-                className="ml-auto text-emerald-700/60 hover:text-emerald-700"
-              >
-                <X className="w-3 h-3" strokeWidth={2.25} />
-              </button>
-            </div>
-          )}
-          <div className="relative rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.08)] focus-within:border-foreground/20 focus-within:shadow-[0_4px_20px_-6px_rgba(15,27,61,0.12)] transition-all">
-            <textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                showEscalation
-                  ? 'Beschreibe dein Anliegen für unser Team...'
-                  : escalatedMode
-                  ? 'Nachricht an Support...'
-                  : `Frage zur Steuererklärung ${currentTaxYear}...`
-              }
-              rows={1}
-              className="w-full bg-transparent text-[14px] leading-[1.55] tracking-[-0.005em] outline-none resize-none placeholder:text-muted-foreground/55 text-foreground px-4 pt-3.5 pb-1 min-h-[44px] max-h-[160px]"
-              onInput={(e) => {
-                const ta = e.target as HTMLTextAreaElement;
-                ta.style.height = 'auto';
-                ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
-              }}
-            />
-            <div className="flex items-center justify-between px-2 pb-2 pt-1">
-              <div className="flex items-center gap-0.5">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
-                  onChange={handleFileChange}
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isLoading}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Anhang"
-                >
-                  <Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowEscalation(!showEscalation)}
-                  className={`h-8 inline-flex items-center gap-1.5 px-2 rounded-lg text-[11.5px] font-medium transition-colors ${
-                    showEscalation
-                      ? 'bg-emerald-50 text-emerald-700'
-                      : 'text-muted-foreground/70 hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  <UserRound className="w-3.5 h-3.5" strokeWidth={1.75} />
-                  <span className="hidden sm:inline">Support</span>
-                </button>
-              </div>
-              <button
-                onClick={() => handleSend()}
-                disabled={!inputValue.trim() || isLoading}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:opacity-90"
-                style={{
-                  background: 'linear-gradient(135deg, #1E3A5F 0%, #0F1B3D 100%)',
-                }}
-                aria-label="Senden"
-              >
-                <ArrowUp className="w-4 h-4" strokeWidth={2.25} />
-              </button>
-            </div>
-          </div>
-          <p className="text-[10.5px] text-muted-foreground/50 mt-2 text-center tracking-[-0.005em]">
-            KI-Antworten können Fehler enthalten · Drücke Enter zum Senden
-          </p>
-        </div>
-      </div>
+      {/* Input (portal-rendered, anchors to visualViewport) */}
+      <ChatComposer
+        value={inputValue}
+        onChange={setInputValue}
+        onSend={() => handleSend()}
+        onFiles={handleFiles}
+        placeholder={
+          showEscalation
+            ? 'Beschreibe dein Anliegen für unser Team...'
+            : escalatedMode
+            ? 'Nachricht an Support...'
+            : `Frage zur Steuererklärung ${currentTaxYear}...`
+        }
+        isLoading={isLoading}
+        showEscalation={showEscalation}
+        onToggleEscalation={() => setShowEscalation((v) => !v)}
+        onCloseEscalation={() => setShowEscalation(false)}
+        onHeightChange={setComposerReserve}
+      />
     </div>
   );
 };
