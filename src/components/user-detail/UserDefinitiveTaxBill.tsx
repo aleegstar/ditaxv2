@@ -138,15 +138,15 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
       
       // If file exists, delete old one first
       if (existingBill) {
+        if (!validateStoragePath(existingBill.file_path)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage
           .from('definitive-tax-bills')
-          if (!validateStoragePath(existingBill.file_path)) throw new Error('Unsicherer Speicherpfad');
           .remove([existingBill.file_path]);
       }
       
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError } = await supabase.storage
         .from('definitive-tax-bills')
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         .upload(filePath, selectedFile, { upsert: true });
 
       if (uploadError) throw uploadError;
@@ -222,9 +222,9 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
 
   const handleDownload = async (bill: DefinitiveTaxBill) => {
     try {
+      if (!validateStoragePath(bill.file_path)) throw new Error('Unsicherer Speicherpfad');
       const { data, error } = await supabase.storage
         .from('definitive-tax-bills')
-        if (!validateStoragePath(bill.file_path)) throw new Error('Unsicherer Speicherpfad');
         .download(bill.file_path);
 
       if (error) throw error;

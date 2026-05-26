@@ -273,9 +273,9 @@ const TaxReturnCreation: React.FC = () => {
       });
 
       // Upload file to storage
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('completed-tax-returns')
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false,
@@ -290,6 +290,7 @@ const TaxReturnCreation: React.FC = () => {
       console.log('Upload successful:', uploadData);
 
       // Insert record into completed_tax_returns table (use sanitized file name)
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: dbError } = await supabase
         .from('completed_tax_returns')
         .insert({
@@ -305,7 +306,6 @@ const TaxReturnCreation: React.FC = () => {
       if (dbError) {
         // Clean up uploaded file if database insert fails
         console.error('Database error, cleaning up uploaded file:', dbError);
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage.from('completed-tax-returns').remove([filePath]);
         throw new Error(`Datenbank-Fehler: ${dbError.message}`);
       }

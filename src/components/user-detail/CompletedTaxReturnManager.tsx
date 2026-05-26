@@ -107,9 +107,9 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
 
       // Upload file to storage with detailed logging
       console.log('Starting file upload to storage...');
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('completed-tax-returns')
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false,
@@ -156,6 +156,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
 
       // Insert record into completed_tax_returns table only after successful upload
       console.log('Inserting database record...');
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: dbError } = await supabase
         .from('completed_tax_returns')
         .insert({
@@ -172,7 +173,6 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
       if (dbError) {
         // Clean up uploaded file if database insert fails
         console.error('Database error, cleaning up uploaded file:', dbError);
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage.from('completed-tax-returns').remove([filePath]);
         throw new Error(`Datenbank-Fehler: ${dbError.message}`);
       }
@@ -230,9 +230,9 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
       if (dbError) throw dbError;
 
       // Delete file from storage (this might fail if file doesn't exist)
+      if (!validateStoragePath(taxReturn.file_path)) throw new Error('Unsicherer Speicherpfad');
       const { error: storageError } = await supabase.storage
         .from('completed-tax-returns')
-        if (!validateStoragePath(taxReturn.file_path)) throw new Error('Unsicherer Speicherpfad');
         .remove([taxReturn.file_path]);
 
       if (storageError) {
@@ -294,9 +294,9 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
         throw new Error('Ungültiger Dateipfad');
       }
 
+      if (!validateStoragePath(taxReturn.file_path)) throw new Error('Unsicherer Speicherpfad');
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
-        if (!validateStoragePath(taxReturn.file_path)) throw new Error('Unsicherer Speicherpfad');
         .download(taxReturn.file_path);
 
       if (error) throw error;

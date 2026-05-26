@@ -414,6 +414,7 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
   };
   const handleDownloadFile = async (filePath: string, fileName: string, attachmentId?: string) => {
     try {
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const {
         data,
         error

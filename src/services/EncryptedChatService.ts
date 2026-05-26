@@ -114,9 +114,9 @@ export class EncryptedChatService {
       const filePath = `${userId}/${encryptedFileName}`;
       
       // Upload encrypted file to chat_attachments storage
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError } = await supabase.storage
         .from('chat_attachments')
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         .upload(filePath, encryptedBlob);
       
       if (uploadError) {
@@ -139,6 +139,7 @@ export class EncryptedChatService {
         original_size: file.size
       };
       
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { data, error: dbError } = await supabase
         .from('chat_attachments')
         .insert(attachmentData)
@@ -147,7 +148,6 @@ export class EncryptedChatService {
       
       if (dbError) {
         // Clean up uploaded file if database insert fails
-        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage.from('chat_attachments').remove([filePath]);
         throw new Error(`Datenbankfehler: ${dbError.message}`);
       }
@@ -199,9 +199,9 @@ export class EncryptedChatService {
       }
       
       // Download encrypted file from storage
+      if (!validateStoragePath(attachment.file_path)) throw new Error('Unsicherer Speicherpfad');
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('chat_attachments')
-        if (!validateStoragePath(attachment.file_path)) throw new Error('Unsicherer Speicherpfad');
         .download(attachment.file_path);
       
       if (downloadError || !fileData) {
