@@ -525,6 +525,89 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             </div>
           )}
 
+          {/* Manual Promo Code Input */}
+          {!activePromo && (
+            <div className={`p-4 sm:p-5 ${cardClass}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="w-3.5 h-3.5 text-slate-500" strokeWidth={2} />
+                <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em]">
+                  Rabattcode
+                </h4>
+              </div>
+              {manualPromoResult ? (
+                <div className="flex items-center justify-between bg-emerald-50/80 border border-emerald-100 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-1.5 bg-emerald-100 rounded-full shrink-0">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-emerald-700 text-[13px] truncate">
+                        Code <span className="font-mono">{manualPromoCode.toUpperCase()}</span> aktiv
+                      </p>
+                      <p className="text-[11px] text-emerald-600">
+                        {manualPromoResult.percentOff
+                          ? `${manualPromoResult.percentOff}% Rabatt`
+                          : manualPromoResult.amountOff
+                            ? `-CHF ${(manualPromoResult.amountOff / 100).toFixed(2)} Rabatt`
+                            : 'Rabatt aktiv'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearManualPromo}
+                    className="p-1.5 rounded-full hover:bg-emerald-100/60 transition-colors shrink-0"
+                    aria-label="Rabattcode entfernen"
+                  >
+                    <X className="w-3.5 h-3.5 text-emerald-700" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={manualPromoCode}
+                      onChange={(e) => {
+                        setManualPromoCode(e.target.value);
+                        setManualPromoError(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleValidatePromoCode();
+                        }
+                      }}
+                      placeholder="Code eingeben"
+                      autoCapitalize="characters"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      disabled={manualPromoValidating}
+                      className="flex-1 h-11 px-3 rounded-xl border border-slate-200 bg-white text-[14px] font-mono uppercase tracking-wider text-slate-900 placeholder:text-slate-400 placeholder:font-sans placeholder:normal-case placeholder:tracking-normal focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleValidatePromoCode}
+                      disabled={!manualPromoCode.trim() || manualPromoValidating}
+                      className="h-11 px-4 rounded-xl"
+                    >
+                      {manualPromoValidating ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Anwenden'
+                      )}
+                    </Button>
+                  </div>
+                  {manualPromoError && (
+                    <p className="text-[12px] text-red-600 mt-2">{manualPromoError}</p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+
+
           {/* Cost Breakdown Card */}
           <div className={`p-4 sm:p-5 ${cardClass}`}>
             <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] mb-3">
