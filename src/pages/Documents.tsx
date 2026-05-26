@@ -488,6 +488,23 @@ const DocumentsContent: React.FC<{
           style={{ paddingTop: 'calc(20px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
         >
           <div className="max-w-[960px] mx-auto w-full pb-4">
+            {/* Mobile top bar — matches main page (logo + bell + menu) */}
+            <header className="md:hidden flex pb-5 items-center justify-between">
+              <div className="flex items-center">
+                <img src={ditaxLogoMask} alt="ditax" className="h-[22px] w-auto object-contain" />
+              </div>
+              <div className="flex items-center gap-1 -mr-1">
+                <ProfileWithNotifications avatarUrl={profile?.avatar_url} firstName={profile?.first_name} />
+                <button
+                  onClick={() => setMenuSheetOpen(true)}
+                  aria-label="Menü"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
+                >
+                  <Menu className="w-[17px] h-[17px]" strokeWidth={1.75} />
+                </button>
+              </div>
+            </header>
+
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3 mb-4">
