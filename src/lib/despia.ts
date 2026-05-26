@@ -114,6 +114,53 @@ export const triggerDespiaOAuth = (oauthUrl: string): void => {
 };
 
 /**
+ * Native Stripe Payment Sheet via Despia
+ * Docs: https://setup.despia.com/payments/stripe/payment
+ *
+ * Wichtig: Listener `window.stripeEvent` MUSS vor dem Aufruf gesetzt sein.
+ * Das Sheet feuert `window.stripeEvent` genau einmal mit dem Outcome.
+ */
+export type StripePaymentSheetEvent =
+  | { method: 'paymentSheet'; status: 'completed' }
+  | { method: 'paymentSheet'; status: 'canceled' }
+  | { method: 'paymentSheet'; status: 'failed'; error: string };
+
+declare global {
+  interface Window {
+    stripeEvent?: (event: StripePaymentSheetEvent) => void;
+  }
+}
+
+export const triggerDespiaStripePaymentSheet = (params: {
+  publishableKey: string;
+  clientSecret: string;
+  customerId?: string;
+  ephemeralKeySecret?: string;
+  theme?: 'light' | 'dark' | 'automatic';
+  accentColor?: string; // hex ohne # (z. B. "1E3A5F")
+  cornerRadius?: number;
+  actionCornerRadius?: number;
+}): void => {
+  const qs = new URLSearchParams();
+  qs.set('publishable_key', params.publishableKey);
+  qs.set('payment_intent_client_secret', params.clientSecret);
+  if (params.customerId && params.ephemeralKeySecret) {
+    qs.set('customer_id', params.customerId);
+    qs.set('ephemeral_key_secret', params.ephemeralKeySecret);
+  }
+  if (params.theme) qs.set('theme', params.theme);
+  if (params.accentColor) qs.set('accent_color', params.accentColor.replace(/^#/, ''));
+  if (typeof params.cornerRadius === 'number') qs.set('corner_radius', String(params.cornerRadius));
+  if (typeof params.actionCornerRadius === 'number') qs.set('action_corner_radius', String(params.actionCornerRadius));
+
+  const cmd = `stripe://payment?${qs.toString()}`;
+  console.log('💳 Despia stripe://payment', { hasCustomer: !!params.customerId });
+  despia(cmd);
+};
+
+
+
+/**
  * Trigger Despia Passkey Authentication via System Browser
  * Opens the WebAuthn auth page in the system browser (not WebView)
  * which allows full access to the device's keychain for passkey auth

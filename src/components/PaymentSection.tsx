@@ -19,7 +19,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
-import { isDespiaNative, triggerDespiaOAuth } from '@/lib/despia';
+import { isDespiaNative, triggerDespiaStripePaymentSheet, type StripePaymentSheetEvent } from '@/lib/despia';
 import { useAuth } from '@/contexts/AuthContext';
 interface PaymentSectionProps {
   isUpgrade?: boolean;
@@ -86,6 +86,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       sessionStorage.removeItem('payment_auth_retry');
     }
   }, [isValid]);
+
+  // Cleanup native Stripe sheet listener on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.stripeEvent = undefined;
+      }
+    };
+  }, []);
+
 
   const [checklistFlags, setChecklistFlags] = useState<ReturnType<typeof mapPriorYearToFormFlags> | null>(null);
 
@@ -198,6 +208,32 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     setManualPromoError(null);
   };
 
+  // Polling helper: warte bis stripe-webhook tax_returns auf 'paid' setzt
+  const pollPaymentStatus = (taxReturnId: string, onPaid: () => void) => {
+    let stopped = false;
+    const interval = setInterval(async () => {
+      if (stopped) return;
+      try {
+        const { data: tr } = await supabase
+          .from('tax_returns')
+          .select('payment_status')
+          .eq('id', taxReturnId)
+          .maybeSingle();
+        if (tr?.payment_status === 'paid') {
+          stopped = true;
+          clearInterval(interval);
+          onPaid();
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, 3000);
+    setTimeout(() => {
+      stopped = true;
+      clearInterval(interval);
+    }, 300000);
+  };
+
   const handlePayment = async () => {
     if (!isValid) {
       toast.error("Bitte melde dich an, um die Zahlung abzuschließen.");
@@ -247,6 +283,57 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         taxReturnId = taxReturn.id;
       }
       const totalInCents = priceBreakdown.totalPrice; // totalPrice is already in cents
+
+      // === DESPIA NATIVE: Stripe Payment Sheet ===
+      if (isDespiaNative()) {
+        const { data: piData, error: piError } = await supabase.functions.invoke('create-payment-intent', {
+          body: {
+            taxYear: year,
+            amount: totalInCents,
+            expressService,
+            taxReturnId,
+            taxFilerId: activeTaxFilerId,
+            promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
+          }
+        });
+        if (piError) throw piError;
+        if (!piData?.client_secret || !piData?.publishable_key) {
+          throw new Error('Stripe-Konfiguration unvollständig');
+        }
+
+        // Listener VOR dem Aufruf setzen (Despia feuert einmalig)
+        window.stripeEvent = (event: StripePaymentSheetEvent) => {
+          if (event.method !== 'paymentSheet') return;
+          console.log('💳 stripeEvent:', event);
+          if (event.status === 'completed') {
+            toast.info('Zahlung wird bestätigt…');
+            pollPaymentStatus(taxReturnId, () => {
+              navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`);
+            });
+          } else if (event.status === 'canceled') {
+            toast.info('Zahlung abgebrochen');
+            setIsLoading(false);
+          } else {
+            toast.error(event.error || 'Zahlung fehlgeschlagen');
+            setErrorMessage(event.error || 'Zahlung fehlgeschlagen');
+            setIsLoading(false);
+          }
+        };
+
+        triggerDespiaStripePaymentSheet({
+          publishableKey: piData.publishable_key,
+          clientSecret: piData.client_secret,
+          customerId: piData.customer_id,
+          ephemeralKeySecret: piData.ephemeral_key_secret,
+          theme: 'light',
+          accentColor: '1E3A5F',
+          cornerRadius: 16,
+          actionCornerRadius: 16,
+        });
+        return;
+      }
+
+      // === WEB: Stripe Checkout (unverändert) ===
       const requestPayload = {
         taxYear: year,
         amount: totalInCents,
@@ -256,7 +343,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         taxFilerId: activeTaxFilerId,
         origin: window.location.origin,
         promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
-        isDespia: isDespiaNative()
+        isDespia: false
       };
       console.log('💳 Creating payment session:', requestPayload);
       const {
@@ -272,10 +359,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       if (!data?.url) {
         throw new Error('Keine Zahlungs-URL erhalten');
       }
-      console.log('✅ Payment session created:', {
-        sessionId: data.sessionId,
-        url: data.url
-      });
 
       // Validate payment URL before redirect
       const paymentUrl = data.url;
@@ -288,50 +371,17 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         throw new Error('Unsichere Zahlungs-URL');
       }
 
-      if (isDespiaNative()) {
-        // Despia native: open Stripe via oauth:// protocol
-        // The payment-redirect edge function will redirect to ditax://oauth/payment-success
-        // which automatically closes the browser and navigates the WebView
-        toast.info("Zahlung wird geöffnet...");
-        triggerDespiaOAuth(paymentUrl);
-
-        // Polling as fallback in case deeplink doesn't work
-        let pollingStopped = false;
-        const pollInterval = setInterval(async () => {
-          if (pollingStopped || !taxReturnId) return;
-          try {
-            const { data: taxReturn } = await supabase
-              .from('tax_returns')
-              .select('payment_status')
-              .eq('id', taxReturnId)
-              .maybeSingle();
-
-            if (taxReturn?.payment_status === 'paid') {
-              pollingStopped = true;
-              clearInterval(pollInterval);
-              navigate(`/payment-success?session_id=polling&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`);
-            }
-          } catch (err) {
-            console.error('Polling error:', err);
-          }
-        }, 3000);
-
-        // Stop polling after 5 minutes
-        setTimeout(() => {
-          pollingStopped = true;
-          clearInterval(pollInterval);
-        }, 300000);
-      } else {
-        window.location.href = paymentUrl;
-      }
+      window.location.href = paymentUrl;
     } catch (error: any) {
       console.error('❌ Payment error:', error);
       setErrorMessage(error.message || 'Ein Fehler ist aufgetreten');
       toast.error(error.message || 'Zahlung fehlgeschlagen. Bitte versuche es erneut.');
     } finally {
-      setIsLoading(false);
+      // Im Despia-Flow setzen Event-Handler isLoading selbst zurück
+      if (!isDespiaNative()) setIsLoading(false);
     }
   };
+
 
   const formatPrice = (cents: number) => {
     return (cents / 100).toFixed(2);
