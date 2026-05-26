@@ -50,6 +50,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const [working, setWorking] = useState(false);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring" | "ai">("idle");
   const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   // Vertex AI Gemini 2.5 Flash (Schweiz, europe-west6/Zürich) ist Standard – DSGVO-konform, keine Speicherung.
   const [aiEnabled, setAiEnabled] = useState(true);
 
