@@ -433,39 +433,59 @@ serve(async (req) => {
       )
     }
 
-    // Perform cryptographic verification if authenticatorData and clientDataJSON are provided
-    if (authenticatorData && clientDataJSON) {
-      console.log('🔐 Performing full cryptographic verification...')
-      
-      const verificationResult = await verifyWebAuthnSignature(
-        passkey.public_key,
-        signature,
-        authenticatorData,
-        clientDataJSON,
-        challenge
-      );
+    // SECURITY: Fetch the server-generated challenge instead of trusting
+    // the value supplied by the client. The client must have previously
+    // called passkey-challenge to register a challenge for this email.
+    const emailLower = email.toLowerCase()
+    const { data: challengeRow, error: challengeFetchError } = await supabaseServiceRole
+      .from('passkey_challenges')
+      .select('id, challenge, expires_at')
+      .eq('email', emailLower)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-      if (!verificationResult.verified) {
-        console.error('❌ Signature verification failed:', verificationResult.error)
-        return new Response(
-          JSON.stringify({ 
-            error: 'Signature verification failed',
-            details: verificationResult.error || 'Invalid passkey signature'
-          }),
-          { 
-            status: 401, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
-      }
-
-      console.log('✅ Full cryptographic verification passed')
-    } else {
-      // Fallback: Basic validation when full crypto data not provided
-      // This is less secure but maintains backward compatibility
-      console.log('⚠️ Limited verification mode (authenticatorData/clientDataJSON not provided)')
-      console.log('⚠️ Challenge and credential existence verified only')
+    if (challengeFetchError || !challengeRow) {
+      console.error('❌ No valid server challenge found:', challengeFetchError)
+      return new Response(
+        JSON.stringify({
+          error: 'Challenge expired or not found',
+          details: 'Please retry the passkey authentication flow',
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
+
+    const serverChallenge = challengeRow.challenge
+
+    // One-time use: delete the challenge immediately to prevent reuse/replay.
+    await supabaseServiceRole
+      .from('passkey_challenges')
+      .delete()
+      .eq('id', challengeRow.id)
+
+    console.log('🔐 Performing full cryptographic verification...')
+    const verificationResult = await verifyWebAuthnSignature(
+      passkey.public_key,
+      signature,
+      authenticatorData,
+      clientDataJSON,
+      serverChallenge
+    )
+
+    if (!verificationResult.verified) {
+      console.error('❌ Signature verification failed:', verificationResult.error)
+      return new Response(
+        JSON.stringify({
+          error: 'Signature verification failed',
+          details: verificationResult.error || 'Invalid passkey signature',
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('✅ Full cryptographic verification passed')
 
     // Update counter and last_used_at for replay attack prevention
     const { error: updateError } = await supabaseServiceRole
