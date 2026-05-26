@@ -483,8 +483,18 @@ const Chat: React.FC = () => {
             />
             <div className="flex items-center justify-between px-2 pb-2 pt-1">
               <div className="flex items-center gap-0.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+                  onChange={handleFileChange}
+                />
                 <button
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   aria-label="Anhang"
                 >
                   <Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />
