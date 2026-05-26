@@ -3,46 +3,50 @@ import { useState, useEffect } from 'react';
 export const useKeyboardDetection = () => {
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState<number>(
+    typeof window !== 'undefined' ? (window.visualViewport?.height || window.innerHeight) : 0
+  );
+  const [viewportOffsetTop, setViewportOffsetTop] = useState<number>(0);
 
   useEffect(() => {
-    let initialViewportHeight = window.innerHeight;
+    if (typeof window === 'undefined') return;
+
     let initialVisualViewportHeight = window.visualViewport?.height || window.innerHeight;
 
     const handleViewportChange = () => {
-      const currentHeight = window.innerHeight;
-      const visualHeight = window.visualViewport?.height || currentHeight;
-      
-      // Calculate keyboard height
+      const vv = window.visualViewport;
+      const visualHeight = vv?.height || window.innerHeight;
+      const offsetTop = vv?.offsetTop || 0;
+
       const heightDifference = initialVisualViewportHeight - visualHeight;
-      
-      // Keyboard is considered open if the height difference is significant (> 150px)
       const keyboardOpen = heightDifference > 150;
-      
+
       setIsKeyboardOpen(keyboardOpen);
       setKeyboardHeight(keyboardOpen ? heightDifference : 0);
+      setViewportHeight(visualHeight);
+      setViewportOffsetTop(offsetTop);
     };
 
     const handleResize = () => {
-      // Update initial heights on resize (orientation change)
-      initialViewportHeight = window.innerHeight;
+      // Reset baseline on orientation change
       initialVisualViewportHeight = window.visualViewport?.height || window.innerHeight;
       handleViewportChange();
     };
 
-    // Use visualViewport API if available (modern browsers)
+    handleViewportChange();
+
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleViewportChange);
+      window.visualViewport.addEventListener('scroll', handleViewportChange);
     } else {
-      // Fallback for older browsers
       window.addEventListener('resize', handleViewportChange);
     }
-
-    // Handle orientation changes
     window.addEventListener('orientationchange', handleResize);
-    
+
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportChange);
+        window.visualViewport.removeEventListener('scroll', handleViewportChange);
       } else {
         window.removeEventListener('resize', handleViewportChange);
       }
@@ -50,5 +54,5 @@ export const useKeyboardDetection = () => {
     };
   }, []);
 
-  return { isKeyboardOpen, keyboardHeight };
+  return { isKeyboardOpen, keyboardHeight, viewportHeight, viewportOffsetTop };
 };
