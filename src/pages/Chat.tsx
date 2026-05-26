@@ -18,7 +18,6 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
-import { useKeyboardDetection } from '@/hooks/useKeyboardDetection';
 import assistantAvatar from '@/assets/ditax-logo-icon.png';
 
 const formatTime = (date: Date) =>
@@ -43,18 +42,10 @@ const Chat: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [composerReserve, setComposerReserve] = useState(180);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, bottomInset } = useKeyboardDetection();
-  // Composer sits exactly above the keyboard (bottomInset) on mobile, and at
-  // the safe-area bottom otherwise. We use max() so that when the keyboard is
-  // closed the safe-area floor still applies.
-  const composerBottom = isKeyboardOpen
-    ? `${bottomInset}px`
-    : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 8px)';
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
