@@ -452,6 +452,7 @@ const Chat: React.FC = () => {
         onCloseEscalation={() => setShowEscalation(false)}
         onHeightChange={setComposerReserve}
       />
+    </div>
   );
 };
 
