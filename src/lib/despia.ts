@@ -158,6 +158,87 @@ export const triggerDespiaStripePaymentSheet = (params: {
   despia(cmd);
 };
 
+/**
+ * Native Action Sheet via Despia (actionsheet://)
+ * Docs: https://setup.despia.com/native-features/action-sheet
+ *
+ * Globaler window.onSheetEvent wird einmalig installiert; pro Aufruf
+ * setzen wir einen Pending-Resolver. Wenn parallel ein zweiter Aufruf
+ * kommt, wird der ältere mit null aufgelöst (dismiss).
+ */
+export type ActionSheetItem = {
+  label: string;
+  value: string;
+  iconIos?: string;
+  iconAndroid?: string;
+  destructive?: boolean;
+};
+
+declare global {
+  interface Window {
+    onSheetEvent?: (value: string | null) => void;
+  }
+}
+
+let sheetPending: { resolve: (v: string | null) => void; timer: ReturnType<typeof setTimeout> } | null = null;
+let sheetDispatcherInstalled = false;
+
+function ensureSheetDispatcher() {
+  if (sheetDispatcherInstalled || typeof window === 'undefined') return;
+  const prev = window.onSheetEvent;
+  window.onSheetEvent = (value) => {
+    try { prev?.(value); } catch { /* ignore */ }
+    const p = sheetPending;
+    if (!p) return;
+    sheetPending = null;
+    clearTimeout(p.timer);
+    p.resolve(value);
+  };
+  sheetDispatcherInstalled = true;
+}
+
+export function despiaActionSheet(opts: {
+  title?: string;
+  items: ActionSheetItem[];
+  theme?: 'light' | 'dark' | 'system';
+  timeoutMs?: number;
+}): Promise<string | null> {
+  if (!isDespiaNative()) return Promise.resolve(null);
+  ensureSheetDispatcher();
+
+  // Concurrent call: dismiss the previous sheet
+  if (sheetPending) {
+    const stale = sheetPending;
+    sheetPending = null;
+    clearTimeout(stale.timer);
+    stale.resolve(null);
+  }
+
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      if (sheetPending && sheetPending.resolve === resolve) {
+        sheetPending = null;
+        resolve(null);
+      }
+    }, opts.timeoutMs ?? 30000);
+    sheetPending = { resolve, timer };
+
+    const params = new URLSearchParams();
+    if (opts.title) params.set('title', opts.title);
+    params.set('items', JSON.stringify(opts.items));
+    if (opts.theme) params.set('theme', opts.theme);
+
+    try {
+      despia(`actionsheet://?${params.toString()}`);
+    } catch (e) {
+      clearTimeout(timer);
+      sheetPending = null;
+      console.error('despia actionsheet failed', e);
+      resolve(null);
+    }
+  });
+}
+
 
 
 /**

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FileText, Image, ScanLine } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isDespiaNative, despiaActionSheet } from '@/lib/despia';
 
 interface UploadActionSheetProps {
   open: boolean;
@@ -17,22 +18,39 @@ const UploadActionSheet: React.FC<UploadActionSheetProps> = ({
   onScan,
   onFile,
 }) => {
+  const nativeTriggered = useRef(false);
+
+  // In Despia: natives Action Sheet statt Web-Sheet
+  useEffect(() => {
+    if (!open) {
+      nativeTriggered.current = false;
+      return;
+    }
+    if (!isDespiaNative() || nativeTriggered.current) return;
+    nativeTriggered.current = true;
+
+    despiaActionSheet({
+      title: 'Dokument hinzufügen',
+      items: [
+        { label: 'Fotos hochladen', value: 'photo', iconIos: 'photo.on.rectangle', iconAndroid: 'photo_library' },
+        { label: 'Dokument scannen', value: 'scan', iconIos: 'doc.text.viewfinder', iconAndroid: 'document_scanner' },
+        { label: 'Dateien (PDF, Docs…)', value: 'file', iconIos: 'folder', iconAndroid: 'folder_open' },
+      ],
+    }).then((value) => {
+      onClose();
+      if (value === 'photo') onPhoto();
+      else if (value === 'scan') onScan();
+      else if (value === 'file') onFile();
+    });
+  }, [open, onClose, onPhoto, onScan, onFile]);
+
+  // Web-Fallback: nichts rendern in Despia (natives Sheet übernimmt)
+  if (isDespiaNative()) return null;
+
   const actions = [
-    {
-      icon: Image,
-      label: 'Fotos hochladen',
-      onClick: onPhoto,
-    },
-    {
-      icon: ScanLine,
-      label: 'Dokument scannen',
-      onClick: onScan,
-    },
-    {
-      icon: FileText,
-      label: 'Dateien (PDF, Docs...)',
-      onClick: onFile,
-    },
+    { icon: Image, label: 'Fotos hochladen', onClick: onPhoto },
+    { icon: ScanLine, label: 'Dokument scannen', onClick: onScan },
+    { icon: FileText, label: 'Dateien (PDF, Docs...)', onClick: onFile },
   ];
 
   return (
