@@ -1,49 +1,49 @@
-## Ziel
+## Problem
 
-Native Despia Action Sheets (`actionsheet://`) statt Web-Sheets verwenden, wo es UX-Wert bringt. Web-Fallback (bestehende Komponenten) bleibt für Browser/Desktop unverändert.
+Auf `/payment-success` flackert die Seite beim Laden und der Erfolgs-Zustand wirkt nicht stimmig:
 
-## Helper in `src/lib/despia.ts`
+1. **Flicker zwischen Loading- und Success-State**
+   - Loading nutzt `bg-gradient-to-b from-white via-white to-blue-50/50` + PNG-Logo (`/lovable-uploads/8eb…png`)
+   - Success nutzt `bg-background` (warmes Off-White) + SVG-Logo (`/ditax-logo-new.svg`)
+   - Beim Wechsel springen Hintergrundfarbe, Logo-Datei, Logo-Höhe und Layout-Container (Spinner mittig → 2-Spalten-Card) → sichtbares Flackern.
 
-Neuer typisierter Wrapper + globaler Multiplexer (analog `vision://`-Pattern), damit mehrere Call-Sites parallel funktionieren — auch wenn Despia nur einen globalen `window.onSheetEvent` kennt.
+2. **PageTransition + interner Loader doppelt**
+   - `PageTransition` fadet die Route bereits ein (0.15s). Zusätzlich rendert `PaymentSuccess` zuerst einen Vollbild-Spinner und ersetzt ihn dann hart durch die Erfolgs-Card → zweiter, abrupter Wechsel.
 
-```ts
-export type ActionSheetItem = {
-  label: string;
-  value: string;
-  iconIos?: string;       // SF Symbol
-  iconAndroid?: string;   // Material drawable
-  destructive?: boolean;
-};
+3. **Hero-Bild lädt asynchron** – Das `paymentSuccessHero` PNG poppt nach der Card auf, weil weder Skeleton noch reservierter Aspect-Ratio-Slot vorhanden ist.
 
-export function despiaActionSheet(opts: {
-  title?: string;
-  items: ActionSheetItem[];
-  theme?: 'light' | 'dark' | 'system';
-}): Promise<string | null>; // resolved value oder null bei dismiss
-```
+4. **Confetti-Trigger** feuert direkt beim ersten Render des Success-States; wenn Bild noch lädt, wirkt es unsynchron.
 
-Intern: aktueller Pending-Resolver wird in einer Modulvariable gehalten, `window.onSheetEvent` wird einmalig installiert und ruft den aktiven Resolver auf (vorhandene Handler werden vorher als `prev` aufgerufen, danach reset auf `null`).
+## Lösung (nur Frontend / Präsentation)
 
-## Einsatzorte (Phase 1 — UX-Gewinn klar)
+### `src/pages/PaymentSuccess.tsx`
 
-1. **`src/components/documents/UploadActionSheet.tsx`** — Upload-Auswahl (Foto / Scan / Datei)
-   - In Despia-Umgebung `despiaActionSheet({ title: 'Dokument hinzufügen', items: [photo, scan, file] })` aufrufen statt das eigene Bottom-Sheet zu öffnen.
-   - Icons: `photo`/`photo_library`, `doc.text.viewfinder`/`document_scanner`, `folder`/`folder_open`.
-   - Aufrufer (`FloatingUploadButton` o. ä.) bleibt identisch — Komponente bekommt ein `useEffect`, das bei `open && isDespiaNative()` direkt `despiaActionSheet` triggert, das Web-Sheet überspringt, und je nach Antwort `onPhoto/onScan/onFile/onClose` aufruft.
+- **Einheitlicher Hintergrund**: Loading- und Error-State auf denselben `bg-background` umstellen wie der Success-State. Den blauen Gradient entfernen.
+- **Einheitliches Logo**: Im Loading-State `/ditax-logo-new.svg` in `h-7` verwenden (statt PNG `h-8`), identisch zur Success-Ansicht.
+- **Loader als Skeleton statt Vollbild-Spinner**:
+  - Direkt das Card-Grid-Gerüst (2-Spalten, gleiche Border/Radius/Shadow) rendern.
+  - Linke Spalte: Skeleton-Block in identischer `min-h-[560px]`/`h-64` Größe (kein Hero-Bild-Pop-in).
+  - Rechte Spalte: Skeleton-Zeilen für Titel, Text, zwei Status-Reihen und zwei Buttons.
+  - Kleiner zentraler Spinner nur als dezenter Indikator oben rechts in der rechten Spalte (z. B. 16 px in `text-muted-foreground`), damit klar ist, dass etwas passiert — aber keine Layout-Verschiebung beim Wechsel.
+- **Smoother Übergang** zwischen Skeleton und Inhalt: einfache CSS-Opacity-Transition (200 ms) auf der rechten Spalten-Content-Container; Hero-Bild via `onLoad` einblenden (`opacity-0` → `opacity-100`, 300 ms) statt sofort.
+- **Confetti** erst feuern, wenn `taxYear` gesetzt UND Hero-Bild geladen ist (`onLoad`-Callback + Ref-Guard), damit Effekt synchron zur sichtbaren Card erscheint.
+- **Error-State**: ebenfalls `bg-background` + SVG-Logo, gleicher Container-Stil wie Success (zentrierte Card, `rounded-3xl`, `border`), damit der Wechsel vom Skeleton dorthin nicht mehr springt.
 
-2. **Dokument-Aktionen in `Documents.tsx` / `DocumentViewer.tsx`** — pro Dokument „Umbenennen / Teilen / Löschen" (Löschen `destructive: true`).
-   - Aktuell vermutlich Dropdown/Dialog — bei `isDespiaNative()` zuerst Action Sheet, bei Web bisheriges Verhalten.
-   - Genauen Aufrufpunkt beim Implementieren prüfen; falls dort heute nur ein Lösch-Confirm existiert, lassen wir Phase 1 nur bei Upload.
+### Keine Änderungen
+- An `PageTransition`, Routing, `updatePaymentStatus`-Business-Logik, Supabase-Calls, Confetti-Library oder Stripe-Flow.
+- An anderen Seiten/Components.
 
-## Was nicht geändert wird
+## Technische Details
 
-- Web/Desktop UX (bestehende Bottom-Sheets, Dropdowns, Dialoge bleiben).
-- `AppBottomSheet`, `AppDialog` Standardkomponenten — Action Sheet ist additiv für native.
-- iOS-only-Logik — Despia rendert sowohl auf iOS als auch Android native.
+- Skeletons via `bg-muted/60 animate-pulse` + bestehende Token (`bg-card`, `border-border`).
+- Hero-Bild: `<img className="opacity-0 transition-opacity duration-300" onLoad={e => e.currentTarget.classList.replace('opacity-0','opacity-100')} />` (oder State-basiert).
+- Spinner-Mini-Indikator: bestehende Inline-Border-Spinner-Klasse, `w-4 h-4`, `text-muted-foreground`.
+- Keine neuen Dependencies, keine neuen Files.
 
-## Hinweise
+## Akzeptanzkriterien
 
-- Native Rebuild im Despia-Dashboard nötig (Feature-Flag im Build).
-- Items immer als JSON-String in URL-Param; `URLSearchParams` übernimmt Encoding.
-- `theme` lassen wir auf default (`system`), passt zu Ditax Light-Mode.
-- Wenn `onSheetEvent` nie feuert (alte App-Version), nach 15s Timeout `null` resolven und auf Web-Fallback umschalten.
+- Kein Hintergrund-/Logo-Wechsel zwischen Lade- und Erfolgs-Zustand.
+- Card-Geometrie ist von der ersten Frame an stabil; Inhalt fadet sanft ein.
+- Hero-Bild poppt nicht auf, sondern fadet ein.
+- Confetti erscheint erst, wenn Card vollständig sichtbar ist.
+- Error-State nutzt denselben Card-Rahmen wie Success.
