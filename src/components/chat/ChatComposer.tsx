@@ -2,6 +2,10 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowUp, Paperclip, UserRound, X } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+import { useKeyboardDetection } from '@/hooks/useKeyboardDetection';
+import { cn } from '@/lib/utils';
+
 interface ChatComposerProps {
   value: string;
   onChange: (v: string) => void;
@@ -12,24 +16,11 @@ interface ChatComposerProps {
   showEscalation: boolean;
   onToggleEscalation: () => void;
   onCloseEscalation: () => void;
-  /** Called whenever the composer's measured height changes (incl. keyboard inset) */
   onHeightChange?: (totalBottomReserve: number) => void;
 }
 
-/**
- * Standalone, portal-rendered chat composer that anchors itself exactly to the
- * bottom of the visual viewport. This is robust against mobile/WebView quirks
- * where the layout viewport doesn't shrink when the on-screen keyboard appears
- * (iOS Safari, Despia WebView, some Android browsers).
- *
- * Strategy:
- *  - Render into document.body via portal so no ancestor transform/overflow can
- *    break `position: fixed`.
- *  - Use `transform: translateY(-bottomInset)` instead of `bottom` so we never
- *    fight against safe-area-inset values.
- *  - Measure our own height with ResizeObserver and report it up so the
- *    message list can reserve exactly the right amount of bottom padding.
- */
+const DEFAULT_COMPOSER_HEIGHT = 144;
+
 export const ChatComposer: React.FC<ChatComposerProps> = ({
   value,
   onChange,
@@ -45,68 +36,56 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [bottomInset, setBottomInset] = useState(0);
+  const [composerHeight, setComposerHeight] = useState(DEFAULT_COMPOSER_HEIGHT);
+  const [isDragging, setIsDragging] = useState(false);
+  const {
+    isKeyboardOpen,
+    keyboardHeight,
+    bottomInset,
+    viewportBottom,
+  } = useKeyboardDetection();
 
-  // Track visualViewport bottom inset (keyboard height) directly here.
+  const effectiveBottomInset = isKeyboardOpen ? keyboardHeight : bottomInset;
+
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    let raf: number | null = null;
+    const timer = window.setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 120);
 
-    const compute = () => {
-      const vv = window.visualViewport;
-      if (!vv) {
-        setBottomInset(0);
-        return;
-      }
-      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      setBottomInset(inset);
-    };
-
-    const schedule = () => {
-      if (raf != null) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        compute();
-      });
-    };
-
-    compute();
-    window.visualViewport?.addEventListener('resize', schedule);
-    window.visualViewport?.addEventListener('scroll', schedule);
-    window.addEventListener('resize', schedule);
-    window.addEventListener('orientationchange', schedule);
-    document.addEventListener('focusin', schedule, true);
-    document.addEventListener('focusout', schedule, true);
-
-    return () => {
-      if (raf != null) cancelAnimationFrame(raf);
-      window.visualViewport?.removeEventListener('resize', schedule);
-      window.visualViewport?.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-      window.removeEventListener('orientationchange', schedule);
-      document.removeEventListener('focusin', schedule, true);
-      document.removeEventListener('focusout', schedule, true);
-    };
+    return () => window.clearTimeout(timer);
   }, []);
 
-  // Autofocus
-  useEffect(() => {
-    const t = setTimeout(() => textareaRef.current?.focus(), 100);
-    return () => clearTimeout(t);
-  }, []);
-
-  // Report measured height (incl. inset) upward.
   useLayoutEffect(() => {
-    if (!wrapperRef.current || !onHeightChange) return;
-    const el = wrapperRef.current;
-    const report = () => onHeightChange(el.offsetHeight + bottomInset + 16);
-    report();
-    const ro = new ResizeObserver(report);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [bottomInset, onHeightChange, showEscalation]);
+    if (!textareaRef.current) return;
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const textarea = textareaRef.current;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+  }, [value]);
+
+  useLayoutEffect(() => {
+    if (!wrapperRef.current) return;
+
+    const element = wrapperRef.current;
+    const measure = () => {
+      const nextHeight = element.offsetHeight || DEFAULT_COMPOSER_HEIGHT;
+      setComposerHeight((prev) => (prev === nextHeight ? prev : nextHeight));
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [showEscalation, value]);
+
+  useLayoutEffect(() => {
+    if (!onHeightChange) return;
+    onHeightChange(composerHeight + effectiveBottomInset + 20);
+  }, [composerHeight, effectiveBottomInset, onHeightChange]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();
@@ -115,101 +94,158 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const arr = Array.from(files);
+    if (!files?.length) return;
+
+    onFiles(Array.from(files));
     e.target.value = '';
-    onFiles(arr);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (isLoading) return;
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    const nextTarget = e.relatedTarget as Node | null;
+    if (nextTarget && e.currentTarget.contains(nextTarget)) return;
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    if (isLoading) return;
+
+    const files = Array.from(e.dataTransfer.files || []);
+    if (!files.length) return;
+
+    onFiles(files);
   };
 
   if (typeof document === 'undefined') return null;
 
+  const resolvedHeight = composerHeight || DEFAULT_COMPOSER_HEIGHT;
+  const composerTop = Math.max(0, viewportBottom - resolvedHeight);
+
   return createPortal(
     <div
-      ref={wrapperRef}
-      className="fixed left-0 right-0 bottom-0 z-[60] px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[70]"
       style={{
-        // Use transform instead of `bottom` so safe-area-inset doesn't fight us.
-        transform: `translateY(-${bottomInset}px)`,
-        paddingBottom:
-          bottomInset > 0
-            ? '10px'
-            : 'calc(14px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
+        transform: `translate3d(0, ${composerTop}px, 0)`,
         willChange: 'transform',
       }}
     >
-      <div className="max-w-[680px] mx-auto">
-        {showEscalation && (
-          <div className="mb-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/60 text-[11.5px] text-emerald-700">
-            <UserRound className="w-3 h-3" strokeWidth={2} />
-            <span className="font-medium">Deine Nachricht geht direkt an unser Support-Team</span>
-            <button
-              onClick={onCloseEscalation}
-              className="ml-auto text-emerald-700/60 hover:text-emerald-700"
-            >
-              <X className="w-3 h-3" strokeWidth={2.25} />
-            </button>
-          </div>
+      <div
+        ref={wrapperRef}
+        className={cn(
+          'pointer-events-auto px-4 pt-2 sm:px-5',
+          isKeyboardOpen
+            ? 'pb-2'
+            : 'pb-[calc(12px+var(--safe-area-bottom,env(safe-area-inset-bottom,0px)))]'
         )}
-        <div className="relative rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.08)] focus-within:border-foreground/20 focus-within:shadow-[0_4px_20px_-6px_rgba(15,27,61,0.12)] transition-all">
-          <textarea
-            ref={textareaRef}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            rows={1}
-            className="w-full bg-transparent text-[14px] leading-[1.55] tracking-[-0.005em] outline-none resize-none placeholder:text-muted-foreground/55 text-foreground px-4 pt-3.5 pb-1 min-h-[44px] max-h-[160px]"
-            onInput={(e) => {
-              const ta = e.target as HTMLTextAreaElement;
-              ta.style.height = 'auto';
-              ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
-            }}
-          />
-          <div className="flex items-center justify-between px-2 pb-2 pt-1">
-            <div className="flex items-center gap-0.5">
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
-                onChange={handleFileChange}
-              />
+      >
+        <div className="mx-auto max-w-[680px]">
+          {showEscalation && (
+            <div className="mb-2 flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 text-[11.5px] text-foreground shadow-sm">
+              <div className="flex h-6 w-6 items-center justify-center rounded-xl bg-accent text-foreground">
+                <UserRound className="h-3.5 w-3.5" strokeWidth={1.9} />
+              </div>
+              <span className="min-w-0 flex-1 font-medium leading-tight">
+                Deine Nachricht geht direkt an unser Support-Team
+              </span>
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Anhang"
+                onClick={onCloseEscalation}
+                className="flex h-7 w-7 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                aria-label="Support-Hinweis schliessen"
               >
-                <Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />
-              </button>
-              <button
-                type="button"
-                onClick={onToggleEscalation}
-                className={`h-8 inline-flex items-center gap-1.5 px-2 rounded-lg text-[11.5px] font-medium transition-colors ${
-                  showEscalation
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'text-muted-foreground/70 hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                <UserRound className="w-3.5 h-3.5" strokeWidth={1.75} />
-                <span className="hidden sm:inline">Support</span>
+                <X className="h-3.5 w-3.5" strokeWidth={2.1} />
               </button>
             </div>
-            <button
-              onClick={onSend}
-              disabled={!value.trim() || isLoading}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #1E3A5F 0%, #0F1B3D 100%)' }}
-              aria-label="Senden"
-            >
-              <ArrowUp className="w-4 h-4" strokeWidth={2.25} />
-            </button>
+          )}
+
+          <div
+            className={cn(
+              'overflow-hidden rounded-[28px] border border-border bg-card/95 shadow-[0_10px_30px_-18px_rgba(15,27,61,0.18)] backdrop-blur-sm transition-all duration-200',
+              isDragging && 'border-primary/30 bg-accent/70 shadow-[0_14px_36px_-18px_rgba(15,27,61,0.22)]'
+            )}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className="flex items-end gap-2 px-3 pb-3 pt-3">
+              <div className="flex items-center gap-1 self-end pb-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+                  onChange={handleFileChange}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading}
+                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Datei anhängen"
+                >
+                  <Paperclip className="h-4 w-4" strokeWidth={1.9} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onToggleEscalation}
+                  className={cn(
+                    'inline-flex h-10 items-center gap-2 rounded-2xl border px-3 text-[12px] font-medium transition-colors',
+                    showEscalation
+                      ? 'border-primary/20 bg-primary/10 text-foreground'
+                      : 'border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground'
+                  )}
+                  aria-pressed={showEscalation}
+                >
+                  <UserRound className="h-3.5 w-3.5" strokeWidth={1.9} />
+                  <span className="hidden sm:inline">Support</span>
+                </button>
+              </div>
+
+              <div className="min-w-0 flex-1 rounded-[24px] border border-border bg-background px-4 py-3 shadow-sm transition-colors focus-within:border-primary/20 focus-within:bg-card">
+                <textarea
+                  ref={textareaRef}
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={placeholder}
+                  rows={1}
+                  className="min-h-[24px] max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[1.5] text-foreground outline-none placeholder:text-muted-foreground/70"
+                  onInput={(e) => {
+                    const textarea = e.currentTarget;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+                  }}
+                />
+
+                <div className="mt-2 flex items-center justify-between gap-3 text-[11px] text-muted-foreground/75">
+                  <span className="truncate">{isDragging ? 'Datei hier ablegen' : 'Enter zum Senden'}</span>
+                  <span className="shrink-0">Anhänge, PDF, Word, Excel</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                size="icon"
+                onClick={onSend}
+                disabled={!value.trim() || isLoading}
+                className="h-11 w-11 self-end rounded-2xl shadow-none"
+                aria-label="Nachricht senden"
+              >
+                <ArrowUp className="h-4 w-4" strokeWidth={2.1} />
+              </Button>
+            </div>
           </div>
         </div>
-        <p className="text-[10.5px] text-muted-foreground/50 mt-2 text-center tracking-[-0.005em]">
-          KI-Antworten können Fehler enthalten · Drücke Enter zum Senden
-        </p>
       </div>
     </div>,
     document.body
