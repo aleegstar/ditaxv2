@@ -168,69 +168,64 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
 
           <div
             className={cn(
-              'overflow-hidden rounded-[28px] border border-border bg-card/95 shadow-[0_10px_30px_-18px_rgba(15,27,61,0.18)] backdrop-blur-sm transition-all duration-200',
-              isDragging && 'border-primary/30 bg-accent/70 shadow-[0_14px_36px_-18px_rgba(15,27,61,0.22)]'
+              'rounded-[28px] border border-border bg-card shadow-[0_8px_28px_-16px_rgba(15,27,61,0.18)] backdrop-blur-sm transition-all duration-200',
+              isDragging && 'border-primary/40 bg-accent/60 shadow-[0_14px_36px_-18px_rgba(15,27,61,0.22)]'
             )}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div className="flex items-end gap-2 px-3 pb-3 pt-3">
-              <div className="flex items-center gap-1 self-end pb-1">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
-                  onChange={handleFileChange}
-                />
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+              onChange={handleFileChange}
+            />
 
+            <div className="px-4 pt-3">
+              <textarea
+                ref={textareaRef}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isDragging ? 'Datei hier ablegen …' : placeholder}
+                rows={1}
+                className="min-h-[24px] max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[1.5] text-foreground outline-none placeholder:text-muted-foreground/60"
+                onInput={(e) => {
+                  const textarea = e.currentTarget;
+                  textarea.style.height = 'auto';
+                  textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-2 px-2.5 pb-2.5 pt-1.5">
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
-                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Datei anhängen"
                 >
-                  <Paperclip className="h-4 w-4" strokeWidth={1.9} />
+                  <Paperclip className="h-[18px] w-[18px]" strokeWidth={1.8} />
                 </button>
 
                 <button
                   type="button"
                   onClick={onToggleEscalation}
                   className={cn(
-                    'inline-flex h-10 items-center gap-2 rounded-2xl border px-3 text-[12px] font-medium transition-colors',
+                    'inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors',
                     showEscalation
-                      ? 'border-primary/20 bg-primary/10 text-foreground'
-                      : 'border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground'
+                      ? 'bg-primary/10 text-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                   )}
                   aria-pressed={showEscalation}
                 >
-                  <UserRound className="h-3.5 w-3.5" strokeWidth={1.9} />
-                  <span className="hidden sm:inline">Support</span>
+                  <UserRound className="h-[15px] w-[15px]" strokeWidth={1.9} />
+                  <span>Support</span>
                 </button>
-              </div>
-
-              <div className="min-w-0 flex-1 rounded-[24px] border border-border bg-background px-4 py-3 shadow-sm transition-colors focus-within:border-primary/20 focus-within:bg-card">
-                <textarea
-                  ref={textareaRef}
-                  value={value}
-                  onChange={(e) => onChange(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={placeholder}
-                  rows={1}
-                  className="min-h-[24px] max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[1.5] text-foreground outline-none placeholder:text-muted-foreground/70"
-                  onInput={(e) => {
-                    const textarea = e.currentTarget;
-                    textarea.style.height = 'auto';
-                    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
-                  }}
-                />
-
-                <div className="mt-2 flex items-center justify-between gap-3 text-[11px] text-muted-foreground/75">
-                  <span className="truncate">{isDragging ? 'Datei hier ablegen' : 'Enter zum Senden'}</span>
-                  <span className="shrink-0">Anhänge, PDF, Word, Excel</span>
-                </div>
               </div>
 
               <Button
@@ -238,10 +233,10 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
                 size="icon"
                 onClick={onSend}
                 disabled={!value.trim() || isLoading}
-                className="h-11 w-11 self-end rounded-2xl shadow-none"
+                className="h-9 w-9 rounded-full shadow-none disabled:opacity-40"
                 aria-label="Nachricht senden"
               >
-                <ArrowUp className="h-4 w-4" strokeWidth={2.1} />
+                <ArrowUp className="h-4 w-4" strokeWidth={2.4} />
               </Button>
             </div>
           </div>
