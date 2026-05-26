@@ -6,6 +6,11 @@ const getViewportHeight = () =>
 const getViewportOffsetTop = () =>
   typeof window !== 'undefined' ? window.visualViewport?.offsetTop || 0 : 0;
 
+const getViewportBottom = () =>
+  typeof window !== 'undefined'
+    ? (window.visualViewport?.offsetTop || 0) + (window.visualViewport?.height || window.innerHeight)
+    : 0;
+
 const isEditableElement = (element: Element | null) => {
   if (!(element instanceof HTMLElement)) return false;
   return (
@@ -28,18 +33,30 @@ export const useKeyboardDetection = () => {
   const [bottomInset, setBottomInset] = useState(0);
   const [viewportHeight, setViewportHeight] = useState<number>(getViewportHeight);
   const [viewportOffsetTop, setViewportOffsetTop] = useState<number>(getViewportOffsetTop);
+  const [viewportBottom, setViewportBottom] = useState<number>(getViewportBottom);
   const editableFocusRef = useRef(false);
   const rafRef = useRef<number | null>(null);
+  const baselineInnerHeightRef = useRef(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const compute = () => {
       const vv = window.visualViewport;
+      const innerHeight = window.innerHeight;
+      if (!baselineInnerHeightRef.current || innerHeight > baselineInnerHeightRef.current) {
+        baselineInnerHeightRef.current = innerHeight;
+      }
+
       const visualHeight = vv?.height || window.innerHeight;
       const offsetTop = vv?.offsetTop || 0;
+      const visualBottom = offsetTop + visualHeight;
       const hasEditableFocus = isEditableElement(document.activeElement);
-      const rawInset = Math.max(0, window.innerHeight - visualHeight - offsetTop);
+      const layoutInset = Math.max(0, innerHeight - visualBottom);
+      const fallbackInset = hasEditableFocus
+        ? Math.max(0, baselineInnerHeightRef.current - innerHeight)
+        : 0;
+      const rawInset = Math.max(layoutInset, fallbackInset);
       // For "isKeyboardOpen" flag we still threshold to avoid noise from
       // browser chrome resizing. The raw inset itself is exposed unfiltered
       // for positioning.
@@ -53,6 +70,7 @@ export const useKeyboardDetection = () => {
       setKeyboardHeight(keyboardOpen ? rawInset : 0);
       setViewportHeight(visualHeight);
       setViewportOffsetTop(offsetTop);
+      setViewportBottom(visualBottom);
     };
 
     const schedule = () => {
@@ -87,5 +105,5 @@ export const useKeyboardDetection = () => {
     };
   }, []);
 
-  return { isKeyboardOpen, keyboardHeight, bottomInset, viewportHeight, viewportOffsetTop };
+  return { isKeyboardOpen, keyboardHeight, bottomInset, viewportHeight, viewportOffsetTop, viewportBottom };
 };
