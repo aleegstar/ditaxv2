@@ -206,11 +206,12 @@ export function useEnhancedWebAuthn() {
         hasClientDataJSON: !!clientDataJSON
       });
 
-      // Call the enhanced passkey authentication Edge Function with full crypto data
+      // Call the enhanced passkey authentication Edge Function with full crypto data.
+      // Note: `challenge` is no longer trusted on the server — it fetches the
+      // stored challenge from the database. We omit it from the payload.
       const { data, error } = await supabase.functions.invoke('passkey-authenticate', {
         body: {
           credentialId,
-          challenge: arrayBufferToBase64Url(challenge.buffer),
           signature,
           authenticatorData,
           clientDataJSON,
