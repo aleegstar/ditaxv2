@@ -86,6 +86,7 @@ const DocumentsContent: React.FC<{
   const {
     profile
   } = useProfile();
+  const { setMenuSheetOpen } = useSidebar();
 
   // Check if tax return is locked (paid/completed)
   const { isLocked } = useTaxReturnStatus(selectedYear);
