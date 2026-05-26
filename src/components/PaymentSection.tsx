@@ -87,6 +87,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     }
   }, [isValid]);
 
+  // Cleanup native Stripe sheet listener on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.stripeEvent = undefined;
+      }
+    };
+  }, []);
+
+
   const [checklistFlags, setChecklistFlags] = useState<ReturnType<typeof mapPriorYearToFormFlags> | null>(null);
 
   // Load prior-year checklist and derive flags so price always orients on the checklist
