@@ -487,9 +487,12 @@ const DocumentsContent: React.FC<{
           <div className="max-w-[960px] mx-auto w-full pb-4">
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
-                <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1] mb-4">
-                  Dokumente
-                </h1>
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1]">
+                    Dokumente
+                  </h1>
+                  <TaxFilerSelector className="md:hidden flex-shrink-0" />
+                </div>
                 <div data-tour="documents-year-selector">
                   <YearPillSelector
                     years={availableYears}
