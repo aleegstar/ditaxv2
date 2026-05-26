@@ -50,7 +50,7 @@ const Chat: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, keyboardHeight, viewportHeight, viewportOffsetTop } = useKeyboardDetection();
+  const { isKeyboardOpen, viewportHeight, viewportOffsetTop } = useKeyboardDetection();
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
@@ -140,14 +140,14 @@ const Chat: React.FC = () => {
 
   return (
     <div
-      className="fixed left-0 right-0 top-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:z-auto md:h-full md:inset-auto md:transform-none"
+      className="fixed inset-x-0 top-0 bottom-0 z-[40] flex min-h-0 flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full"
       style={
         isKeyboardOpen
           ? {
-              height: `${viewportHeight}px`,
-              transform: `translateY(${viewportOffsetTop}px)`,
+              height: `${viewportHeight + viewportOffsetTop}px`,
+              bottom: 'auto',
             }
-          : { height: '100%' }
+          : undefined
       }
     >
       {/* Header */}
@@ -451,8 +451,12 @@ const Chat: React.FC = () => {
 
       {/* Input */}
       <div
-        className="px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
-        style={{ paddingBottom: 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 14px)' }}
+        className="shrink-0 px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
+        style={{
+          paddingBottom: isKeyboardOpen
+            ? '10px'
+            : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 14px)',
+        }}
       >
         <div className="max-w-[680px] mx-auto">
           {showEscalation && (
