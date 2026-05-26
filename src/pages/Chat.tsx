@@ -49,6 +49,7 @@ const Chat: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
+  const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
