@@ -98,7 +98,16 @@ export const useKeyboardDetection = () => {
     }
     window.addEventListener('resize', schedule);
     window.addEventListener('orientationchange', schedule);
-    document.addEventListener('focusin', schedule, true);
+    const handleFocusIn = () => {
+      schedule();
+      // iOS WebView (Despia) reports the visualViewport change ~200-300ms after
+      // focus; re-measure to catch the final keyboard inset.
+      if (despia) {
+        window.setTimeout(compute, 250);
+        window.setTimeout(compute, 500);
+      }
+    };
+    document.addEventListener('focusin', handleFocusIn, true);
     document.addEventListener('focusout', schedule, true);
 
     return () => {
@@ -109,7 +118,7 @@ export const useKeyboardDetection = () => {
       }
       window.removeEventListener('resize', schedule);
       window.removeEventListener('orientationchange', schedule);
-      document.removeEventListener('focusin', schedule, true);
+      document.removeEventListener('focusin', handleFocusIn, true);
       document.removeEventListener('focusout', schedule, true);
     };
   }, []);
