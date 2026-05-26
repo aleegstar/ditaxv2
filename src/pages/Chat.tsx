@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -6,9 +6,6 @@ import remarkGfm from 'remark-gfm';
 import {
   User,
   X,
-  ArrowUp,
-  Paperclip,
-  UserRound,
   MoreHorizontal,
   Sparkles,
   FileText,
@@ -16,6 +13,7 @@ import {
   Headphones,
   ArrowUpRight,
 } from 'lucide-react';
+import { ChatComposer } from '@/components/chat/ChatComposer';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useI18n } from '@/contexts/I18nContext';
