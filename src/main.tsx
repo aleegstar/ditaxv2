@@ -10,6 +10,7 @@ import { EnhancedSecurityService } from '@/services/EnhancedSecurityService';
 import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { isDespiaNative, isDespiaIOS, isDespiaAndroid } from '@/lib/despia';
+import { initDespiaKeyboardHandling } from '@/lib/despiaKeyboard';
 
 // Initialize security and monitoring systems
 EnhancedSecurityService.applySecurity().catch(console.error);
@@ -31,6 +32,10 @@ if (isDespiaNative()) {
   if (isDespiaAndroid()) root.classList.add('despia-android');
   NativeErrorMonitor.addBreadcrumb('system', 'Despia native env detected, safe-area floor enabled');
 }
+
+// Disable native keyboard auto-scroll in Despia so our JS keyboard avoidance
+// (ChatComposer via visualViewport) can position the input above the keyboard.
+initDespiaKeyboardHandling();
 
 createRoot(document.getElementById("root")!).render(
   <>
