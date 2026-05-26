@@ -20,6 +20,7 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import { useKeyboardDetection } from '@/hooks/useKeyboardDetection';
 import assistantAvatar from '@/assets/ditax-logo-icon.png';
 
 const formatTime = (date: Date) =>
