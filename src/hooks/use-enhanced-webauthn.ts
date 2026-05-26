@@ -155,9 +155,27 @@ export function useEnhancedWebAuthn() {
     setIsLoading(true);
     try {
       debug.log('🚀 Starting passkey authentication for:', email);
-      
-      const challenge = generateChallenge();
-      
+
+      // SECURITY: Fetch a server-generated challenge instead of generating it
+      // on the client. The server stores this challenge and verifies it during
+      // passkey-authenticate, so a client cannot forge the expected value.
+      const { data: challengeData, error: challengeError } = await supabase.functions.invoke(
+        'passkey-challenge',
+        { body: { email } }
+      );
+      if (challengeError || !challengeData?.challenge) {
+        debug.error('❌ Failed to obtain challenge:', challengeError);
+        throw new Error('Authentifizierung konnte nicht gestartet werden');
+      }
+      const serverChallengeB64Url: string = challengeData.challenge;
+
+      // Decode the base64url challenge back to bytes for navigator.credentials.get()
+      const padded = serverChallengeB64Url.replace(/-/g, '+').replace(/_/g, '/')
+        + '='.repeat((4 - (serverChallengeB64Url.length % 4)) % 4);
+      const binary = atob(padded);
+      const challenge = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) challenge[i] = binary.charCodeAt(i);
+
       const publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions = {
         challenge,
         timeout: 60000,
@@ -188,11 +206,12 @@ export function useEnhancedWebAuthn() {
         hasClientDataJSON: !!clientDataJSON
       });
 
-      // Call the enhanced passkey authentication Edge Function with full crypto data
+      // Call the enhanced passkey authentication Edge Function with full crypto data.
+      // Note: `challenge` is no longer trusted on the server — it fetches the
+      // stored challenge from the database. We omit it from the payload.
       const { data, error } = await supabase.functions.invoke('passkey-authenticate', {
         body: {
           credentialId,
-          challenge: arrayBufferToBase64Url(challenge.buffer),
           signature,
           authenticatorData,
           clientDataJSON,

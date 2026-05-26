@@ -318,19 +318,24 @@ serve(async (req) => {
       clientDataJSON
     } = requestBody
 
-    // Validate required parameters
-    if (!credentialId || !challenge || !signature || !email) {
-      console.log('❌ Missing required parameters:', { 
-        credentialId: !!credentialId, 
-        challenge: !!challenge, 
-        signature: !!signature, 
-        email: !!email 
+    // SECURITY: Full cryptographic verification is now mandatory.
+    // The legacy "limited verification mode" fallback (which accepted
+    // requests without authenticatorData/clientDataJSON) has been removed
+    // because it allowed authentication bypass given only a credential_id
+    // and email.
+    if (!credentialId || !signature || !email || !authenticatorData || !clientDataJSON) {
+      console.log('❌ Missing required parameters:', {
+        credentialId: !!credentialId,
+        signature: !!signature,
+        email: !!email,
+        authenticatorData: !!authenticatorData,
+        clientDataJSON: !!clientDataJSON,
       })
       return new Response(
         JSON.stringify({ error: 'Missing required parameters' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -428,39 +433,59 @@ serve(async (req) => {
       )
     }
 
-    // Perform cryptographic verification if authenticatorData and clientDataJSON are provided
-    if (authenticatorData && clientDataJSON) {
-      console.log('🔐 Performing full cryptographic verification...')
-      
-      const verificationResult = await verifyWebAuthnSignature(
-        passkey.public_key,
-        signature,
-        authenticatorData,
-        clientDataJSON,
-        challenge
-      );
+    // SECURITY: Fetch the server-generated challenge instead of trusting
+    // the value supplied by the client. The client must have previously
+    // called passkey-challenge to register a challenge for this email.
+    const emailLower = email.toLowerCase()
+    const { data: challengeRow, error: challengeFetchError } = await supabaseServiceRole
+      .from('passkey_challenges')
+      .select('id, challenge, expires_at')
+      .eq('email', emailLower)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-      if (!verificationResult.verified) {
-        console.error('❌ Signature verification failed:', verificationResult.error)
-        return new Response(
-          JSON.stringify({ 
-            error: 'Signature verification failed',
-            details: verificationResult.error || 'Invalid passkey signature'
-          }),
-          { 
-            status: 401, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
-      }
-
-      console.log('✅ Full cryptographic verification passed')
-    } else {
-      // Fallback: Basic validation when full crypto data not provided
-      // This is less secure but maintains backward compatibility
-      console.log('⚠️ Limited verification mode (authenticatorData/clientDataJSON not provided)')
-      console.log('⚠️ Challenge and credential existence verified only')
+    if (challengeFetchError || !challengeRow) {
+      console.error('❌ No valid server challenge found:', challengeFetchError)
+      return new Response(
+        JSON.stringify({
+          error: 'Challenge expired or not found',
+          details: 'Please retry the passkey authentication flow',
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
+
+    const serverChallenge = challengeRow.challenge
+
+    // One-time use: delete the challenge immediately to prevent reuse/replay.
+    await supabaseServiceRole
+      .from('passkey_challenges')
+      .delete()
+      .eq('id', challengeRow.id)
+
+    console.log('🔐 Performing full cryptographic verification...')
+    const verificationResult = await verifyWebAuthnSignature(
+      passkey.public_key,
+      signature,
+      authenticatorData,
+      clientDataJSON,
+      serverChallenge
+    )
+
+    if (!verificationResult.verified) {
+      console.error('❌ Signature verification failed:', verificationResult.error)
+      return new Response(
+        JSON.stringify({
+          error: 'Signature verification failed',
+          details: verificationResult.error || 'Invalid passkey signature',
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('✅ Full cryptographic verification passed')
 
     // Update counter and last_used_at for replay attack prevention
     const { error: updateError } = await supabaseServiceRole
@@ -640,26 +665,43 @@ serve(async (req) => {
   }
 })
 
-// Helper function to generate a strong password that meets Supabase requirements
+// Helper function to generate a strong password that meets Supabase requirements.
+// SECURITY: Uses crypto.getRandomValues (CSPRNG) instead of Math.random.
 function generateStrongPassword(): string {
   const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const lowercase = 'abcdefghijklmnopqrstuvwxyz'
   const numbers = '0123456789'
   const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?'
-  
-  // Ensure we have at least one character from each required category
-  let password = ''
-  password += uppercase[Math.floor(Math.random() * uppercase.length)]
-  password += lowercase[Math.floor(Math.random() * lowercase.length)]
-  password += numbers[Math.floor(Math.random() * numbers.length)]
-  password += symbols[Math.floor(Math.random() * symbols.length)]
-  
-  // Fill the rest with random characters from all categories
   const allChars = uppercase + lowercase + numbers + symbols
-  for (let i = 4; i < 16; i++) {
-    password += allChars[Math.floor(Math.random() * allChars.length)]
+
+  const pickSecure = (set: string): string => {
+    // Rejection sampling to avoid modulo bias.
+    const max = Math.floor(0xffffffff / set.length) * set.length
+    const buf = new Uint32Array(1)
+    while (true) {
+      crypto.getRandomValues(buf)
+      if (buf[0] < max) return set[buf[0] % set.length]
+    }
   }
-  
-  // Shuffle the password to randomize the order
-  return password.split('').sort(() => Math.random() - 0.5).join('')
+
+  const chars: string[] = [
+    pickSecure(uppercase),
+    pickSecure(lowercase),
+    pickSecure(numbers),
+    pickSecure(symbols),
+  ]
+  for (let i = 4; i < 24; i++) chars.push(pickSecure(allChars))
+
+  // Cryptographically secure Fisher–Yates shuffle.
+  for (let i = chars.length - 1; i > 0; i--) {
+    const buf = new Uint32Array(1)
+    const max = Math.floor(0xffffffff / (i + 1)) * (i + 1)
+    let j: number
+    do {
+      crypto.getRandomValues(buf)
+    } while (buf[0] >= max)
+    j = buf[0] % (i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+  return chars.join('')
 }
