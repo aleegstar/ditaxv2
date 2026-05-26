@@ -212,9 +212,8 @@ const Chat: React.FC = () => {
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
         style={{
-          // Reserve room for the composer (~180px) plus the keyboard inset so
-          // the last message never hides behind the composer or keyboard.
-          paddingBottom: `calc(${bottomInset}px + 180px)`,
+          // Reserve exactly the composer's measured height (incl. keyboard inset).
+          paddingBottom: `${composerReserve}px`,
         }}
       >
         <motion.div
