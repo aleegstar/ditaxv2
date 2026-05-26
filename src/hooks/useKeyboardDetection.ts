@@ -20,7 +20,6 @@ export const useKeyboardDetection = () => {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [viewportHeight, setViewportHeight] = useState<number>(getViewportHeight);
   const [viewportOffsetTop, setViewportOffsetTop] = useState<number>(getViewportOffsetTop);
-  const baseViewportHeightRef = useRef<number>(getViewportHeight());
   const editableFocusRef = useRef(false);
 
   useEffect(() => {
@@ -31,18 +30,11 @@ export const useKeyboardDetection = () => {
       const visualHeight = vv?.height || window.innerHeight;
       const offsetTop = vv?.offsetTop || 0;
       const hasEditableFocus = isEditableElement(document.activeElement);
-      const nextBaseViewportHeight = Math.max(baseViewportHeightRef.current, visualHeight);
-      const heightDifference = Math.max(0, nextBaseViewportHeight - visualHeight);
-      const windowDelta = Math.max(0, window.innerHeight - visualHeight - offsetTop);
-      const estimatedKeyboardHeight = Math.max(heightDifference, windowDelta);
-      const keyboardThreshold = hasEditableFocus ? 80 : 150;
+      const estimatedKeyboardHeight = Math.max(0, window.innerHeight - visualHeight - offsetTop);
+      const keyboardThreshold = hasEditableFocus ? 60 : 120;
       const keyboardOpen = estimatedKeyboardHeight > keyboardThreshold;
 
       editableFocusRef.current = hasEditableFocus;
-
-      if (!keyboardOpen && !hasEditableFocus) {
-        baseViewportHeightRef.current = nextBaseViewportHeight;
-      }
 
       setIsKeyboardOpen(keyboardOpen);
       setKeyboardHeight(keyboardOpen ? estimatedKeyboardHeight : 0);
@@ -50,12 +42,7 @@ export const useKeyboardDetection = () => {
       setViewportOffsetTop(offsetTop);
     };
 
-    const handleResize = () => {
-      if (!editableFocusRef.current) {
-        baseViewportHeightRef.current = Math.max(baseViewportHeightRef.current, getViewportHeight());
-      }
-      handleViewportChange();
-    };
+    const handleResize = () => handleViewportChange();
 
     const handleFocusChange = () => {
       requestAnimationFrame(handleViewportChange);
