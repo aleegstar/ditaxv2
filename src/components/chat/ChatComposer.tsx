@@ -127,7 +127,16 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
   if (typeof document === 'undefined') return null;
 
   const resolvedHeight = composerHeight || DEFAULT_COMPOSER_HEIGHT;
-  const composerTop = Math.max(0, viewportBottom - resolvedHeight);
+  // Primary positioning: anchor composer's bottom to visualViewport's bottom.
+  // In Despia native we additionally clamp against (innerHeight - keyboardInset)
+  // because the WebView's visualViewport can momentarily report inconsistent
+  // values during keyboard animation – the clamp guarantees the input never
+  // disappears behind the keyboard.
+  let composerTop = Math.max(0, viewportBottom - resolvedHeight);
+  if (typeof window !== 'undefined') {
+    const safeMax = window.innerHeight - resolvedHeight - effectiveBottomInset;
+    if (safeMax > 0 && composerTop > safeMax) composerTop = safeMax;
+  }
 
   return createPortal(
     <div

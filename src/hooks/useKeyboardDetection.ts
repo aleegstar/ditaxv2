@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { isDespiaNative } from '@/lib/despia';
+
 
 const getViewportHeight = () =>
   typeof window !== 'undefined' ? window.visualViewport?.height || window.innerHeight : 0;
@@ -40,6 +42,7 @@ export const useKeyboardDetection = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const despia = isDespiaNative();
 
     const compute = () => {
       const vv = window.visualViewport;
@@ -53,14 +56,19 @@ export const useKeyboardDetection = () => {
       const visualBottom = offsetTop + visualHeight;
       const hasEditableFocus = isEditableElement(document.activeElement);
       const layoutInset = Math.max(0, innerHeight - visualBottom);
-      const fallbackInset = hasEditableFocus
-        ? Math.max(0, baselineInnerHeightRef.current - innerHeight)
-        : 0;
+      // In Despia WebView, window.innerHeight stays constant while the keyboard
+      // is up (because we disabled native autoscroll), so the innerHeight-based
+      // fallback would always report 0 and mislead us. Use visualViewport only.
+      const fallbackInset = despia
+        ? 0
+        : hasEditableFocus
+          ? Math.max(0, baselineInnerHeightRef.current - innerHeight)
+          : 0;
       const rawInset = Math.max(layoutInset, fallbackInset);
       // For "isKeyboardOpen" flag we still threshold to avoid noise from
       // browser chrome resizing. The raw inset itself is exposed unfiltered
-      // for positioning.
-      const keyboardThreshold = hasEditableFocus ? 60 : 120;
+      // for positioning. Despia keyboards report smaller insets reliably.
+      const keyboardThreshold = despia ? 80 : hasEditableFocus ? 60 : 120;
       const keyboardOpen = rawInset > keyboardThreshold;
 
       editableFocusRef.current = hasEditableFocus;
@@ -72,6 +80,7 @@ export const useKeyboardDetection = () => {
       setViewportOffsetTop(offsetTop);
       setViewportBottom(visualBottom);
     };
+
 
     const schedule = () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
@@ -89,7 +98,16 @@ export const useKeyboardDetection = () => {
     }
     window.addEventListener('resize', schedule);
     window.addEventListener('orientationchange', schedule);
-    document.addEventListener('focusin', schedule, true);
+    const handleFocusIn = () => {
+      schedule();
+      // iOS WebView (Despia) reports the visualViewport change ~200-300ms after
+      // focus; re-measure to catch the final keyboard inset.
+      if (despia) {
+        window.setTimeout(compute, 250);
+        window.setTimeout(compute, 500);
+      }
+    };
+    document.addEventListener('focusin', handleFocusIn, true);
     document.addEventListener('focusout', schedule, true);
 
     return () => {
@@ -100,7 +118,7 @@ export const useKeyboardDetection = () => {
       }
       window.removeEventListener('resize', schedule);
       window.removeEventListener('orientationchange', schedule);
-      document.removeEventListener('focusin', schedule, true);
+      document.removeEventListener('focusin', handleFocusIn, true);
       document.removeEventListener('focusout', schedule, true);
     };
   }, []);
