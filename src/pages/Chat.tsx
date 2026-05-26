@@ -230,7 +230,11 @@ const Chat: React.FC = () => {
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
-        style={{ paddingBottom: isKeyboardOpen ? '184px' : '196px' }}
+        style={{
+          // Reserve room for the composer (~180px) plus the keyboard inset so
+          // the last message never hides behind the composer or keyboard.
+          paddingBottom: `calc(${bottomInset}px + 180px)`,
+        }}
       >
         <motion.div
           variants={containerVariants}
