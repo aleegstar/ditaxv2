@@ -20,6 +20,7 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import { useKeyboardDetection } from '@/hooks/useKeyboardDetection';
 import assistantAvatar from '@/assets/ditax-logo-icon.png';
 
 const formatTime = (date: Date) =>
@@ -48,6 +49,7 @@ const Chat: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
+  const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
@@ -57,7 +59,7 @@ const Chat: React.FC = () => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isKeyboardOpen]);
 
   useEffect(() => {
     setTimeout(() => textareaRef.current?.focus(), 100);
@@ -123,7 +125,10 @@ const Chat: React.FC = () => {
     : null;
 
   return (
-    <div className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:z-auto md:h-full md:inset-auto">
+    <div
+      className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:z-auto md:h-full md:inset-auto"
+      style={isKeyboardOpen ? { height: `calc(100% - ${keyboardHeight}px)` } : undefined}
+    >
       {/* Header */}
       <div
         className="border-b border-border/70 bg-background/95 backdrop-blur-sm"
