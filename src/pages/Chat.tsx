@@ -55,40 +55,32 @@ const Chat: React.FC = () => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       });
     }
-  }, [messages, isLoading, isKeyboardOpen]);
+  }, [messages, isLoading, composerReserve]);
 
-  useEffect(() => {
-    setTimeout(() => textareaRef.current?.focus(), 100);
-  }, []);
+  const handleSend = useCallback(
+    async (override?: string) => {
+      const msg = (override ?? inputValue).trim();
+      if (!msg || isLoading) return;
+      if (!override) setInputValue('');
+      const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
+      if (showEscalation) setShowEscalation(false);
+      await sendMessage(formatted);
+    },
+    [inputValue, isLoading, showEscalation, sendMessage]
+  );
 
-  const handleSend = async (override?: string) => {
-    const msg = (override ?? inputValue).trim();
-    if (!msg || isLoading) return;
-    if (!override) setInputValue('');
-    const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
-    if (showEscalation) setShowEscalation(false);
-    await sendMessage(formatted);
-  };
+  const handleFiles = useCallback(
+    async (fileArr: File[]) => {
+      const caption = inputValue.trim();
+      if (caption) setInputValue('');
+      const content = caption || fileArr[0].name;
+      const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${content}]` : content;
+      if (showEscalation) setShowEscalation(false);
+      await sendMessage(formatted, fileArr);
+    },
+    [inputValue, showEscalation, sendMessage]
+  );
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const fileArr = Array.from(files);
-    e.target.value = '';
-    const caption = inputValue.trim();
-    if (caption) setInputValue('');
-    const content = caption || fileArr[0].name;
-    const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${content}]` : content;
-    if (showEscalation) setShowEscalation(false);
-    await sendMessage(formatted, fileArr);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
 
   if (!isValid || !userId) {
     return (
