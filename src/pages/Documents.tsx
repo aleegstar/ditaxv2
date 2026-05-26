@@ -744,7 +744,7 @@ const DocumentsContent: React.FC<{
             style={{ bottom: 'calc(88px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
           >
             <button
-              onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
+              onClick={() => setShowUploadSheet(true)}
               aria-label={t.documentsPage.upload}
               data-tour="document-upload-floating"
               className="pointer-events-auto w-14 h-14 rounded-full flex items-center justify-center text-white transition-all active:scale-[0.94]"
