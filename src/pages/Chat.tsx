@@ -50,7 +50,8 @@ const Chat: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, viewportHeight, viewportOffsetTop } = useKeyboardDetection();
+  const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
+  const composerOffset = isKeyboardOpen ? Math.max(keyboardHeight, 0) : 0;
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
@@ -139,17 +140,7 @@ const Chat: React.FC = () => {
     : null;
 
   return (
-    <div
-      className="fixed inset-x-0 top-0 bottom-0 z-[40] flex min-h-0 flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full"
-      style={
-        isKeyboardOpen
-          ? {
-              height: `${viewportHeight + viewportOffsetTop}px`,
-              bottom: 'auto',
-            }
-          : undefined
-      }
-    >
+    <div className="fixed inset-x-0 top-0 bottom-0 z-[40] flex min-h-0 flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full">
       {/* Header */}
       <div
         className="border-b border-border/70 bg-background/95 backdrop-blur-sm"
@@ -453,6 +444,7 @@ const Chat: React.FC = () => {
       <div
         className="shrink-0 px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
         style={{
+          marginBottom: isKeyboardOpen ? `${composerOffset}px` : '0px',
           paddingBottom: isKeyboardOpen
             ? '10px'
             : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 14px)',
