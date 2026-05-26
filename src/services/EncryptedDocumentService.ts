@@ -5,13 +5,6 @@ import KeyManagementService from './KeyManagementService';
 import { v4 as uuidv4 } from 'uuid';
 import { validateStoragePath } from '@/utils/fileValidation';
 
-const assertSafePath = (p: string): string => {
-  if (!validateStoragePath(p)) {
-    throw new Error('Unsicherer Speicherpfad erkannt');
-  }
-  return p;
-};
-
 export interface DocumentMetadata {
   id: string;
   fileName: string;
