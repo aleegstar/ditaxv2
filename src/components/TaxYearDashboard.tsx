@@ -622,19 +622,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       </div>
 
       {/* Body: badge + title + action */}
-      <div className="flex p-3 items-center justify-between gap-3">
+      <div className="flex p-3 items-center gap-3">
         <div className="min-w-0 flex-1 space-y-1.5">
           <div className="text-[10.5px] font-medium text-muted-foreground uppercase tracking-wider">{nextStepMeta.badge}</div>
           <h3 className="text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">{nextStepMeta.title}</h3>
         </div>
-        <button
-          type="button"
-          onClick={nextStepMeta.onClick}
-          className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[13px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.35)] active:scale-[0.97] transition-all"
-        >
-          {nextStepMeta.action}
-          <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
-        </button>
       </div>
     </div>
   );
