@@ -28,6 +28,7 @@ import documentsHero from '@/assets/documents-hero.webp';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
+import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 import { YearPillSelector } from '@/components/dashboard/YearPillSelector';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { getAvailableTaxYears } from '@/config/availableTaxYears';
