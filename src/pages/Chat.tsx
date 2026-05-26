@@ -52,6 +52,9 @@ const Chat: React.FC = () => {
     useChatMessages(userId || '');
   const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
   const composerOffset = isKeyboardOpen ? Math.max(keyboardHeight, 0) : 0;
+  const composerBottom = isKeyboardOpen
+    ? `${composerOffset + 8}px`
+    : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 8px)';
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
@@ -222,7 +225,11 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto"
+        style={{ paddingBottom: isKeyboardOpen ? '184px' : '196px' }}
+      >
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -442,12 +449,10 @@ const Chat: React.FC = () => {
 
       {/* Input */}
       <div
-        className="shrink-0 px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
+        className="fixed inset-x-0 z-[45] px-5 pt-3 border-t border-border/40 bg-background/95 backdrop-blur-sm"
         style={{
-          marginBottom: isKeyboardOpen ? `${composerOffset}px` : '0px',
-          paddingBottom: isKeyboardOpen
-            ? '10px'
-            : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 14px)',
+          bottom: composerBottom,
+          paddingBottom: isKeyboardOpen ? '10px' : '14px',
         }}
       >
         <div className="max-w-[680px] mx-auto">
