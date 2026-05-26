@@ -93,6 +93,7 @@ const DocumentChecklist: React.FC = () => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerInitialIndex, setViewerInitialIndex] = useState(0);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
+  const [bulkDragOver, setBulkDragOver] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [assignmentModal, setAssignmentModal] = useState<{
     open: boolean;
