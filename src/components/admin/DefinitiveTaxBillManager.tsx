@@ -238,6 +238,7 @@ export function DefinitiveTaxBillManager() {
       }
       
       // Upload file to storage
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError } = await supabase.storage
         .from('definitive-tax-bills')
         .upload(filePath, selectedFile);
@@ -287,6 +288,7 @@ export function DefinitiveTaxBillManager() {
       return;
     }
     try {
+      if (!validateStoragePath(bill.file_path)) throw new Error('Unsicherer Speicherpfad');
       const { data, error } = await supabase.storage
         .from('definitive-tax-bills')
         .download(bill.file_path);

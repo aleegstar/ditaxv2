@@ -58,6 +58,7 @@ export const ReviewSubmittedItemsDialog: React.FC<ReviewSubmittedItemsDialogProp
       return;
     }
     try {
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { data, error } = await supabase.storage
         .from('missing-items')
         .download(filePath);

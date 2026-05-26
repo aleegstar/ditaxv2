@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, FileText, Upload, Download, Clock, Eye, CheckCircle, XCircle, AlertCircle, AlertTriangle, Receipt, Calendar, CloudUpload } from 'lucide-react';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface DefinitiveTaxBill {
   id: string;
@@ -137,11 +138,13 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
       
       // If file exists, delete old one first
       if (existingBill) {
+        if (!validateStoragePath(existingBill.file_path)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage
           .from('definitive-tax-bills')
           .remove([existingBill.file_path]);
       }
       
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError } = await supabase.storage
         .from('definitive-tax-bills')
         .upload(filePath, selectedFile, { upsert: true });
@@ -219,6 +222,7 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
 
   const handleDownload = async (bill: DefinitiveTaxBill) => {
     try {
+      if (!validateStoragePath(bill.file_path)) throw new Error('Unsicherer Speicherpfad');
       const { data, error } = await supabase.storage
         .from('definitive-tax-bills')
         .download(bill.file_path);

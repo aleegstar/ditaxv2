@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from "@/components/ui/button";
 import heroImage from '@/assets/admin-processing-hero.jpg';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface PaidTaxReturn {
   id: string;
@@ -272,6 +273,7 @@ const TaxReturnCreation: React.FC = () => {
       });
 
       // Upload file to storage
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('completed-tax-returns')
         .upload(filePath, selectedFile, {
@@ -288,6 +290,7 @@ const TaxReturnCreation: React.FC = () => {
       console.log('Upload successful:', uploadData);
 
       // Insert record into completed_tax_returns table (use sanitized file name)
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: dbError } = await supabase
         .from('completed_tax_returns')
         .insert({

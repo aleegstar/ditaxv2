@@ -7,6 +7,7 @@ import { User, Clock, CheckCircle, Bot, Download, FileText, Image } from 'lucide
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { QuickReplySelector } from './QuickReplySelector';
 import { useQuickReplies, QuickReply } from '@/hooks/useQuickReplies';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface ChatMessage {
   id: string;
@@ -413,6 +414,7 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
   };
   const handleDownloadFile = async (filePath: string, fileName: string, attachmentId?: string) => {
     try {
+      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const {
         data,
         error
