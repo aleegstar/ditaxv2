@@ -198,6 +198,19 @@ const BulkUploadContent: React.FC = () => {
     if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
   }, []);
 
+  // Pick up files that were drag-dropped on the previous page.
+  const consumedInitialFiles = useRef(false);
+  useEffect(() => {
+    if (consumedInitialFiles.current) return;
+    const initial = (location.state as { initialFiles?: File[] } | null)?.initialFiles;
+    if (initial && initial.length > 0) {
+      consumedInitialFiles.current = true;
+      // Clear state so a refresh doesn't reprocess.
+      navigate(location.pathname + location.search, { replace: true, state: null });
+      handleFiles(initial);
+    }
+  }, [location, handleFiles, navigate]);
+
   // ─────────────────────────────── upload ──────────────────────────────
   const handleConfirmUpload = async () => {
     const { data } = await supabase.auth.getUser();
