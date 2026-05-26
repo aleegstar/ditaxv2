@@ -1,51 +1,78 @@
-# 30-Tage-Löschung nach elektronischer Unterschrift
+## Ziel
 
-Nach der elektronischen Unterschrift einer Steuererklärung werden die hochgeladenen Belege und die Dokumentensammlung des Nutzers für dieses Steuerjahr nach 30 Tagen automatisch gelöscht. Übrig bleibt nur die signierte Steuererklärung als PDF. Der Nutzer wird transparent darüber informiert — vor, während und nach der Unterschrift.
+In der Despia-App nicht mehr Stripe Checkout im OAuth-Browser öffnen, sondern das **native Stripe Payment Sheet** über `despia('stripe://payment?...')` anzeigen. Web-Flow (Checkout Session) bleibt unverändert.
 
-## 1. Backend — automatische Löschung
+## Voraussetzungen
 
-**Neue Edge Function: `cleanup-signed-tax-year-documents`** (täglich per Cron)
+- Neuer Secret: **`STRIPE_PUBLISHABLE_KEY`** (muss zum bestehenden `STRIPE_SECRET_KEY` passen — test↔test, live↔live). Wird via `add_secret` angefordert.
 
-Pro `completed_tax_returns`-Eintrag mit `signed_at < now() - interval '30 days'` und Status nicht bereits gelöscht:
-- Alle `uploaded_documents` für `(tax_filer_id, tax_year)` ermitteln
-- Zugehörige Dateien im Storage-Bucket `tax-documents` löschen (verschlüsselt abgelegte Originale)
-- Datenbankzeilen in `uploaded_documents` löschen
-- Lösch-Status auf `completed_tax_returns` markieren (neue Spalte `documents_deleted_at`), damit kein Re-Run
+## Backend: neue Edge Function `create-payment-intent`
 
-**Nicht gelöscht** wird:
-- `completed_tax_returns` (signiertes PDF im Bucket `completed-tax-returns`)
-- `tax_return_signatures` (rechtlicher Nachweis der Unterschrift)
-- `form_data` (Stammdaten, evtl. fürs Folgejahr nützlich) — *siehe offene Frage unten*
+Eigene Function (nicht in `create-payment` mischen, damit Web-Checkout stabil bleibt). Wiederverwendung der bestehenden Logik aus `create-payment`:
 
-**Migration:**
-- Spalte `documents_deleted_at timestamptz` auf `completed_tax_returns`
-- Cron-Job (pg_cron) ruft die Edge Function 1×/Tag auf
+- Auth via `getClaims` / Bearer-Token
+- Zod-Validierung der Inputs (`taxYear`, `amount`, `items`, `expressService`, `taxReturnId`, `taxFilerId`, `promoCodeId`)
+- **Aktionswoche-Enforcement** (CHF 100 + Express CHF 20, identisch zur aktuellen Funktion)
+- Stripe-Customer lookup/create + Adress-/Profil-Prefill (gleiche Logik wie heute)
+- Promo-Code-Handling: serverseitig Rabatt aus `promoCodeId` auflösen (Stripe `promotionCodes.retrieve` → `coupon.percent_off` / `amount_off`) und auf `amount` anwenden, da PaymentIntents keine `discounts` wie Checkout Sessions unterstützen
+- **Ephemeral Key** erstellen (`stripe.ephemeralKeys.create({ customer }, { apiVersion: '2024-06-20' })`) für Saved Cards
+- `stripe.paymentIntents.create({ amount, currency: 'chf', customer, automatic_payment_methods: { enabled: true }, metadata: { userId, taxYear, taxReturnId, taxFilerId, expressService, requestId } })`
+- `tax_returns` mit `payment_intent_id`, `express_service` und `payment_status='pending'` updaten
+- Response: `{ client_secret, publishable_key: STRIPE_PUBLISHABLE_KEY, customer_id, ephemeral_key_secret, payment_intent_id, requestId }`
 
-## 2. UI — Nutzer informieren
+Bestehender `stripe-webhook` behandelt `payment_intent.succeeded` bereits → keine Änderung nötig.
 
-**a) Im `SignatureDialog` (vor Bestätigung)**
-Direkt über dem „Einreichen"-Button ein dezenter Hinweisblock:
-> „Nach der Unterschrift werden deine hochgeladenen Belege und die Dokumentensammlung für {jahr} nach 30 Tagen automatisch gelöscht. Die unterschriebene Steuererklärung bleibt dauerhaft als PDF verfügbar."
+## Frontend: `PaymentSection.tsx`
 
-**b) Auf `/documents` für bereits unterschriebene Steuerjahre**
-Banner oben in der Dokumentenliste (wenn `signed_at` gesetzt und noch nicht gelöscht):
-> „Diese Belege werden am {signed_at + 30 Tage} gelöscht. Lade sie bei Bedarf vorher herunter."
-Mit Countdown ("noch X Tage").
+`handlePayment` verzweigt schon zwischen Despia und Web. Despia-Zweig komplett ersetzen:
 
-**c) Im Dashboard `CompletedContent` / abgeschlossenen Steuerjahr-Card**
-Kleiner Vermerk: „Belege bis {datum} verfügbar — danach nur noch PDF".
+1. Beim Mount in Despia-Umgebung einmalig `window.stripeEvent = …` setzen (in `useEffect`, mit Cleanup, damit kein Doppel-Handler entsteht)
+2. Statt `supabase.functions.invoke('create-payment', …)` → `invoke('create-payment-intent', …)`
+3. `triggerDespiaOAuth(paymentUrl)` ersetzen durch:
+   ```ts
+   despia(`stripe://payment?publishable_key=${pk}&payment_intent_client_secret=${cs}&customer_id=${cid}&ephemeral_key_secret=${ek}&theme=light&accent_color=1E3A5F&corner_radius=16&action_corner_radius=16`)
+   ```
+   (Branding: Ditax-Navy `#1E3A5F`, Radius passt zum App-Style)
+4. `window.stripeEvent` Handling:
+   - `status === 'completed'` → `tax_returns`-Polling (max 60s) bis `payment_status='paid'` (Webhook bestätigt), dann `navigate('/payment-success?…')`
+   - `status === 'canceled'` → Toast „Zahlung abgebrochen", `setIsLoading(false)`
+   - `status === 'failed'` → Toast mit `event.error`, `setIsLoading(false)`
+5. Polling-Fallback (3s Intervall, 5 min Timeout) auch hier, falls `stripeEvent` nie feuert
+6. Cleanup-Hook: bei Unmount `window.stripeEvent = undefined`
 
-**d) Nach erfolgter Löschung (`documents_deleted_at` gesetzt)**
-Empty-State auf `/documents` für dieses Jahr: „Die Belege für {jahr} wurden gemäss unserer 30-Tage-Regel gelöscht. Deine unterschriebene Steuererklärung ist weiterhin als PDF verfügbar."
+## Helper in `src/lib/despia.ts`
 
-## 3. Offene Frage
+Neuer typisierter Wrapper:
 
-Sollen wir auch `form_data` (eingegebene Formularantworten) nach 30 Tagen löschen, oder nur die **hochgeladenen Belege/Dateien**? Aktueller Plan: nur Uploads + Dokumentensammlung löschen, `form_data` behalten (nützlich für Folgejahr-Import). Bitte bestätigen oder korrigieren.
+```ts
+export type StripeEvent =
+  | { method: 'paymentSheet'; status: 'completed' }
+  | { method: 'paymentSheet'; status: 'canceled' }
+  | { method: 'paymentSheet'; status: 'failed'; error: string };
 
-## Technische Details
+export const triggerDespiaStripePaymentSheet = (params: {
+  publishableKey: string;
+  clientSecret: string;
+  customerId?: string;
+  ephemeralKeySecret?: string;
+  theme?: 'light' | 'dark' | 'automatic';
+  accentColor?: string;       // hex ohne #
+  cornerRadius?: number;
+  actionCornerRadius?: number;
+}) => void;
+```
 
-- Storage-Pfade aus `uploaded_documents.file_path` einsammeln und in Batches via `supabase.storage.from('tax-documents').remove([...])` löschen
-- Filterung strikt nach `tax_filer_id` + `tax_year` (Multi-Person-Isolation)
-- Idempotent: `documents_deleted_at IS NULL` als Vorbedingung
-- Text durchgehend Du-Form (Ditax Konvention)
-- Datum-Berechnung in UI: `signed_at + 30d`, Format `de-CH`
+inkl. `declare global { interface Window { stripeEvent?: (e: StripeEvent) => void } }`.
+
+## Was nicht geändert wird
+
+- Web-Flow (Stripe Checkout) und `create-payment` Function
+- `payment-redirect` Function (bleibt für ältere App-Versionen aktiv)
+- `stripe-webhook`, `payment_status`-Logik, `PaymentSuccess`-Seite
+- UI-Design der PaymentSection — nur die `handlePayment`-Logik wird ersetzt
+
+## Risiken / Hinweise
+
+- Apple/Google verbieten Stripe für **digitale Güter** in Apps. Steuerberatung = real-world service → laut Despia-Doku zulässig (Kategorie „performed by a human, fulfilled outside the app"). Trotzdem vor App-Store-Submission verifizieren.
+- `STRIPE_PUBLISHABLE_KEY` muss exakt zum Secret-Mode passen, sonst SDK-Fehler „invalid client secret".
+- Promo-Code-Rabatt wird im neuen Flow serverseitig auf `amount` angewendet — Diskrepanz zu Checkout (dort als Stripe-Promotion-Code) ist akzeptabel, da identischer Endbetrag.
