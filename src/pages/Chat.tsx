@@ -75,6 +75,19 @@ const Chat: React.FC = () => {
     await sendMessage(formatted);
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const fileArr = Array.from(files);
+    e.target.value = '';
+    const caption = inputValue.trim();
+    if (caption) setInputValue('');
+    const content = caption || fileArr[0].name;
+    const formatted = showEscalation ? `[Mit Mitarbeitern sprechen: ${content}]` : content;
+    if (showEscalation) setShowEscalation(false);
+    await sendMessage(formatted, fileArr);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
