@@ -50,7 +50,7 @@ const Chat: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
+  const { isKeyboardOpen, keyboardHeight, viewportHeight, viewportOffsetTop } = useKeyboardDetection();
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
