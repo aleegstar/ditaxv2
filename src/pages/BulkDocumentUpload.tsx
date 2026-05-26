@@ -44,6 +44,7 @@ const CONFIDENCE_PILL_CLS =
 
 const BulkUploadContent: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const year = searchParams.get('year') || new Date().getFullYear().toString();
   const from = searchParams.get('from');
