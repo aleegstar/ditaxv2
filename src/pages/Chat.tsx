@@ -59,7 +59,7 @@ const Chat: React.FC = () => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isKeyboardOpen]);
 
   useEffect(() => {
     setTimeout(() => textareaRef.current?.focus(), 100);
