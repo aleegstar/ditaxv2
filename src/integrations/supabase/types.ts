@@ -2465,6 +2465,33 @@ export type Database = {
           },
         ]
       }
+      passkey_challenges: {
+        Row: {
+          challenge: string
+          created_at: string
+          credential_id: string
+          email: string
+          expires_at: string
+          id: string
+        }
+        Insert: {
+          challenge: string
+          created_at?: string
+          credential_id: string
+          email: string
+          expires_at?: string
+          id?: string
+        }
+        Update: {
+          challenge?: string
+          created_at?: string
+          credential_id?: string
+          email?: string
+          expires_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       payment_events: {
         Row: {
           amount: number | null
