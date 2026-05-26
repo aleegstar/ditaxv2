@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock, Upload, Shield, Sparkles, Wallet, Building2, HeartPulse, Landmark, Receipt, FileBadge, ChevronRight, ImageIcon } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock, Upload, Shield, Sparkles, Wallet, Building2, HeartPulse, Landmark, Receipt, FileBadge, ChevronRight, ImageIcon, Menu } from 'lucide-react';
+import ditaxLogoMask from '@/assets/ditax-logo-mask.svg';
+import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
@@ -84,6 +86,7 @@ const DocumentsContent: React.FC<{
   const {
     profile
   } = useProfile();
+  const { setMenuSheetOpen } = useSidebar();
 
   // Check if tax return is locked (paid/completed)
   const { isLocked } = useTaxReturnStatus(selectedYear);
@@ -485,6 +488,23 @@ const DocumentsContent: React.FC<{
           style={{ paddingTop: 'calc(20px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
         >
           <div className="max-w-[960px] mx-auto w-full pb-4">
+            {/* Mobile top bar — matches main page (logo + bell + menu) */}
+            <header className="md:hidden flex pb-5 items-center justify-between">
+              <div className="flex items-center">
+                <img src={ditaxLogoMask} alt="ditax" className="h-[22px] w-auto object-contain" />
+              </div>
+              <div className="flex items-center gap-1 -mr-1">
+                <ProfileWithNotifications avatarUrl={profile?.avatar_url} firstName={profile?.first_name} />
+                <button
+                  onClick={() => setMenuSheetOpen(true)}
+                  aria-label="Menü"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
+                >
+                  <Menu className="w-[17px] h-[17px]" strokeWidth={1.75} />
+                </button>
+              </div>
+            </header>
+
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3 mb-4">
