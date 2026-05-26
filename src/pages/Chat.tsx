@@ -50,7 +50,7 @@ const Chat: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
+  const { isKeyboardOpen, keyboardHeight, viewportHeight, viewportOffsetTop } = useKeyboardDetection();
 
   const currentTaxYear = new Date().getFullYear() - 1;
 
@@ -140,8 +140,15 @@ const Chat: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:z-auto md:h-full md:inset-auto"
-      style={isKeyboardOpen ? { height: `calc(100% - ${keyboardHeight}px)` } : undefined}
+      className="fixed left-0 right-0 top-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:z-auto md:h-full md:inset-auto md:transform-none"
+      style={
+        isKeyboardOpen
+          ? {
+              height: `${viewportHeight}px`,
+              transform: `translateY(${viewportOffsetTop}px)`,
+            }
+          : { height: '100%' }
+      }
     >
       {/* Header */}
       <div
