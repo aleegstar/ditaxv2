@@ -298,6 +298,56 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           if (f) handleFile(f);
         }}
       />
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!working) setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          if (working) return;
+          const f = e.dataTransfer.files?.[0];
+          if (f) handleFile(f);
+        }}
+        onClick={() => !working && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === " ") && !working) {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        className={`w-full rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-2 px-6 py-8 ${
+          isDragging
+            ? "border-primary bg-primary/5"
+            : "border-border bg-background/60 hover:border-primary/50 hover:bg-primary/[0.03]"
+        } ${working ? "opacity-60 cursor-not-allowed" : ""}`}
+      >
+        {working ? (
+          <>
+            <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            <div className="text-sm font-medium text-foreground">Analyse läuft …</div>
+          </>
+        ) : (
+          <>
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <FileUp className="w-5 h-5 text-primary" strokeWidth={1.75} />
+            </div>
+            <div className="text-sm font-semibold text-foreground">
+              PDF hierher ziehen oder auswählen
+            </div>
+            <div className="text-[12px] text-muted-foreground">
+              Max. 20 MB · nur PDF
+            </div>
+          </>
+        )}
+      </div>
       <Button
         type="button"
         onClick={() => inputRef.current?.click()}
