@@ -19,7 +19,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
-import { isDespiaNative, triggerDespiaOAuth, triggerDespiaStripePaymentSheet, type StripePaymentSheetEvent } from '@/lib/despia';
+import { isDespiaNative, triggerDespiaStripePaymentSheet, type StripePaymentSheetEvent } from '@/lib/despia';
 import { useAuth } from '@/contexts/AuthContext';
 interface PaymentSectionProps {
   isUpgrade?: boolean;
