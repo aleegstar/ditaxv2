@@ -505,35 +505,20 @@ const DocumentsContent: React.FC<{
               </div>
             </header>
 
-            <div className="flex items-start justify-between gap-6">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1]">
-                    Dokumente
-                  </h1>
-                  <TaxFilerSelector className="md:hidden flex-shrink-0" />
-                </div>
-                <div data-tour="documents-year-selector">
-                  <YearPillSelector
-                    years={availableYears}
-                    selectedYear={selectedYear}
-                    onSelect={handleYearSelect}
-                  />
-                </div>
+            <div className="min-w-0 md:mt-4 md:mb-6">
+              <div className="flex items-start justify-between gap-3 mb-4 md:mb-6">
+                <h1 className="text-[22px] md:text-[28px] xl:text-[30px] font-semibold text-foreground tracking-[-0.022em] leading-[1.15]">
+                  Dokumente
+                </h1>
+                <TaxFilerSelector className="md:hidden flex-shrink-0" />
               </div>
-
-
-              {!isLocked && (
-                <button
-                  onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
-                  data-tour="document-upload-card"
-                  className="hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition-all flex-shrink-0 hover:shadow-md active:scale-[0.98] shadow-sm"
-                  style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}
-                >
-                  <Upload className="w-3.5 h-3.5" strokeWidth={2.25} />
-                  Hochladen
-                </button>
-              )}
+              <div data-tour="documents-year-selector">
+                <YearPillSelector
+                  years={availableYears}
+                  selectedYear={selectedYear}
+                  onSelect={handleYearSelect}
+                />
+              </div>
             </div>
           </div>
         </div>
