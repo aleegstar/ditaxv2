@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   Upload,
   FileText,
@@ -44,6 +44,7 @@ const CONFIDENCE_PILL_CLS =
 
 const BulkUploadContent: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const year = searchParams.get('year') || new Date().getFullYear().toString();
   const from = searchParams.get('from');
@@ -196,6 +197,19 @@ const BulkUploadContent: React.FC = () => {
   useEffect(() => () => {
     if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
   }, []);
+
+  // Pick up files that were drag-dropped on the previous page.
+  const consumedInitialFiles = useRef(false);
+  useEffect(() => {
+    if (consumedInitialFiles.current) return;
+    const initial = (location.state as { initialFiles?: File[] } | null)?.initialFiles;
+    if (initial && initial.length > 0) {
+      consumedInitialFiles.current = true;
+      // Clear state so a refresh doesn't reprocess.
+      navigate(location.pathname + location.search, { replace: true, state: null });
+      handleFiles(initial);
+    }
+  }, [location, handleFiles, navigate]);
 
   // ─────────────────────────────── upload ──────────────────────────────
   const handleConfirmUpload = async () => {

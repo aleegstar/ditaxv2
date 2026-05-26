@@ -93,6 +93,7 @@ const DocumentChecklist: React.FC = () => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerInitialIndex, setViewerInitialIndex] = useState(0);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
+  const [bulkDragOver, setBulkDragOver] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [assignmentModal, setAssignmentModal] = useState<{
     open: boolean;
@@ -429,7 +430,29 @@ return <div className="min-h-screen">
         </div>
 
         {/* Bulk uploader entry — schneller Weg */}
-        <div className="rounded-2xl border border-[#1450dc] bg-card p-5 sm:p-6">
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setBulkDragOver(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setBulkDragOver(false);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setBulkDragOver(false);
+            const dropped = Array.from(e.dataTransfer.files ?? []);
+            if (dropped.length === 0) return;
+            navigate(`/documents/bulk?year=${taxYear}&from=checklist`, {
+              state: { initialFiles: dropped },
+            });
+          }}
+          className={cn(
+            "rounded-2xl border bg-card p-5 sm:p-6 transition-colors",
+            bulkDragOver ? "border-primary bg-primary/[0.04]" : "border-[#1450dc]",
+          )}
+        >
           <div className="mb-4">
             <h3 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em]">
               Alle Unterlagen auf einmal hochladen
@@ -438,6 +461,26 @@ return <div className="min-h-screen">
               Zieh alle Dateien rein – wir erkennen die Kategorie automatisch und ordnen sie zu.
             </p>
           </div>
+
+          <div
+            className={cn(
+              "mb-3 rounded-xl border-2 border-dashed flex flex-col items-center justify-center text-center px-4 py-6 transition-colors",
+              bulkDragOver
+                ? "border-primary bg-primary/[0.06]"
+                : "border-border bg-background/60",
+            )}
+          >
+            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center mb-2">
+              <Upload className="w-5 h-5 text-primary" strokeWidth={1.75} />
+            </div>
+            <p className="text-[13px] font-medium text-foreground">
+              Dateien hierher ziehen
+            </p>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
+              PDF · JPG · PNG · HEIC
+            </p>
+          </div>
+
           <Button
             type="button"
             onClick={() => navigate(`/documents/bulk?year=${taxYear}&from=checklist`)}
