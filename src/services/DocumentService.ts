@@ -105,6 +105,10 @@ export class DocumentService {
       throw new Error('Dokument nicht gefunden');
     }
 
+    const { validateStoragePath } = await import('@/utils/fileValidation');
+    if (!validateStoragePath(doc.file_path)) {
+      throw new Error('Unsicherer Speicherpfad');
+    }
     await supabase.storage.from('documents').remove([doc.file_path]);
 
     const { error: dbError } = await supabase
