@@ -50,10 +50,12 @@ const Chat: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
-  const { isKeyboardOpen, keyboardHeight } = useKeyboardDetection();
-  const composerOffset = isKeyboardOpen ? Math.max(keyboardHeight, 0) : 0;
+  const { isKeyboardOpen, bottomInset } = useKeyboardDetection();
+  // Composer sits exactly above the keyboard (bottomInset) on mobile, and at
+  // the safe-area bottom otherwise. We use max() so that when the keyboard is
+  // closed the safe-area floor still applies.
   const composerBottom = isKeyboardOpen
-    ? `${composerOffset + 8}px`
+    ? `${bottomInset}px`
     : 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 8px)';
 
   const currentTaxYear = new Date().getFullYear() - 1;
