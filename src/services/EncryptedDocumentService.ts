@@ -114,6 +114,7 @@ class EncryptedDocumentService {
       log('Uploading to storage: ' + filePath);
       const { error: uploadError } = await supabase.storage
         .from('documents')
+        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         .upload(filePath, new Blob([encryptedData]), {
           contentType: 'application/octet-stream'
         });
@@ -155,6 +156,7 @@ class EncryptedDocumentService {
         });
       
       if (dbError) {
+        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage.from('documents').remove([filePath]);
         throw dbError;
       }
@@ -194,6 +196,7 @@ class EncryptedDocumentService {
       // Download encrypted file
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('documents')
+        if (!validateStoragePath(document.file_path)) throw new Error('Unsicherer Speicherpfad');
         .download(document.file_path);
       
       if (downloadError || !fileData) {
@@ -282,6 +285,7 @@ class EncryptedDocumentService {
       // Download encrypted file
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('documents')
+        if (!validateStoragePath(document.file_path)) throw new Error('Unsicherer Speicherpfad');
         .download(document.file_path);
       
       if (downloadError || !fileData) {
@@ -384,6 +388,7 @@ class EncryptedDocumentService {
         // For non-encrypted documents, download directly
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('documents')
+          if (!validateStoragePath(document.file_path)) throw new Error('Unsicherer Speicherpfad');
           .download(document.file_path);
         
         if (downloadError || !fileData) {
@@ -410,6 +415,7 @@ class EncryptedDocumentService {
       // Download encrypted file
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('documents')
+        if (!validateStoragePath(document.file_path)) throw new Error('Unsicherer Speicherpfad');
         .download(document.file_path);
       
       if (downloadError || !fileData) {
@@ -531,6 +537,7 @@ class EncryptedDocumentService {
       
       const { error: uploadError } = await supabase.storage
         .from('documents')
+        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         .upload(filePath, new Blob([encryptedData]), {
           contentType: 'application/octet-stream'
         });
@@ -569,6 +576,7 @@ class EncryptedDocumentService {
         });
       
       if (dbError) {
+        if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
         await supabase.storage.from('documents').remove([filePath]);
         throw dbError;
       }
@@ -629,6 +637,7 @@ class EncryptedDocumentService {
     // Delete from storage
     const { error: storageError } = await supabase.storage
       .from('documents')
+      if (!validateStoragePath(document.file_path)) throw new Error('Unsicherer Speicherpfad');
       .remove([document.file_path]);
     
     if (storageError) {

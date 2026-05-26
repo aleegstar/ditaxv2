@@ -7,6 +7,7 @@ import { User, Clock, CheckCircle, Bot, Download, FileText, Image } from 'lucide
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { QuickReplySelector } from './QuickReplySelector';
 import { useQuickReplies, QuickReply } from '@/hooks/useQuickReplies';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface ChatMessage {
   id: string;
