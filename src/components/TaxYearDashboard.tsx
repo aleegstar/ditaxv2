@@ -372,14 +372,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           >
             <div className="px-5 md:px-6 py-5 md:py-6 space-y-4">
 
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
                 <div className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full bg-[#0F1B3D] text-white text-[11.5px] font-semibold shadow-[0_4px_12px_-2px_rgba(15,27,61,0.3)]">
                   <BadgeCheck className="w-3.5 h-3.5 fill-white text-[#0F1B3D]" strokeWidth={1.5} />
                   Aktueller Schritt
                 </div>
-                <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-slate-400 tabular-nums">
-                  Schritt {n} / 3
-                </span>
               </div>
 
               <div className="space-y-2">
