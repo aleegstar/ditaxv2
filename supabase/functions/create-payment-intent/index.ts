@@ -139,6 +139,19 @@ serve(async (req) => {
       const PROMO_EXPRESS = 2900;
       amount = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
       log("Promo week enforced", { amount, expressService, requestId });
+    } else {
+      // SECURITY: Server-side Mindestpreis-Floor ausserhalb der Aktionswoche.
+      // Echter Grundpreis 15000 (CHF 150) bzw. 25000 (inkl. Express).
+      const MIN_BASE = 15000;
+      const MIN_WITH_EXPRESS = MIN_BASE + 10000;
+      const floor = expressService ? MIN_WITH_EXPRESS : MIN_BASE;
+      if (amount < floor) {
+        log("Price floor violated – rejecting", { sent: amount, floor, expressService, requestId });
+        return new Response(
+          JSON.stringify({ error: "Amount below allowed minimum", requestId }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
     }
 
     const supabaseService = createClient(
