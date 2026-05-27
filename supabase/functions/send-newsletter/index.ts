@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { corsHeaders } from "https://esm.sh/@supabase/supabase-js@2.95.0/cors";
 import { wrapNewsletterHtml } from "../_shared/newsletter-template.ts";
 import { signNewsletterToken } from "../_shared/newsletter-token.ts";
+import { isPentestMode, pentestSkipResponse } from "../_shared/pentest-guard.ts";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 
@@ -10,6 +11,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  if (isPentestMode()) return pentestSkipResponse("send-newsletter", corsHeaders);
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

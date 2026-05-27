@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { isPentestMode, pentestSkipResponse } from "../_shared/pentest-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,6 +21,8 @@ const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  if (isPentestMode()) return pentestSkipResponse("new-message-notification", corsHeaders);
 
   // SECURITY: This endpoint is invoked only by the DB trigger using the service
   // role key. Reject any caller that does not present that exact bearer token to
