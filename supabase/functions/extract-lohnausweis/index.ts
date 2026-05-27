@@ -61,6 +61,14 @@ const SYSTEM_PROMPT = `Schweizer Lohnausweis-Parser (Ziffern 1–15).
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  if (isPentestMode()) {
+    console.log("[PENTEST_MODE] extract-lohnausweis stub response");
+    return new Response(
+      JSON.stringify({ pentest_mode: true, fields: {} }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   // Auth gate
   let userId: string | null = null;
   try {
