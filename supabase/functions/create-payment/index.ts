@@ -61,6 +61,9 @@ serve(async (req) => {
       });
     }
 
+    if (isPentestMode()) return pentestSkipResponse("create-payment", corsHeaders);
+
+
     // Health check - NO AUTH REQUIRED (minimal info for security)
     if (req.method === "GET") {
       // Log detailed info server-side only for debugging
