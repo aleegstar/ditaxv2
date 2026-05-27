@@ -379,6 +379,7 @@ const Admin: React.FC = () => {
           <Route path="promo-codes" element={<PromoCodes />} />
           <Route path="ag-xml" element={<DevAgXml />} />
           <Route path="ag-import" element={<DevAgImport />} />
+          <Route path="seed-aikido" element={<SeedAikido />} />
           </Routes>
       </div>
     </div>
