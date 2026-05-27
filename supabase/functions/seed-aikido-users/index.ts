@@ -16,23 +16,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type Role = "admin" | "moderator" | "user";
+type Role = "admin" | "user";
 
 interface SeedSpec {
   email: string;
   role: Role;
+  aikido_label: "Admin" | "Manager" | "Viewer";
   tenant: "A" | "B";
   first_name: string;
   last_name: string;
 }
 
+// Note: app_role enum has only "admin" and "user".
+// Aikido Manager + Viewer both map to "user" (no privilege between admin and user).
 const SPECS: SeedSpec[] = [
-  { email: "aikido_admin_a@ditax.test",   role: "admin",     tenant: "A", first_name: "Aikido", last_name: "AdminA"   },
-  { email: "aikido_manager_a@ditax.test", role: "moderator", tenant: "A", first_name: "Aikido", last_name: "ManagerA" },
-  { email: "aikido_viewer_a@ditax.test",  role: "user",      tenant: "A", first_name: "Aikido", last_name: "ViewerA"  },
-  { email: "aikido_admin_b@ditax.test",   role: "admin",     tenant: "B", first_name: "Aikido", last_name: "AdminB"   },
-  { email: "aikido_manager_b@ditax.test", role: "moderator", tenant: "B", first_name: "Aikido", last_name: "ManagerB" },
-  { email: "aikido_viewer_b@ditax.test",  role: "user",      tenant: "B", first_name: "Aikido", last_name: "ViewerB"  },
+  { email: "aikido_admin_a@ditax.test",   role: "admin", aikido_label: "Admin",   tenant: "A", first_name: "Aikido", last_name: "AdminA"   },
+  { email: "aikido_manager_a@ditax.test", role: "user",  aikido_label: "Manager", tenant: "A", first_name: "Aikido", last_name: "ManagerA" },
+  { email: "aikido_viewer_a@ditax.test",  role: "user",  aikido_label: "Viewer",  tenant: "A", first_name: "Aikido", last_name: "ViewerA"  },
+  { email: "aikido_admin_b@ditax.test",   role: "admin", aikido_label: "Admin",   tenant: "B", first_name: "Aikido", last_name: "AdminB"   },
+  { email: "aikido_manager_b@ditax.test", role: "user",  aikido_label: "Manager", tenant: "B", first_name: "Aikido", last_name: "ManagerB" },
+  { email: "aikido_viewer_b@ditax.test",  role: "user",  aikido_label: "Viewer",  tenant: "B", first_name: "Aikido", last_name: "ViewerB"  },
 ];
 
 function randomPassword(): string {
