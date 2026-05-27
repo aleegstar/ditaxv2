@@ -65,6 +65,14 @@ async function runOcr(
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  if (isPentestMode()) {
+    console.log("[PENTEST_MODE] ocr-extract stub response");
+    return new Response(
+      JSON.stringify({ text: "", pentest_mode: true }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   // Auth gate
   let userId: string | null = null;
   try {
