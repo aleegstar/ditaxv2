@@ -30,9 +30,10 @@ export default function SeedAikido() {
         body: { reset },
       });
       if (error) throw error;
-      setCreated(data?.created ?? []);
+      const createdAccounts = data?.created ?? data?.credentials ?? [];
+      setCreated(createdAccounts);
       setSkipped(data?.skipped ?? []);
-      toast.success(`${data?.created?.length ?? 0} Aikido-Konten angelegt`);
+      toast.success(`${createdAccounts.length} Aikido-Konten angelegt`);
     } catch (e: any) {
       setError(e?.message ?? String(e));
       toast.error("Seed fehlgeschlagen");
@@ -118,6 +119,11 @@ export default function SeedAikido() {
       {skipped.length > 0 && (
         <Card className="p-4 text-sm">
           <h3 className="font-semibold mb-2">Übersprungen ({skipped.length})</h3>
+          {created.length === 0 && (
+            <p className="mb-3 text-muted-foreground">
+              Diese Konten existieren bereits. Die Passwörter werden nur direkt nach <span className="font-medium text-foreground">Reset &amp; Seed</span> angezeigt.
+            </p>
+          )}
           <ul className="space-y-1 text-muted-foreground">
             {skipped.map((s) => (
               <li key={s.email}><span className="font-mono">{s.email}</span> — {s.reason}</li>
