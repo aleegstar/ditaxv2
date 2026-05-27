@@ -25,9 +25,10 @@ interface ChatComposerProps {
  *
  * Renders inline inside the chat page's fixed-frame footer instead of being
  * portaled to <body> with manual visualViewport math. The Despia runtime is
- * configured with `preventdefault://autoscroll?enabled=false` and our root
- * page uses Despia's recommended fixed frame structure (header / scroll /
- * footer), so the WebView keeps the footer above the keyboard automatically.
+ * configured with `preventdefault://autoscroll?enabled=false`, while the chat
+ * page measures the keyboard inset with visualViewport and shifts the footer
+ * above the keyboard. The composer itself stays inline and only keeps the
+ * safe-area padding at the very bottom.
  */
 export const ChatComposer: React.FC<ChatComposerProps> = ({
   value,
