@@ -59,18 +59,19 @@ serve(async (req) => {
     const userClient = createClient(SUPABASE_URL, ANON, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: claims, error: claimsErr } = await userClient.auth.getClaims(
+    const { data: userData, error: userErr } = await userClient.auth.getUser(
       authHeader.replace("Bearer ", ""),
     );
-    if (claimsErr || !claims?.claims?.sub) {
+    if (userErr || !userData?.user?.id) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const callerId = userData.user.id;
 
     const admin = createClient(SUPABASE_URL, SERVICE);
     const { data: isAdmin } = await admin.rpc("has_role", {
-      _user_id: claims.claims.sub, _role: "admin",
+      _user_id: callerId, _role: "admin",
     });
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden — admin only" }), {
