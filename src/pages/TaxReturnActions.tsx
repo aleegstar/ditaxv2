@@ -14,6 +14,7 @@ import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader
 import { SignatureDialog } from "@/components/signature/SignatureDialog";
 import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
 import completedHero from "@/assets/completed-hero.png";
+import { openFile, isDespiaNative } from "@/lib/despia";
 
 interface UserProfile {
   first_name: string;
