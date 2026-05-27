@@ -7,6 +7,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
 import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { isPentestMode } from "../_shared/pentest-guard.ts";
 
 const FUNCTION_NAME = "scan-prior-year-vertex";
 const MODEL = MODEL_FLASH;
