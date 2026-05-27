@@ -4,6 +4,15 @@ import { verifyNewsletterToken } from "../_shared/newsletter-token.ts";
 
 const HTML_HEADERS = { "Content-Type": "text/html; charset=utf-8" };
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function page(title: string, body: string): string {
   return `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>${title}</title>
 <style>
