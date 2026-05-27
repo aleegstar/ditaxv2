@@ -1,66 +1,61 @@
-# Plan: Despia Virtual-Keyboard korrekt anwenden
+# Plan: Despia-Keyboard-Verhalten sauber auf `prevent-autoscroll` abstimmen
 
 ## Ziel
-Den Chat so anpassen, dass der Input in der Despia-App beim Öffnen der Tastatur nicht mehr verdeckt wird und die Umsetzung sauber der Despia-Dokumentation zur Virtual-Keyboard-Adaption entspricht.
+Das Keyboard in der Despia-App soll Eingabefelder nicht mehr verdecken. Dafür wird die App konsistent auf **eine** der beiden von Despia vorgesehenen Strategien ausgerichtet, statt aktuell gemischte Annahmen zu haben.
 
-## Was ich ändern werde
+## Was ich anpassen werde
 
-1. **Keyboard-Strategie bereinigen**
-   - Die aktuelle Umsetzung mischt zwei gegensätzliche Ansätze:
-     - `preventdefault://autoscroll?enabled=false` gibt der Web-App die volle Keyboard-Kontrolle.
-     - Der Chat nutzt inzwischen aber **kein aktives JS-Positioning mehr**, sondern verlässt sich auf das Despia-Fixed-Frame-Layout.
-   - Ich stelle das auf **eine konsistente Strategie** um: entweder echte JS-Kontrolle mit Viewport-Inset-Handling oder reines Despia-Fixed-Frame-Verhalten ohne widersprüchliche globale Deaktivierung.
+1. **Eine klare Keyboard-Strategie festziehen**
+   - Die Despia-Doku zu `/native-features/prevent-autoscroll` sagt klar: `preventdefault://autoscroll?enabled=false` ist nur richtig, wenn die App das Keyboard-Verhalten selbst per JavaScript steuert.
+   - Euer Code ist aktuell widersprüchlich:
+     - `src/main.tsx` initialisiert globale Despia-Keyboard-Logik.
+     - `src/lib/despiaKeyboard.ts` ist aktuell ein No-Op und behauptet native Auto-Anpassung.
+     - `src/hooks/useKeyboardDetection.ts` misst aber weiterhin `visualViewport` und liefert echte Keyboard-Inset-Daten.
+     - `src/components/chat/ChatComposer.tsx` kommentiert noch die alte Logik falsch.
+   - Ich richte das jetzt auf **JS-gesteuerte Keyboard-Vermeidung mit aktiviertem `prevent-autoscroll=false`** aus, weil genau das zur zusätzlich gefundenen Doku passt.
 
-2. **Chat-Root exakt an Despia-Foundation-Pattern angleichen**
-   - Root-Frame bleibt `position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden`.
-   - Header und Footer bleiben `flex-shrink-0`.
-   - Der Nachrichtenbereich bleibt der einzige Scroll-Container mit `flex: 1` und `overflow-y: auto`.
-   - Falls nötig, ergänze ich die von Despia empfohlene Safe-Area-Trennung noch sauberer, statt Safe-Areas nur indirekt über Padding einzurechnen.
+2. **Despia-Initialisierung korrekt zurückbauen**
+   - `src/lib/despiaKeyboard.ts` wieder so anpassen, dass in Despia beim App-Start tatsächlich `preventdefault://autoscroll?enabled=false` gesetzt wird.
+   - Kommentare/Dokumentation im File korrigieren, damit kein falsches Architekturwissen mehr stehen bleibt.
 
-3. **Globale Container/Wrappers auf Konflikte entschärfen**
-   - Ich prüfe und korrigiere Wrapper wie `AppShell`, `min-h-screen`, `h-screen`, `overflow-y-auto`, damit der Chat nicht in einem zusätzlichen Layout-Kontext steckt, der das Keyboard-Verhalten in Despia stört.
-   - Fokus: keine konkurrierenden Höhe-/Overflow-Annahmen oberhalb des Chat-Frames.
+3. **Chat wirklich keyboard-aware machen**
+   - `src/pages/Chat.tsx` und `src/components/chat/ChatComposer.tsx` so anpassen, dass der Composer bzw. der Footer mit dem gemessenen `bottomInset` aus `useKeyboardDetection()` nach oben verschoben wird.
+   - Dabei bleibt die bestehende Fixed-Frame-Struktur erhalten; ergänzt wird nur die echte JS-Positionierung für Despia.
+   - Ich prüfe außerdem, ob zusätzlich der Message-Scroller unten Reserve braucht, damit letzte Nachrichten nicht unter Composer/Keyboard verschwinden.
 
-4. **Safe-Area- und Footer-Abstand doc-konform machen**
-   - Footer/Composer werden konsequent an `--safe-area-bottom` gekoppelt.
-   - Ich gleiche die Werte mit Despias Safe-Area-Empfehlungen ab, damit der Footer nicht optisch korrekt wirkt, aber technisch trotzdem im falschen Viewport-Kontext sitzt.
+4. **Inkonsistenzen in Kommentaren und Nebeneffekten bereinigen**
+   - Veraltete Kommentare in `ChatComposer.tsx`, `despiaKeyboard.ts` und ggf. `main.tsx` bereinigen.
+   - Prüfen, ob andere Konsumenten von `useKeyboardDetection()` (z. B. `useIntelligentNavbar`) weiter korrekt reagieren, wenn `prevent-autoscroll=false` global aktiv ist.
 
-5. **Alte Keyboard-Hilfslogik entschlacken**
-   - Nicht mehr benötigte oder widersprüchliche Logik in `useKeyboardDetection` / `despiaKeyboard` reduziere ich auf das, was für den finalen Ansatz wirklich gebraucht wird.
-   - Ziel: keine halbaktive Keyboard-Erkennung, die nichts mehr positioniert, aber weiterhin globale Seiteneffekte auslöst.
-
-6. **Validierung gegen Despia-Szenario**
-   - Ich prüfe danach gezielt diesen Ablauf:
-     - Chat in Despia öffnen
-     - Input fokussieren
-     - Keyboard erscheint
-     - Composer bleibt sichtbar
-     - Nachrichtenbereich bleibt scrollbar
-     - Chrome/normaler Browser regressiert nicht
-
-## Relevante Abweichung, die ich gefunden habe
-
-- Laut Despia-Doku passt sich die App bei **korrekter Fixed-Frame-Struktur automatisch** an die virtuelle Tastatur an.
-- Gleichzeitig sagt die Doku zu `preventdefault://autoscroll`, dass dies nur sinnvoll ist, wenn **die Web-App die Keyboard-Vermeidung selbst in JavaScript übernimmt**.
-- Im aktuellen Code ist genau hier sehr wahrscheinlich der Widerspruch:
-  - `src/main.tsx` initialisiert global `preventdefault://autoscroll?enabled=false`
-  - `src/lib/despiaKeyboard.ts` dokumentiert noch explizit ein JS-gesteuertes Composer-Positioning
-  - `src/components/chat/ChatComposer.tsx` nutzt dieses JS-Positioning aber inzwischen nicht mehr
-  - `src/pages/Chat.tsx` verlässt sich bereits auf Footer-im-Layout
+5. **Validierung**
+   - Sicherstellen, dass das Verhalten in normalem Browser nicht regressiert.
+   - Despia-spezifisch verifizieren: Fokus ins Textfeld, Keyboard öffnet, Composer bleibt sichtbar, Nachrichtenbereich bleibt nutzbar.
 
 ## Technische Details
 
-**Betroffene Dateien**
-- `src/main.tsx`
+**Zielbild laut Despia-Doku:**
+- **Variante A:** native Fixed-Frame-Anpassung, **ohne** `prevent-autoscroll=false`
+- **Variante B:** komplette JS-Steuerung, **mit** `prevent-autoscroll=false`
+
+Der aktuelle Code liegt zwischen beiden Varianten. Ich stelle ihn auf **Variante B** um, weil:
+- die neue Doku-Stelle das explizit so beschreibt,
+- `useKeyboardDetection()` bereits vorhanden ist,
+- und das eigentliche Problem genau danach klingt, dass der Footer zwar visuell fest ist, aber nicht aktiv mit dem Keyboard-Inset mitwandert.
+
+```text
+Despia App Start
+  -> preventdefault://autoscroll?enabled=false
+  -> visualViewport / inset messen
+  -> Chat-Footer per bottomInset verschieben
+  -> Scrollbereich behält sichtbaren Platz über Keyboard
+```
+
+## Betroffene Dateien
 - `src/lib/despiaKeyboard.ts`
+- `src/main.tsx`
+- `src/hooks/useKeyboardDetection.ts` (falls kleine Bereinigung nötig)
 - `src/pages/Chat.tsx`
 - `src/components/chat/ChatComposer.tsx`
-- ggf. `src/components/layout/AppShell.tsx`
-- ggf. `src/hooks/useKeyboardDetection.ts`
 
-**Doc-Basis**
-- `/best-practices/frontend/structure#virtual-keyboard-adaptation`
-- `/native-features/prevent-autoscroll`
-- `/native-features/safe-areas`
-
-Wenn du freigibst, setze ich den Fix jetzt gezielt nach diesem Plan um.
+## Erwartetes Ergebnis
+Beim Fokussieren des Chat-Eingabefelds in Despia bleibt der Composer sichtbar und sitzt direkt oberhalb des virtuellen Keyboards, statt darunter verdeckt zu werden.
