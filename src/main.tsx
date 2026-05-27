@@ -33,8 +33,8 @@ if (isDespiaNative()) {
   NativeErrorMonitor.addBreadcrumb('system', 'Despia native env detected, safe-area floor enabled');
 }
 
-// Disable native keyboard auto-scroll in Despia so our JS keyboard avoidance
-// (ChatComposer via visualViewport) can position the input above the keyboard.
+// Disable native keyboard auto-scroll in Despia so keyboard-aware views can
+// position fixed footers with visualViewport-driven JS logic.
 initDespiaKeyboardHandling();
 
 createRoot(document.getElementById("root")!).render(
