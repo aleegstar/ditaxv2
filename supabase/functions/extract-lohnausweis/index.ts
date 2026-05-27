@@ -6,6 +6,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
 import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { isPentestMode } from "../_shared/pentest-guard.ts";
 
 const FUNCTION_NAME = "extract-lohnausweis";
 const MODEL = MODEL_FLASH;
@@ -59,6 +60,14 @@ const SYSTEM_PROMPT = `Schweizer Lohnausweis-Parser (Ziffern 1–15).
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  if (isPentestMode()) {
+    console.log("[PENTEST_MODE] extract-lohnausweis stub response");
+    return new Response(
+      JSON.stringify({ pentest_mode: true, fields: {} }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
   // Auth gate
   let userId: string | null = null;

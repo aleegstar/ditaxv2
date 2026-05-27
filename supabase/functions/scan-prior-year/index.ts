@@ -5,6 +5,7 @@
 // No raw PDFs and no PII ever reach this function.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { isPentestMode } from "../_shared/pentest-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,6 +33,14 @@ function redact(text: string): string {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  if (isPentestMode()) {
+    console.log("[PENTEST_MODE] scan-prior-year stub response");
+    return new Response(
+      JSON.stringify({ pentest_mode: true, income: [], assets: [], deductions: [] }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;

@@ -15,6 +15,7 @@ import {
 } from "../_shared/vertex-ai.ts";
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
 import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
+import { isPentestMode } from "../_shared/pentest-guard.ts";
 
 const FUNCTION_NAME = "ocr-extract";
 const PRIMARY_MODEL = MODEL_FLASH_LITE;
@@ -63,6 +64,14 @@ async function runOcr(
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  if (isPentestMode()) {
+    console.log("[PENTEST_MODE] ocr-extract stub response");
+    return new Response(
+      JSON.stringify({ text: "", pentest_mode: true }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
   // Auth gate
   let userId: string | null = null;
