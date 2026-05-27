@@ -315,6 +315,27 @@ serve(async (req) => {
         });
       }
 
+      // SECURITY: Server-side Mindestpreis-Floor gegen Client-Manipulation
+      // (z.B. amount=1). Ausserhalb der Aktionswoche ist der echte Grundpreis
+      // 15000 (CHF 150) bzw. 25000 (CHF 250 inkl. Express).
+      // Innerhalb der Aktionswoche wurde `amount` bereits weiter oben durch
+      // PROMO_BASE/PROMO_EXPRESS überschrieben.
+      if (!promoWeekActive) {
+        const MIN_BASE = 15000;
+        const MIN_WITH_EXPRESS = MIN_BASE + 10000;
+        const floor = expressService ? MIN_WITH_EXPRESS : MIN_BASE;
+        if (amount < floor) {
+          logStep("Price floor violated – rejecting", { sent: amount, floor, expressService, requestId, userId: user.id });
+          return new Response(JSON.stringify({
+            error: "Amount below allowed minimum",
+            requestId
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          });
+        }
+      }
+
       // Load customer data from database for pre-filling
       logStep("Loading customer data from database", { userId: user.id, requestId });
       
