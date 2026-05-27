@@ -114,6 +114,53 @@ export const triggerDespiaOAuth = (oauthUrl: string): void => {
 };
 
 /**
+ * Despia File Viewer (fileviewer://)
+ * Docs: https://setup.despia.com/native-features/file-viewer
+ *
+ * iOS: QuickLook. Android: Despia's in-app file viewer (QuickLook-parity).
+ * Renders PDF, images (PNG/JPG/HEIC), TXT, RTF, CSV, DOCX, XLSX, PPTX.
+ *
+ * Constraints:
+ * - Native fetch runs OUTSIDE the WebView session, so it does NOT carry
+ *   Supabase cookies. Always pass a publicly reachable HTTPS URL
+ *   (short-lived signed URL preferred).
+ * - blob:/data:/http: URLs are NOT supported — the helper returns false
+ *   so callers can fall back to the web path.
+ * - Fire-and-forget: no JS callback.
+ */
+export function openInDespiaFileViewer(
+  url: string,
+  opts?: { theme?: 'light' | 'dark' }
+): boolean {
+  if (!isDespiaNative()) return false;
+  if (typeof url !== 'string' || !/^https:\/\//i.test(url)) {
+    console.warn('[fileviewer] only absolute https URLs are supported:', url?.slice(0, 48));
+    return false;
+  }
+  const qs = `src=${encodeURIComponent(url)}` + (opts?.theme ? `&theme=${opts.theme}` : '');
+  try {
+    despia(`fileviewer://?${qs}`);
+    return true;
+  } catch (e) {
+    console.error('[fileviewer] despia() call failed', e);
+    return false;
+  }
+}
+
+/**
+ * Convenience: open a file in Despia's native previewer when available,
+ * otherwise open in a new browser tab. Returns true if a viewer was triggered.
+ */
+export function openFile(url: string, opts?: { theme?: 'light' | 'dark' }): boolean {
+  if (openInDespiaFileViewer(url, opts)) return true;
+  if (typeof window !== 'undefined' && url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return true;
+  }
+  return false;
+}
+
+/**
  * Native Stripe Payment Sheet via Despia
  * Docs: https://setup.despia.com/payments/stripe/payment
  *
