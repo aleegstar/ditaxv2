@@ -254,7 +254,7 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
 
       if (error) throw error;
 
-      window.open(data.signedUrl, '_blank');
+      openFile(data.signedUrl);
       toast({
         title: t.taxReturnActions.fileOpened,
         description: t.taxReturnActions.fileOpenedDescription.replace('{fileName}', completedTaxReturn.file_name)
