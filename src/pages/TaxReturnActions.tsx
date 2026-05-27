@@ -273,6 +273,19 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
     if (!definitiveTaxBill) return;
 
     try {
+      if (isDespiaNative()) {
+        const { data, error } = await supabase.storage
+          .from('definitive-tax-bills')
+          .createSignedUrl(definitiveTaxBill.file_path, 3600);
+        if (error) throw error;
+        openFile(data.signedUrl);
+        toast({
+          title: t.taxReturnActions.downloadSuccess,
+          description: t.taxReturnActions.downloadSuccessDescription.replace('{fileName}', definitiveTaxBill.file_name)
+        });
+        return;
+      }
+
       const { data, error } = await supabase.storage
         .from('definitive-tax-bills')
         .download(definitiveTaxBill.file_path);
