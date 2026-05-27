@@ -7,6 +7,7 @@ import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { openInDespiaFileViewer } from '@/lib/despia';
 
 import { debug } from '@/utils/debug';
 interface DocumentViewerProps {
@@ -270,6 +271,15 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       // Normal download for unencrypted files
       try {
         debug.log('Downloading document:', currentDoc.fileName);
+        // In Despia, route through native fileviewer (QuickLook on iOS,
+        // in-app viewer on Android) for consistent fidelity.
+        if (openInDespiaFileViewer(currentDoc.url)) {
+          toast({
+            title: "Wird geöffnet",
+            description: currentDoc.fileName,
+          });
+          return;
+        }
         const link = window.document.createElement('a');
         link.href = currentDoc.url;
         link.download = currentDoc.fileName;
