@@ -5,6 +5,7 @@
 // No raw PDFs and no PII ever reach this function.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { isPentestMode } from "../_shared/pentest-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
