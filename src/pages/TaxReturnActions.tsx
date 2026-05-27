@@ -181,6 +181,20 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
         return;
       }
 
+      if (isDespiaNative()) {
+        // In Despia: native Datei-Download/Vorschau via fileviewer://
+        const { data, error } = await supabase.storage
+          .from('completed-tax-returns')
+          .createSignedUrl(filePath, 3600);
+        if (error) throw error;
+        openFile(data.signedUrl);
+        toast({
+          title: t.taxReturnActions.downloadSuccess,
+          description: t.taxReturnActions.downloadSuccessDescription.replace('{fileName}', completedTaxReturn.file_name)
+        });
+        return;
+      }
+
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
         .download(filePath);
