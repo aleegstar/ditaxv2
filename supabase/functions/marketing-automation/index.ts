@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { requireAuth } from "../_shared/auth.ts";
+import { isPentestMode, pentestSkipResponse } from "../_shared/pentest-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,8 @@ const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  if (isPentestMode()) return pentestSkipResponse("marketing-automation", corsHeaders);
 
   // SECURITY: Require authenticated user; restrict to their own email to prevent
   // spam / unauthorized mailing list subscriptions.

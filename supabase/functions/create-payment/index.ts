@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { z } from 'https://deno.land/x/zod@v3.23.8/mod.ts';
+import { isPentestMode, pentestSkipResponse } from "../_shared/pentest-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,6 +61,9 @@ serve(async (req) => {
         status: 200 
       });
     }
+
+    if (isPentestMode()) return pentestSkipResponse("create-payment", corsHeaders);
+
 
     // Health check - NO AUTH REQUIRED (minimal info for security)
     if (req.method === "GET") {

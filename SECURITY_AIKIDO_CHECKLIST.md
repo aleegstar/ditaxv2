@@ -66,3 +66,68 @@ Nach Migration `lock_down_anon_and_admin_functions`:
 - [ ] Stripe-Checkout läuft (`create-payment` / `create-payment-intent`).
 - [ ] Passkey-Login funktioniert (Edge Functions nutzen `service_role`).
 - [ ] Newsletter-Unsubscribe-Link funktioniert (HMAC-Token-Verify).
+
+---
+
+## 9. Aikido Scan-Fenster Runbook
+
+### T-7 Tage
+- [ ] `supabase--linter` laufen lassen, Findings dokumentieren.
+- [ ] Storage-Buckets durchgehen (s. §2).
+- [ ] `PENTEST_CLEANUP_TEMPLATE.sql` reviewen und Cascade-Pfade verifizieren.
+
+### T-1 Tag
+- [ ] DB-Backup auslösen.
+- [ ] Secrets-Snapshot (Werte sicher dokumentieren für Re-Rotation).
+- [ ] Pentest-Daten-Prefix kommunizieren: `aikido_test_*` für E-Mails/Namen.
+
+### T-0 (Scan-Start)
+- [ ] Secret `PENTEST_MODE=true` setzen → killswitch für alle Mail- und Stripe-Side-Effects.
+  Edge Functions mit Guard: `send-newsletter`, `send-newsletter-test`, `new-message-notification`,
+  `missing-items-reminder`, `missing-items-notification`, `unread-message-notifications`,
+  `marketing-automation`, `create-payment`, `create-payment-intent`.
+- [ ] Stripe-Secrets temporär auf Test-Keys (`sk_test_…`, neuer `whsec_…` für Test-Webhook).
+- [ ] Supabase Auth Rate-Limits restriktiv setzen (Signup/OTP/Reset).
+- [ ] Cloudflare WAF: Aikido-IPs Allowlist (höchste Priorität), Bot Fight Mode aus, Rate-Limits ausnehmen.
+- [ ] Pg-Cron-Mail-Jobs pausieren: `SELECT cron.unschedule('jobname')` für Newsletter/Reminder-Jobs.
+- [ ] Aikido-Scan starten.
+
+### T+0 nach Scan
+- [ ] `PENTEST_MODE=false` setzen (oder Secret löschen).
+- [ ] Stripe-Live-Keys zurück, Live-Webhook reaktivieren.
+- [ ] Cloudflare-Rules zurücksetzen.
+- [ ] Cron-Jobs reaktivieren (`cron.schedule(...)`).
+- [ ] Cleanup: `POST /functions/v1/cleanup-pentest-data` (Admin-JWT, optional `{"dry_run":true}` zuerst).
+- [ ] Edge-Function-Logs ab Scan-Start archivieren.
+
+### T+1 Tag
+- [ ] Findings triagieren mit `security--manage_security_finding`.
+- [ ] `@security-memory` und `.lovable/plan.md` aktualisieren.
+
+---
+
+## 10. `verify_jwt = false` Functions – Begründungen
+
+Alle 17 Functions deployen ohne automatische JWT-Verifikation, validieren aber **in-code**.
+Konform mit Supabase Signing-Keys-System.
+
+| Function | Auth-Mechanismus |
+|---|---|
+| `stripe-webhook` | Stripe-Signature via `constructEventAsync` |
+| `newsletter-track-click` | HMAC-Token im Query-String |
+| `newsletter-unsubscribe` | HMAC-Token im Query-String |
+| `csp-report` | Public Browser-Endpoint (keine sensitiven Daten) |
+| `passkey-challenge` | Public Initial-Step (WebAuthn-Standard) |
+| `passkey-authenticate` | WebAuthn-Signatur-Verifikation in-code |
+| `auth-apple-callback` | Apple-Signed JWT, in-code verifiziert |
+| `auth-ios-bridge` | Code-Exchange, kein User-State |
+| `auth-start` | Public OAuth-Init |
+| `payment-redirect` | Public Stripe-Return-URL (read-only) |
+| `unread-message-notifications` | `CRON_SECRET` Bearer |
+| `missing-items-reminder` | `CRON_SECRET` Bearer |
+| `cleanup-inactive-users` | `CRON_SECRET` Bearer |
+| `cleanup-unverified-registrations` | `CRON_SECRET` Bearer |
+| `cleanup-signed-tax-year-documents` | `CRON_SECRET` Bearer |
+| `setup-email-cron` | `CRON_SECRET` Bearer |
+| `marketing-automation` | `CRON_SECRET` Bearer |
+
