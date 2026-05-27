@@ -693,6 +693,40 @@ const Auth = () => {
                     </AnimatePresence>
                   </div>
 
+                  {/* Direct Password Login (always visible) */}
+                  <div className="w-full mt-4 pt-4 border-t border-black/[0.06]">
+                    <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-[0.15em] mb-2.5 text-center">
+                      Mit Passwort anmelden
+                    </p>
+                    <form onSubmit={handlePasswordSubmit} className="space-y-2.5">
+                      <input
+                        type="email" name="pw-email" value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="block w-full rounded-xl h-12 px-4 text-[14px] bg-white text-foreground placeholder:text-muted-foreground/45 border border-black/[0.09] focus:outline-none focus:border-foreground/30 focus:ring-2 focus:ring-foreground/[0.06] transition-all"
+                        placeholder="E-Mail"
+                        aria-label="E-Mail"
+                        required
+                        disabled={isPasswordLoading}
+                      />
+                      <input
+                        type="password" name="pw-password" value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="block w-full rounded-xl h-12 px-4 text-[14px] bg-white text-foreground placeholder:text-muted-foreground/45 border border-black/[0.09] focus:outline-none focus:border-foreground/30 focus:ring-2 focus:ring-foreground/[0.06] transition-all"
+                        placeholder="Passwort"
+                        aria-label="Passwort"
+                        required
+                        disabled={isPasswordLoading}
+                      />
+                      <Button
+                        type="submit"
+                        disabled={isPasswordLoading || !email || !password}
+                        className="w-full h-12 text-[14px]"
+                      >
+                        {isPasswordLoading ? 'Anmelden…' : 'Anmelden'}
+                      </Button>
+                    </form>
+                  </div>
+
                   {/* Footer Links */}
                   <div className="mt-8 flex flex-col items-center gap-4 w-full">
                     <div className="flex items-center gap-3 text-[11px] text-muted-foreground/55">
