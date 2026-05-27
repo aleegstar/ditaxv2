@@ -32,6 +32,7 @@ import Newsletter from './admin/Newsletter';
 import PromoCodes from './admin/PromoCodes';
 import DevAgXml from './DevAgXml';
 import DevAgImport from './DevAgImport';
+import SeedAikido from './admin/SeedAikido';
 
 interface AdminUser {
   id: string;
@@ -378,6 +379,7 @@ const Admin: React.FC = () => {
           <Route path="promo-codes" element={<PromoCodes />} />
           <Route path="ag-xml" element={<DevAgXml />} />
           <Route path="ag-import" element={<DevAgImport />} />
+          <Route path="seed-aikido" element={<SeedAikido />} />
           </Routes>
       </div>
     </div>
