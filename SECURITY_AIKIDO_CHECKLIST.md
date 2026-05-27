@@ -129,5 +129,51 @@ Konform mit Supabase Signing-Keys-System.
 | `cleanup-unverified-registrations` | `CRON_SECRET` Bearer |
 | `cleanup-signed-tax-year-documents` | `CRON_SECRET` Bearer |
 | `setup-email-cron` | `CRON_SECRET` Bearer |
-| `marketing-automation` | `CRON_SECRET` Bearer |
+
+---
+
+## 11. Scan-Tag Aktivierungs-Checkliste (2-Minuten-Runbook)
+
+**Vor dem Scan:**
+
+1. [ ] Secret `PENTEST_MODE=true` setzen
+       → deaktiviert Stripe-Charges, Mails **und alle 4 Vertex-AI-OCR-Functions** (Stub-Response).
+       Functions mit Guard: `create-payment`, `create-payment-intent`,
+       `send-newsletter*`, `*-notification`, `missing-items-reminder`,
+       `marketing-automation`, **`ocr-extract`, `extract-lohnausweis`,
+       `scan-prior-year`, `scan-prior-year-vertex`**.
+2. [ ] `STRIPE_SECRET_KEY` → `sk_test_*` (aus Stripe Test-Dashboard kopieren)
+3. [ ] `STRIPE_WEBHOOK_SECRET` → Test-Mode-Webhook-Secret
+4. [ ] Im Stripe-Dashboard: Webhook-Endpoint im **Test-Mode** auf
+       `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/stripe-webhook`
+       registrieren (Events `payment_intent.succeeded`, `checkout.session.completed`).
+5. [ ] Edge Function aufrufen (als Admin):
+       `POST /functions/v1/seed-aikido-users` → 6 Credentials für Aikido kopieren.
+6. [ ] Cloudflare: Aikido-IPs in WAF auf **Allow** (höchste Priorität),
+       Bot Fight Mode **Off**.
+
+**Nach dem Scan:**
+
+7. [ ] `POST /functions/v1/cleanup-pentest-data` (löscht alle `aikido_*@ditax.test`).
+8. [ ] `STRIPE_SECRET_KEY` und `STRIPE_WEBHOOK_SECRET` zurück auf Live.
+9. [ ] `PENTEST_MODE` Secret löschen (oder auf `false` setzen).
+10. [ ] Cloudflare-Regeln wieder schärfen (Bot Fight Mode On).
+11. [ ] Findings triagieren, Security-Memory aktualisieren.
+
+## 12. Rollen-Mapping (Aikido ↔ Ditax)
+
+Aikido spricht von Admin / Manager / Viewer. Unser Enum `public.app_role`
+kennt nur `admin`, `moderator`, `user`. Mapping:
+
+| Aikido-Rolle | Ditax-Rolle (`app_role`) | Bedeutung |
+|--------------|--------------------------|-----------|
+| Admin        | `admin`                  | Voller Admin-Zugriff (Dashboard, alle Tax Returns) |
+| Manager      | `moderator`              | Erweiterte Lese-/Bearbeitungsrechte (kein Mod-Konzept im UI, daher faktisch wie `user`) |
+| Viewer       | `user`                   | Standard-Endkunde mit RLS-Isolation auf eigene `tax_filer_id` |
+
+**Mandanten-Isolation**: Ditax hat keinen klassischen Tenant — Isolation
+erfolgt strikt über `auth.uid()` und `tax_filer_id`. Zwei Aikido-User
+A/B simulieren zwei Mandanten; Cross-Tenant-Leak bedeutet hier:
+User B sieht Daten von User A.
+
 
