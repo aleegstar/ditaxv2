@@ -42,7 +42,6 @@ const Chat: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [composerReserve, setComposerReserve] = useState(180);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
@@ -55,7 +54,7 @@ const Chat: React.FC = () => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       });
     }
-  }, [messages, isLoading, composerReserve]);
+  }, [messages, isLoading]);
 
   const handleSend = useCallback(
     async (override?: string) => {
@@ -126,7 +125,8 @@ const Chat: React.FC = () => {
     : null;
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-0 z-[40] flex min-h-0 flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full">
+    <div className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full">
+
       {/* Header */}
       <div
         className="border-b border-border/70 bg-background/95 backdrop-blur-sm"
@@ -207,15 +207,12 @@ const Chat: React.FC = () => {
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages (scroll container — Despia fixed-frame middle zone) */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto"
-        style={{
-          // Reserve exactly the composer's measured height (incl. keyboard inset).
-          paddingBottom: `${composerReserve}px`,
-        }}
+        className="flex-1 min-h-0 overflow-y-auto"
       >
+
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -433,25 +430,26 @@ const Chat: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Input (portal-rendered, anchors to visualViewport) */}
-      <ChatComposer
-        value={inputValue}
-        onChange={setInputValue}
-        onSend={() => handleSend()}
-        onFiles={handleFiles}
-        placeholder={
-          showEscalation
-            ? 'Beschreibe dein Anliegen für unser Team...'
-            : escalatedMode
-            ? 'Nachricht an Support...'
-            : `Frage zur Steuererklärung ${currentTaxYear}...`
-        }
-        isLoading={isLoading}
-        showEscalation={showEscalation}
-        onToggleEscalation={() => setShowEscalation((v) => !v)}
-        onCloseEscalation={() => setShowEscalation(false)}
-        onHeightChange={setComposerReserve}
-      />
+      {/* Composer (Despia fixed-frame footer — sits above the keyboard) */}
+      <div className="flex-shrink-0 border-t border-border/60 bg-background">
+        <ChatComposer
+          value={inputValue}
+          onChange={setInputValue}
+          onSend={() => handleSend()}
+          onFiles={handleFiles}
+          placeholder={
+            showEscalation
+              ? 'Beschreibe dein Anliegen für unser Team...'
+              : escalatedMode
+              ? 'Nachricht an Support...'
+              : `Frage zur Steuererklärung ${currentTaxYear}...`
+          }
+          isLoading={isLoading}
+          showEscalation={showEscalation}
+          onToggleEscalation={() => setShowEscalation((v) => !v)}
+          onCloseEscalation={() => setShowEscalation(false)}
+        />
+      </div>
     </div>
   );
 };
