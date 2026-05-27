@@ -32,6 +32,7 @@ import Newsletter from './admin/Newsletter';
 import PromoCodes from './admin/PromoCodes';
 import DevAgXml from './DevAgXml';
 import DevAgImport from './DevAgImport';
+import SeedAikido from './admin/SeedAikido';
 
 interface AdminUser {
   id: string;
