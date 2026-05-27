@@ -76,6 +76,14 @@ REGELN:
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  if (isPentestMode()) {
+    console.log("[PENTEST_MODE] scan-prior-year-vertex stub response");
+    return new Response(
+      JSON.stringify({ pentest_mode: true, income: [], assets: [], deductions: [] }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
