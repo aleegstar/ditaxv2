@@ -4,6 +4,15 @@ import { verifyNewsletterToken } from "../_shared/newsletter-token.ts";
 
 const HTML_HEADERS = { "Content-Type": "text/html; charset=utf-8" };
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function page(title: string, body: string): string {
   return `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>${title}</title>
 <style>
@@ -68,7 +77,7 @@ serve(async (req) => {
     return new Response(
       page("Abgemeldet", `
         <h1>Du bist abgemeldet</h1>
-        <p>Wir senden dir keine Newsletter mehr an <strong>${payload.e.replace(/</g,"&lt;")}</strong>.</p>
+        <p>Wir senden dir keine Newsletter mehr an <strong>${escapeHtml(payload.e)}</strong>.</p>
         <p style="margin-top:16px;font-size:13px;">Versehentlich abgemeldet? <a href="https://app.ditax.ch/privacy-settings">In den Einstellungen wieder anmelden</a>.</p>
       `),
       { status: 200, headers: HTML_HEADERS },
