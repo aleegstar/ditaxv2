@@ -140,3 +140,13 @@ T+1d   Findings triagieren (security--manage_security_finding)
 5. Cleanup-SQL-Template als `supabase/migrations/_PENTEST_CLEANUP_TEMPLATE.sql` (nicht auto-applied).
 
 Nicht im Scope dieses Plans: echtes Staging-Setup, KMS-Migration, ClamAV.
+
+---
+
+## ✅ Pentest-Vorbereitung (umgesetzt)
+- `supabase/functions/_shared/pentest-guard.ts` – `isPentestMode()` + `pentestSkipResponse()`.
+- Guard eingebaut in 9 Side-Effect-Functions: `send-newsletter*`, `new-message-notification`, `missing-items-reminder`, `missing-items-notification`, `unread-message-notifications`, `marketing-automation`, `create-payment`, `create-payment-intent`.
+- Edge Function `cleanup-pentest-data` (admin-only, JWT + `has_role`-Check) – löscht User mit Prefix `aikido_test_` oder Substring `pentest` via Auth-Admin-API.
+- `PENTEST_CLEANUP_TEMPLATE.sql` (Root, NICHT in migrations/) – Audit + manueller Fallback.
+- `SECURITY_AIKIDO_CHECKLIST.md` erweitert: §9 Scan-Runbook (T-7d…T+1d), §10 `verify_jwt=false`-Tabelle mit Begründungen.
+- **Aktivierung:** Secret `PENTEST_MODE=true` setzen vor Scan, danach löschen.
