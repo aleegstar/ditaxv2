@@ -1,61 +1,113 @@
-# Plan: Despia-Keyboard-Verhalten sauber auf `prevent-autoscroll` abstimmen
 
-## Ziel
-Das Keyboard in der Despia-App soll Eingabefelder nicht mehr verdecken. Dafür wird die App konsistent auf **eine** der beiden von Despia vorgesehenen Strategien ausgerichtet, statt aktuell gemischte Annahmen zu haben.
+# Aikido Pentest – Vorbereitung Ditax
 
-## Was ich anpassen werde
+Ziel: Automatisierten Aikido-Scan (SAST + Surface) bestehen, ohne Critical/High Findings. Reihenfolge nach Risiko & Aufwand.
 
-1. **Eine klare Keyboard-Strategie festziehen**
-   - Die Despia-Doku zu `/native-features/prevent-autoscroll` sagt klar: `preventdefault://autoscroll?enabled=false` ist nur richtig, wenn die App das Keyboard-Verhalten selbst per JavaScript steuert.
-   - Euer Code ist aktuell widersprüchlich:
-     - `src/main.tsx` initialisiert globale Despia-Keyboard-Logik.
-     - `src/lib/despiaKeyboard.ts` ist aktuell ein No-Op und behauptet native Auto-Anpassung.
-     - `src/hooks/useKeyboardDetection.ts` misst aber weiterhin `visualViewport` und liefert echte Keyboard-Inset-Daten.
-     - `src/components/chat/ChatComposer.tsx` kommentiert noch die alte Logik falsch.
-   - Ich richte das jetzt auf **JS-gesteuerte Keyboard-Vermeidung mit aktiviertem `prevent-autoscroll=false`** aus, weil genau das zur zusätzlich gefundenen Doku passt.
+---
 
-2. **Despia-Initialisierung korrekt zurückbauen**
-   - `src/lib/despiaKeyboard.ts` wieder so anpassen, dass in Despia beim App-Start tatsächlich `preventdefault://autoscroll?enabled=false` gesetzt wird.
-   - Kommentare/Dokumentation im File korrigieren, damit kein falsches Architekturwissen mehr stehen bleibt.
+## Phase 1 – Quick Wins (sofort umsetzbar)
 
-3. **Chat wirklich keyboard-aware machen**
-   - `src/pages/Chat.tsx` und `src/components/chat/ChatComposer.tsx` so anpassen, dass der Composer bzw. der Footer mit dem gemessenen `bottomInset` aus `useKeyboardDetection()` nach oben verschoben wird.
-   - Dabei bleibt die bestehende Fixed-Frame-Struktur erhalten; ergänzt wird nur die echte JS-Positionierung für Despia.
-   - Ich prüfe außerdem, ob zusätzlich der Message-Scroller unten Reserve braucht, damit letzte Nachrichten nicht unter Composer/Keyboard verschwinden.
+### 1.1 CSP härten (`index.html`)
+- `'unsafe-eval'` aus `script-src` entfernen (steht im Widerspruch zur bestehenden Memory `csp-hardening`).
+- `'unsafe-inline'` durch Nonce/Hash ersetzen wo möglich; falls Vite-Build es benötigt, mind. dokumentieren.
+- `connect-src`: `https://api.openai.com` entfernen falls nicht mehr genutzt (Vertex AI ist Standard laut Memory).
+- `report-uri /functions/v1/csp-report` ergänzen (Edge Function existiert bereits).
 
-4. **Inkonsistenzen in Kommentaren und Nebeneffekten bereinigen**
-   - Veraltete Kommentare in `ChatComposer.tsx`, `despiaKeyboard.ts` und ggf. `main.tsx` bereinigen.
-   - Prüfen, ob andere Konsumenten von `useKeyboardDetection()` (z. B. `useIntelligentNavbar`) weiter korrekt reagieren, wenn `prevent-autoscroll=false` global aktiv ist.
+### 1.2 Cloudflare Security Headers Worker aktivieren
+- Prüfen ob `cloudflare/security-headers-worker.js` an `app.ditax.ch` gemountet ist.
+- HSTS (`max-age=31536000; includeSubDomains; preload`), `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `COOP/CORP` serverseitig garantieren (Meta-Tag = nur Defense-in-Depth).
+- TLS auf min. 1.2 (besser 1.3) im Cloudflare-Dashboard.
+- CAA-Record + DNSSEC für `ditax.ch`.
 
-5. **Validierung**
-   - Sicherstellen, dass das Verhalten in normalem Browser nicht regressiert.
-   - Despia-spezifisch verifizieren: Fokus ins Textfeld, Keyboard öffnet, Composer bleibt sichtbar, Nachrichtenbereich bleibt nutzbar.
+### 1.3 Dependency-Scan
+- `code--dependency_scan` ausführen, alle High/Critical fixen (außer dokumentierte `flatted`-Ausnahme).
 
-## Technische Details
+---
 
-**Zielbild laut Despia-Doku:**
-- **Variante A:** native Fixed-Frame-Anpassung, **ohne** `prevent-autoscroll=false`
-- **Variante B:** komplette JS-Steuerung, **mit** `prevent-autoscroll=false`
+## Phase 2 – Mail-Härtung
 
-Der aktuelle Code liegt zwischen beiden Varianten. Ich stelle ihn auf **Variante B** um, weil:
-- die neue Doku-Stelle das explizit so beschreibt,
-- `useKeyboardDetection()` bereits vorhanden ist,
-- und das eigentliche Problem genau danach klingt, dass der Footer zwar visuell fest ist, aber nicht aktiv mit dem Keyboard-Inset mitwandert.
+### 2.1 DNS / Reputation
+- **SPF**: nur Resend autorisieren (`v=spf1 include:_spf.resend.com -all`).
+- **DKIM**: Resend-Selector verifiziert.
+- **DMARC**: `v=DMARC1; p=quarantine; rua=mailto:dmarc@ditax.ch; pct=100; adkim=s; aspf=s` → später auf `p=reject`.
+- **MX/BIMI** optional.
+
+### 2.2 Edge Functions
+- Alle Mail-Funktionen auditieren: `send-newsletter`, `send-newsletter-test`, `unread-message-notifications`, `new-message-notification`, `missing-items-notification`, `missing-items-reminder`, `marketing-automation`, `newsletter-unsubscribe`, `newsletter-track-click`.
+- **Rate-Limit** (per IP + per user) auf testbare Funktionen wie `send-newsletter-test`.
+- **PII**: `console.log` mit E-Mail/Token entfernen oder maskieren.
+- **`newsletter-track-click`**: Open-Redirect verhindern – nur Whitelist erlaubter Ziel-Domains.
+- **`newsletter-unsubscribe`**: Token muss signiert (HMAC) + single-use + zeitlich begrenzt sein.
+- Resend API-Key vor Pentest rotieren.
+
+---
+
+## Phase 3 – Stripe-Härtung
+
+### 3.1 Webhook
+- `stripe-webhook` nutzt bereits `constructEventAsync` ✓ – Signatur-Pfad mit ungültiger Signatur Unit-testen.
+- Idempotenz auf Event-ID prüfen (kein Double-Processing).
+
+### 3.2 Payment-Erstellung
+- `create-payment` / `create-payment-intent`: Betrag **immer** serverseitig aus DB/Config (`promoWeek.ts`, `pricing-calculation-structure`) berechnen – nie aus Client-Body übernehmen.
+- Promo-Codes (`validate-promo-code`, `apply-referral-code`, `admin-promo-codes`): Rate-Limit gegen Brute-Force, Logging von Versuchen.
+- `payment-redirect`: nur Stripe-Domains als Redirect-Ziele zulassen.
+
+### 3.3 Admin-Endpunkte
+- `admin-promo-codes`, `admin-operations`, `get-stripe-revenue`, `get-invoices`: `has_role(auth.uid(),'admin')` server-validiert (nicht nur Frontend-Guard).
+- Stripe Secret Key rotieren vor Test.
+
+---
+
+## Phase 4 – Supabase RLS & Edge Function Audit
+
+### 4.1 Linter
+- `supabase--linter` ausführen, alle Warn/Error beheben oder in Security-Memory mit Begründung dokumentieren.
+
+### 4.2 `verify_jwt = false` Audit
+17 Functions stehen aktuell auf `verify_jwt = false`. Jede einzeln klassifizieren:
+- **Berechtigt öffentlich** (Webhooks, OAuth-Callbacks, Cron): `stripe-webhook`, `cleanup-inactive-users`, `csp-report`, `auth-start`, `auth-ios-bridge`, `auth-apple-callback`, `payment-redirect`, `newsletter-unsubscribe`, `newsletter-track-click`, `cleanup-unverified-registrations`, `cleanup-signed-tax-year-documents`.
+- **Prüfen ob `verify_jwt = true` möglich**: `sign-tax-return`, `ocr-extract`, `ocr-model`, `docs-chatbot`, `extract-lohnausweis`.
+- Bei öffentlichen Funktionen: Rate-Limit + Input-Validation (Zod) + Origin-Check verpflichtend.
+
+### 4.3 RLS-Spotcheck (kritische Tabellen)
+- `user_roles`, `tax_filers`, `documents`, `messages`, `payments`, `admin_access_logs`, `user_encryption_keys` – Policies manuell durchgehen.
+- Storage-Buckets: pfadbasierte Policies (`auth.uid()::text = (storage.foldername(name))[1]`).
+- Service-Role-Key nirgends im Frontend (grep).
+
+### 4.4 Auth-Hardening
+- Leaked-Password-Schutz in Supabase Dashboard aktiv (Memory `platform-configuration-constraints`).
+- MFA-Optionen geprüft.
+- Session-Timeout (20min) testen.
+
+---
+
+## Phase 5 – Aikido-spezifische Vorbereitung
+
+- Aikido-Connector im Workspace verbinden (UI), Scan starten.
+- Erste Findings triagieren: echte Bugs fixen, False Positives via `manage_security_finding` → `ignore` mit Begründung, `update_memory` aktualisieren.
+- Secrets-Scan: Repository auf hartcodierte Keys grep (`AKIA`, `sk_live`, `re_live`, `eyJ` außer publishable anon key).
+
+---
+
+## Ausführungsreihenfolge (heute)
 
 ```text
-Despia App Start
-  -> preventdefault://autoscroll?enabled=false
-  -> visualViewport / inset messen
-  -> Chat-Footer per bottomInset verschieben
-  -> Scrollbereich behält sichtbaren Platz über Keyboard
+1. Dependency-Scan + CSP-Fix + Cloudflare-Headers-Check  (Phase 1)
+2. DMARC/SPF/DKIM verifizieren + Edge-Function-Audit Mail (Phase 2)
+3. Stripe-Server-Preisenforcement + Webhook-Test          (Phase 3)
+4. verify_jwt-Audit + supabase--linter                    (Phase 4)
+5. Aikido-Scan starten, Findings durchgehen               (Phase 5)
 ```
 
-## Betroffene Dateien
-- `src/lib/despiaKeyboard.ts`
-- `src/main.tsx`
-- `src/hooks/useKeyboardDetection.ts` (falls kleine Bereinigung nötig)
-- `src/pages/Chat.tsx`
-- `src/components/chat/ChatComposer.tsx`
+## Out of Scope (separat)
+- Manueller Pentest (Business-Logic, Auth-Flows tief)
+- KMS-Migration (siehe `SECURITY_IMPLEMENTATION.md`)
+- Malware-Scanning ClamAV
+- Eigene verschlüsselte Backups
 
-## Erwartetes Ergebnis
-Beim Fokussieren des Chat-Eingabefelds in Despia bleibt der Composer sichtbar und sitzt direkt oberhalb des virtuellen Keyboards, statt darunter verdeckt zu werden.
+## Technische Details / Risiken
+- CSP-Änderungen können Drittanbieter-Skripte brechen → vor Deploy in Preview testen.
+- `verify_jwt = true` schaltet zuvor anonym aufrufbare Functions ab – Frontend-Aufrufer prüfen.
+- DMARC `p=reject` erst nach 2–4 Wochen `p=quarantine`-Monitoring.
+- Stripe-Key-Rotation: Webhook-Secret separat, Live- vs Test-Mode unterscheiden.
