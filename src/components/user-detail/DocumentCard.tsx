@@ -7,6 +7,7 @@ import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { documentService } from '@/services/DocumentService';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { openInDespiaFileViewer } from '@/lib/despia';
 
 interface DocumentCardProps {
   document: UploadedDocument;
@@ -144,7 +145,12 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document: doc, onPreview, u
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    // Prefer native Despia file viewer when we have an HTTPS URL
+    // (unencrypted docs only — encrypted ones live in a local blob: URL).
+    if (doc.url && /^https:\/\//i.test(doc.url) && openInDespiaFileViewer(doc.url)) {
+      return;
+    }
     if (!blobUrl) return;
     const a = window.document.createElement('a');
     a.href = blobUrl;

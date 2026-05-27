@@ -1,53 +1,79 @@
-## Problem
+# Despia File Viewer Integration
 
-Im Chrome-Browser wird `window.visualViewport` zuverlässig kleiner, sobald die Tastatur aufgeht — der Chat-Input (positioniert via `viewportBottom`) bleibt sauber über dem Keyboard. In der Despia-WebView (besonders iOS, teils Android) verändert die native Schicht aber den WebView-Frame selbst (iOS `contentInsetAdjustmentBehavior=.automatic`, Android `SOFT_INPUT_ADJUST_RESIZE`). Dadurch:
+`fileviewer://` ist aktuell **nicht** integriert. Wir bauen ihn als zentralen Helper und routen alle „Datei öffnen / Vorschau / PDF herunterladen"-Pfade in Despia-WebViews darüber, damit iOS QuickLook / Android In-App-Viewer genutzt wird statt Browser-Tab oder Download-Dialog.
 
-- `visualViewport.height` und `window.innerHeight` melden keinen oder einen inkonsistenten Inset.
-- Die native Schicht scrollt zusätzlich, sodass unser fixed-positionierter Composer hinter der Tastatur verschwindet bzw. die berechnete `viewportBottom` falsch ist.
+## Was wird gebaut
 
-Despia-Doku empfiehlt für Apps, die Keyboard-Avoidance in JS selbst regeln, explizit `preventdefault://autoscroll?enabled=false` zu setzen. Dann verhält sich `visualViewport` in beiden Plattformen konsistent (wie im Browser) und unser bestehender Hook kann sauber rechnen.
+### 1. Zentraler Helper `src/lib/despia.ts`
+Neue Funktion `openInDespiaFileViewer(url, opts?)`:
+- Akzeptiert absolute HTTPS-URL (signed URL bevorzugt).
+- `encodeURIComponent(url)` zwingend, `theme` optional (`'light' | 'dark'`).
+- Ruft `despia(\`fileviewer://?src=${encoded}${theme ? \`&theme=${theme}\` : ''}\`)`.
+- Guard: nur ausführen wenn `isDespiaNative()`; sonst `return false`, damit Caller den Web-Fallback nutzt.
+- Validierung: nur `https:`-URLs (sonst `console.warn` + `return false`).
+- Für `blob:` / `data:` URLs → nicht unterstützt (Native fetch braucht echte HTTPS-URL); Caller bleibt beim Web-Fallback.
 
-## Lösung
+### 2. Convenience-Wrapper `openFile(url, opts?)`
+- In Despia: `openInDespiaFileViewer(...)`.
+- Sonst: `window.open(url, '_blank', 'noopener,noreferrer')`.
+- Rückgabe `boolean` für „nativ geöffnet".
 
-### 1. Despia-Autoscroll global einmalig deaktivieren
+### 3. Integration an bestehenden Stellen
+Nur ergänzend, kein Verhalten ändern wenn nicht Despia:
 
-Neue Datei `src/lib/despiaKeyboard.ts`:
-- Funktion `initDespiaKeyboardHandling()` die per `isDespiaNative()` prüft und dann genau einmal `despia('preventdefault://autoscroll?enabled=false')` sendet.
-- Idempotent (Modul-Level Flag).
+- **`src/components/DocumentViewer.tsx`** – beim Öffnen einer Datei (signed URL) in Despia direkt `fileviewer://` statt iframe/`<embed>` (Fallback bleibt für Browser).
+- **`src/components/user-detail/DocumentCard.tsx`** – `handleDownload` und das Preview-Overlay: in Despia eine frische signed URL holen (über `documentService.refreshDocumentUrl`/Storage) und an `openFile` geben. `blob:`-URLs ungeeignet → wir nutzen die signed URL, nicht die lokal entschlüsselte Blob-URL (encrypted bleibt Web-Pfad, weil Native fetch keinen Decrypt kann – siehe Hinweis unten).
+- **`src/utils/pdfDownloadHelper.ts`** und **`src/utils/coverLetterDownloadHelper.ts`** – wenn die generierte/abgelegte PDF eine HTTPS-URL hat: in Despia per `openFile` öffnen; bei reinem Client-Blob bleibt Download-Verhalten unverändert.
+- **`src/pages/Invoices.tsx`** – Rechnungs-PDF (Stripe hosted_invoice_url / signed) per `openFile`.
 
-Aufruf in `src/main.tsx` direkt nach dem Mount (oder in `src/App.tsx` in einem Top-Level `useEffect`), sodass die native Schicht ab dem ersten Render nicht mehr eigenmächtig scrollt.
+### 4. Doku
+- Kurzer Kommentar-Block in `src/lib/despia.ts` mit Link auf `https://setup.despia.com/native-features/file-viewer`.
+- Eintrag in `mem://integrations/despia-native-integration-standard` (Memory-Update) mit „File Viewer via `openFile()` / `openInDespiaFileViewer()`".
 
-### 2. `useKeyboardDetection` für Despia-WebView härten
+## Wichtige Einschränkungen (technisch)
 
-In `src/hooks/useKeyboardDetection.ts`:
-- Despia-Flag importieren (`isDespiaNative`, `isDespiaIOS`).
-- Wenn `isDespiaNative()` true ist UND Autoscroll deaktiviert wurde, ist `visualViewport.height` autoritativ → keine `baselineInnerHeightRef`-Fallback-Logik, weil sie in Despia falsche Werte liefern kann (innerHeight bleibt konstant).
-- `bottomInset` exklusiv aus `window.innerHeight - (visualViewport.offsetTop + visualViewport.height)` ableiten.
-- Zusätzlich auf `visualViewport.scroll`/`resize` weiterhin lauschen, plus ein `setTimeout(compute, 250)` nach `focusin`, da iOS-WebView den Inset verzögert meldet.
-- Threshold für `isKeyboardOpen` auf 80 px senken (native Bottom-Safe-Areas können bis ~50 px gehen).
+- **Encrypted Documents** (`EncryptedDocumentService`): Inhalt wird clientseitig entschlüsselt → resultiert in `blob:`-URL. Native fetch kann das nicht lesen. → Für verschlüsselte Dokumente bleibt der bestehende Web-Viewer aktiv. `openFile` erkennt `blob:`/`data:` und liefert `false`.
+- **Auth**: Native fetch trägt keine Supabase-Cookies. Wir verwenden ausschliesslich `createSignedUrl` (kurzlebig, default 1 h, das ist okay).
+- **Fire-and-forget**: kein Callback. UI nicht auf „geöffnet"-Status warten lassen.
 
-### 3. `ChatComposer` Positionierung absichern
+## Was NICHT geändert wird
 
-In `src/components/chat/ChatComposer.tsx`:
-- `composerTop` Berechnung beibehalten (`viewportBottom - resolvedHeight`), aber bei `isDespiaNative()` zusätzlich `Math.min(composerTop, window.innerHeight - resolvedHeight - effectiveBottomInset)` als Clamp, damit der Composer nie unter den sichtbaren Bereich rutscht, selbst wenn `visualViewport` kurz inkonsistente Werte meldet.
-- Sicherstellen, dass der portalisierte Container weiterhin `position: fixed; top: 0` plus `transform: translate3d(...)` nutzt (kein Wechsel zu `bottom`, das in Despia mit deaktiviertem Autoscroll problematisch wird).
+- Web-/Desktop-Verhalten (iframe-Preview, Download-Anker) bleibt 1:1.
+- Kein Refactor der Encryption-Pipeline.
+- Kein neuer NPM-Install nötig (`despia-native` ist bereits Dependency).
 
-### 4. Verifikation
+## Technische Details
 
-- Chrome Mobile-Viewport (390×844): Tastatur-Verhalten unverändert.
-- Despia iOS + Android: Nach Deploy testen, dass der Composer beim Fokussieren des Textareas direkt über der Tastatur erscheint und beim Blur wieder ans Safe-Area-Bottom rastet.
-- Kein „White-Gap" mehr unter der Tastatur (typischer Indikator, dass Autoscroll korrekt deaktiviert wurde).
+```ts
+// src/lib/despia.ts (neu)
+export function openInDespiaFileViewer(
+  url: string,
+  opts?: { theme?: 'light' | 'dark' }
+): boolean {
+  if (!isDespiaNative()) return false;
+  if (!/^https:\/\//i.test(url)) {
+    console.warn('[fileviewer] only https URLs supported, got:', url.slice(0, 32));
+    return false;
+  }
+  const qs = `src=${encodeURIComponent(url)}` +
+    (opts?.theme ? `&theme=${opts.theme}` : '');
+  despia(`fileviewer://?${qs}`);
+  return true;
+}
 
-## Geänderte / neue Dateien
-
-```text
-NEU   src/lib/despiaKeyboard.ts
-EDIT  src/main.tsx                          (Init-Aufruf)
-EDIT  src/hooks/useKeyboardDetection.ts     (Despia-Pfad)
-EDIT  src/components/chat/ChatComposer.tsx  (Clamp + Doku-Kommentar)
+export function openFile(url: string, opts?: { theme?: 'light' | 'dark' }): boolean {
+  if (openInDespiaFileViewer(url, opts)) return true;
+  if (typeof window !== 'undefined') {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return true;
+  }
+  return false;
+}
 ```
 
-## Nicht enthalten
+## Rollout
 
-- Keine Änderung am visuellen Design des Composers (das wurde gerade neu gestaltet).
-- Keine Anpassung anderer Inputs (Auth, Forms) — `preventdefault://autoscroll=false` gilt aber global. Falls dort später Probleme auftreten, kann selektiv per `enabled=true` reaktiviert werden.
+1. Helper hinzufügen + Unit-smoke (manuell in Despia iOS + Android).
+2. Call-Sites umstellen (jeweils 1–3 Zeilen).
+3. Memory aktualisieren.
+4. QA: signed URLs für Invoices/PDF im Despia-Build testen, Web-Fallback testen.

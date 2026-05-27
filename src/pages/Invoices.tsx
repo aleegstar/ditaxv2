@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Receipt, ExternalLink, CreditCard, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { openFile } from '@/lib/despia';
 
 interface InvoiceItem {
   id: string;
@@ -132,16 +133,15 @@ const Invoices: React.FC = () => {
 
                 {/* Actions */}
                 {inv.receiptUrl && (
-                  <a
-                    href={inv.receiptUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openFile(inv.receiptUrl!)}
                     className="inline-flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors pt-1"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Beleg anzeigen
                     <ExternalLink className="w-3 h-3" />
-                  </a>
+                  </button>
                 )}
               </div>
             );
