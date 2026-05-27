@@ -633,7 +633,7 @@ const Auth = () => {
                           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                           className="overflow-hidden"
                         >
-                          <form onSubmit={handleEmailSubmit} className="space-y-2.5 pt-3">
+                          <form onSubmit={usePassword ? handlePasswordSubmit : handleEmailSubmit} className="space-y-2.5 pt-3">
                             <div>
                               <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
                               <input
@@ -645,21 +645,48 @@ const Auth = () => {
                                 placeholder={t.authFlow.emailPlaceholder}
                                 aria-label={t.authFlow.emailPlaceholder}
                                 required
-                                disabled={isLoading}
+                                disabled={isLoading || isPasswordLoading}
                               />
                             </div>
 
+                            {usePassword && (
+                              <div>
+                                <label htmlFor="password" className="sr-only">Passwort</label>
+                                <input
+                                  type="password" name="password" id="password" value={password}
+                                  onChange={(e) => setPassword(e.target.value)}
+                                  className="block w-full rounded-xl h-12 px-4 text-[14px] bg-white text-foreground placeholder:text-muted-foreground/45 border border-black/[0.09] focus:outline-none focus:border-foreground/30 focus:ring-2 focus:ring-foreground/[0.06] transition-all"
+                                  placeholder="Passwort"
+                                  aria-label="Passwort"
+                                  required
+                                  disabled={isPasswordLoading}
+                                />
+                              </div>
+                            )}
+
                             <Button
                               type="submit"
-                              disabled={isLoading}
+                              disabled={isLoading || isPasswordLoading}
                               className="w-full h-12 text-[14px]"
                             >
-                              {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
+                              {usePassword
+                                ? (isPasswordLoading ? 'Anmelden…' : 'Anmelden')
+                                : (isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode)}
                             </Button>
 
-                            <p className="text-center text-[11px] text-muted-foreground/55 leading-relaxed px-4 pt-1">
-                              {t.authFlow.microcopy}
-                            </p>
+                            <button
+                              type="button"
+                              onClick={() => { setUsePassword(p => !p); setPassword(''); }}
+                              className="block w-full text-center text-[12px] text-muted-foreground/70 hover:text-foreground transition-colors pt-1"
+                            >
+                              {usePassword ? 'Stattdessen Code per E-Mail' : 'Mit Passwort anmelden'}
+                            </button>
+
+                            {!usePassword && (
+                              <p className="text-center text-[11px] text-muted-foreground/55 leading-relaxed px-4 pt-1">
+                                {t.authFlow.microcopy}
+                              </p>
+                            )}
                           </form>
                         </motion.div>
                       )}
