@@ -77,7 +77,7 @@ serve(async (req) => {
     return new Response(
       page("Abgemeldet", `
         <h1>Du bist abgemeldet</h1>
-        <p>Wir senden dir keine Newsletter mehr an <strong>${payload.e.replace(/</g,"&lt;")}</strong>.</p>
+        <p>Wir senden dir keine Newsletter mehr an <strong>${escapeHtml(payload.e)}</strong>.</p>
         <p style="margin-top:16px;font-size:13px;">Versehentlich abgemeldet? <a href="https://app.ditax.ch/privacy-settings">In den Einstellungen wieder anmelden</a>.</p>
       `),
       { status: 200, headers: HTML_HEADERS },
