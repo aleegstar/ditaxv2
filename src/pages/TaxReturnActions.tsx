@@ -14,6 +14,7 @@ import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader
 import { SignatureDialog } from "@/components/signature/SignatureDialog";
 import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
 import completedHero from "@/assets/completed-hero.png";
+import { openFile, isDespiaNative } from "@/lib/despia";
 
 interface UserProfile {
   first_name: string;
@@ -180,6 +181,20 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
         return;
       }
 
+      if (isDespiaNative()) {
+        // In Despia: native Datei-Download/Vorschau via fileviewer://
+        const { data, error } = await supabase.storage
+          .from('completed-tax-returns')
+          .createSignedUrl(filePath, 3600);
+        if (error) throw error;
+        openFile(data.signedUrl);
+        toast({
+          title: t.taxReturnActions.downloadSuccess,
+          description: t.taxReturnActions.downloadSuccessDescription.replace('{fileName}', completedTaxReturn.file_name)
+        });
+        return;
+      }
+
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
         .download(filePath);
@@ -239,7 +254,7 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
 
       if (error) throw error;
 
-      window.open(data.signedUrl, '_blank');
+      openFile(data.signedUrl);
       toast({
         title: t.taxReturnActions.fileOpened,
         description: t.taxReturnActions.fileOpenedDescription.replace('{fileName}', completedTaxReturn.file_name)
@@ -258,6 +273,19 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
     if (!definitiveTaxBill) return;
 
     try {
+      if (isDespiaNative()) {
+        const { data, error } = await supabase.storage
+          .from('definitive-tax-bills')
+          .createSignedUrl(definitiveTaxBill.file_path, 3600);
+        if (error) throw error;
+        openFile(data.signedUrl);
+        toast({
+          title: t.taxReturnActions.downloadSuccess,
+          description: t.taxReturnActions.downloadSuccessDescription.replace('{fileName}', definitiveTaxBill.file_name)
+        });
+        return;
+      }
+
       const { data, error } = await supabase.storage
         .from('definitive-tax-bills')
         .download(definitiveTaxBill.file_path);
@@ -297,7 +325,7 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
 
       if (error) throw error;
 
-      window.open(data.signedUrl, '_blank');
+      openFile(data.signedUrl);
       toast({
         title: t.taxReturnActions.billOpened,
         description: t.taxReturnActions.billOpenedDescription.replace('{fileName}', definitiveTaxBill.file_name)
