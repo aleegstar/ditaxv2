@@ -1,17 +1,23 @@
 /**
  * Despia keyboard handling
  *
- * In der Despia-WebView verschiebt die native Schicht standardmäßig den
- * gesamten WebView, sobald die Tastatur erscheint (iOS:
- * contentInsetAdjustmentBehavior=.automatic, Android: SOFT_INPUT_ADJUST_RESIZE).
+ * Strategie (gemäß Despia-Doku):
+ *   https://setup.despia.com/best-practices/frontend/structure#virtual-keyboard-adaptation
+ *   https://setup.despia.com/native-features/prevent-autoscroll
  *
- * Da wir das Chat-Composer-Layout selbst per `visualViewport` ausrichten,
- * muss diese native Auto-Anpassung global deaktiviert werden – sonst sitzt
- * unser fixed-positionierter Composer hinter dem Keyboard.
+ * Wir verwenden die von Despia empfohlene Fixed-Frame-Struktur
+ * (siehe `src/pages/Chat.tsx`: position: fixed inset-0, flex-column,
+ *  Header/Footer flex-shrink-0, Content flex-1 overflow-y-auto).
  *
- * Doku: https://setup.despia.com/native-features/prevent-autoscroll
+ * In diesem Modell passt sich die WebView automatisch an die virtuelle
+ * Tastatur an – wir dürfen deshalb `preventdefault://autoscroll` NICHT
+ * deaktivieren, sonst entsteht genau das Problem, dass der Composer hinter
+ * dem Keyboard verschwindet.
+ *
+ * Die Funktion bleibt aus Kompatibilitätsgründen exportiert, ist aber ein
+ * No-Op. Falls wir später wieder eigenes JS-Keyboard-Handling brauchen,
+ * kann hier `preventdefault://autoscroll?enabled=false` reaktiviert werden.
  */
-import despia from 'despia-native';
 import { isDespiaNative } from './despia';
 
 let initialized = false;
@@ -21,13 +27,10 @@ export function initDespiaKeyboardHandling(): void {
   if (typeof window === 'undefined') return;
   if (!isDespiaNative()) return;
 
-  try {
-    despia('preventdefault://autoscroll?enabled=false');
-    initialized = true;
-    console.log('⌨️ Despia native keyboard autoscroll disabled');
-  } catch (error) {
-    console.warn('⌨️ Failed to disable Despia keyboard autoscroll', error);
-  }
+  initialized = true;
+  console.log(
+    '⌨️ Despia keyboard handling: native auto-adaptation active (fixed-frame layout)'
+  );
 }
 
 export function isDespiaKeyboardInitialized(): boolean {
