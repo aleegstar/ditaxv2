@@ -55,7 +55,7 @@ async function handleRequest(request) {
   newResponse.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; " +
+    "script-src 'self' https://cdn.gpteng.co; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com; " +
