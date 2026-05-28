@@ -88,6 +88,7 @@ import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import TaxFilerGate from "@/components/guards/TaxFilerGate";
 import { useVaulCleanup } from "@/hooks/useVaulCleanup";
+import { MaintenanceBanner } from "@/components/ui/MaintenanceBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -235,6 +236,7 @@ const AuthenticatedApp = () => {
           <DocumentsTourProvider>
             <SidebarProvider>
             <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
+            <MaintenanceBanner />
             <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
               <PageTransition>
               <TaxFilerGate>
