@@ -14,8 +14,10 @@ export const MaintenanceBanner: React.FC<MaintenanceBannerProps> = ({
   className,
 }) => {
   const [dismissed, setDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (typeof window !== 'undefined') {
       setDismissed(localStorage.getItem(STORAGE_KEY) === '1');
     }
@@ -28,12 +30,13 @@ export const MaintenanceBanner: React.FC<MaintenanceBannerProps> = ({
     setDismissed(true);
   };
 
-  if (dismissed) return null;
+  // Prevent hydration mismatch — don't render until after mount
+  if (!mounted || dismissed) return null;
 
   return (
     <div
       className={cn(
-        'relative w-full bg-amber-50 border-b border-amber-200 px-4 py-3 md:px-6',
+        'relative z-[9999] w-full bg-[#fff7ed] border-b border-[#fed7aa] px-4 py-3 md:px-6',
         className
       )}
       role="alert"
@@ -41,17 +44,17 @@ export const MaintenanceBanner: React.FC<MaintenanceBannerProps> = ({
       <div className="flex items-center justify-between gap-3 max-w-7xl mx-auto">
         <div className="flex items-center gap-2.5 min-w-0">
           <AlertTriangle
-            className="w-[18px] h-[18px] text-amber-600 shrink-0"
+            className="w-[18px] h-[18px] text-[#ea580c] shrink-0"
             strokeWidth={1.75}
           />
-          <span className="text-[13px] md:text-[14px] font-medium text-amber-800 leading-snug">
+          <span className="text-[13px] md:text-[14px] font-medium text-[#9a3412] leading-snug">
             {message}
           </span>
         </div>
         <button
           type="button"
           onClick={handleDismiss}
-          className="shrink-0 p-1.5 rounded-full text-amber-600/70 hover:text-amber-800 hover:bg-amber-100 transition"
+          className="shrink-0 p-1.5 rounded-full text-[#ea580c]/70 hover:text-[#9a3412] hover:bg-[#ffedd5] transition"
           aria-label="Schliessen"
         >
           <X className="w-4 h-4" strokeWidth={1.75} />
