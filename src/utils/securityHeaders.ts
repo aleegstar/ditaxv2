@@ -26,7 +26,7 @@ export const STRICT_TLS_HEADERS = {
 export class SecurityHeaders {
   private static readonly DEFAULT_CSP = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+    "script-src 'self' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
     "img-src 'self' data: blob: https://*.supabase.co https://gqbhilftduwxjszznnzy.supabase.co https://storage.googleapis.com",
