@@ -8,6 +8,7 @@ import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-a
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
 import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 import { isPentestMode } from "../_shared/pentest-guard.ts";
+import { enforceVertexInputLimits, MAX_UPLOAD_BYTES, VertexInputLimitError } from "../_shared/vertex-input-limits.ts";
 
 const FUNCTION_NAME = "scan-prior-year-vertex";
 const MODEL = MODEL_FLASH;
