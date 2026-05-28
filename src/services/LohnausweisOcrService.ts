@@ -63,19 +63,27 @@ export async function extractLohnausweisFromFile(
     headers: deviceHeaders,
   });
   if (error) {
-    // Versuch, Body aus FunctionsHttpError zu lesen für freundliche Rate-Limit-Meldung
+    // Versuch, Body aus FunctionsHttpError zu lesen für freundliche Fehlermeldungen
     try {
       const ctx: any = (error as any)?.context;
-      if (ctx?.status === 429 && typeof ctx.json === 'function') {
+      if (typeof ctx?.json === 'function') {
         const body = await ctx.json();
-        if (body?.reason === 'daily_limit' || body?.reason === 'daily_limit_device') {
+        if (ctx.status === 429 && (body?.reason === 'daily_limit' || body?.reason === 'daily_limit_device')) {
           throw new Error(
             'Die KI-Analyse für Lohnausweise ist heute aufgebraucht. Bitte morgen erneut versuchen oder Felder manuell ausfüllen.',
           );
         }
+        if (ctx.status === 413 && body?.error === 'too_many_pages') {
+          throw new Error(
+            `Das PDF hat zu viele Seiten (${body.pages}/${body.max}). Bitte lade nur den Lohnausweis (max. 80 Seiten) hoch.`,
+          );
+        }
+        if (ctx.status === 413 && body?.error === 'file_too_large') {
+          throw new Error('Die Datei ist zu gross (max. 20 MB).');
+        }
       }
     } catch (e) {
-      if (e instanceof Error && e.message.includes('KI-Analyse')) throw e;
+      if (e instanceof Error && (e.message.includes('KI-Analyse') || e.message.includes('Seiten') || e.message.includes('zu gross'))) throw e;
     }
     throw error;
   }
