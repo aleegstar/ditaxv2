@@ -27,7 +27,7 @@ export class SecurityHeaders {
   private static readonly DEFAULT_CSP = [
     "default-src 'self'",
     "script-src 'self' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
     "img-src 'self' data: blob: https://*.supabase.co https://gqbhilftduwxjszznnzy.supabase.co https://storage.googleapis.com",
     "media-src 'self' https://ditax.ch",
