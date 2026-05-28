@@ -108,8 +108,8 @@ Deno.serve(async (req) => {
     if (!file || !taxFilerId || !taxYear || !consent) {
       return json({ error: "invalid input or missing consent" }, 400);
     }
-    if (file.size > 20 * 1024 * 1024) {
-      return json({ error: "file too large (max 20 MB)" }, 413);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return json({ error: "file_too_large", message: `Datei zu gross (max ${MAX_UPLOAD_BYTES / 1024 / 1024} MB)` }, 413);
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
