@@ -165,6 +165,17 @@ Deno.serve(async (req) => {
 
     // --- Vertex AI Gemini call (mit Cache) ---
     const bytes = new Uint8Array(await file.arrayBuffer());
+
+    // Hardening: Grösse + PDF-Seitenzahl begrenzen, bevor Vertex aufgerufen wird
+    try {
+      enforceVertexInputLimits(bytes, "application/pdf");
+    } catch (e) {
+      if (e instanceof VertexInputLimitError) {
+        return json({ error: e.code, message: e.message, ...e.details }, e.status);
+      }
+      throw e;
+    }
+
     const pdfBase64 = bytesToBase64(bytes);
     const fileHash = await sha256Hex(bytes);
     const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
