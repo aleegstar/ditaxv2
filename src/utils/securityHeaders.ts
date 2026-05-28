@@ -126,7 +126,7 @@ export class SecurityHeaders {
     const metaTags = [
       { name: 'referrer', content: 'strict-origin-when-cross-origin' },
       { 'http-equiv': 'X-Content-Type-Options', content: 'nosniff' },
-      { 'http-equiv': 'X-Frame-Options', content: 'DENY' },
+      // X-Frame-Options intentionally omitted: invalid as <meta>, set as HTTP header by Cloudflare worker.
       { 'http-equiv': 'Content-Security-Policy', content: this.DEFAULT_CSP }
     ];
 

@@ -33,7 +33,7 @@
       See cloudflare/CLOUDFLARE_SETUP.md for implementation details.
     -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: blob: https://*.supabase.co https://gqbhilftduwxjszznnzy.supabase.co https://storage.googleapis.com; media-src 'self' https://ditax.ch; connect-src 'self' https://gqbhilftduwxjszznnzy.supabase.co wss://gqbhilftduwxjszznnzy.supabase.co https://cdn.jsdelivr.net https://tessdata.projectnaptha.com; frame-src 'self' https://ditax.productlift.dev; worker-src 'self' blob: https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content; report-uri https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/csp-report">
-    <meta http-equiv="X-Frame-Options" content="DENY">
+    <!-- X-Frame-Options must be an HTTP header (set by Cloudflare worker). Meta tag is invalid per spec. -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
