@@ -236,7 +236,6 @@ const AuthenticatedApp = () => {
           <DocumentsTourProvider>
             <SidebarProvider>
             <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
-            <MaintenanceBanner />
             <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
               <PageTransition>
               <TaxFilerGate>
@@ -496,6 +495,7 @@ const AppRoutes = () => {
   return (
     <ErrorBoundary onError={handleAppError}>
       <SpaRedirector />
+      <MaintenanceBanner />
       <Suspense fallback={<LoadingSpinner fullScreen />}>
         <PageTransition>
         <Routes location={location}>
