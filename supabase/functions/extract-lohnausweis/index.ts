@@ -7,6 +7,7 @@ import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-a
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
 import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 import { isPentestMode } from "../_shared/pentest-guard.ts";
+import { enforceVertexInputLimits, VertexInputLimitError } from "../_shared/vertex-input-limits.ts";
 
 const FUNCTION_NAME = "extract-lohnausweis";
 const MODEL = MODEL_FLASH;
@@ -116,6 +117,17 @@ serve(async (req) => {
 
   try {
     const fileBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+    // Hardening: Grösse + PDF-Seitenzahl begrenzen, bevor Vertex aufgerufen wird
+    try {
+      enforceVertexInputLimits(fileBytes, mt);
+    } catch (e) {
+      if (e instanceof VertexInputLimitError) {
+        return json({ error: e.code, message: e.message, ...e.details }, e.status);
+      }
+      throw e;
+    }
+
     const fileHash = await sha256Hex(fileBytes);
     const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
 

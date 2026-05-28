@@ -8,6 +8,7 @@ import { generateContent, MODEL_FLASH, VertexAiError } from "../_shared/vertex-a
 import { buildCacheKey, getCached, setCached, sha256Hex } from "../_shared/ai-cache.ts";
 import { checkAndLogAiUsage, extractDeviceId, rateLimitResponse } from "../_shared/ai-rate-limit.ts";
 import { isPentestMode } from "../_shared/pentest-guard.ts";
+import { enforceVertexInputLimits, MAX_UPLOAD_BYTES, VertexInputLimitError } from "../_shared/vertex-input-limits.ts";
 
 const FUNCTION_NAME = "scan-prior-year-vertex";
 const MODEL = MODEL_FLASH;
@@ -107,8 +108,8 @@ Deno.serve(async (req) => {
     if (!file || !taxFilerId || !taxYear || !consent) {
       return json({ error: "invalid input or missing consent" }, 400);
     }
-    if (file.size > 20 * 1024 * 1024) {
-      return json({ error: "file too large (max 20 MB)" }, 413);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return json({ error: "file_too_large", message: `Datei zu gross (max ${MAX_UPLOAD_BYTES / 1024 / 1024} MB)` }, 413);
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
@@ -164,6 +165,17 @@ Deno.serve(async (req) => {
 
     // --- Vertex AI Gemini call (mit Cache) ---
     const bytes = new Uint8Array(await file.arrayBuffer());
+
+    // Hardening: Grösse + PDF-Seitenzahl begrenzen, bevor Vertex aufgerufen wird
+    try {
+      enforceVertexInputLimits(bytes, "application/pdf");
+    } catch (e) {
+      if (e instanceof VertexInputLimitError) {
+        return json({ error: e.code, message: e.message, ...e.details }, e.status);
+      }
+      throw e;
+    }
+
     const pdfBase64 = bytesToBase64(bytes);
     const fileHash = await sha256Hex(bytes);
     const cacheKey = buildCacheKey(fileHash, FUNCTION_NAME, MODEL);
