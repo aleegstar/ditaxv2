@@ -56,7 +56,7 @@ async function handleRequest(request) {
     'Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' https://cdn.gpteng.co; " +
-    "style-src 'self' https://fonts.googleapis.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com; " +
     "media-src 'self' https://ditax.ch; " +
