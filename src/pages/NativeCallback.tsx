@@ -31,7 +31,7 @@ const NativeCallback = () => {
 
     const processAuth = async () => {
       console.log('🔐 NativeCallback: Processing auth...');
-      console.log('🔐 URL:', window.location.href);
+      console.log('🔐 URL (path only):', window.location.pathname);
 
       // Parse tokens from multiple sources
       const hash = window.location.hash.substring(1);
@@ -132,7 +132,7 @@ const NativeCallback = () => {
           deeplinkParams.set('access_token', accessToken);
           if (refreshToken) deeplinkParams.set('refresh_token', refreshToken);
           const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${deeplinkParams.toString()}`;
-          console.log('🔗 Triggering deeplink with tokens:', deeplinkUrl);
+          console.log('🔗 Triggering deeplink (tokens redacted)');
           
           // Trigger immediately
           window.location.href = deeplinkUrl;
