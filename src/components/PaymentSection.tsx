@@ -234,6 +234,45 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     }, 300000);
   };
 
+  const createCheckoutPaymentUrl = async (taxReturnId: string, totalInCents: number) => {
+    const requestPayload = {
+      taxYear: year,
+      amount: totalInCents,
+      items: priceBreakdown?.items ?? [],
+      expressService,
+      taxReturnId,
+      taxFilerId: activeTaxFilerId,
+      origin: window.location.origin,
+      promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
+      isDespia: isDespiaNative(),
+    };
+
+    console.log('💳 Creating payment session:', requestPayload);
+    const { data, error } = await supabase.functions.invoke('create-payment', {
+      body: requestPayload,
+    });
+
+    if (error) {
+      console.error('❌ Payment creation error:', error);
+      throw error;
+    }
+
+    if (!data?.url) {
+      throw new Error('Keine Zahlungs-URL erhalten');
+    }
+
+    const parsed = new URL(data.url);
+    const allowedHosts = ['checkout.stripe.com', 'pay.stripe.com'];
+    if (!allowedHosts.some(host => parsed.hostname.endsWith(host))) {
+      throw new Error('Unbekannte Zahlungs-URL');
+    }
+    if (parsed.protocol !== 'https:') {
+      throw new Error('Unsichere Zahlungs-URL');
+    }
+
+    return data.url as string;
+  };
+
   const handlePayment = async () => {
     if (!isValid) {
       toast.error("Bitte melde dich an, um die Zahlung abzuschließen.");
@@ -296,7 +335,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
           }
         });
-        if (piError) throw piError;
+        if (piError || piData?.fallback) {
+          console.warn('⚠️ Native payment intent unavailable, falling back to Stripe Checkout', {
+            error: piError?.message || piData?.error,
+            fallback: piData?.fallback,
+          });
+          toast.info('Native Zahlung ist gerade nicht verfügbar – Checkout wird geöffnet.');
+          const paymentUrl = await createCheckoutPaymentUrl(taxReturnId, totalInCents);
+          window.location.href = paymentUrl;
+          return;
+        }
         if (!piData?.client_secret || !piData?.publishable_key) {
           throw new Error('Stripe-Konfiguration unvollständig');
         }
@@ -334,43 +382,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       }
 
       // === WEB: Stripe Checkout (unverändert) ===
-      const requestPayload = {
-        taxYear: year,
-        amount: totalInCents,
-        items: priceBreakdown.items,
-        expressService,
-        taxReturnId: taxReturnId,
-        taxFilerId: activeTaxFilerId,
-        origin: window.location.origin,
-        promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
-        isDespia: false
-      };
-      console.log('💳 Creating payment session:', requestPayload);
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('create-payment', {
-        body: requestPayload
-      });
-      if (error) {
-        console.error('❌ Payment creation error:', error);
-        throw error;
-      }
-      if (!data?.url) {
-        throw new Error('Keine Zahlungs-URL erhalten');
-      }
-
-      // Validate payment URL before redirect
-      const paymentUrl = data.url;
-      const parsed = new URL(paymentUrl);
-      const allowedHosts = ['checkout.stripe.com', 'pay.stripe.com'];
-      if (!allowedHosts.some(host => parsed.hostname.endsWith(host))) {
-        throw new Error('Unbekannte Zahlungs-URL');
-      }
-      if (parsed.protocol !== 'https:') {
-        throw new Error('Unsichere Zahlungs-URL');
-      }
-
+      const paymentUrl = await createCheckoutPaymentUrl(taxReturnId, totalInCents);
       window.location.href = paymentUrl;
     } catch (error: any) {
       console.error('❌ Payment error:', error);
