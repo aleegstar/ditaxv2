@@ -215,34 +215,6 @@ const Auth = () => {
     }
   };
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) return;
-    setIsPasswordLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-
-      // Check MFA
-      const { data: mfaData } = await supabase.auth.mfa.listFactors();
-      const verifiedFactors = mfaData?.totp?.filter((f) => f.status === 'verified') || [];
-      if (verifiedFactors.length > 0) {
-        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-        if (aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2') {
-          navigate('/mfa-verify', { state: { factorId: verifiedFactors[0].id } });
-          return;
-        }
-      }
-
-      toast.success(t.authFlow.loginSuccess);
-      sessionStorage.setItem('ditax_force_person_selection', '1');
-      navigate('/');
-    } catch (error: any) {
-      toast.error(error.message || 'Anmeldung fehlgeschlagen');
-    } finally {
-      setIsPasswordLoading(false);
-    }
-  };
   const handleGoogleAuth = async () => {
     if (isOAuthInProgress.current) return;
     isOAuthInProgress.current = true;
