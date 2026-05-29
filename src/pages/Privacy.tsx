@@ -19,7 +19,7 @@ const sections: Section[] = [
     content: (
       <>
         <p>
-          Wir, <strong>Ditax by Graber Sandro</strong>, Lerchenweg 49, 4552 Derendingen, Schweiz
+          Wir, <strong>Ditax by Graber Sandro</strong>, Haselweg 4D, 5607 Hägglingen, Schweiz
           (nachfolgend „Ditax", „wir" oder „uns"), sind die Betreiberin der Webseite{' '}
           <a href="https://ditax.ch">www.ditax.ch</a> sowie der Webapplikation{' '}
           <a href="https://app.ditax.ch">app.ditax.ch</a> (zusammen die „Plattform") und sind, soweit
@@ -55,8 +55,8 @@ const sections: Section[] = [
         </p>
         <p>
           Ditax by Graber Sandro<br />
-          Lerchenweg 49<br />
-          4552 Derendingen<br />
+          Haselweg 4D<br />
+          5607 Hägglingen<br />
           Schweiz<br />
           E-Mail: <a href="mailto:privacy@ditax.ch">privacy@ditax.ch</a><br />
           Interner Datenschutzverantwortlicher:{' '}
