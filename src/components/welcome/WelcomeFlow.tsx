@@ -84,14 +84,30 @@ export const WelcomeFlow = () => {
         return;
       }
 
-      // Update profile with onboarding data
+      // Record legally binding consent (immutable audit trail incl. IP, UA, version, hash).
+      // Hard stop on failure — onboarding must not proceed without provable consent.
+      const { data: consentData, error: consentError } = await supabase.functions.invoke('record-consent', {
+        body: {
+          accepted_via: 'onboarding_welcome',
+          consents: [
+            { type: 'privacy', consented: true },
+            { type: 'terms', consented: true },
+            { type: 'marketing_emails', consented: marketingConsent },
+          ],
+        },
+      });
+      if (consentError || (consentData as any)?.error) {
+        console.error('Consent recording failed:', consentError || consentData);
+        toast.error('Zustimmung konnte nicht gespeichert werden. Bitte versuche es erneut.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Update profile with onboarding data (terms_accepted_at + marketing_consent_at are mirrored by the edge function)
       const {
         error: profileError
       } = await supabase.from('profiles').update({
         first_name: firstName,
-        terms_accepted_at: new Date().toISOString(),
-        terms_version: '1.0',
-        marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
         onboarding_tour_completed: false,
         onboarding_tour_completed_at: null
       }).eq('id', user.id);
