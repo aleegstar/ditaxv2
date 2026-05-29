@@ -613,11 +613,12 @@ serve(async (req) => {
             address: 'auto',
             shipping: 'never'
           },
-          allow_promotion_codes: !promoCodeId, // Disable manual entry if we have a promo code
           phone_number_collection: {
             enabled: true,
           },
-          ...(promoCodeId && { discounts: [{ promotion_code: promoCodeId }] }), // Auto-apply promo code
+          ...(promoCodeId
+            ? { discounts: [{ promotion_code: promoCodeId }] }
+            : { allow_promotion_codes: true }),
         };
 
         const hasFullAddress = !!(customerData?.address && (customerData as any)?.postal_code && (customerData as any)?.city);
