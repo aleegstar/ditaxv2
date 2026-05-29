@@ -286,7 +286,7 @@ Deno.serve(async (req) => {
     return json({ ok: true, checklistId: checklist.id, itemCount: rows.length });
   } catch (e: any) {
     console.error("scan-prior-year-vertex error:", e?.message ?? e);
-    return json({ error: e?.message ?? "unknown error" }, 500);
+    return json({ error: "Internal server error" }, 500);
   }
 });
 
