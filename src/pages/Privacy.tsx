@@ -14,7 +14,7 @@ const Privacy = () => {
 <p>Personenbezogene Daten sind alle Informationen über Sie, die dazu verwendet werden können, Sie zu identifizieren. Dazu gehören Informationen über Sie als Person (wie Name, Adresse und Geburtsdatum), Ihre Geräte, Zahlungsdaten und sogar Informationen darüber, wie Sie eine App oder einen Online-Dienst nutzen. </p>
 <p>Falls unsere App Links zu Websites und Diensten Dritter enthält, beachten Sie bitte, dass diese Websites und Dienste ihre eigenen Datenschutzrichtlinien haben. Nachdem Sie einem Link zu Inhalten Dritter gefolgt sind, sollten Sie deren veröffentlichte Datenschutzrichtlinien lesen, um zu erfahren, wie sie personenbezogene Daten erfassen und verwenden. Diese Datenschutzrichtlinie gilt nicht für Ihre Aktivitäten, nachdem Sie unsere App verlassen haben. </p>
 <p>Diese Richtlinien sind ab dem 23. November 2023 gültig</p>
-<p>Letzte Aktualisierung: 7. Juli 2025</p>
+<p>Letzte Aktualisierung: 29. Mai 2026</p>
 <h2>Daten, die wir erheben</h2>
 <p>Die von uns erhobenen Daten fallen in eine von zwei Kategorien: „freiwillig zur Verfügung gestellte" und „automatisch erfasste" Informationen.</p>
 <p>„Freiwillig bereitgestellte" Informationen beziehen sich auf alle Informationen, die Sie uns wissentlich und aktiv zur Verfügung stellen, wenn Sie unsere App und die damit verbundenen Dienste nutzen.</p>
@@ -79,14 +79,60 @@ const Privacy = () => {
    <li>Dritte zur Erhebung und Verarbeitung von Daten</li>
    <li>ein Unternehmen, das unser gesamtes Vermögen und unsere Geschäftstätigkeit erwirbt oder an das wir sie ganz oder im Wesentlichen übertragen</li>
 </ul>
-<p>Zu den derzeit genutzten Drittenanbietern gehören:</p>
+<p>Zu den derzeit genutzten Drittanbietern gehören:</p>
 <ul>
-   <li>SendFox</li>
-   <li>Stripe</li>
+   <li><strong>Supabase</strong> (Datenbank- und Edge-Function-Hosting, Region Frankfurt/EU)</li>
+   <li><strong>Google Cloud – Vertex AI</strong> (KI-gestützte Dokumentenanalyse, Region Zürich/Schweiz, Vertragspartner: Google Cloud Switzerland Sàrl)</li>
+   <li><strong>Stripe</strong> (Zahlungsabwicklung inkl. Karten, TWINT, Klarna, Apple/Google Pay)</li>
+   <li><strong>Cloudflare</strong> (CDN, DDoS-Schutz, Security-Header)</li>
+   <li><strong>Resend / SendFox</strong> (Transaktions- und Marketing-E-Mails)</li>
+   <li><strong>Despia</strong> (Native-App-Wrapper für iOS/Android)</li>
 </ul>
+
+<h2>Verarbeitung durch Künstliche Intelligenz (KI)</h2>
+<p>Zur Effizienzsteigerung und Vereinfachung der Steuererklärung setzen wir KI-gestützte Verfahren ein. Aufgrund der besonderen Sensibilität von Steuerdaten haben wir dabei strenge technische und organisatorische Massnahmen umgesetzt.</p>
+
+<h3>Zweck der KI-Verarbeitung</h3>
+<ul>
+   <li>Automatisches Auslesen von Lohnausweisen und sonstigen Belegen (OCR / strukturierte Extraktion)</li>
+   <li>Übernahme von Daten aus Vorjahres-Steuererklärungen</li>
+   <li>Beantwortung von Support- und Hilfe-Anfragen über unseren Chatbot</li>
+</ul>
+
+<h3>Eingesetzter Dienst und Datenstandort</h3>
+<p>Für die KI-Verarbeitung von Kundendokumenten nutzen wir ausschliesslich <strong>Google Cloud Vertex AI</strong> (Modell Gemini 2.5 Flash) in der Region <strong>europe-west6 (Zürich, Schweiz)</strong>. Vertragspartner ist die <strong>Google Cloud Switzerland Sàrl</strong>. Eine Verarbeitung in den USA oder anderen Drittstaaten findet im Rahmen der KI-Auswertung <strong>nicht</strong> statt.</p>
+
+<h3>Auftragsverarbeitung (AVV / DPA)</h3>
+<p>Mit Google Cloud besteht ein Auftragsverarbeitungsvertrag (Data Processing Addendum) nach Art. 28 DSGVO sowie Art. 9 DSG. Google handelt ausschliesslich auf unsere Weisung.</p>
+
+<h3>Kein Training auf Kundendaten</h3>
+<p>Gemäss den vertraglichen Bedingungen von Vertex AI werden hochgeladene Inhalte <strong>nicht</strong> zum Training von Google-Modellen verwendet. Es findet kein Profiling und keine Wiederverwendung Ihrer Daten zu anderen Zwecken statt.</p>
+
+<h3>Keine dauerhafte Speicherung bei Google</h3>
+<p>Inhalte werden nur für die Dauer der einzelnen Anfrage verarbeitet. Google führt – unabhängig von uns – ein technisches Missbrauchs-Logging für maximal 30 Tage. Eine Verknüpfung mit Ihrer Identität bei uns findet dort nicht statt.</p>
+
+<h3>Ende-zu-Ende-Verschlüsselung Ihrer Dokumente</h3>
+<p>Steuerdokumente werden in unserer Datenbank Client-seitig verschlüsselt gespeichert. Eine Entschlüsselung erfolgt ausschliesslich im Arbeitsspeicher zum Zeitpunkt der Analyse; ein dauerhafter Klartext existiert auf unserer Infrastruktur nicht.</p>
+
+<h3>Technische Limitierungen</h3>
+<ul>
+   <li>Maximale Dateigrösse pro Upload: 20 MB</li>
+   <li>Maximale Seitenzahl pro PDF: 80 Seiten</li>
+   <li>Rate-Limits je Nutzer und Gerät zum Schutz vor Missbrauch</li>
+</ul>
+
+<h3>Restrisiko US CLOUD Act</h3>
+<p>Die Muttergesellschaft Google LLC mit Sitz in den USA unterliegt theoretisch dem US CLOUD Act. Wir minimieren dieses Restrisiko durch die Wahl der Schweizer Rechtsentität (Google Cloud Switzerland Sàrl), den ausschliesslichen Datenstandort Schweiz, die Ende-zu-Ende-Verschlüsselung Ihrer Dokumente, das Fehlen persistenter Speicherung bei Google sowie EU-Standardvertragsklauseln.</p>
+
+<h3>Rechtsgrundlage</h3>
+<p>Die KI-Verarbeitung erfolgt auf Grundlage von Art. 31 Abs. 2 lit. a DSG bzw. Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des mit Ihnen geschlossenen Vertrages – ohne die KI-gestützte Vorbefüllung kann der Service in der versprochenen Form nicht erbracht werden) sowie ergänzend Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer effizienten Dienstleistungserbringung).</p>
+
+<h3>Ihr Widerspruchsrecht</h3>
+<p>Sie können der KI-gestützten Auswertung Ihrer Dokumente jederzeit widersprechen und Ihre Daten stattdessen manuell erfassen. Eine entsprechende Mitteilung genügt an <a href="mailto:privacy@ditax.ch">privacy@ditax.ch</a>.</p>
+
 <h3>Internationaler Transfer persönlicher Daten</h3>
-<p>Die von uns erhobenen personenbezogenen Daten werden in Schweiz gespeichert und/oder verarbeitet oder in Ländern, wo wir oder unsere Partner, verbundenen Unternehmen und Drittanbieter Einrichtungen unterhalten.</p>
-<p>Die Länder, in denen wir Ihre personenbezogenen Daten speichern, verarbeiten oder übermitteln, haben möglicherweise nicht dieselben Datenschutzgesetze wie das Land, in dem Sie die Daten ursprünglich bereitgestellt haben. Wenn wir Ihre persönlichen Daten an Dritte in anderen Ländern weitergeben: (i) führen wir diese Übertragungen in Übereinstimmung mit den Anforderungen des geltenden Rechts durch; und (ii) schützen wir die übertragenen persönlichen Daten in Übereinstimmung mit dieser Datenschutzrichtlinie.</p>
+<p>Ihre Steuerdokumente und die durch KI verarbeiteten Inhalte verbleiben ausschliesslich in der <strong>Schweiz</strong> (Vertex AI, Region Zürich). Unsere Datenbank und Edge Functions werden bei <strong>Supabase in der EU</strong> (Frankfurt, Deutschland) betrieben. Eine Übermittlung in die USA oder andere Drittstaaten erfolgt im Rahmen der KI-Verarbeitung nicht.</p>
+<p>Die Länder, in denen wir Ihre personenbezogenen Daten speichern, verarbeiten oder übermitteln, haben möglicherweise nicht dieselben Datenschutzgesetze wie das Land, in dem Sie die Daten ursprünglich bereitgestellt haben. Wenn wir Ihre persönlichen Daten an Dritte in anderen Ländern weitergeben: (i) führen wir diese Übertragungen in Übereinstimmung mit den Anforderungen des geltenden Rechts durch (insbesondere unter Verwendung der EU-Standardvertragsklauseln); und (ii) schützen wir die übertragenen persönlichen Daten in Übereinstimmung mit dieser Datenschutzrichtlinie.</p>
 <h2>Ihre Rechte und die Kontrolle Ihrer persönlichen Daten</h2>
 <p><strong>Ihre Wahl:</strong> Durch die Bereitstellung personenbezogener Daten an uns erklären Sie sich damit einverstanden, dass wir Ihre personenbezogenen Daten gemäß dieser Datenschutzrichtlinie erfassen, speichern, verwenden und offenlegen. Sie sind nicht verpflichtet, uns personenbezogene Daten zur Verfügung zu stellen. Wenn Sie dies jedoch nicht tun, kann dies Ihre Nutzung unserer App oder der darin oder darüber angebotenen Produkte und/oder Dienstleistungen beeinträchtigen. </p>
 <p><strong>Daten von Drittanbietern:</strong> Wenn wir persönliche Informationen über Sie von einem Dritten erhalten, werden wir diese wie in dieser Datenschutzerklärung beschrieben schützen. Wenn Sie ein Drittanbieter sind, der persönliche Daten einer anderen Person zur Verfügung stellt, sichern Sie zu, dass Sie die Zustimmung dieser Person haben, diese an uns weiterzugeben.</p>

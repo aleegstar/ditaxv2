@@ -1,107 +1,41 @@
-## Aikido-Pentest-Vorbereitung
+# Datenschutzrichtlinie: Vertex AI & KI-Verarbeitung ergänzen
 
-Ziel: keine echten Stripe-Charges, keine teuren Gemini/Vertex-Calls, keine echten Mails, klare Testidentitäten für Rollen- und Isolationstests.
+## Ziel
+Die Seite `/datenschutzrichtlinie` (`src/pages/Privacy.tsx`) so erweitern, dass die KI-gestützte Dokumentenanalyse (Lohnausweis-OCR, Vorjahres-Scan, Chatbot) rechtskonform und transparent offengelegt wird. Aktualisierungsdatum auf 29. Mai 2026 setzen.
 
----
+## Änderungen in `src/pages/Privacy.tsx`
 
-### Status-Check (was bereits hart ist)
+### 1. Neuer Hauptabschnitt „Verarbeitung durch Künstliche Intelligenz (KI)"
+Wird vor „Offenlegung persönlicher Daten an Dritte" eingefügt. Inhalt:
 
-- `PENTEST_MODE`-Killswitch aktiv in 9 Mail-/Stripe-Functions (`create-payment`, `create-payment-intent`, alle `*-newsletter`, `*-notification`, `*-reminder`, `marketing-automation`).
-- AI-Rate-Limits aktiv (`prior_year`: 5/Tag + 3 lifetime/Filer+Device; `lohnausweis`: 20/Tag; `ocr_extract`: 100/Tag) inkl. Device-ID-Härtung.
-- RLS strikt auf `tax_filer_id` und `auth.uid()`.
-- 48 inaktive Konten gelöscht, nur 3 aktive verbleibend.
+- **Zweck**: Automatisches Auslesen von Lohnausweisen, Vorjahres-Steuererklärungen und sonstigen hochgeladenen Belegen sowie Beantwortung von Support-Fragen via Chatbot.
+- **Eingesetzter Dienst**: Google Cloud Vertex AI (Modell Gemini 2.5 Flash), betrieben durch **Google Cloud Switzerland Sàrl**.
+- **Datenstandort**: Ausschliesslich Region `europe-west6` (Rechenzentrum Zürich, Schweiz). Es findet keine Übermittlung in die USA oder andere Drittstaaten statt.
+- **Auftragsverarbeitung (AVV/DPA)**: Mit Google Cloud besteht ein Data Processing Addendum nach DSGVO Art. 28 / DSG Art. 9.
+- **Kein Modell-Training**: Hochgeladene Kundendaten werden gemäss Vertex-AI-Standardvertrag **nicht** zum Trainieren von Google-Modellen verwendet.
+- **Keine dauerhafte Speicherung bei Google**: Inhalte werden nur für die Dauer der Anfrage verarbeitet; Google führt maximal ein 30-tägiges Abuse-Logging.
+- **Limitierung**: Pro Upload max. 20 MB / 80 PDF-Seiten, technische Rate-Limits pro Nutzer.
+- **Ende-zu-Ende-Verschlüsselung**: Steuerdokumente liegen in unserer Datenbank Client-seitig verschlüsselt; Klartext wird nur in-memory zum Zeitpunkt der KI-Analyse erzeugt und nicht persistiert.
+- **US CLOUD Act – Restrisiko**: Google LLC (Muttergesellschaft) unterliegt theoretisch dem US CLOUD Act. Durch Schweizer Rechtsentität, Schweizer Speicherort, Verschlüsselung und Standardvertragsklauseln wird dieses Risiko minimiert.
+- **Rechtsgrundlage**: Art. 31 Abs. 2 lit. a DSG / Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung – ohne KI-Vorbefüllung kann der Service in der versprochenen Form nicht erbracht werden).
+- **Widerspruch / manuelle Verarbeitung**: Nutzer können die KI-Auswertung ablehnen und die Daten manuell eingeben. Kontakt: privacy@ditax.ch.
 
-### Lücken, die wir schliessen müssen
+### 2. Abschnitt „Drittanbieter" aktualisieren (Zeile 82–86)
+Liste erweitern auf den aktuellen Stand:
+- **Supabase** (Hosting Datenbank & Edge Functions, Region Frankfurt EU)
+- **Google Cloud (Vertex AI)** – Region Zürich, Schweiz
+- **Stripe** (Zahlungsabwicklung)
+- **Cloudflare** (CDN, DDoS-Schutz, Security Headers)
+- **SendFox / Resend** (Transaktions- und Marketing-Mails)
+- **Despia** (Native-App-Wrapper iOS/Android)
 
-1. **`PENTEST_MODE` fehlt in den 4 AI-Functions** (`ocr-extract`, `extract-lohnausweis`, `scan-prior-year`, `scan-prior-year-vertex`). Selbst mit Rate-Limit kann der Scanner pro Testaccount 100 OCR-Calls × Anzahl Aikido-User auslösen → potenziell 1000+ Vertex-Calls/Tag.
-2. **Stripe ist noch im Live-Mode.** Secret `STRIPE_SECRET_KEY` und Frontend-Publishable-Key müssen temporär auf `sk_test_*` / `pk_test_*` umgestellt werden. Webhook-Endpoint im Stripe-Dashboard zusätzlich auf Test-Mode-Endpoint registrieren.
-3. **Aikido-Testaccounts fehlen.**
-4. **Rollenmodell-Mismatch:** Aikido spricht von Admin/Manager/Viewer — unser Enum kennt nur `admin`, `moderator`, `user`. Wir mappen 1:1 (Admin=admin, Manager=moderator, Viewer=user) und dokumentieren das.
+### 3. Abschnitt „Internationaler Transfer persönlicher Daten" präzisieren
+Hinzufügen: Steuerdokumente und durch KI verarbeitete Daten verbleiben in der Schweiz (Vertex AI Zürich). Metadaten/DB liegen in der EU (Supabase Frankfurt). Keine Übermittlung in die USA für die KI-Verarbeitung.
 
----
+### 4. Datum aktualisieren
+Zeile 17: „Letzte Aktualisierung: 29. Mai 2026".
 
-### Phase 1 — Kosten-Killswitch für AI (kritisch)
-
-`PENTEST_MODE`-Guard in den vier Vertex-Functions einbauen. Bei aktivem Flag: sofortiger `200 OK` mit Stub-Antwort, **kein** Vertex-Aufruf, **kein** Rate-Limit-Verbrauch. Damit ist die monetäre Obergrenze während des Scans = 0 CHF für AI, unabhängig davon, wie oft Aikido die Endpoints triggert.
-
-Betroffene Files:
-- `supabase/functions/ocr-extract/index.ts`
-- `supabase/functions/extract-lohnausweis/index.ts`
-- `supabase/functions/scan-prior-year/index.ts`
-- `supabase/functions/scan-prior-year-vertex/index.ts`
-
-Stub-Antwort pro Endpoint: leeres Felder-Objekt + `pentest_mode: true` Marker, damit Frontend nicht crasht.
-
-### Phase 2 — Stripe Test-Mode (kritisch)
-
-Manueller Secret-Swap (kann nur der User in Lovable-Settings machen):
-- `STRIPE_SECRET_KEY` → `sk_test_*` Wert aus Stripe-Dashboard
-- `STRIPE_WEBHOOK_SECRET` → Test-Mode-Webhook-Secret
-- Frontend-Publishable-Key (`VITE_STRIPE_PUBLISHABLE_KEY` falls vorhanden) → `pk_test_*`
-
-Code-Änderung: keine — `create-payment` erkennt Test-Mode automatisch (`stripeSecretKey.startsWith('sk_test_')`). Zusätzlich Belt-and-Suspenders: bei `PENTEST_MODE=true` greift bereits der bestehende Pentest-Guard und gibt simuliertes 200 zurück, ohne Stripe überhaupt zu kontaktieren.
-
-Im Stripe-Dashboard:
-- Webhook-Endpoint für Test-Mode auf dieselbe URL registrieren (https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/stripe-webhook)
-- Events: `payment_intent.succeeded`, `checkout.session.completed`
-
-### Phase 3 — Aikido-Testaccounts (kritisch)
-
-6 Konten mit klarem Prefix `aikido_` für späteres Bulk-Cleanup. Passwörter generieren wir zufällig und liefern sie im Output.
-
-**Mandant A (Tenant A) — Steuerjahr 2024:**
-- `aikido_admin_a@ditax.test` → Rolle `admin`
-- `aikido_manager_a@ditax.test` → Rolle `moderator`
-- `aikido_viewer_a@ditax.test` → Rolle `user`, mit eigenem `tax_filer` + 1 dummy `tax_return` (2024)
-
-**Mandant B (Tenant B) — Steuerjahr 2024:**
-- `aikido_admin_b@ditax.test` → Rolle `admin`
-- `aikido_manager_b@ditax.test` → Rolle `moderator`
-- `aikido_viewer_b@ditax.test` → Rolle `user`, mit eigenem `tax_filer` + 1 dummy `tax_return` (2024)
-
-Damit kann Aikido testen:
-- Privilege-Escalation (Viewer → Admin via Endpoint-Manipulation)
-- Cross-Tenant-Leak (Viewer A liest Daten von Viewer B)
-- RLS-Bypass über REST/Edge-Functions
-
-Erstellung via Edge Function `seed-aikido-users` (admin-only, JWT + `has_role` Check), die `auth.admin.createUser` + `user_roles` + `tax_filers` + `tax_returns` in einer Transaktion anlegt. Liefert JSON mit den 6 E-Mails + initialen Passwörtern zurück, das du an Aikido weitergeben kannst.
-
-### Phase 4 — Cleanup-Vorbereitung (empfohlen)
-
-Bestehende `cleanup-pentest-data` Edge Function erweitern, damit sie zusätzlich zum `aikido_test_*`-Prefix auch `aikido_*@ditax.test` matcht. Nach dem Scan: ein Aufruf löscht alle 6 Testaccounts inkl. ihrer FK-Kaskaden.
-
-### Phase 5 — Aktivierungs-Checkliste (am Scan-Tag)
-
-Klar getrennt von Code-Änderungen, damit du den Killswitch innerhalb von 2 Minuten an/aus schalten kannst:
-
-1. Secret `PENTEST_MODE=true` setzen
-2. `STRIPE_SECRET_KEY` & `STRIPE_WEBHOOK_SECRET` auf Test-Werte updaten
-3. `seed-aikido-users` aufrufen → 6 Credentials an Aikido geben
-4. Cloudflare: Aikido-IPs in WAF auf Allow (höchste Priorität), Bot Fight Mode Off
-5. Scan starten
-6. Nach Scan: `cleanup-pentest-data` aufrufen, Secrets zurück auf Live, `PENTEST_MODE` löschen oder auf `false`
-
----
-
-### Technische Details
-
-**Risiken / Breaking Changes während des Scan-Fensters:**
-- Echte Kunden können nicht zahlen (Stripe Test-Mode). → Fenster eng halten, idealerweise nachts.
-- Echte Mails werden nicht versendet (existierender Guard). → Magic-Link-Logins von echten Kunden während des Fensters scheitern.
-- AI-OCR liefert leere Stub-Ergebnisse → echte Kunden, die in dem Fenster Dokumente hochladen, bekommen "Konnte nichts erkennen" Fehler.
-
-**Nicht im Plan-Scope (bewusst):**
-- Echtes Staging-Environment (zu viel Arbeit für <24h Scan)
-- Cloudflare-Config (manuell durch User)
-- Supabase Auth Rate-Limits (manuell im Dashboard)
-
-**Files, die erstellt/geändert werden:**
-- `supabase/functions/_shared/pentest-guard.ts` — bereits vorhanden, keine Änderung
-- `supabase/functions/ocr-extract/index.ts` — Guard einbauen
-- `supabase/functions/extract-lohnausweis/index.ts` — Guard einbauen
-- `supabase/functions/scan-prior-year/index.ts` — Guard einbauen
-- `supabase/functions/scan-prior-year-vertex/index.ts` — Guard einbauen
-- `supabase/functions/seed-aikido-users/index.ts` — neu
-- `supabase/functions/cleanup-pentest-data/index.ts` — Prefix-Pattern erweitern
-- `SECURITY_AIKIDO_CHECKLIST.md` — Aktivierungs-Checkliste + Rollen-Mapping ergänzen
-- `mem://security/pentest-mode-killswitch.md` — AI-Functions zur Killswitch-Liste hinzufügen
+## Nicht im Scope
+- Keine Logikänderungen an Edge Functions oder UI-Komponenten.
+- Keine Anpassung von `ConsentStep` (separate Aufgabe falls KI-Opt-In gewünscht).
+- Keine Übersetzung in andere Sprachen (Inhalt liegt nur Deutsch vor).
