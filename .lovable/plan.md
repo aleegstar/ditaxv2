@@ -1,89 +1,63 @@
-## Ziel
+# Post-Pentest Cleanup & Wiederherstellung Live-Betrieb
 
-Beim Onboarding (/welcome) wird die Zustimmung zu Datenschutzerklärung und Nutzungsbedingungen rechtsgültig und nachweisbar (Beweispflicht nach DSG/DSGVO) festgehalten — nicht nur als Flag im Profil, sondern als unveränderliche Audit-Spur mit Zeitstempel, Version, IP, User-Agent und Dokument-Hash.
+Aikido-Scan ist abgeschlossen. Jetzt müssen wir den Schutzmodus deaktivieren, Testdaten entfernen und alle externen Integrationen zurück auf Live schalten.
 
-## Status heute
+## 1) PENTEST_MODE deaktivieren (kritisch — zuerst)
 
-- `WelcomeFlow.tsx` setzt nur `profiles.terms_accepted_at` + `terms_version: '1.0'`.
-- Es wird **kein** Eintrag in `user_consents` geschrieben (nur `ConsentStep.tsx` macht das, wird im Welcome-Flow aber nicht verwendet).
-- IP-Adresse, exakte Policy-Version und Marketing-Consent werden nicht protokolliert.
-- `user_consents` hat heute INSERT-Policy für User selbst → manipulierbar; kein UPDATE/DELETE-Schutz; keine serverseitige IP-Erfassung.
+Solange `PENTEST_MODE=true` ist, blockt der Shared Guard alle Side-Effects (Stripe Charges, Resend Mails, Vertex AI, OCR, Newsletter). Live-Betrieb ist damit unmöglich.
 
-## Lösung
+- Supabase Edge Function Secrets → `PENTEST_MODE` auf `false` setzen (oder Secret löschen)
+- Verifikation: kurzer Smoke-Call gegen `create-payment` (Testbetrag) → darf NICHT mehr `{ skipped: true }` zurückgeben
 
-### 1. Versionierte Rechtsdokumente (DB)
+## 2) Aikido-Testdaten löschen
 
-Neue Tabelle `legal_document_versions`:
-- `document_type` (`privacy` | `terms`)
-- `version` (z. B. `2026-05-29`)
-- `content_hash` (SHA-256 des veröffentlichten Texts)
-- `effective_from` timestamptz
-- `published_url` text
-- Public read (anon + authenticated), nur service_role schreibt.
+Cleanup über die dedizierte Edge Function statt manuellem SQL:
 
-Aktuell gültige Versionen werden seedweise eingefügt (Privacy v `2026-05-29`, Terms v `1.0`). Bei künftigen Änderungen an `Privacy.tsx`/`Terms.tsx` wird ein neuer Eintrag angelegt → User müssen bei Login zu neuer Version erneut zustimmen (separater Re-Consent-Flow, hier nicht im Scope).
+- Schritt A — **Dry-Run** zur Sichtkontrolle:
+  `POST /functions/v1/cleanup-pentest-data` mit Body `{ "dry_run": true }`
+  → liefert Liste aller `aikido_*@ditax.test` und `*pentest*` User
+- Schritt B — Nach Bestätigung der Liste: gleicher Call ohne `dry_run`
+  → löscht via `auth.admin.deleteUser` (cascadiert über FKs: `profiles`, `tax_filers`, `tax_returns`, `user_roles`, `user_consents`, …)
+- Schritt C — Storage-Restbestände prüfen (Pfade beginnen mit den gelöschten user_ids in den Buckets `tax-documents`, `chat_attachments`, ggf. `avatars`)
+- Schritt D — Audit-Query: `SELECT COUNT(*) FROM auth.users WHERE email ILIKE 'aikido_%' OR email ILIKE '%pentest%'` muss 0 sein
 
-### 2. Edge Function `record-consent` (Server-seitig, manipulationssicher)
+## 3) Stripe zurück auf Live
 
-Neu: `supabase/functions/record-consent/index.ts`
-- Validiert JWT (User muss eingeloggt sein).
-- Liest IP aus `CF-Connecting-IP` / `x-forwarded-for`.
-- Body: `{ consents: [{ type: 'privacy' | 'terms' | 'marketing_emails', consented: boolean }] }`.
-- Lädt aktuelle `legal_document_versions` für `privacy`/`terms` → schreibt `consent_version` + `document_hash` in jeden Datensatz.
-- Schreibt mit `service_role` in `user_consents` (umgeht Client-Manipulation).
-- Spiegelt zusätzlich `profiles.terms_accepted_at` / `marketing_consent_at` für schnelle Reads.
-- Gibt `{ ok: true, recorded: [...ids] }` zurück.
+- Stripe Secrets in Supabase auf Live-Keys umstellen:
+  - `STRIPE_SECRET_KEY` → `sk_live_…`
+  - `STRIPE_WEBHOOK_SECRET` → Live-Webhook Signing Secret (aus dem Live-Endpoint im Stripe Dashboard)
+- Test-Webhook-Endpoint im Stripe Dashboard deaktivieren/löschen, Live-Endpoint `/functions/v1/stripe-webhook` als aktiv bestätigen
+- Smoke-Test: 1 echte Test-Zahlung über die App (kleiner Betrag) → Webhook trifft ein, `tax_returns.payment_status` aktualisiert
 
-### 3. `user_consents` härten
+## 4) Weitere Infrastruktur re-aktivieren
 
-Migration:
-- Spalten ergänzen: `document_hash text`, `document_url text`, `accepted_via text` (`onboarding_welcome` | `consent_step` | `reconsent_modal`).
-- RLS: Client-INSERT-Policy entfernen (nur noch service_role darf schreiben). SELECT für User & Admin bleibt.
-- Trigger `prevent_consent_mutation`: blockiert UPDATE und DELETE auf allen Zeilen (nur service_role-Bypass für DSGVO-Löschung via separate Funktion).
-- Index auf `(user_id, consent_type, created_at DESC)`.
+Diese Punkte hatten wir vor dem Scan pausiert/gelockert:
 
-### 4. `WelcomeFlow.tsx` anpassen
+- **Cloudflare WAF / Bot Fight Mode** wieder einschalten, Aikido-IP-Allowlist und Rate-Limit-Ausnahmen entfernen
+- **pg_cron Mail-Jobs** wieder aktivieren (Newsletter, Missing-Items-Reminder, Unread-Message-Notifications, Marketing-Automation)
+- **DB-Backup** vom Scan-Tag als „Pre-Pentest Snapshot" markieren/aufbewahren (Retention-Compliance)
 
-- Auf Step 0 (Consent) zusätzlich speichern: ob Marketing aktiv ist, in lokalen State (heute schon vorhanden).
-- In `handleSaveData` **vor** dem Profile-Update: `supabase.functions.invoke('record-consent', { body: { consents: [{type:'privacy',consented:true},{type:'terms',consented:true},{type:'marketing_emails',consented:marketingConsent}] } })`.
-- Bei Fehler: harter Stopp mit Toast „Zustimmung konnte nicht gespeichert werden" — kein weiterleiten, keine Profil-Updates. Onboarding bleibt blockiert (rechtlich sauberer als „weiter trotz Fehler").
-- `profiles.terms_accepted_at` wird weiterhin als schneller Lookup-Spiegel beschrieben (durch Edge Function).
-- Checkbox-Label um expliziten Hinweis ergänzen: „Ich habe die [Datenschutzerklärung] und [Nutzungsbedingungen] gelesen und stimme zu" — formal korrekter Wortlaut, weiterhin Du-Form (Memory).
+## 5) Security-Memory & Doku updaten
 
-### 5. Admin-Nachweisbarkeit
+- `@security-memory`: Pentest-Lauf mit Datum + Findings-Zusammenfassung dokumentieren
+- `SECURITY_AIKIDO_CHECKLIST.md`: Cleanup-Sektion als „erledigt am 29.05.2026" markieren
+- Bei Bedarf neue Findings aus Aikido als TODOs anlegen
 
-- `src/pages/UserDetail.tsx` (bereits vorhanden) bekommt einen Abschnitt „Einwilligungen" mit allen `user_consents`-Einträgen: Typ, Version, Hash, IP, User-Agent, Zeitstempel — exportierbar als JSON (1-Klick-Download für DSGVO-Auskunft).
-
-### Out of Scope
-
-- Re-Consent-Modal bei neuer Policy-Version (separater Auftrag).
-- `ConsentStep.tsx` Refactor (wird im aktiven Flow nicht verwendet).
-- Cookie-Consent-Banner.
-- Übersetzungen.
-
-## Technische Details
+## Reihenfolge & Verantwortung
 
 ```text
-Welcome Step 0 (Checkbox)
-   │
-   ▼
-handleSaveData()
-   │
-   ├──► invoke('record-consent')  ──► Edge Function
-   │                                    ├─ verify JWT
-   │                                    ├─ extract IP, UA
-   │                                    ├─ load current legal_document_versions
-   │                                    └─ INSERT user_consents (service_role)
-   │                                         × privacy, terms, [marketing]
-   │
-   ├──► UPDATE profiles (mirror flags)
-   └──► continue onboarding
+1. PENTEST_MODE=false           (Lovable/Supabase Secret)   ← MUSS zuerst
+2. Cleanup dry_run → review     (Agent via curl)
+3. Cleanup real run             (Agent via curl)
+4. Stripe Live Keys + Webhook   (User in Supabase + Stripe Dashboard)
+5. Cloudflare WAF + pg_cron     (User)
+6. Smoke-Tests + Memory-Update  (Agent)
 ```
 
-`user_consents` Zeilenbeispiel nach Onboarding:
-```
-user_id | privacy | true | 2026-05-29 | <sha256> | 1.2.3.4 | Mozilla/5.0… | onboarding_welcome | 2026-05-29T10:00:00Z
-user_id | terms   | true | 1.0        | <sha256> | 1.2.3.4 | Mozilla/5.0… | onboarding_welcome | 2026-05-29T10:00:00Z
-```
+## Was ich für dich brauche, bevor wir starten
 
-Migrations-Reihenfolge: (1) `legal_document_versions` + GRANTs + RLS + Seed, (2) `user_consents` ALTER + Trigger + Policy-Update. Danach Edge Function deployen, dann `WelcomeFlow.tsx` umstellen.
+1. Bestätigung, dass ich `cleanup-pentest-data` (dry-run zuerst) aufrufen darf
+2. Stripe-Umschaltung machst du selbst im Supabase Secrets Dashboard, oder soll ich dich via `update_secret`-Dialog für `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` führen?
+3. `PENTEST_MODE` ebenfalls: selbst im Dashboard auf `false` setzen, oder via `update_secret`-Dialog?
+
+Sobald du auf „Plan umsetzen" klickst, starte ich mit Schritt 1–3 und 6; Schritte 4–5 erfordern deinen Eingriff in den jeweiligen Provider-Konsolen.
