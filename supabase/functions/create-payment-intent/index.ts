@@ -28,6 +28,22 @@ const bodySchema = z.object({
 const log = (step: string, details?: unknown) =>
   console.log(`[create-payment-intent] ${step}`, details ?? "");
 
+const jsonHeaders = {
+  ...corsHeaders,
+  "Content-Type": "application/json",
+};
+
+const fallbackResponse = (error: string, requestId: string, details?: unknown) => {
+  log("Fallback to checkout", { error, requestId, details });
+  return new Response(
+    JSON.stringify({ error, fallback: true, requestId }),
+    {
+      status: 200,
+      headers: jsonHeaders,
+    },
+  );
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -53,29 +69,17 @@ serve(async (req) => {
     const STRIPE_PUBLISHABLE_KEY = Deno.env.get("STRIPE_PUBLISHABLE_KEY")!;
 
     if (!STRIPE_PUBLISHABLE_KEY || !STRIPE_SECRET_KEY) {
-      return new Response(
-        JSON.stringify({ error: "Stripe not configured", requestId }),
-        {
-          status: 503,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return fallbackResponse("Stripe not configured", requestId);
     }
 
     // Mode-Konsistenz prüfen (test↔test, live↔live)
     const secretIsTest = STRIPE_SECRET_KEY.startsWith("sk_test_");
     const pkIsTest = STRIPE_PUBLISHABLE_KEY.startsWith("pk_test_");
     if (secretIsTest !== pkIsTest) {
-      log("Key mode mismatch", { secretIsTest, pkIsTest, requestId });
-      return new Response(
-        JSON.stringify({
-          error: "Stripe key mode mismatch (test/live)",
-          requestId,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+      return fallbackResponse(
+        "Stripe key mode mismatch (test/live)",
+        requestId,
+        { secretIsTest, pkIsTest },
       );
     }
 
@@ -350,15 +354,9 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("[create-payment-intent] Unhandled", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-        requestId,
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+    return fallbackResponse(
+      error instanceof Error ? error.message : "Unknown error",
+      requestId,
     );
   }
 });
