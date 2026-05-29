@@ -88,7 +88,7 @@ import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import TaxFilerGate from "@/components/guards/TaxFilerGate";
 import { useVaulCleanup } from "@/hooks/useVaulCleanup";
-import { MaintenanceBanner } from "@/components/ui/MaintenanceBanner";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -495,7 +495,6 @@ const AppRoutes = () => {
   return (
     <ErrorBoundary onError={handleAppError}>
       <SpaRedirector />
-      <MaintenanceBanner />
       <Suspense fallback={<LoadingSpinner fullScreen />}>
         <PageTransition>
         <Routes location={location}>
