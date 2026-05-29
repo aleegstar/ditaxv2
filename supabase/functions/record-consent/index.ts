@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error('record-consent error:', err);
-    return new Response(JSON.stringify({ error: (err as Error).message || 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

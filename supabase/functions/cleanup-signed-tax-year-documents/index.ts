@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
   if (retErr) {
     console.error('Failed to fetch eligible returns', retErr);
-    return new Response(JSON.stringify({ error: retErr.message }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
