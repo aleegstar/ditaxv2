@@ -128,9 +128,8 @@ export class KeyManagementService {
         return await this.getMasterKeyDirectFetch();
       }
 
-      console.log('✅ Master key retrieved successfully via invoke');
-      console.log('🔍 Master key length:', data.masterKey.length);
-      console.log('🔍 Master key starts with:', data.masterKey.substring(0, 8) + '...');
+      console.log('✅ Master key received (length ok)');
+      
       
       return data.masterKey;
     } catch (error) {
@@ -164,9 +163,7 @@ export class KeyManagementService {
       throw new Error('Master key not found in response');
     }
 
-    console.log('✅ Master key retrieved successfully via Supabase client');
-    console.log('🔍 Master key length (direct fetch):', data.masterKey.length);
-    console.log('🔍 Master key starts with (direct fetch):', data.masterKey.substring(0, 8) + '...');
+    console.log('✅ Master key received via Supabase client (length ok)');
     
     return data.masterKey;
   }
@@ -210,13 +207,11 @@ export class KeyManagementService {
       const masterKey = await this.getMasterKey();
       
       console.log('🔐 Generating user key from master key...');
-      console.log('🔍 Using master key of length:', masterKey.length);
-      console.log('🔍 For user ID:', userId);
       
       const userKey = await this.cryptoService.generateUserKey(userId, masterKey);
       
       console.log('✅ Successfully generated admin decryption key for user:', userId);
-      console.log('🔍 Generated user key length:', userKey.length);
+      
       
       return userKey;
     } catch (error) {
