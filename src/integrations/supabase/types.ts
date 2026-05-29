@@ -2030,6 +2030,36 @@ export type Database = {
           },
         ]
       }
+      legal_document_versions: {
+        Row: {
+          content_hash: string
+          created_at: string
+          document_type: string
+          effective_from: string
+          id: string
+          published_url: string
+          version: string
+        }
+        Insert: {
+          content_hash: string
+          created_at?: string
+          document_type: string
+          effective_from?: string
+          id?: string
+          published_url: string
+          version: string
+        }
+        Update: {
+          content_hash?: string
+          created_at?: string
+          document_type?: string
+          effective_from?: string
+          id?: string
+          published_url?: string
+          version?: string
+        }
+        Relationships: []
+      }
       missing_item_requests: {
         Row: {
           admin_id: string
@@ -3492,10 +3522,13 @@ export type Database = {
       }
       user_consents: {
         Row: {
+          accepted_via: string | null
           consent_type: string
           consent_version: string
           consented: boolean
           created_at: string
+          document_hash: string | null
+          document_url: string | null
           id: string
           ip_address: unknown
           updated_at: string
@@ -3503,10 +3536,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          accepted_via?: string | null
           consent_type: string
           consent_version?: string
           consented?: boolean
           created_at?: string
+          document_hash?: string | null
+          document_url?: string | null
           id?: string
           ip_address?: unknown
           updated_at?: string
@@ -3514,10 +3550,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          accepted_via?: string | null
           consent_type?: string
           consent_version?: string
           consented?: boolean
           created_at?: string
+          document_hash?: string | null
+          document_url?: string | null
           id?: string
           ip_address?: unknown
           updated_at?: string
