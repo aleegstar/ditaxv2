@@ -49,15 +49,12 @@ const Auth = () => {
   } = useI18n();
   const [step, setStep] = useState<"main" | "code">("main");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
-  const [usePassword, setUsePassword] = useState(false);
 
   const isOAuthInProgress = useRef(false);
 
