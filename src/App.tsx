@@ -495,7 +495,6 @@ const AppRoutes = () => {
   return (
     <ErrorBoundary onError={handleAppError}>
       <SpaRedirector />
-      <MaintenanceBanner />
       <Suspense fallback={<LoadingSpinner fullScreen />}>
         <PageTransition>
         <Routes location={location}>
