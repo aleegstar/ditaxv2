@@ -392,7 +392,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                 onClick={(e) => { e.stopPropagation(); onAction?.(); }}
                 className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[15px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(15,27,61,0.4)] hover:shadow-[0_12px_28px_-8px_rgba(15,27,61,0.5)] transition-all duration-300"
               >
-                <Upload className="w-4 h-4" strokeWidth={2} />
+                
                 {actionLabel}
               </button>
             </div>
