@@ -333,6 +333,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             taxReturnId,
             taxFilerId: activeTaxFilerId,
             promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
+            isUpgrade,
           }
         });
         if (piError || piData?.fallback) {
