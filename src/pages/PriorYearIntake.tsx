@@ -128,8 +128,9 @@ function PriorYearIntakeInner({ taxYear }: { taxYear: string }) {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in-0 duration-300"
             onClick={() => setShowCompletionDialog(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[2rem] shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom duration-400 pb-8 w-full overflow-hidden">
-            <div className="w-10 h-1 rounded-full bg-muted mx-auto mt-3 mb-4" />
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2 bg-card shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] md:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)] pb-8 md:pb-6 overflow-hidden w-full md:w-[min(560px,calc(100vw-2rem))] md:max-h-[85vh] md:overflow-y-auto rounded-t-[2rem] md:rounded-3xl animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:fade-in-0 md:zoom-in-95 duration-400">
+            <div className="w-10 h-1 rounded-full bg-muted mx-auto mt-3 mb-4 md:hidden" />
+            <div className="hidden md:block h-4" />
 
             <div className="relative mx-5 sm:mx-6 rounded-2xl overflow-hidden h-40 sm:h-48">
               <img src={documentsCompleteHero} alt="" className="w-full h-full object-cover" />
