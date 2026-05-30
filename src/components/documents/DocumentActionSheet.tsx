@@ -65,6 +65,49 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
     }
   }, [document, open]);
 
+  // Despia: natives Action Sheet für die Aktionsauswahl
+  const nativeSheetTriggered = useRef(false);
+  useEffect(() => {
+    if (!open || !document) {
+      nativeSheetTriggered.current = false;
+      return;
+    }
+    if (view !== 'actions') return;
+    if (!isDespiaNative() || nativeSheetTriggered.current) return;
+    nativeSheetTriggered.current = true;
+
+    const items = isLocked
+      ? [{ label: 'Vorschau anzeigen', value: 'preview', iconIos: 'eye', iconAndroid: 'visibility' }]
+      : [
+          { label: 'Vorschau anzeigen', value: 'preview', iconIos: 'eye', iconAndroid: 'visibility' },
+          { label: 'Bearbeiten', value: 'edit', iconIos: 'pencil', iconAndroid: 'edit' },
+          { label: 'Löschen', value: 'delete', iconIos: 'trash', iconAndroid: 'delete', destructive: true },
+        ];
+
+    despiaActionSheet({ title: document.file_name, items }).then(async (value) => {
+      if (value === 'preview') {
+        await handlePreview();
+      } else if (value === 'edit') {
+        setView('edit');
+      } else if (value === 'delete') {
+        const confirmed = await despiaActionSheet({
+          title: `"${document.file_name}" wirklich löschen?`,
+          items: [
+            { label: 'Löschen', value: 'confirm', iconIos: 'trash', iconAndroid: 'delete', destructive: true },
+          ],
+        });
+        if (confirmed === 'confirm') {
+          await handleDelete();
+        } else {
+          onClose();
+        }
+      } else {
+        onClose();
+      }
+    });
+  }, [open, document, view, isLocked]);
+
+
   const handlePreview = async () => {
     if (!document) return;
     setLoading(true);
