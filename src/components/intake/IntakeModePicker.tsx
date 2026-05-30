@@ -1,5 +1,5 @@
 import React from "react";
-import { Pen, ArrowRight, Zap, Upload, Star } from "lucide-react";
+import { Pen, ChevronRight, Zap, Star } from "lucide-react";
 import type { IntakeMode } from "./IntakeModeSheet";
 import { Button } from "@/components/ui/button";
 import uploadImg from "@/assets/intake-upload.webp";
@@ -45,7 +45,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect, hasIntern
             title={priorTitle}
             desc={priorDesc}
             cta={priorCta}
-            ctaIcon={<Upload className="w-4 h-4" strokeWidth={2} />}
+            ctaIcon={<ChevronRight className="w-4 h-4" strokeWidth={2} />}
             onClick={() => onSelect("prior_year_upload")}
           />
         </div>
@@ -130,7 +130,7 @@ const ModeCard: React.FC<{
               className="h-10 px-4 rounded-xl text-[13px] font-medium"
             >
               {cta}
-              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              <ChevronRight className="w-3.5 h-3.5 ml-1.5" />
             </Button>
           ) : (
             <Button
@@ -138,8 +138,8 @@ const ModeCard: React.FC<{
               onClick={onClick}
               className="h-11 px-5 rounded-xl text-[14px] font-medium"
             >
-              {ctaIcon}
-              <span className={ctaIcon ? "ml-2" : ""}>{cta}</span>
+              <span>{cta}</span>
+              {ctaIcon && <span className="ml-2">{ctaIcon}</span>}
             </Button>
           )}
         </div>
