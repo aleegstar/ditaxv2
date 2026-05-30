@@ -23,6 +23,7 @@ const bodySchema = z.object({
   taxReturnId: z.string().uuid().optional().nullable(),
   taxFilerId: z.string().uuid().optional().nullable(),
   promoCodeId: z.string().optional().nullable(),
+  isUpgrade: z.boolean().optional().default(false),
 });
 
 const log = (step: string, details?: unknown) =>
