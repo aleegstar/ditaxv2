@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2, Lock, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import { isDespiaNative, despiaActionSheet } from '@/lib/despia';
 
 interface Document {
   id: string;
