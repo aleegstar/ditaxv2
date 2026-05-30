@@ -25,7 +25,8 @@ const paymentRequestSchema = z.object({
   origin: z.string().url().optional().nullable(),
   paymentMethod: z.enum(['default', 'twint', 'card_only']).optional().default('default'),
   promoCodeId: z.string().optional().nullable(), // Stripe promotion code ID for referral discounts
-  isDespia: z.boolean().optional().default(false) // Whether request comes from Despia native app
+  isDespia: z.boolean().optional().default(false), // Whether request comes from Despia native app
+  isUpgrade: z.boolean().optional().default(false) // Express-only upgrade for already-paid return
 })
 
 const logStep = (step: string, details?: any) => {
