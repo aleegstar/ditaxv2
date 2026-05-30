@@ -245,6 +245,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       origin: window.location.origin,
       promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
       isDespia: isDespiaNative(),
+      isUpgrade,
     };
 
     console.log('💳 Creating payment session:', requestPayload);
@@ -333,6 +334,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             taxReturnId,
             taxFilerId: activeTaxFilerId,
             promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
+            isUpgrade,
           }
         });
         if (piError || piData?.fallback) {

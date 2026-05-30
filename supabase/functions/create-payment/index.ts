@@ -25,7 +25,8 @@ const paymentRequestSchema = z.object({
   origin: z.string().url().optional().nullable(),
   paymentMethod: z.enum(['default', 'twint', 'card_only']).optional().default('default'),
   promoCodeId: z.string().optional().nullable(), // Stripe promotion code ID for referral discounts
-  isDespia: z.boolean().optional().default(false) // Whether request comes from Despia native app
+  isDespia: z.boolean().optional().default(false), // Whether request comes from Despia native app
+  isUpgrade: z.boolean().optional().default(false) // Express-only upgrade for already-paid return
 })
 
 const logStep = (step: string, details?: any) => {
@@ -231,10 +232,31 @@ serve(async (req) => {
         origin: bodyOrigin, 
         paymentMethod,
         promoCodeId,
-        isDespia
+        isDespia,
+        isUpgrade
       } = validatedRequest;
       let amount = validatedRequest.amount;
       let items = validatedRequest.items;
+
+      // Server-side validation for upgrade flow: tax_return must exist, belong to user, and already be paid.
+      if (isUpgrade) {
+        if (!taxReturnId) {
+          return new Response(JSON.stringify({ error: "Upgrade requires taxReturnId", requestId }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const { data: tr, error: trErr } = await supabaseService
+          .from('tax_returns')
+          .select('id, user_id, payment_status')
+          .eq('id', taxReturnId)
+          .maybeSingle();
+        if (trErr || !tr || tr.user_id !== user.id || tr.payment_status !== 'paid') {
+          logStep("Upgrade rejected — tax return not eligible", { taxReturnId, requestId });
+          return new Response(JSON.stringify({ error: "Upgrade not allowed for this tax return", requestId }), {
+            status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
 
       // Aktionswoche 11.05.–17.05.2026 (Europe/Zurich, CEST = UTC+2):
       // pauschal CHF 100 + Express CHF 20. Serverseitig erzwungen, damit
@@ -246,15 +268,21 @@ serve(async (req) => {
       if (promoWeekActive) {
         const PROMO_BASE = 9900;
         const PROMO_EXPRESS = 2900;
-        const enforced = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
-        if (amount !== enforced) {
-          logStep("Promo week price enforced", { sent: amount, enforced, expressService, requestId });
+        if (isUpgrade) {
+          // Upgrade-only: just the express add-on at promo price
+          amount = PROMO_EXPRESS;
+          items = [{ label: "Express-Service Upgrade (Aktionswoche)", amount: PROMO_EXPRESS }];
+        } else {
+          const enforced = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
+          if (amount !== enforced) {
+            logStep("Promo week price enforced", { sent: amount, enforced, expressService, requestId });
+          }
+          amount = enforced;
+          items = [
+            { label: "Steuererklärung (Aktionswoche)", amount: PROMO_BASE },
+            ...(expressService ? [{ label: "Express-Service (Aktionswoche)", amount: PROMO_EXPRESS }] : []),
+          ];
         }
-        amount = enforced;
-        items = [
-          { label: "Steuererklärung (Aktionswoche)", amount: PROMO_BASE },
-          ...(expressService ? [{ label: "Express-Service (Aktionswoche)", amount: PROMO_EXPRESS }] : []),
-        ];
       }
 
       
@@ -327,9 +355,10 @@ serve(async (req) => {
       if (!promoWeekActive) {
         const MIN_BASE = 15000;
         const MIN_WITH_EXPRESS = MIN_BASE + 10000;
-        const floor = expressService ? MIN_WITH_EXPRESS : MIN_BASE;
+        const MIN_UPGRADE = 10000; // Express-only upgrade
+        const floor = isUpgrade ? MIN_UPGRADE : (expressService ? MIN_WITH_EXPRESS : MIN_BASE);
         if (amount < floor) {
-          logStep("Price floor violated – rejecting", { sent: amount, floor, expressService, requestId, userId: user.id });
+          logStep("Price floor violated – rejecting", { sent: amount, floor, expressService, isUpgrade, requestId, userId: user.id });
           return new Response(JSON.stringify({
             error: "Amount below allowed minimum",
             requestId
