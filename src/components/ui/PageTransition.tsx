@@ -24,6 +24,11 @@ const pageTransition = {
 export const PageTransition = ({ children, className }: PageTransitionProps) => {
   const location = useLocation();
   const transitionKey = `${location.pathname}${location.search}`;
+  const disableTransition = location.pathname === '/payment-success';
+
+  if (disableTransition) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <motion.div
