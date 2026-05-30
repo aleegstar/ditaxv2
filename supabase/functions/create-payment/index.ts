@@ -355,9 +355,10 @@ serve(async (req) => {
       if (!promoWeekActive) {
         const MIN_BASE = 15000;
         const MIN_WITH_EXPRESS = MIN_BASE + 10000;
-        const floor = expressService ? MIN_WITH_EXPRESS : MIN_BASE;
+        const MIN_UPGRADE = 10000; // Express-only upgrade
+        const floor = isUpgrade ? MIN_UPGRADE : (expressService ? MIN_WITH_EXPRESS : MIN_BASE);
         if (amount < floor) {
-          logStep("Price floor violated – rejecting", { sent: amount, floor, expressService, requestId, userId: user.id });
+          logStep("Price floor violated – rejecting", { sent: amount, floor, expressService, isUpgrade, requestId, userId: user.id });
           return new Response(JSON.stringify({
             error: "Amount below allowed minimum",
             requestId
