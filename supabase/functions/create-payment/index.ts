@@ -268,15 +268,21 @@ serve(async (req) => {
       if (promoWeekActive) {
         const PROMO_BASE = 9900;
         const PROMO_EXPRESS = 2900;
-        const enforced = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
-        if (amount !== enforced) {
-          logStep("Promo week price enforced", { sent: amount, enforced, expressService, requestId });
+        if (isUpgrade) {
+          // Upgrade-only: just the express add-on at promo price
+          amount = PROMO_EXPRESS;
+          items = [{ label: "Express-Service Upgrade (Aktionswoche)", amount: PROMO_EXPRESS }];
+        } else {
+          const enforced = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
+          if (amount !== enforced) {
+            logStep("Promo week price enforced", { sent: amount, enforced, expressService, requestId });
+          }
+          amount = enforced;
+          items = [
+            { label: "Steuererklärung (Aktionswoche)", amount: PROMO_BASE },
+            ...(expressService ? [{ label: "Express-Service (Aktionswoche)", amount: PROMO_EXPRESS }] : []),
+          ];
         }
-        amount = enforced;
-        items = [
-          { label: "Steuererklärung (Aktionswoche)", amount: PROMO_BASE },
-          ...(expressService ? [{ label: "Express-Service (Aktionswoche)", amount: PROMO_EXPRESS }] : []),
-        ];
       }
 
       
