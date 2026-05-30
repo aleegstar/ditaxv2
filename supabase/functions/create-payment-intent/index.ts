@@ -135,8 +135,32 @@ serve(async (req) => {
       taxReturnId,
       taxFilerId,
       promoCodeId,
+      isUpgrade,
     } = parsed.data;
     let amount = parsed.data.amount;
+
+    // Server-side validation for upgrade flow: tax_return must belong to user and already be paid.
+    if (isUpgrade) {
+      if (!taxReturnId) {
+        return new Response(
+          JSON.stringify({ error: "Upgrade requires taxReturnId", requestId }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+      const { data: tr } = await sb
+        .from('tax_returns')
+        .select('id, user_id, payment_status')
+        .eq('id', taxReturnId)
+        .maybeSingle();
+      if (!tr || tr.user_id !== user.id || tr.payment_status !== 'paid') {
+        log("Upgrade rejected — tax return not eligible", { taxReturnId, requestId });
+        return new Response(
+          JSON.stringify({ error: "Upgrade not allowed for this tax return", requestId }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
 
     // Aktionswoche 11.05.–17.05.2026 (Europe/Zurich) — serverseitig erzwingen
     const PROMO_START_UTC = Date.UTC(2026, 4, 10, 22, 0, 0);
@@ -145,16 +169,16 @@ serve(async (req) => {
     if (now >= PROMO_START_UTC && now <= PROMO_END_UTC) {
       const PROMO_BASE = 9900;
       const PROMO_EXPRESS = 2900;
-      amount = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
-      log("Promo week enforced", { amount, expressService, requestId });
+      amount = isUpgrade ? PROMO_EXPRESS : PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
+      log("Promo week enforced", { amount, expressService, isUpgrade, requestId });
     } else {
       // SECURITY: Server-side Mindestpreis-Floor ausserhalb der Aktionswoche.
-      // Echter Grundpreis 15000 (CHF 150) bzw. 25000 (inkl. Express).
       const MIN_BASE = 15000;
       const MIN_WITH_EXPRESS = MIN_BASE + 10000;
-      const floor = expressService ? MIN_WITH_EXPRESS : MIN_BASE;
+      const MIN_UPGRADE = 10000;
+      const floor = isUpgrade ? MIN_UPGRADE : (expressService ? MIN_WITH_EXPRESS : MIN_BASE);
       if (amount < floor) {
-        log("Price floor violated – rejecting", { sent: amount, floor, expressService, requestId });
+        log("Price floor violated – rejecting", { sent: amount, floor, expressService, isUpgrade, requestId });
         return new Response(
           JSON.stringify({ error: "Amount below allowed minimum", requestId }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
