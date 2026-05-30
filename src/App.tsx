@@ -7,6 +7,7 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { AppShell } from "@/components/layout/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { App as CapacitorApp } from '@capacitor/app';
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 // Lazy-loaded page components for code splitting
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
@@ -23,7 +24,6 @@ const NativeCallback = lazyWithRetry(() => import("./pages/NativeCallback"));
 const MfaVerify = lazyWithRetry(() => import("./pages/MfaVerify"));
 const AuthBridge = lazyWithRetry(() => import("./pages/AuthBridge"));
 const Profile = lazyWithRetry(() => import("./pages/Profile"));
-const PaymentSuccess = lazyWithRetry(() => import("./pages/PaymentSuccess"));
 const PriceCalculator = lazyWithRetry(() => import("./pages/PriceCalculator"));
 const Help = lazyWithRetry(() => import("./pages/Help"));
 const Feedback = lazyWithRetry(() => import("./pages/Feedback"));
@@ -513,7 +513,7 @@ const AppRoutes = () => {
           <Route path="/login" element={<Navigate to="/auth" replace />} />
 
           {/* payment-success is top-level: bypasses AuthenticatedApp, TaxFilerGate, and onboarding checks */}
-          <Route path="/payment-success" element={<Suspense fallback={<LoadingSpinner fullScreen />}><PaymentSuccess /></Suspense>} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           
           {/* Public legal pages */}
           <Route path="/datenschutzrichtlinie" element={<Privacy />} />

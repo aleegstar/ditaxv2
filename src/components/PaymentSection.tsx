@@ -39,6 +39,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const navigate = useNavigate();
   const year = taxYear || (new Date().getFullYear() - 1).toString();
   const [isLoading, setIsLoading] = useState(false);
+  const [isNativeCompletionPending, setIsNativeCompletionPending] = useState(false);
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [expressService, setExpressService] = useState(isUpgrade);
@@ -356,13 +357,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           if (event.method !== 'paymentSheet') return;
           console.log('💳 stripeEvent:', event);
           if (event.status === 'completed') {
-            // Sofort navigieren — Webhook setzt Status zuverlässig,
-            // PaymentSuccess hat zusätzlich Fallback-Update. Kein Poll-Delay → kein Flackern.
-            navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`, { replace: true });
+            setIsNativeCompletionPending(true);
+            requestAnimationFrame(() => {
+              navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`, { replace: true });
+            });
           } else if (event.status === 'canceled') {
+            setIsNativeCompletionPending(false);
             toast.info('Zahlung abgebrochen');
             setIsLoading(false);
           } else {
+            setIsNativeCompletionPending(false);
             toast.error(event.error || 'Zahlung fehlgeschlagen');
             setErrorMessage(event.error || 'Zahlung fehlgeschlagen');
             setIsLoading(false);
@@ -433,6 +437,22 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   const cardClass =
     "rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]";
+
+  if (isNativeCompletionPending) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <div className="w-full max-w-sm text-center space-y-4">
+          <div className="mx-auto w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center shadow-[0_10px_24px_-12px_rgba(15,27,61,0.18)]">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-base font-semibold text-foreground">Zahlung wird abgeschlossen</p>
+            <p className="text-sm text-muted-foreground">Einen Moment bitte…</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col text-foreground">
