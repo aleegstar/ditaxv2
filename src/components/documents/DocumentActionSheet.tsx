@@ -462,9 +462,13 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
     </div>
   );
 
+  // In Despia: Web-UI nur für preview/edit/delete-Subviews zeigen.
+  // Die 'actions'-Auswahl übernimmt das native Action Sheet (siehe useEffect oben).
+  const suppressWebUi = isDespiaNative() && view === 'actions';
+
   return (
     <AnimatePresence>
-      {open && (
+      {open && !suppressWebUi && (
         <>
           {/* Backdrop */}
           <motion.div
