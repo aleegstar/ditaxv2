@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2, Lock, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import { isDespiaNative, despiaActionSheet } from '@/lib/despia';
 
 interface Document {
   id: string;
@@ -63,6 +64,49 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
       }
     }
   }, [document, open]);
+
+  // Despia: natives Action Sheet für die Aktionsauswahl
+  const nativeSheetTriggered = useRef(false);
+  useEffect(() => {
+    if (!open || !document) {
+      nativeSheetTriggered.current = false;
+      return;
+    }
+    if (view !== 'actions') return;
+    if (!isDespiaNative() || nativeSheetTriggered.current) return;
+    nativeSheetTriggered.current = true;
+
+    const items = isLocked
+      ? [{ label: 'Vorschau anzeigen', value: 'preview', iconIos: 'eye', iconAndroid: 'visibility' }]
+      : [
+          { label: 'Vorschau anzeigen', value: 'preview', iconIos: 'eye', iconAndroid: 'visibility' },
+          { label: 'Bearbeiten', value: 'edit', iconIos: 'pencil', iconAndroid: 'edit' },
+          { label: 'Löschen', value: 'delete', iconIos: 'trash', iconAndroid: 'delete', destructive: true },
+        ];
+
+    despiaActionSheet({ title: document.file_name, items }).then(async (value) => {
+      if (value === 'preview') {
+        await handlePreview();
+      } else if (value === 'edit') {
+        setView('edit');
+      } else if (value === 'delete') {
+        const confirmed = await despiaActionSheet({
+          title: `"${document.file_name}" wirklich löschen?`,
+          items: [
+            { label: 'Löschen', value: 'confirm', iconIos: 'trash', iconAndroid: 'delete', destructive: true },
+          ],
+        });
+        if (confirmed === 'confirm') {
+          await handleDelete();
+        } else {
+          onClose();
+        }
+      } else {
+        onClose();
+      }
+    });
+  }, [open, document, view, isLocked]);
+
 
   const handlePreview = async () => {
     if (!document) return;
@@ -418,9 +462,13 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
     </div>
   );
 
+  // In Despia: Web-UI nur für preview/edit/delete-Subviews zeigen.
+  // Die 'actions'-Auswahl übernimmt das native Action Sheet (siehe useEffect oben).
+  const suppressWebUi = isDespiaNative() && view === 'actions';
+
   return (
     <AnimatePresence>
-      {open && (
+      {open && !suppressWebUi && (
         <>
           {/* Backdrop */}
           <motion.div
