@@ -213,7 +213,21 @@ const TaxFilers: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setDeleteConfirmFiler(filer)}
+                            onClick={async () => {
+                              if (isDespiaNative()) {
+                                const value = await despiaActionSheet({
+                                  title: `${filer.first_name} ${filer.last_name} löschen?`,
+                                  items: [
+                                    { label: 'Löschen', value: 'delete', iconIos: 'trash', iconAndroid: 'delete', destructive: true },
+                                  ],
+                                });
+                                if (value === 'delete') {
+                                  await deleteTaxFiler(filer.id);
+                                }
+                              } else {
+                                setDeleteConfirmFiler(filer);
+                              }
+                            }}
                             className="h-8 w-8 rounded-full text-muted-foreground/60 hover:text-destructive hover:bg-destructive/[0.06]"
                           >
                             <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
