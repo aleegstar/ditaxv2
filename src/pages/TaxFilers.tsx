@@ -32,6 +32,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
+import { isDespiaNative, despiaActionSheet } from '@/lib/despia';
 
 type RelationshipType = 'self' | 'child' | 'spouse' | 'parent' | 'other';
 
