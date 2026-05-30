@@ -22,16 +22,20 @@ const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.C
   ...props
 }, ref) => {
   const isBottomSheet = variant === 'bottom-sheet';
+  const isMobile = useIsMobile();
+  const desktopPopup = isBottomSheet && !isMobile;
   return <DrawerPortal>
       <DrawerOverlay />
       <DrawerPrimitive.Content ref={ref} className={cn(
         "z-[10000] flex flex-col border bg-background",
         isBottomSheet
-          ? "fixed inset-x-0 bottom-0 rounded-t-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)]"
+          ? desktopPopup
+            ? "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(560px,calc(100vw-2rem))] max-h-[85vh] rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)]"
+            : "fixed inset-x-0 bottom-0 rounded-t-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)]"
           : "fixed left-0 top-0 w-full h-full",
         className
       )} {...props}>
-        {isBottomSheet && (
+        {isBottomSheet && !desktopPopup && (
           <div className="mx-auto mt-3 mb-1 h-1 w-10 rounded-full bg-muted-foreground/20" />
         )}
         {children}
