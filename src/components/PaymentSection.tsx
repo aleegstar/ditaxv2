@@ -354,10 +354,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           if (event.method !== 'paymentSheet') return;
           console.log('💳 stripeEvent:', event);
           if (event.status === 'completed') {
-            toast.info('Zahlung wird bestätigt…');
-            pollPaymentStatus(taxReturnId, () => {
-              navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`);
-            });
+            // Sofort navigieren — Webhook setzt Status zuverlässig,
+            // PaymentSuccess hat zusätzlich Fallback-Update. Kein Poll-Delay → kein Flackern.
+            navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`, { replace: true });
           } else if (event.status === 'canceled') {
             toast.info('Zahlung abgebrochen');
             setIsLoading(false);
