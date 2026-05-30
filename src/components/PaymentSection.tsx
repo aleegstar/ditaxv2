@@ -358,7 +358,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           console.log('💳 stripeEvent:', event);
           if (event.status === 'completed') {
             setIsNativeCompletionPending(true);
-            navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`, { replace: true });
+            requestAnimationFrame(() => {
+              navigate(`/payment-success?session_id=native&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`, { replace: true });
+            });
           } else if (event.status === 'canceled') {
             setIsNativeCompletionPending(false);
             toast.info('Zahlung abgebrochen');
