@@ -31,7 +31,7 @@ const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.C
         isBottomSheet
           ? desktopPopup
             ? "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(560px,calc(100vw-2rem))] max-h-[85vh] rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)]"
-            : "fixed inset-x-0 bottom-0 rounded-t-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)]"
+            : "fixed left-2 right-2 rounded-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)] bottom-[calc(env(safe-area-inset-bottom,0px)+8px)]"
           : "fixed left-0 top-0 w-full h-full",
         className
       )} {...props}>
