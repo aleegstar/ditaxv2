@@ -232,10 +232,31 @@ serve(async (req) => {
         origin: bodyOrigin, 
         paymentMethod,
         promoCodeId,
-        isDespia
+        isDespia,
+        isUpgrade
       } = validatedRequest;
       let amount = validatedRequest.amount;
       let items = validatedRequest.items;
+
+      // Server-side validation for upgrade flow: tax_return must exist, belong to user, and already be paid.
+      if (isUpgrade) {
+        if (!taxReturnId) {
+          return new Response(JSON.stringify({ error: "Upgrade requires taxReturnId", requestId }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const { data: tr, error: trErr } = await supabaseService
+          .from('tax_returns')
+          .select('id, user_id, payment_status')
+          .eq('id', taxReturnId)
+          .maybeSingle();
+        if (trErr || !tr || tr.user_id !== user.id || tr.payment_status !== 'paid') {
+          logStep("Upgrade rejected — tax return not eligible", { taxReturnId, requestId });
+          return new Response(JSON.stringify({ error: "Upgrade not allowed for this tax return", requestId }), {
+            status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
 
       // Aktionswoche 11.05.–17.05.2026 (Europe/Zurich, CEST = UTC+2):
       // pauschal CHF 100 + Express CHF 20. Serverseitig erzwungen, damit
