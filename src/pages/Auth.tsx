@@ -487,7 +487,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="flex-1 min-h-0 flex flex-col overflow-y-auto text-foreground antialiased relative bg-white sm:flex-none sm:min-h-screen sm:min-h-[100dvh] sm:overflow-hidden sm:bg-[#FAFAF8] sm:block">
+  return <div className="flex-1 min-h-0 flex flex-col text-foreground antialiased relative bg-white sm:flex-none sm:min-h-screen sm:overflow-hidden sm:bg-[#FAFAF8] sm:block">
 
       {/* Minimal neutral background with extremely subtle grain */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
@@ -500,15 +500,16 @@ const Auth = () => {
         />
       </div>
 
-      {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen min-h-[100dvh] flex-col items-stretch justify-start sm:items-center sm:justify-center p-0 sm:p-8 overflow-y-auto sm:overflow-visible">
+      {/* Main Container — SINGLE scroll zone on mobile (avoid nested scrollers
+          that break Despia native keyboard autoscroll) */}
+      <div className="relative z-10 flex-1 min-h-0 overflow-y-auto flex flex-col items-stretch justify-start sm:flex-none sm:min-h-screen sm:items-center sm:justify-center sm:overflow-visible p-0 sm:p-8">
 
         {/* Card */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full min-h-screen sm:min-h-0 flex flex-col justify-start sm:justify-center sm:block sm:max-w-[420px] relative sm:rounded-2xl sm:bg-white sm:border sm:border-black/[0.06] sm:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_8px_24px_-12px_rgba(15,27,61,0.08)] sm:overflow-hidden"
+          className="w-full flex flex-col sm:block sm:max-w-[420px] relative sm:rounded-2xl sm:bg-white sm:border sm:border-black/[0.06] sm:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_8px_24px_-12px_rgba(15,27,61,0.08)] sm:overflow-hidden"
         >
 
           <div className="relative z-10">
