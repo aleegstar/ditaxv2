@@ -1,48 +1,83 @@
-## Ziel
+## Ausgangslage
 
-Despia Local-Server-Support einbauen, damit die nativen Despia-Apps (iOS/Android) jedes neue Web-Build automatisch erkennen, vollständig cachen und atomar als OTA-Update ausrollen können – ohne App-Store-Release.
+`@despia/local` ist bereits in `vite.config.ts` integriert → `dist/despia/local.json` wird gebaut, App läuft auf dem Gerät via `http://localhost` und ist nach erstem Launch boot-offline-fähig. Was fehlt, ist (1) ein Toggle in der Despia-Konsole, (2) UI-Feedback bei Offline, (3) ein Read-Cache, damit Daten ohne Netz sichtbar bleiben, und (4) eine Write-Queue, damit Aktionen offline nicht ins Leere laufen.
 
-Konkret heißt das: Bei jedem `npm run build` wird im `dist/`-Output zusätzlich `dist/despia/local.json` erzeugt. Dieses Manifest listet `entry`, `deployed_at` und alle gebauten Assets. Die Despia-Runtime fragt diese Datei ab, vergleicht `deployed_at` und lädt geänderte Assets nach.
+## Umsetzung in 4 Phasen
 
-## Schritte
+### Phase 1 – Aktivierung & globaler Offline-Indikator
 
-1. **Dependency hinzufügen**
-   - `@despia/local` als devDependency installieren.
+1. **Despia-Konsole** (User-Action, kein Code): Im Despia-Editor unter „Offline Support" → **Local Server** auswählen, App-Rebuild triggern. Ohne diesen Schalter bleibt das generierte Manifest ungenutzt.
+2. **`useOnlineStatus` Hook** (`src/hooks/useOnlineStatus.ts`) – kapselt `navigator.onLine` + `online`/`offline` Events, mit kurzem Reconnect-Debounce, damit kein Flackern entsteht.
+3. **`OfflineBanner`** Komponente, eingehängt in `AppLayout` direkt unter dem Header: schmaler `bg-muted` Streifen „Du bist offline – Änderungen werden gespeichert und später synchronisiert", `aria-live="polite"`, respektiert `safe-area-inset-top`.
+4. **Reconnect-Toast** via `sonner`: „Wieder online" + Anzahl Queue-Items, falls vorhanden.
+5. **Auth-Guard**: Wenn offline und kein gültiger Supabase-Session-Token vorhanden → freundliche Offline-Screen statt Redirect zu `/auth`.
 
-2. **Vite-Plugin einbinden** (`vite.config.ts`)
-   - Import: `import { despiaLocalPlugin } from '@despia/local/vite';`
-   - In `plugins`-Array hinzufügen mit Defaults:
-     ```ts
-     despiaLocalPlugin({ outDir: 'dist', entryHtml: 'index.html' })
-     ```
-   - Reihenfolge: nach `react()` und `viteStaticCopy(...)`, damit alle kopierten OCR-Assets im Manifest landen.
-   - Nur im Build-Modus relevant; das Plugin hängt sich an den `closeBundle`-Hook, dev server bleibt unverändert.
+### Phase 2 – Read-Cache (Daten ohne Netz sichtbar)
 
-3. **Version-Guard (optional, empfohlen)**
-   - `despia-version-guard` zusätzlich installieren.
-   - Genutzt für Features, die eine bestimmte Despia-Runtime-Version voraussetzen (z. B. neue native Bridge-Calls in `src/lib/despia.ts`, Passkey/Easy-OAuth-Flows, Status-Bar-APIs).
-   - Wrappen per `<VersionGuard min_version="…">…</VersionGuard>` an genau diesen Stellen – Web bleibt unbeeinflusst, nur die native App rendert konditional.
-   - In diesem Plan noch keine konkreten Komponenten umstellen; das passiert auf Zuruf, sobald wir wissen, welche minimale Runtime jedes Feature braucht.
+1. **`@tanstack/react-query-persist-client` + `idb-keyval`** installieren. Persister auf IndexedDB, max 24 h Alter, Versioning-Key inkl. `auth.userId` + aktivem `tax_filer_id`, damit Wechsel von Filer den Cache nicht leakt.
+2. **`PersistQueryClientProvider`** in `App.tsx` statt des aktuellen `QueryClientProvider`. `buster` aus `import.meta.env.VITE_BUILD_ID` (oder `deployed_at` aus `/despia/local.json`) → bei OTA-Update wird der Cache verworfen.
+3. **Cache-Whitelist** statt Alles: nur lesefähige, nicht-sicherheitskritische Queries (`tax_filers`, `documents`-Metadaten, `tax_returns`, `notifications`). Sensible Daten (verschlüsselte Body-Bytes, Chat-Nachrichten) **nicht** persistieren – nur Pointer/Metadaten.
+4. **`networkMode: 'offlineFirst'`** auf den gewählten Queries; Mutations bleiben `online`.
+5. **Documents-Liste**: Cover-Bilder via `caches`-API (Service Worker, siehe Phase 4) lazy gecached, damit Thumbnails offline da sind. Encrypted Body-Downloads bleiben online-only.
 
-4. **Verifikation**
-   - `npm run build` lokal anstoßen (durch den Build im Harness automatisch).
-   - Prüfen, dass `dist/despia/local.json` existiert, `entry: "/index.html"`, `deployed_at` als ms-String und alphabetisch sortierte `assets[]` inkl. `tesseract-*`-OCR-Dateien aus `viteStaticCopy`.
-   - Sicherstellen, dass das File via Despia an `https://app.ditax.ch/despia/local.json` ausgeliefert wird (Vite kopiert es automatisch nach `dist/despia/`, dadurch wird es vom statischen Hoster mitveröffentlicht).
+### Phase 3 – Write-Queue & Reconnect-Sync
 
-## Was sich NICHT ändert
+1. **`src/services/OfflineQueueService.ts`**: persistente Job-Liste in IndexedDB. Jobs als typisierte Discriminated Union (`'form.save'`, `'document.upload'`, `'chat.send'`, `'feedback.submit'`). Pro Job: `id`, `createdAt`, `tax_filer_id`, `payload` (bei Dokumenten/Chat: **bereits verschlüsselter Blob** + Key-Wrapping wie heute, damit RLS/Encryption nicht umgangen werden), `attempts`, `lastError`.
+2. **Adapter pro Flow** – wir hooken in die bestehenden Service-Layer, nicht in UI:
+   - `EncryptedDocumentService.upload` → bei Offline: verschlüsseln, in Queue legen, optimistischer Eintrag in `documents`-Query-Cache mit Status `pending`.
+   - `EncryptedChatService.sendMessage` → analog, optimistisches Bubble mit Clock-Icon.
+   - Form-Saves (Dual-Interface) → bestehender Save-Pfad ruft Queue, sobald `fetch` fehlschlägt oder `!navigator.onLine`.
+3. **Drainer**: `OfflineQueueService.start()` wird in `main.tsx` einmalig gestartet. Triggers: `online`-Event, App-Resume (Despia `visibilitychange`), erfolgreicher Auth-Refresh. Sequenziell pro `tax_filer_id`, exponential backoff (1s → 60s, max 6 Versuche), bei Konflikt (RLS / 409) → Job markiert `failed`, User-Toast mit Retry-CTA.
+4. **UI-Slot**: In `AppLayout` kleines Queue-Badge neben dem Offline-Banner: „3 Aktionen warten auf Synchronisation" – Klick öffnet Bottom-Sheet mit Job-Liste + manueller Retry-/Discard-Option.
+5. **Sicherheits-Regel**: Login, MFA, Passkey, Payments und Sign-Tax-Return **niemals** queuen – diese Flows zeigen sofortigen Offline-Hinweis, Queue ist nur für idempotente Schreibvorgänge.
 
-- Keine Änderungen an `capacitor.config.ts`, an Auth-/RLS-Flows, an Edge Functions oder am Routing.
-- Kein neuer Code in `src/lib/despia.ts` außer den optionalen `VersionGuard`-Imports.
-- Kein zusätzlicher Service-Worker und kein Caching-Layer im Web – das Manifest wird ausschließlich von der nativen Despia-Runtime konsumiert.
+### Phase 4 – Service Worker für statisches Asset-Caching (optional, low-risk)
+
+Da Localhost ein Secure Context ist, dürfen wir einen schlanken SW registrieren – **nur** für statische Assets und Vorschau-Thumbnails, **kein** HTML-Navigation-Cache (sonst beißen wir uns mit OTA).
+
+- `public/sw-offline.js`: `CacheFirst` für `/assets/*`, `/ocr/*`, `/ditax-logo*`, Storage-Thumbnails. `NetworkOnly` für `/despia/local.json`, `*.supabase.co`, `/functions/v1/*`.
+- Registrierung nur wenn `isDespiaNative()` **und** `location.hostname === 'localhost'`.
+- Kill-Switch (`?sw-disable=1`) für Notfälle, plus `unregister`-Pfad falls jemals Probleme auftreten (analog zur PWA-Doku im Lovable-Prompt).
 
 ## Technische Details
 
-- `outDir` muss exakt mit Vites Build-Output übereinstimmen (`dist`).
-- `entryHtml` bleibt `index.html` (unsere `index.html` ist die SPA-Shell).
-- Das Manifest darf nicht umbenannt oder umgezogen werden – Despia erwartet es fix unter `/despia/local.json` relativ zum Web-Root.
-- `_headers` / `public/_redirects` brauchen keine Anpassung; statische Auslieferung deckt das ab.
-- CSP: Manifest wird vom Despia-Native-Layer (gleicher Origin) gefetched, daher kein CSP-Update nötig.
+```text
+src/
+├── hooks/useOnlineStatus.ts          (neu)
+├── components/offline/
+│   ├── OfflineBanner.tsx             (neu, eingehängt in AppLayout)
+│   └── QueueStatusSheet.tsx          (neu)
+├── services/
+│   ├── OfflineQueueService.ts        (neu, IndexedDB via idb-keyval)
+│   └── queue/
+│       ├── types.ts
+│       └── handlers/                 (uploadDocument, sendChat, saveForm, …)
+├── lib/
+│   └── reactQueryPersist.ts          (neu, PersistQueryClient Setup)
+└── App.tsx                           (Provider-Tausch)
 
-## Offene Frage
+public/
+└── sw-offline.js                     (neu, nur Localhost+Despia)
 
-Soll ich im selben Zug `despia-version-guard` schon installieren und an typischen nativen Touchpoints (`isDespiaNative()`-Pfade, Passkey-Buttons) vorbereiten, oder erstmal nur das Manifest-Plugin und Version-Guard später gezielt pro Feature einziehen?
+vite.config.ts                        (bereits OK – nichts zu tun)
+```
+
+**Neue Dependencies** (alle MIT, klein):
+- `@tanstack/react-query-persist-client`
+- `@tanstack/query-sync-storage-persister`
+- `idb-keyval`
+
+**Was NICHT geändert wird**
+- `vite.config.ts` (Local-Plugin bereits drin), `capacitor.config.ts`, Edge Functions, RLS-Policies, `EncryptedDocumentService`-Kryptographie. Encryption passiert **vor** dem Queuen, Server-Verhalten bleibt identisch.
+
+**Konflikte mit bestehenden Memory-Regeln**
+- ✅ Encryption bleibt mandatory (Jobs speichern nur verschlüsselte Bytes).
+- ✅ `tax_filer_id`-Isolation via Cache-Key + Queue-Partition.
+- ✅ Semantic Tokens für Banner/Sheet.
+- ⚠️ Session-Timeout (20 min Idle): Offline-Drainer respektiert Logout-Event und löscht Queue beim Logout (sonst Datenleck bei Gerätewechsel).
+
+## Offene Punkte vor Build
+
+1. **OTA-Cache-Buster**: Soll der React-Query-Cache bei jedem neuen `deployed_at` invalidiert werden (sicherer) oder nur bei explizitem Schema-Bump (länger nutzbar)? Empfehlung: bei jedem OTA – Tax-Daten ändern Form ohnehin selten innerhalb von Minuten.
+2. **Chat offline**: Soll der KI-Chat (`chatbot-response` Edge Function) komplett deaktiviert werden bei Offline, oder eine „Frage wird gesendet sobald online"-Queue? Empfehlung: deaktivieren, KI-Antworten sind nicht idempotent und veralten schnell.
+3. **Phase-Reihenfolge / Scope-Cut**: Phase 1+2 in einem ersten PR, Phase 3+4 in einem Folge-PR – oder alles auf einmal? Phase 3 ist der größte Brocken (~2/3 des Aufwands).
