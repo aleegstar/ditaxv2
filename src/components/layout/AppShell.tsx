@@ -2,6 +2,8 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { UserSidebar } from './UserSidebar';
 import { OfflineBanner } from '@/components/offline/OfflineBanner';
+import { PendingAssignmentBanner } from '@/components/offline/PendingAssignmentBanner';
+import { OfflineGate } from '@/components/guards/OfflineGate';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -18,21 +20,27 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   if (hideSidebar) {
     return (
-      <div className="min-h-screen bg-white">
-        <OfflineBanner />
-        {children}
-      </div>
+      <OfflineGate>
+        <div className="min-h-screen bg-white">
+          <OfflineBanner />
+          <PendingAssignmentBanner />
+          {children}
+        </div>
+      </OfflineGate>
     );
   }
 
   return (
-    <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">
-      <UserSidebar />
-      <div className="md:flex-1 md:min-w-0 md:overflow-y-auto bg-white">
-        <OfflineBanner />
-        {children}
+    <OfflineGate>
+      <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">
+        <UserSidebar />
+        <div className="md:flex-1 md:min-w-0 md:overflow-y-auto bg-white">
+          <OfflineBanner />
+          <PendingAssignmentBanner />
+          {children}
+        </div>
       </div>
-    </div>
+    </OfflineGate>
   );
 };
 
