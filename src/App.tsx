@@ -243,9 +243,9 @@ const AuthenticatedApp = () => {
           <DocumentsTourProvider>
             <SidebarProvider>
             
-            <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
+            <div className="fixed inset-0 flex flex-col overflow-hidden bg-background md:static md:inset-auto md:min-h-screen md:overflow-visible md:bg-white w-full">
             <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
-              <PageTransition>
+              <PageTransition className="flex-1 min-h-0 flex flex-col w-full min-w-0 md:flex-none md:min-h-0 md:block">
               <TaxFilerGate>
               <AppShell>
               <Routes location={location}>
