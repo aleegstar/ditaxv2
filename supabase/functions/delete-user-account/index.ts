@@ -153,8 +153,29 @@ Deno.serve(async (req) => {
       filesToDelete.push(...ticketAttachments.map(t => ({ bucket: 'ticket-attachments', path: t.file_path })))
     }
     
+    // Validate avatar_url ownership before queuing deletion. `avatar_url` is
+    // user-controlled (self-upload), and the service-role client bypasses
+    // storage RLS — without this check a user could set avatar_url to another
+    // user's path and trigger cross-user file deletion via self-delete.
     if (profile?.avatar_url) {
-      filesToDelete.push({ bucket: 'avatars', path: profile.avatar_url })
+      const avatarPath = profile.avatar_url
+      const expectedPrefix = `${userId}/`
+
+      if (avatarPath.startsWith(expectedPrefix)) {
+        filesToDelete.push({ bucket: 'avatars', path: avatarPath })
+      } else {
+        console.warn(
+          `Avatar path validation failed for user ${userId}. Path: ${avatarPath} does not start with expected prefix: ${expectedPrefix}`
+        )
+        await supabaseAdmin.from('security_audit_logs').insert({
+          user_id: userId,
+          action: 'AVATAR_DELETION_BLOCKED',
+          success: false,
+          resource: 'avatars',
+          error_message: `Blocked deletion of avatar path that does not belong to user: ${avatarPath}`,
+        })
+        // Continue with account deletion but skip the invalid avatar file
+      }
     }
 
     // Delete storage files
