@@ -230,6 +230,45 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
 
   const dismissible = phase === 'select' || phase === 'error' || phase === 'success';
 
+  // Trigger native iOS/Android action sheet in Despia instead of web bottom sheet
+  const nativeSheetTriggered = useRef(false);
+  useEffect(() => {
+    if (!open || phase !== 'select') {
+      nativeSheetTriggered.current = false;
+      return;
+    }
+    if (!isDespiaNative() || nativeSheetTriggered.current) return;
+    nativeSheetTriggered.current = true;
+
+    despiaActionSheet({
+      title: item?.title || 'Dokument hochladen',
+      items: [
+        { label: 'Fotos hochladen', value: 'photo', iconIos: 'photo.on.rectangle', iconAndroid: 'photo_library' },
+        { label: 'Dokument scannen', value: 'scan', iconIos: 'doc.text.viewfinder', iconAndroid: 'document_scanner' },
+        { label: 'Dateien (PDF, Docs…)', value: 'file', iconIos: 'folder', iconAndroid: 'folder_open' },
+      ],
+    }).then((value) => {
+      if (value === 'photo') {
+        photoInputRef.current?.click();
+      } else if (value === 'scan') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) handleFileSelected(file);
+        };
+        input.click();
+      } else if (value === 'file') {
+        fileInputRef.current?.click();
+      } else {
+        // User cancelled native sheet → close
+        handleClose();
+      }
+    });
+  }, [open, phase, item, handleFileSelected, handleClose]);
+
   // Result screen helpers
   const getResultNotification = () => {
     if (!validationResult) return null;
