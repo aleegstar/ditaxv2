@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { isNetworkError, readSnapshot, writeSnapshot } from '@/lib/offlineSnapshot';
 
 interface TaxYearData {
   taxReturns: any[];
@@ -61,11 +62,29 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
       return;
     }
     if (loadingRef.current) return; // Prevent concurrent loads
-    
+
     loadingRef.current = true;
 
-    try {
+    const snapshotKey = `tax-year-data:${userId}:${taxFilerId}`;
+
+    // Hydrate from local snapshot first for instant offline rendering.
+    const cached = await readSnapshot<TaxYearData>(snapshotKey);
+    if (cached && mountedRef.current) {
+      setData({ ...cached, loading: false, error: null });
+    }
+
+    // If we're offline, don't even attempt the network call — the
+    // cached snapshot above is the best we can do until reconnect.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       if (mountedRef.current) {
+        setData((prev) => ({ ...prev, loading: false, error: null }));
+      }
+      loadingRef.current = false;
+      return;
+    }
+
+    try {
+      if (mountedRef.current && !cached) {
         setData(prev => ({ ...prev, loading: true, error: null }));
       }
 
@@ -195,29 +214,39 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
         }
       });
 
+      const next: TaxYearData = {
+        taxReturns: taxReturnsResult.data,
+        formProgress: progressByYear,
+        formData: formDataByYear,
+        uploadedDocuments: documentsByYear,
+        completedTaxReturns: completedByYear,
+        definitiveTaxBills: billsByYear,
+        supportTickets: ticketsByReturnId,
+        loading: false,
+        error: null,
+      };
       if (mountedRef.current) {
-        setData({
-          taxReturns: taxReturnsResult.data,
-          formProgress: progressByYear,
-          formData: formDataByYear,
-          uploadedDocuments: documentsByYear,
-          completedTaxReturns: completedByYear,
-          definitiveTaxBills: billsByYear,
-          supportTickets: ticketsByReturnId,
-          loading: false,
-          error: null
-        });
+        setData(next);
       }
+      void writeSnapshot(snapshotKey, next);
 
     } catch (error: any) {
-      console.error('Error loading tax year data:', error);
-      if (mountedRef.current) {
-        setData(prev => ({
-          ...prev,
-          loading: false,
-          error: error?.message || 'Fehler beim Laden der Daten'
-        }));
-        toast.error('Fehler beim Laden der Steuerdaten');
+      // Network / offline errors stay silent — cached snapshot already
+      // rendered above and the global offline banner informs the user.
+      if (isNetworkError(error)) {
+        if (mountedRef.current) {
+          setData(prev => ({ ...prev, loading: false, error: null }));
+        }
+      } else {
+        console.error('Error loading tax year data:', error);
+        if (mountedRef.current) {
+          setData(prev => ({
+            ...prev,
+            loading: false,
+            error: error?.message || 'Fehler beim Laden der Daten'
+          }));
+          toast.error('Fehler beim Laden der Steuerdaten');
+        }
       }
     } finally {
       loadingRef.current = false;
@@ -226,13 +255,24 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
 
   useEffect(() => {
     mountedRef.current = true;
-    
+
     if (userId && taxFilerId) {
       loadTaxYearData();
     }
-    
+
+    // Refetch automatically when the network comes back.
+    const onOnline = () => {
+      if (userId && taxFilerId) void loadTaxYearData();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', onOnline);
+    }
+
     return () => {
       mountedRef.current = false;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', onOnline);
+      }
     };
   }, [userId, taxFilerId, loadTaxYearData]);
 
