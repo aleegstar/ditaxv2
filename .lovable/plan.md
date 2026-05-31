@@ -1,43 +1,31 @@
-# Anonymous Auth & Auth-Vault entfernen
+## Problem
 
-Ziel: Kein Login ohne echtes Konto mehr. Jeder User muss sich per E-Mail / OAuth / Passkey einloggen. Die im Storage Vault gespeicherte anonyme User-ID wird ebenfalls entfernt, weil sie nur dem unsicheren Anon-Flow gedient hat.
+Beim Offline-Upload erscheint „Fehler beim Abrufen des Verschlüsselungsschlüssels". Ursache: `KeyManagementService.getUserEncryptionKey()` macht beim ersten Aufruf pro Session einen Supabase-`SELECT` auf `user_encryption_keys` (Zeile 36) — der offline scheitert. Der eigentliche Schlüssel wird aber rein **lokal** aus der `userId` abgeleitet (`generateLocalUserKey`), die DB-Abfrage dient nur dazu, ggf. einen Metadaten-Marker anzulegen.
 
-## Was wird entfernt
+Die Verschlüsselung selbst braucht also kein Netz. Wir müssen die Mandatory-E2E-Regel **nicht** brechen — Dateien werden weiterhin sofort verschlüsselt, bevor sie in die Offline-Queue gehen.
 
-**Anonymous Auth Flow**
-- `src/services/AnonymousAuthService.ts` — komplett löschen (`startAnonymousSession`, `upgradeAnonymousToEmail`, `isAnonymousUser`, `canUseAnonymousFlow`).
-- `src/contexts/AnonymousUpgradeContext.tsx` — komplett löschen (Provider + `useAnonymousUpgrade`).
-- `src/components/auth/UpgradeAccountDialog.tsx` — komplett löschen.
-- `src/pages/Start.tsx` — komplett löschen (war nur der „Direkt starten" Chooser für Despia).
+## Lösung
 
-**Routing**
-- `src/App.tsx`: `Start` Import + `<Route path="/start">` entfernen. Das `<Navigate>` für nicht-eingeloggte Despia-User zeigt jetzt immer auf `/auth` (statt `/start`). `<AnonymousUpgradeProvider>` aus dem Provider-Baum nehmen.
+`KeyManagementService.getUserEncryptionKey()` so anpassen, dass:
 
-**Auth-Vault Keys**
-- `src/lib/deviceVault.ts`: `ANON_UID_KEY`, `readAnonUid`, `writeAnonUid`, `clearAnonUid` entfernen. `getOrCreateDeviceId` / `buildDeviceHeaders` und der Device-ID-Key (`ditax_did`) bleiben — die werden ausschließlich für AI-Rate-Limiting (`x-device-id` Header) benutzt, sind keine Auth-Funktion und kein Sicherheitsrisiko.
+1. **Cache-Hit** wie bisher sofort zurückgibt.
+2. **Wenn `navigator.onLine === false`**: direkt `generateLocalUserKey(userId)` ableiten, cachen, zurückgeben — **kein** DB-Zugriff. Kein Metadaten-Insert (wird beim nächsten Online-Aufruf nachgeholt, da der Marker idempotent ist).
+3. **Online**: bestehender Pfad (SELECT + ggf. INSERT) bleibt unverändert.
+4. **Online-Fehler vom Typ Netzwerk** (z. B. Edge offline, aber `navigator.onLine` lügt): als zweites Fallback ebenfalls lokal ableiten statt zu werfen — gleiche Begründung.
 
-**AuthContext / UI Cleanup**
-- `src/contexts/AuthContext.tsx`: Feld `isAnonymous` und alle `is_anonymous` Auswertungen entfernen. Der Context bleibt sonst unverändert.
-- `src/components/PaymentSection.tsx`: `useAnonymousUpgrade`, `isAnonymous`-Branch und der hardBlock-Dialog vor Stripe entfernen. Payment funktioniert direkt, weil jetzt jeder eingeloggte User per Definition eine E-Mail hat.
-- `src/pages/Documents.tsx`: `useAnonymousUpgrade`-Import + `requestUpgrade`-Aufrufe entfernen.
+Zusätzlich: damit Folge-Online-Aufrufe den fehlenden Metadaten-Eintrag nachholen, im Online-Pfad nach Cache-Hit **nicht früh returnen**, sondern einen leichten „ensure metadata exists"-Check beibehalten. Hier reicht das bestehende Verhalten (erster Online-Call legt den Eintrag an).
 
-**Edge Functions**
-- `supabase/functions/create-payment/index.ts`: Den `if ((user as any).is_anonymous === true)`-Block (Z. 173–186) entfernen — anonyme Sessions existieren nicht mehr.
+## Betroffene Datei
 
-**DB / Supabase Settings**
-- Migration: Tabelle `public.anonymous_upgrades` droppen (war nur Audit-Log für den entfernten Upgrade-Flow).
-- Supabase Dashboard: „Allow anonymous sign-ins" deaktivieren (manueller Schritt, im Chat erwähnen).
+- `src/services/KeyManagementService.ts` — `getUserEncryptionKey()` (Zeilen 28–60)
 
-**Memory**
-- `mem://features/anonymous-account-onboarding` löschen und aus `mem://index.md` Core-Liste entfernen.
+## Nicht-Ziele
 
-## Was bleibt unverändert
+- Keine Änderung am Verschlüsselungsverfahren.
+- Keine Änderung am Offline-Queue-Verhalten oder `EncryptedDocumentService.uploadPendingDocument`.
+- Keine Änderung an RLS, Storage-Pfaden oder Sicherheitsmemory.
 
-- E-Mail/Passwort, Magic Link, Google, Apple, Passkey-Login.
-- `x-device-id` Header + Device-ID Vault Key für AI-Rate-Limiting (reine Anti-Abuse-Maßnahme, kein Auth-Mechanismus).
-- `OfflineGate` / `/offline-upload` / Documents-Review-Flow aus dem vorherigen Schritt.
+## Verifikation
 
-## Risiken
-
-- Bestehende anonyme Sessions in Production werden beim nächsten Reload an `/auth` umgeleitet und können sich nicht mehr automatisch wiederherstellen. Eingegebene Daten dieser Sessions sind dann nicht mehr zugänglich, weil ohne E-Mail kein Login möglich ist. Sollte vor Deploy kommuniziert werden, falls es solche User gibt.
-- Despia-Native-User landen jetzt direkt auf `/auth` statt auf `/start` — ein zusätzlicher Schritt, dafür kein unsicherer Quick-Path.
+- Offline (Airplane Mode): Foto/Datei auf `/offline-upload` hochladen → kein Key-Fehler, Toast „Dokument gespeichert", Job erscheint in der Queue.
+- Wieder online: Queue drained, Dokument landet mit `pending_assignment=true` in `uploaded_documents`, `PendingAssignmentBanner` erscheint.
