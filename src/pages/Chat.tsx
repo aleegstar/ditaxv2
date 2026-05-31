@@ -128,7 +128,10 @@ const Chat: React.FC = () => {
   
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background md:h-full md:flex-none md:min-h-0">
+    <div
+      className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background md:h-full md:flex-none md:min-h-0"
+      style={{ paddingBottom: 'var(--keyboard-inset, 0px)' }}
+    >
 
 
       {/* Header */}
@@ -221,7 +224,11 @@ const Chat: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="max-w-[680px] mx-auto px-5 pt-8 pb-4 space-y-1"
+          className="max-w-[680px] mx-auto px-5 pt-8 space-y-1"
+          style={{
+            paddingBottom:
+              'calc(16px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
+          }}
         >
           {isLoadingHistory ? (
             <div className="flex justify-center py-12">

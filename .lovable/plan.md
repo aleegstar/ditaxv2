@@ -1,3 +1,5 @@
+- 2026-05-31: Android PWA/Standalone fix ergänzt. Root bleibt fixed-frame-konform; Keyboard-Inset wird jetzt zusätzlich über die VirtualKeyboard API (`navigator.virtualKeyboard.geometrychange`) ermittelt, weil `visualViewport` in installierten Android-Webapps nicht zuverlässig schrumpft. Chat-Composer und Message-Scrollzone reagieren direkt auf `--keyboard-inset`.
+- 2026-05-31: Nach Analyse des Standalone-Bugs Viewport-Meta von `interactive-widget=resizes-content` auf `resizes-visual` umgestellt. Zusätzlich rückt im Chat der gesamte Footer-Frame per `padding-bottom: var(--keyboard-inset)` nach oben; Composer-Innenpadding nutzt wieder nur Safe-Area, um Doppel-Offsets zu vermeiden.
 # Plan
 
 ## Befund
