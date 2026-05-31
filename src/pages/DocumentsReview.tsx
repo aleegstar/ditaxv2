@@ -50,24 +50,41 @@ const DocumentsReview: React.FC = () => {
   const availableYears = useMemo(() => getAvailableTaxYears(), []);
 
   const load = async () => {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
-      const [{ data: pending }, { data: filerRows }] = await Promise.all([
-        supabase
-          .from('uploaded_documents')
-          .select('id, file_name, file_type, upload_date')
-          .eq('user_id', userId)
-          .eq('pending_assignment', true)
-          .order('upload_date', { ascending: false }),
-        supabase
-          .from('tax_filers')
-          .select('id, first_name, last_name')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: true }),
-      ]);
+      // Run sequentially so one failure does not blank the other list.
+      const { data: pending, error: pendingErr } = await supabase
+        .from('uploaded_documents')
+        .select('id, file_name, file_type, upload_date')
+        .eq('user_id', userId)
+        .eq('pending_assignment', true)
+        .order('upload_date', { ascending: false });
+      if (pendingErr) {
+        console.error('[DocumentsReview] pending query failed', pendingErr);
+        toast.error(`Pending: ${pendingErr.message}`);
+      }
       setDocs((pending as PendingDoc[]) ?? []);
+
+      const { data: filerRows, error: filerErr } = await supabase
+        .from('tax_filers')
+        .select('id, first_name, last_name')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+      if (filerErr) {
+        console.error('[DocumentsReview] filers query failed', filerErr);
+        toast.error(`Personen: ${filerErr.message}`);
+      }
       setFilers((filerRows as TaxFilerRow[]) ?? []);
+
+      console.info('[DocumentsReview] loaded', {
+        userId,
+        docs: pending?.length ?? 0,
+        filers: filerRows?.length ?? 0,
+      });
     } catch (err) {
       console.error('[DocumentsReview] load failed', err);
       toast.error('Fehler beim Laden der unzugeordneten Dokumente');
@@ -78,6 +95,19 @@ const DocumentsReview: React.FC = () => {
 
   useEffect(() => {
     void load();
+    if (typeof window === 'undefined') return;
+    const onOnline = () => void load();
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void load();
+    };
+    window.addEventListener('online', onOnline);
+    document.addEventListener('visibilitychange', onVisible);
+    const unsub = OfflineQueueService.subscribe(() => void load());
+    return () => {
+      window.removeEventListener('online', onOnline);
+      document.removeEventListener('visibilitychange', onVisible);
+      unsub();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
