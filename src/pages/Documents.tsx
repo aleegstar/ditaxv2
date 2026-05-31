@@ -152,12 +152,29 @@ const DocumentsContent: React.FC<{
         }
       } = await supabase.auth.getUser();
       if (!user) return;
+
+      const snapshotKey = `documents:${user.id}:${activeTaxFilerId ?? 'all'}:${selectedYear}`;
+
+      // Hydrate from snapshot first so offline starts have data.
+      const { readSnapshot, writeSnapshot, isNetworkError } = await import('@/lib/offlineSnapshot');
+      const cached = await readSnapshot<any[]>(snapshotKey);
+      if (cached) {
+        setDocuments(cached);
+        setLoading(false);
+      }
+
+      // Skip network call when offline — `online` listener will retry.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        setLoading(false);
+        return;
+      }
+
       let query = supabase.from('uploaded_documents').select('*').eq('user_id', user.id).eq('tax_year', selectedYear).eq('status', 'active');
-      
+
       if (activeTaxFilerId) {
         query = query.eq('tax_filer_id', activeTaxFilerId);
       }
-      
+
       const {
         data,
         error
@@ -166,18 +183,22 @@ const DocumentsContent: React.FC<{
       });
       if (error) throw error;
       setDocuments(data || []);
+      void writeSnapshot(snapshotKey, data || []);
     } catch (error) {
-      console.error('Error loading documents:', error);
-      toast({
-        title: t.documentsPage.error,
-        description: t.documentsPage.loadError,
-        variant: "destructive"
-      });
+      const { isNetworkError } = await import('@/lib/offlineSnapshot');
+      if (!isNetworkError(error)) {
+        console.error('Error loading documents:', error);
+        toast({
+          title: t.documentsPage.error,
+          description: t.documentsPage.loadError,
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
       loadingRef.current = false;
     }
-  }, [selectedYear, toast, activeTaxFilerId]);
+  }, [selectedYear, toast, activeTaxFilerId, t.documentsPage.error, t.documentsPage.loadError]);
 
   // Initial load effect
   useEffect(() => {
