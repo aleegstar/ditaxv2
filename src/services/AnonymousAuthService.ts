@@ -16,7 +16,7 @@ import { isDespiaNative } from '@/lib/despia';
 
 export interface AnonymousSession {
   userId: string;
-  isAnonymous: true;
+  isAnonymous: boolean;
   vaultMatched: boolean;
 }
 
