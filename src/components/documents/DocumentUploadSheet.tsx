@@ -303,10 +303,22 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     info: { bg: 'bg-blue-50', border: 'border-blue-200', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
   };
 
+  // In Despia native + select phase, suppress the web bottom sheet
+  // (native action sheet handles the choice). Render only hidden inputs.
+  if (open && phase === 'select' && isDespiaNative()) {
+    return (
+      <>
+        <input ref={photoInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,image/heic" capture="environment" onChange={handleInputChange} />
+        <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
+      </>
+    );
+  }
+
   return (
     <Drawer open={open} onOpenChange={(o) => { if (!o) handleClose(); }} dismissible={dismissible}>
       <DrawerContent variant="bottom-sheet">
         <div className="px-5 pt-3 pb-5">
+
 
           {/* Phase: Select file source */}
           {phase === 'select' && (
