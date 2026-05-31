@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { despiaLocalPlugin } from '@despia/local/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
