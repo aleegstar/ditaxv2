@@ -47,7 +47,7 @@ const DocumentsReview: React.FC = () => {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [selection, setSelection] = useState<Record<string, { filerId?: string; year?: string }>>({});
 
-  const availableYears = useMemo(() => getAvailableTaxYears('documents'), []);
+  const availableYears = useMemo(() => getAvailableTaxYears(), []);
 
   const load = async () => {
     if (!userId) return;
