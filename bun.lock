@@ -60,6 +60,7 @@
         "vite-plugin-static-copy": "^3.1.4",
       },
       "devDependencies": {
+        "@despia/local": "^1.0.9",
         "@eslint/js": "^9.9.0",
         "@types/node": "^22.5.5",
         "@types/react": "^18.3.3",
@@ -107,6 +108,8 @@
     "@capacitor/browser": ["@capacitor/browser@7.0.2", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-5kySTunCtH+2sezmTjgDfwvspW7GW/hslQECZeLIRM2qefnxjGTc3fmCTeILYK5EuvcxMs+8sF5BhmzzKqOzuQ=="],
 
     "@capacitor/core": ["@capacitor/core@7.4.3", "", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-wCWr8fQ9Wxn0466vPg7nMn0tivbNVjNy1yL4GvDSIZuZx7UpU2HeVGNe9QjN/quEd+YLRFeKEBLBw619VqUiNg=="],
+
+    "@despia/local": ["@despia/local@1.0.9", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@despia/local/-/local-1.0.9.tgz", { "bin": { "despia-local": "generate-offline-manifest.js" } }, "sha512-a/7nKLKZD6MivwgrHGrtOprqtp9j11Ckhhu5Fgich70zHtusOsEOpfAG6hjtKMvXjv36Vart7LLcyE13q03YbQ=="],
 
     "@emotion/is-prop-valid": ["@emotion/is-prop-valid@1.2.2", "", { "dependencies": { "@emotion/memoize": "^0.8.1" } }, "sha512-uNsoYd37AFmaCdXlg6EYD1KaPOaRWRByMCYzbKUX4+hhMfrxdVSelShywL4JVaAeM/eHUOSprYBQls+/neX3pw=="],
 
