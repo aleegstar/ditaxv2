@@ -12,6 +12,7 @@ import { isAndroidEnvironment } from '@/utils/platform';
 import { isDespiaNative, isDespiaIOS, isDespiaAndroid } from '@/lib/despia';
 import { initDespiaKeyboardHandling } from '@/lib/despiaKeyboard';
 import { OfflineQueueService } from '@/services/OfflineQueueService';
+import { initOfflineServiceWorker } from '@/lib/offlineServiceWorker';
 
 // Initialize security and monitoring systems
 EnhancedSecurityService.applySecurity().catch(console.error);
@@ -41,6 +42,13 @@ initDespiaKeyboardHandling();
 // Bring the offline write-queue online: hydrates any pending jobs from
 // IndexedDB and wires online/visibility/auth triggers for auto-drain.
 OfflineQueueService.start();
+
+// Phase 4: Register the offline service worker for static-asset caching.
+// Hard-guarded to Despia native + localhost; auto-unregisters elsewhere
+// (e.g. Lovable preview, published web). HTML/Supabase stay NetworkOnly.
+initOfflineServiceWorker().catch((err) =>
+  console.warn('[offline-sw] init failed', err)
+);
 
 createRoot(document.getElementById("root")!).render(
   <>
