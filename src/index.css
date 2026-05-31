@@ -257,8 +257,7 @@
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -.01em;
     line-height: 1.6;
-    min-height: 100vh; /* fallback */
-    min-height: 100dvh;
+    min-height: 100%;
     overscroll-behavior: contain;
     position: relative;
     margin: 0;
