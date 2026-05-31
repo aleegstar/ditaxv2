@@ -32,7 +32,8 @@ export default defineConfig(({ mode }) => ({
           dest: 'ocr'
         }
       ]
-    })
+    }),
+    despiaLocalPlugin({ outDir: 'dist', entryHtml: 'index.html' })
   ].filter(Boolean),
   resolve: {
     alias: {
