@@ -36,23 +36,13 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 
 /**
  * Allowlist of query-key first segments that may be persisted to disk.
- * Keep this list conservative — anything sensitive must stay memory-only.
+ * Scope is intentionally narrow: only the `/documents` surface is
+ * offline-capable. Everything else must hit the network and surface its
+ * normal error state when offline.
  */
 const PERSIST_ALLOWLIST = new Set<string>([
-  'tax-filers',
-  'tax_filers',
-  'tax-returns',
-  'tax-return-status',
-  'tax-year-data',
   'documents',             // metadata listing only; encrypted bodies never cached
   'documents-meta',
-  'prior-year-checklist',
-  'missing-items',
-  'pending-missing-items',
-  'notifications',
-  'profile',
-  'invoices',
-  'unread-messages',
 ]);
 
 /**

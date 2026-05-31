@@ -1,45 +1,50 @@
-# Plan: Offline-Probleme sauber beheben
 
-## Problem
-Die Offline-Queue speichert nur Schreibvorgänge. Mehrere wichtige Lese-Flows laden aber weiterhin direkt aus Supabase und werfen bei fehlender Verbindung Fehl-Toasts wie:
-- „Fehler beim Laden der Steuerdaten“
-- „Benachrichtigungen konnten nicht geladen werden“
+# Offline-Modus vereinfachen: nur /documents
 
-Dadurch wirkt die App trotz Offline-Banner kaputt, obwohl ein Teil der Daten lokal vorliegen könnte.
+## Ziel
+Offline-Support ausschliesslich auf der `/documents`-Seite. User können offline Unterlagen sammeln/hochladen, der Rest der App muss offline nicht funktionieren. Beim Reconnect wird die bestehende Upload-Queue gedraint.
 
-## Was ich ändern werde
+## Scope
 
-1. **Offline-Reads auf lokalen Fallback umbauen**
-   - `use-tax-year-data.ts`: letzten erfolgreichen Stand lokal behalten und bei Offline sofort daraus rendern statt Fehler zu werfen.
-   - `useNotifications.ts`: Notifications bei Offline aus lokalem Cache laden und keine destruktiven Toaster zeigen.
-   - `Documents.tsx`: Dokumentliste bei Offline nicht als Fehler behandeln, sondern mit letztem bekannten Stand bzw. leerem lokalen Zustand arbeiten.
+### Behalten (offline-fähig)
+- `/documents` — Liste aus IndexedDB-Snapshot rendern, Upload via bestehende `OfflineQueueService` / `documentUpload`-Job.
+- Globales Offline-Banner + Queue-Status (bestehend).
+- React Query Persist nur für die Document-Queries (kein globaler Persist mehr für alles).
+- Service Worker (`public/sw-offline.js`) — App-Shell + `/documents` Route precachen, andere Routen Network-only.
 
-2. **Read-Caching an die bestehende Offline-Architektur anbinden**
-   - Bestehenden Persist-Mechanismus (`reactQueryPersist.ts`) wirklich für diese Daten nutzen oder einen kleinen stabilen IndexedDB-Fallback ergänzen, wo heute noch direkte Supabase-Reads laufen.
-   - Nur Metadaten cachen, keine sensiblen/dechiffrierten Inhalte.
+### Entfernen / zurückbauen
+- Snapshot-Hydration & Online-Listener in `src/hooks/use-tax-year-data.ts` — wieder rein netzwerkbasiert, normaler Fehlerpfad. Offline-Snapshot-Logik raus.
+- Snapshot-Hydration in `src/hooks/useNotifications.ts` — entfernen, normaler Fehlerpfad.
+- Andere Stellen, die `readSnapshot`/`writeSnapshot` aus `src/lib/offlineSnapshot.ts` ausserhalb von `/documents` verwenden — bereinigen.
+- `src/lib/reactQueryPersist.ts` einschränken: nur Document-bezogene Query-Keys persistieren (oder ganz entfernen, falls nicht mehr benötigt — Documents.tsx nutzt eigenen Snapshot).
 
-3. **Offline-UX korrigieren**
-   - Offline darf keine roten Fehl-Toasts mehr auslösen, wenn nur das Netzwerk fehlt.
-   - Stattdessen: stiller Fallback auf Cache + bestehendes Offline-Banner + Queue-Status.
-   - Reconnect soll automatisch refetchen und den lokalen Stand aktualisieren.
+### Anpassen
+- `src/pages/Documents.tsx`: Snapshot-Hydration + Online-Refresh bleiben, klar dokumentiert als einzige offline-fähige Seite.
+- `src/lib/offlineSnapshot.ts`: bleibt, aber nur noch von Documents + Queue genutzt.
+- Offline-Erkennung global: wenn `navigator.onLine === false` und Route ≠ `/documents`, optional Hinweis-Overlay „Offline — nur Dokumente verfügbar" mit Button → `/documents`. (Minimal, nicht-blockierend.)
+- Bestehende Fehler-Toasts auf nicht-Documents-Seiten dürfen wieder erscheinen (Netzwerkfehler nicht mehr unterdrücken).
 
-4. **Fehlergrenzen präzisieren**
-   - Echte Backend-/RLS-/Schema-Fehler weiter sichtbar lassen.
-   - Nur reine Netzwerk-/Offline-Fehler unterdrücken.
+## Technische Details
 
-## Betroffene Dateien
-- `src/hooks/use-tax-year-data.ts`
-- `src/hooks/useNotifications.ts`
-- `src/pages/Documents.tsx`
-- `src/hooks/useProfile.ts`
-- `src/lib/reactQueryPersist.ts`
-- ggf. kleiner neuer Helper für persistente Read-Snapshots
+### Geänderte Dateien
+- `src/hooks/use-tax-year-data.ts` — Snapshot/Online-Listener entfernen, originalen Fehlerpfad wiederherstellen.
+- `src/hooks/useNotifications.ts` — Snapshot/Online-Listener entfernen.
+- `src/pages/Documents.tsx` — beibehalten, kommentieren als „offline-only surface".
+- `src/lib/reactQueryPersist.ts` — Persist-Filter auf Document-Queries beschränken (oder ganz entfernen, falls Documents.tsx eigenen Snapshot nutzt).
+- `public/sw-offline.js` — Precache-Liste & Navigation-Fallback auf `/documents` reduzieren; alle anderen Navigations-Requests Network-only ohne Fallback.
+- Neu (optional, klein): `src/components/OfflineRouteGuard.tsx` — wenn offline und Route ≠ `/documents`, blendet ein dezentes Overlay mit CTA „Zu Dokumenten" ein. In `App.tsx` einhängen.
+
+### Nicht geändert
+- `src/services/queue/*` und `OfflineQueueService` bleiben unverändert.
+- `src/lib/offlineSnapshot.ts` API bleibt; Aufrufer werden reduziert.
+- Auth-, Payment-, Form-Flows — keine Offline-Anpassungen mehr nötig.
 
 ## Akzeptanzkriterien
-- Im Flugmodus erscheinen keine roten Toaster mehr für Steuerdaten/Benachrichtigungen.
-- Dokumente-Seite bleibt benutzbar und zeigt mindestens den letzten bekannten Stand.
-- Nach Wiederverbindung werden Daten automatisch neu geladen.
-- Bestehende Offline-Queue für Uploads bleibt unverändert.
+- Im Flugmodus ist `/documents` voll nutzbar (Liste aus Snapshot, Upload landet in Queue).
+- Andere Seiten zeigen offline normale Netzwerkfehler bzw. Empty/Error-State; kein „falsches" Funktionieren mit Stale-Daten.
+- Nach Reconnect wird die Queue automatisch gedraint (bestehende Logik).
+- Kein zusätzliches IndexedDB-Caching für Tax-Year-Daten oder Notifications.
+- Optional: Offline-Overlay auf Nicht-/documents-Seiten mit CTA zu /documents.
 
-## Technische Notiz
-Der Kernfehler ist aktuell nicht die Write-Queue, sondern dass mehrere Read-Hooks den Persist-Cache umgehen und Offline weiterhin wie einen harten Fehler behandeln.
+## Offene Frage
+Soll das Offline-Overlay auf anderen Seiten kommen (sanfter Hinweis + Redirect-CTA), oder lassen wir die Seiten einfach ihre normalen Fehlerzustände zeigen?

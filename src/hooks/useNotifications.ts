@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from './use-toast';
-import { isNetworkError, readSnapshot, writeSnapshot } from '@/lib/offlineSnapshot';
 
 export interface Notification {
   id: string;
@@ -23,30 +22,11 @@ export const useNotifications = () => {
   const { userId, isValid } = useAuth();
   const { toast } = useToast();
 
-  const snapshotKey = userId ? `notifications:${userId}` : null;
-
   // Fetch notifications
   const fetchNotifications = async () => {
     if (!userId || !isValid) {
       setNotifications([]);
       setUnreadCount(0);
-      setLoading(false);
-      return;
-    }
-
-    // Hydrate from local snapshot first so offline starts still show data.
-    if (snapshotKey) {
-      const cached = await readSnapshot<Notification[]>(snapshotKey);
-      if (cached && cached.length > 0) {
-        setNotifications(cached);
-        setUnreadCount(cached.filter((n) => !n.read).length);
-        setLoading(false);
-      }
-    }
-
-    // Skip the network round-trip when we know we're offline — the
-    // realtime channel + `online` listener will refetch automatically.
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       setLoading(false);
       return;
     }
@@ -60,14 +40,12 @@ export const useNotifications = () => {
         .limit(50);
 
       if (error) {
-        if (!isNetworkError(error)) {
-          console.error('Error fetching notifications:', error);
-          toast({
-            title: "Fehler",
-            description: "Benachrichtigungen konnten nicht geladen werden.",
-            variant: "destructive"
-          });
-        }
+        console.error('Error fetching notifications:', error);
+        toast({
+          title: "Fehler",
+          description: "Benachrichtigungen konnten nicht geladen werden.",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -84,13 +62,8 @@ export const useNotifications = () => {
 
       setNotifications(formattedNotifications);
       setUnreadCount(formattedNotifications.filter(n => !n.read).length);
-      if (snapshotKey) {
-        void writeSnapshot(snapshotKey, formattedNotifications);
-      }
     } catch (error) {
-      if (!isNetworkError(error)) {
-        console.error('Error fetching notifications:', error);
-      }
+      console.error('Error fetching notifications:', error);
     } finally {
       setLoading(false);
     }
@@ -213,10 +186,6 @@ export const useNotifications = () => {
   // Initialize
   useEffect(() => {
     fetchNotifications();
-    if (typeof window === 'undefined') return;
-    const onOnline = () => { void fetchNotifications(); };
-    window.addEventListener('online', onOnline);
-    return () => window.removeEventListener('online', onOnline);
   }, [userId, isValid]);
 
   // Set up real-time subscription
