@@ -16,7 +16,6 @@ import despia from 'despia-native';
 import { isDespiaNative } from './despia';
 
 const VAULT_KEY = 'ditax_did';
-const ANON_UID_KEY = 'ditax_anon_uid';
 const CACHE_KEY = 'ditax_did_cache';
 
 let inflight: Promise<string | null> | null = null;
