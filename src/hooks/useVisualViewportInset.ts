@@ -1,6 +1,17 @@
 import { useEffect } from 'react';
 import { isDespiaNative } from '@/lib/despia';
 
+type VirtualKeyboardWithBounds = {
+  overlaysContent?: boolean;
+  boundingRect?: DOMRectReadOnly;
+  addEventListener?: (type: string, listener: EventListenerOrEventListenerObject) => void;
+  removeEventListener?: (type: string, listener: EventListenerOrEventListenerObject) => void;
+};
+
+type NavigatorWithVirtualKeyboard = Navigator & {
+  virtualKeyboard?: VirtualKeyboardWithBounds;
+};
+
 /**
  * Globaler Hook: schreibt den unteren Tastatur-Inset (in px) als CSS-Variable
  * `--keyboard-inset` auf `<html>`. So können beliebige Komponenten via
@@ -20,6 +31,7 @@ export function useVisualViewportInset(): void {
     if (typeof window === 'undefined') return;
     const root = document.documentElement;
     const vv = window.visualViewport;
+    const virtualKeyboard = (navigator as NavigatorWithVirtualKeyboard).virtualKeyboard;
 
     let rafId: number | null = null;
     let lastValue = -1;
@@ -29,7 +41,12 @@ export function useVisualViewportInset(): void {
       const innerHeight = window.innerHeight;
       const visualHeight = vv?.height ?? innerHeight;
       const offsetTop = vv?.offsetTop ?? 0;
-      const inset = Math.max(0, Math.round(innerHeight - (visualHeight + offsetTop)));
+      const visualViewportInset = Math.max(0, Math.round(innerHeight - (visualHeight + offsetTop)));
+      const keyboardRect = virtualKeyboard?.boundingRect;
+      const virtualKeyboardInset = keyboardRect
+        ? Math.max(0, Math.round(innerHeight - keyboardRect.y))
+        : 0;
+      const inset = Math.max(visualViewportInset, virtualKeyboardInset);
       // In Despia: zur Sicherheit fest auf 0 (native autoscroll macht den Job)
       const value = isDespiaNative() ? 0 : inset;
       if (value === lastValue) return;
@@ -44,12 +61,23 @@ export function useVisualViewportInset(): void {
 
     compute();
 
+    if (virtualKeyboard) {
+      try {
+        virtualKeyboard.overlaysContent = true;
+      } catch {
+        // noop – some implementations expose the API read-only.
+      }
+    }
+
     if (vv) {
       vv.addEventListener('resize', schedule);
       vv.addEventListener('scroll', schedule);
     }
+    virtualKeyboard?.addEventListener?.('geometrychange', schedule);
     window.addEventListener('resize', schedule);
     window.addEventListener('orientationchange', schedule);
+    document.addEventListener('focusin', schedule, true);
+    document.addEventListener('focusout', schedule, true);
 
     return () => {
       if (rafId != null) cancelAnimationFrame(rafId);
@@ -57,8 +85,11 @@ export function useVisualViewportInset(): void {
         vv.removeEventListener('resize', schedule);
         vv.removeEventListener('scroll', schedule);
       }
+      virtualKeyboard?.removeEventListener?.('geometrychange', schedule);
       window.removeEventListener('resize', schedule);
       window.removeEventListener('orientationchange', schedule);
+      document.removeEventListener('focusin', schedule, true);
+      document.removeEventListener('focusout', schedule, true);
       root.style.setProperty('--keyboard-inset', '0px');
     };
   }, []);
