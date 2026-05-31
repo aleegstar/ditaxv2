@@ -129,7 +129,7 @@ export function initQueryPersistence(): void {
   // user on the same device can't see cached data via the IndexedDB store.
   if (cleanupAuthListener) cleanupAuthListener();
   const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-    if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+    if (event === 'SIGNED_OUT') {
       queryClient.clear();
       void asyncStorage.removeItem(PERSIST_KEY).catch(() => undefined);
     }
