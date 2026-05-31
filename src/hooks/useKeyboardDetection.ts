@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { isDespiaNative } from '@/lib/despia';
 
+type VirtualKeyboardWithBounds = {
+  overlaysContent?: boolean;
+  boundingRect?: DOMRectReadOnly;
+  addEventListener?: (type: string, listener: EventListenerOrEventListenerObject) => void;
+  removeEventListener?: (type: string, listener: EventListenerOrEventListenerObject) => void;
+};
+
+type NavigatorWithVirtualKeyboard = Navigator & {
+  virtualKeyboard?: VirtualKeyboardWithBounds;
+};
+
 
 const getViewportHeight = () =>
   typeof window !== 'undefined' ? window.visualViewport?.height || window.innerHeight : 0;
@@ -43,6 +54,7 @@ export const useKeyboardDetection = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const despia = isDespiaNative();
+    const virtualKeyboard = (navigator as NavigatorWithVirtualKeyboard).virtualKeyboard;
 
     const compute = () => {
       const vv = window.visualViewport;
@@ -56,6 +68,10 @@ export const useKeyboardDetection = () => {
       const visualBottom = offsetTop + visualHeight;
       const hasEditableFocus = isEditableElement(document.activeElement);
       const layoutInset = Math.max(0, innerHeight - visualBottom);
+      const keyboardRect = virtualKeyboard?.boundingRect;
+      const virtualKeyboardInset = keyboardRect
+        ? Math.max(0, Math.round(innerHeight - keyboardRect.y))
+        : 0;
       // In Despia WebView, window.innerHeight stays constant while the keyboard
       // is up (because we disabled native autoscroll), so the innerHeight-based
       // fallback would always report 0 and mislead us. Use visualViewport only.
@@ -64,7 +80,7 @@ export const useKeyboardDetection = () => {
         : hasEditableFocus
           ? Math.max(0, baselineInnerHeightRef.current - innerHeight)
           : 0;
-      const rawInset = Math.max(layoutInset, fallbackInset);
+      const rawInset = Math.max(layoutInset, fallbackInset, virtualKeyboardInset);
       // For "isKeyboardOpen" flag we still threshold to avoid noise from
       // browser chrome resizing. The raw inset itself is exposed unfiltered
       // for positioning. Despia keyboards report smaller insets reliably.
@@ -92,10 +108,19 @@ export const useKeyboardDetection = () => {
 
     compute();
 
+    if (virtualKeyboard) {
+      try {
+        virtualKeyboard.overlaysContent = true;
+      } catch {
+        // noop
+      }
+    }
+
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', schedule);
       window.visualViewport.addEventListener('scroll', schedule);
     }
+    virtualKeyboard?.addEventListener?.('geometrychange', schedule);
     window.addEventListener('resize', schedule);
     window.addEventListener('orientationchange', schedule);
     const handleFocusIn = () => {
@@ -116,6 +141,7 @@ export const useKeyboardDetection = () => {
         window.visualViewport.removeEventListener('resize', schedule);
         window.visualViewport.removeEventListener('scroll', schedule);
       }
+      virtualKeyboard?.removeEventListener?.('geometrychange', schedule);
       window.removeEventListener('resize', schedule);
       window.removeEventListener('orientationchange', schedule);
       document.removeEventListener('focusin', handleFocusIn, true);
