@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { UserSidebar } from './UserSidebar';
+import { OfflineBanner } from '@/components/offline/OfflineBanner';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -16,13 +17,19 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   );
 
   if (hideSidebar) {
-    return <div className="min-h-screen bg-white">{children}</div>;
+    return (
+      <div className="min-h-screen bg-white">
+        <OfflineBanner />
+        {children}
+      </div>
+    );
   }
 
   return (
     <div className="md:flex md:h-screen md:w-full md:bg-[#F8F9FB] md:overflow-hidden">
       <UserSidebar />
       <div className="md:flex-1 md:min-w-0 md:overflow-y-auto bg-white">
+        <OfflineBanner />
         {children}
       </div>
     </div>
@@ -30,4 +37,3 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 };
 
 export default AppShell;
-
