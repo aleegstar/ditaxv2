@@ -40,6 +40,8 @@ const PaymentPage = lazyWithRetry(() => import("./pages/Payment"));
 const DocumentUploadPage = lazyWithRetry(() => import("./pages/DocumentUploadPage"));
 const Documents = lazyWithRetry(() => import("./pages/Documents"));
 const DocumentsUpload = lazyWithRetry(() => import("./pages/DocumentsUpload"));
+const DocumentsReview = lazyWithRetry(() => import("./pages/DocumentsReview"));
+const OfflineUpload = lazyWithRetry(() => import("./pages/OfflineUpload"));
 const BulkDocumentUpload = lazyWithRetry(() => import("./pages/BulkDocumentUpload"));
 const Tickets = lazyWithRetry(() => import("./pages/Tickets"));
 const MissingItems = lazyWithRetry(() => import("./pages/MissingItems"));
