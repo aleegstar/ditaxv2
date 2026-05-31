@@ -236,6 +236,7 @@ const AuthenticatedApp = () => {
         <OnboardingTourProvider>
           <DocumentsTourProvider>
             <SidebarProvider>
+            <AnonymousUpgradeProvider>
             <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
             <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
               <PageTransition>
@@ -369,6 +370,7 @@ const AuthenticatedApp = () => {
           {/* Global Mobile Menu Sheet - single instance for entire app */}
           <GlobalMobileMenuSheet />
           
+          </AnonymousUpgradeProvider>
           </SidebarProvider>
         </DocumentsTourProvider>
         </OnboardingTourProvider>
@@ -501,6 +503,7 @@ const AppRoutes = () => {
         <Routes location={location}>
           <Route path="/preisrechner" element={<PriceCalculator />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/start" element={<Start />} />
           <Route path="/google-auth" element={<GoogleAuth />} />
           <Route path="/apple-auth" element={<AppleAuth />} />
           <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
@@ -529,7 +532,7 @@ const AppRoutes = () => {
               isValid ? (
                 <AuthenticatedApp />
               ) : (
-                <Navigate to="/auth" replace />
+                <Navigate to={isDespiaNative() ? "/start" : "/auth"} replace />
               )
             }
           />
