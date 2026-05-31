@@ -44,10 +44,12 @@ export interface DocumentUploadJob extends BaseJob {
       file_name: string;
       file_type: string;
       file_path: string;
-      tax_year: string;
+      tax_year: string | null;
       is_assigned_to_checklist: boolean;
       assigned_date: string | null;
       metadata: Record<string, unknown>;
+      /** True for offline-collected docs awaiting later user assignment. */
+      pending_assignment?: boolean;
     };
   };
 }
