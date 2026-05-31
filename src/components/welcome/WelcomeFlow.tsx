@@ -407,7 +407,7 @@ export const WelcomeFlow = () => {
   };
 
 
-  return <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
+  return <div className="w-full flex flex-col items-center sm:justify-center sm:min-h-screen py-8 px-4 sm:p-6 antialiased relative">
       {/* Logo above card — mobile only */}
       <motion.div className="mb-8 flex items-center justify-center md:hidden" initial={{
       opacity: 0,
