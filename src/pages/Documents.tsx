@@ -216,17 +216,21 @@ const DocumentsContent: React.FC<{
     }
   }, [selectedYear, loadDocuments, activeTaxFilerId]);
 
-  // Reload on visibility change (returning to tab)
+  // Reload on visibility change (returning to tab) and on reconnect
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && mountedRef.current) {
-        // Soft reload when returning to page - no spinner
         loadDocuments(false);
       }
     };
+    const handleOnline = () => {
+      if (mountedRef.current) loadDocuments(false);
+    };
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
     };
   }, [loadDocuments]);
 
