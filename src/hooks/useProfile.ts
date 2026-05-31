@@ -75,9 +75,14 @@ export const useProfile = () => {
       });
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
-      // Don't show toast for auth errors — AuthContext handles redirect
-      if (!error.message?.includes('not authenticated') && !error.message?.includes('Auth')) {
-        toast.error('Fehler beim Laden des Profils: ' + error.message);
+      const msg: string = error?.message ?? '';
+      const isAuthError = msg.includes('not authenticated') || msg.includes('Auth');
+      const isNetworkError =
+        /failed to fetch|networkerror|load failed|network request failed/i.test(msg);
+      const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+      // Stay silent for auth + offline/network errors — offline banner already informs the user.
+      if (!isAuthError && !isNetworkError && !isOffline) {
+        toast.error('Fehler beim Laden des Profils: ' + msg);
       }
       throw error; // Re-throw so retry logic can catch it
     }
@@ -112,6 +117,12 @@ export const useProfile = () => {
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       if (abortRef.current) return; // Session changed → abort
+
+      // Bail out immediately while offline — `online` listener will retry.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        setLoading(false);
+        return;
+      }
 
       try {
         await fetchProfile();
@@ -150,9 +161,21 @@ export const useProfile = () => {
       setLoading(false);
     }, 5000);
 
+    // Refetch automatically when the network comes back.
+    const onOnline = () => {
+      if (abortRef.current) return;
+      void fetchProfileWithRetry();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', onOnline);
+    }
+
     return () => {
       abortRef.current = true; // Abort retries if isValid changes
       clearTimeout(timer);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', onOnline);
+      }
     };
   }, [isValid, authLoading]);
 
