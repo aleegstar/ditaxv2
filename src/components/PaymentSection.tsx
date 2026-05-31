@@ -21,6 +21,7 @@ import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { isDespiaNative, triggerDespiaStripePaymentSheet, type StripePaymentSheetEvent } from '@/lib/despia';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAnonymousUpgrade } from '@/contexts/AnonymousUpgradeContext';
 interface PaymentSectionProps {
   isUpgrade?: boolean;
   upgradeReturnId?: string;
@@ -35,7 +36,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     taxYear
   } = useFormContext();
   const { activeTaxFilerId } = useTaxFiler();
-  const { isValid, isLoading: authLoading, refreshAuth } = useAuth();
+  const { isValid, isLoading: authLoading, refreshAuth, isAnonymous } = useAuth();
+  const { requestUpgrade } = useAnonymousUpgrade();
   const navigate = useNavigate();
   const year = taxYear || (new Date().getFullYear() - 1).toString();
   const [isLoading, setIsLoading] = useState(false);
@@ -236,6 +238,17 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
   const createCheckoutPaymentUrl = async (taxReturnId: string, totalInCents: number) => {
+    // Anonymous users must verify an email before paying — otherwise they
+    // would never be able to access their paid return from another device.
+    if (isAnonymous) {
+      requestUpgrade({
+        hardBlock: true,
+        reason:
+          'Verknüpfe vor der Bezahlung eine E-Mail-Adresse, damit deine bezahlte Steuererklärung sicher mit deinem Konto verbunden ist und auch am PC verfügbar bleibt.',
+      });
+      throw new Error('ACCOUNT_NOT_VERIFIED');
+    }
+
     const requestPayload = {
       taxYear: year,
       amount: totalInCents,

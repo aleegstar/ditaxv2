@@ -229,6 +229,33 @@ export type Database = {
         }
         Relationships: []
       }
+      anonymous_upgrades: {
+        Row: {
+          device_id_hash: string | null
+          id: string
+          method: string
+          upgraded_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          device_id_hash?: string | null
+          id?: string
+          method?: string
+          upgraded_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          device_id_hash?: string | null
+          id?: string
+          method?: string
+          upgraded_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       asset_data: {
         Row: {
           created_at: string
