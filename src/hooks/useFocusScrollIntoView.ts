@@ -49,6 +49,24 @@ function findScrollableAncestor(el: HTMLElement | null): HTMLElement | null {
   return null;
 }
 
+function applyKeyboardOffset(el: HTMLElement) {
+  const root = document.documentElement;
+  const rawInset = root.style.getPropertyValue('--keyboard-inset').trim();
+  const inset = Number.parseFloat(rawInset || '0');
+
+  if (!Number.isFinite(inset) || inset <= 0) {
+    root.style.removeProperty('--keyboard-focus-offset');
+    return;
+  }
+
+  const rect = el.getBoundingClientRect();
+  const visibleBottom = getVisibleBottom();
+  const margin = 20;
+  const overlap = rect.bottom + margin - visibleBottom;
+
+  root.style.setProperty('--keyboard-focus-offset', `${Math.max(0, Math.ceil(overlap))}px`);
+}
+
 function getVisibleBottom(): number {
   const vv = window.visualViewport;
   if (vv) return vv.offsetTop + vv.height;
@@ -111,18 +129,33 @@ export function useFocusScrollIntoView(): void {
       timer = window.setTimeout(() => {
         timer = null;
         bringIntoView(el);
+        applyKeyboardOffset(el);
         // Zweiter Pass, falls visualViewport später noch sinkt
-        window.setTimeout(() => bringIntoView(el), 250);
+        window.setTimeout(() => {
+          bringIntoView(el);
+          applyKeyboardOffset(el);
+        }, 250);
       }, 300);
     };
 
+    const onFocusOut = () => {
+      window.setTimeout(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (!active || !isEditable(active)) {
+          document.documentElement.style.removeProperty('--keyboard-focus-offset');
+        }
+      }, 0);
+    };
+
     document.addEventListener('focusin', onFocusIn, true);
+    document.addEventListener('focusout', onFocusOut, true);
 
     const vv = window.visualViewport;
     const onViewportResize = () => {
       const active = document.activeElement as HTMLElement | null;
       if (active && isEditable(active)) {
         bringIntoView(active);
+        applyKeyboardOffset(active);
       }
     };
     vv?.addEventListener('resize', onViewportResize);
@@ -130,7 +163,9 @@ export function useFocusScrollIntoView(): void {
     return () => {
       if (timer != null) window.clearTimeout(timer);
       document.removeEventListener('focusin', onFocusIn, true);
+      document.removeEventListener('focusout', onFocusOut, true);
       vv?.removeEventListener('resize', onViewportResize);
+      document.documentElement.style.removeProperty('--keyboard-focus-offset');
     };
   }, []);
 }
