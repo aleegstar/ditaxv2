@@ -46,7 +46,7 @@ const BulkDocumentUpload = lazyWithRetry(() => import("./pages/BulkDocumentUploa
 const Tickets = lazyWithRetry(() => import("./pages/Tickets"));
 const MissingItems = lazyWithRetry(() => import("./pages/MissingItems"));
 const Welcome = lazyWithRetry(() => import("./pages/Welcome"));
-const Start = lazyWithRetry(() => import("./pages/Start"));
+
 const InviteFriends = lazyWithRetry(() => import("./pages/InviteFriends"));
 const CreateTicket = lazyWithRetry(() => import("./pages/CreateTicket"));
 const AndroidDebug = lazyWithRetry(() => import("./pages/AndroidDebug"));
@@ -92,7 +92,7 @@ import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import TaxFilerGate from "@/components/guards/TaxFilerGate";
 import { useVaulCleanup } from "@/hooks/useVaulCleanup";
-import { AnonymousUpgradeProvider } from "@/contexts/AnonymousUpgradeContext";
+
 import { isDespiaNative } from "@/lib/despia";
 
 
@@ -238,7 +238,7 @@ const AuthenticatedApp = () => {
         <OnboardingTourProvider>
           <DocumentsTourProvider>
             <SidebarProvider>
-            <AnonymousUpgradeProvider>
+            
             <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
             <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
               <PageTransition>
@@ -377,7 +377,7 @@ const AuthenticatedApp = () => {
           {/* Global Mobile Menu Sheet - single instance for entire app */}
           <GlobalMobileMenuSheet />
           
-          </AnonymousUpgradeProvider>
+          
           </SidebarProvider>
         </DocumentsTourProvider>
         </OnboardingTourProvider>
@@ -510,7 +510,7 @@ const AppRoutes = () => {
         <Routes location={location}>
           <Route path="/preisrechner" element={<PriceCalculator />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/start" element={<Start />} />
+          <Route path="/start" element={<Navigate to="/auth" replace />} />
           <Route path="/google-auth" element={<GoogleAuth />} />
           <Route path="/apple-auth" element={<AppleAuth />} />
           <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
@@ -543,7 +543,7 @@ const AppRoutes = () => {
               isValid ? (
                 <AuthenticatedApp />
               ) : (
-                <Navigate to={isDespiaNative() ? "/start" : "/auth"} replace />
+                <Navigate to="/auth" replace />
               )
             }
           />

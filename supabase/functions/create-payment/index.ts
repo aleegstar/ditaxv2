@@ -170,20 +170,8 @@ serve(async (req) => {
       const user = data.user;
       logStep("User authenticated", { userId: user.id, email: user.email?.substring(0, 3) + "***", requestId });
 
-      // SECURITY: anonymous users (signed in via signInAnonymously) must not be
-      // able to pay — without an email they could never access the paid return
-      // again from another device.
-      if ((user as any).is_anonymous === true) {
-        logStep("Blocked anonymous user from payment", { userId: user.id, requestId });
-        return new Response(JSON.stringify({
-          error: 'Bitte verknüpfe zuerst eine E-Mail-Adresse mit deinem Konto.',
-          code: 'ACCOUNT_NOT_VERIFIED',
-          requestId,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 403,
-        });
-      }
+
+
 
       let requestBody;
       try {

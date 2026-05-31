@@ -7,7 +7,6 @@ interface AuthState {
   email: string | null;
   isValid: boolean;
   isLoading: boolean;
-  isAnonymous: boolean;
 }
 
 interface AuthContextType extends AuthState {
@@ -23,7 +22,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     email: null,
     isValid: false,
     isLoading: true,
-    isAnonymous: false,
   });
   const mountedRef = useRef(true);
   const initialCheckDoneRef = useRef(false);
@@ -46,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
       if (mountedRef.current) {
-        setState({ userId: null, email: null, isValid: false, isLoading: false, isAnonymous: false });
+        setState({ userId: null, email: null, isValid: false, isLoading: false });
       }
     } catch (error) {
       console.error('Error during logout:', error);
@@ -68,7 +66,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: session?.user?.email ?? null,
           isValid: !!session,
           isLoading: false,
-          isAnonymous: !!(session?.user as any)?.is_anonymous,
         });
       }
     );
@@ -88,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('Session token invalid, forcing logout:', userError?.message);
           await supabase.auth.signOut();
           initialCheckDoneRef.current = true;
-          setState({ userId: null, email: null, isValid: false, isLoading: false, isAnonymous: false });
+          setState({ userId: null, email: null, isValid: false, isLoading: false });
           return;
         }
       }
@@ -99,7 +96,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: session?.user?.email ?? null,
         isValid: !!session,
         isLoading: false,
-        isAnonymous: !!(session?.user as any)?.is_anonymous,
       });
     });
 
