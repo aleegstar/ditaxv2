@@ -88,6 +88,7 @@ const DocumentsContent: React.FC<{
     profile
   } = useProfile();
   const { setMenuSheetOpen } = useSidebar();
+  const { requestUpgrade } = useAnonymousUpgrade();
 
   // Check if tax return is locked (paid/completed)
   const { isLocked } = useTaxReturnStatus(selectedYear);
@@ -291,6 +292,12 @@ const DocumentsContent: React.FC<{
       });
       // Use soft reload (no spinner) to avoid flicker since user just uploaded
       loadDocuments(false);
+      // Anonymous users → ask for email after first upload (soft, snoozable).
+      requestUpgrade({
+        snoozeKey: 'after_first_upload',
+        maxSnooze: 2,
+        reason: 'Du hast soeben Unterlagen hochgeladen. Verknüpfe deine E-Mail, damit dein Fortschritt sicher mit deinem Konto verbunden ist.',
+      });
     }
     if (errorCount > 0 && successCount === 0) {
       toast({
