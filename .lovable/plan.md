@@ -1,54 +1,40 @@
+# Tastatur überdeckt Inputs in Despia — überall
 
 ## Problem
 
-Banner zeigt korrekt "2 Dokumente warten auf Zuordnung" (DB enthält 2 Zeilen mit `pending_assignment = true` für den User, bestätigt per DB-Query). Auf `/documents/review` erscheint trotzdem der Empty-State "Alles zugeordnet". Die Daten gehen nicht verloren — sie werden nur in der Review-UI nicht gelistet, obwohl Banner und Review denselben Filter benutzen.
+In `src/main.tsx` rufen wir beim App-Start global `initDespiaKeyboardHandling()` → das sendet `preventdefault://autoscroll?enabled=false`. Damit verschiebt die native WebView den fokussierten Input **nicht mehr** über die Tastatur.
 
-DB-Bestätigung:
-```
-2 Zeilen mit user_id = 2e70…5d36, pending_assignment = true, tax_year = NULL, tax_filer_id = NULL
-```
-
-Damit ist das Datenmodell intakt; der Bug liegt im Client von `DocumentsReview`.
-
-## Wahrscheinliche Ursachen
-
-1. **`load()` schluckt Fehler still**: `Promise.all(...)` läuft beide Selects parallel; wenn die zweite Query (`tax_filers`) im Mountmoment einen Fehler wirft, fällt das ganze Promise in den `catch`, `setDocs([])` bleibt → Empty-State. Banner ist davon unabhängig.
-2. **`if (!userId) return;` ohne `setLoading(false)`** → bei kurzem `userId=null` initialen Render bleibt der Spinner technisch hängen; nach userId-Update überschreibt der zweite Lauf, kann aber durch Race-Bedingung zu inkonsistentem State führen.
-3. **Realtime-Lücke**: Banner-Hook re-fetcht auf Queue-Snapshot und `online`-Event. Review-Page lädt nur bei userId-Wechsel und ignoriert frisch gedrainte Jobs → wenn der User die Review öffnet, während OfflineQueue gerade die Inserts macht, sieht er kurz 0.
+Unser eigenes JS-Avoidance funktioniert in Despia nicht zuverlässig (`window.innerHeight` bleibt konstant, `visualViewport` liefert in der iOS-WebView je nach Version 0/falsche Werte) — Ergebnis: Inputs werden **auf jeder Seite** (auch `/chat`, `/welcome`, Auth-Formularen etc.) verdeckt.
 
 ## Lösung
 
-### `src/pages/DocumentsReview.tsx`
+Native Autoscroll-Verhalten wieder aktivieren und der WebView die Arbeit überlassen. Despia hebt fokussierte Inputs dann automatisch über die Tastatur — auf **allen Seiten**, ohne JS-Logik pro Seite.
 
-1. **Robuster Loader**:
-   - `if (!userId)` → nur `setLoading(false)`/return, kein "true" davor.
-   - Beide Queries **getrennt** ausführen (nicht in einem `Promise.all`), damit ein Fehler beim Laden der `tax_filers` die `uploaded_documents`-Liste nicht killt.
-   - Beide `error`-Felder explizit auswerten und via `console.error` + `toast.error(message)` mit konkretem Text (`error.message`) anzeigen, statt einer generischen Meldung.
-   - `finally { setLoading(false); }` in jedem Pfad.
+Da der Chat-Footer aktuell per `translateY(-bottomInset)` selbst positioniert wird, wird dieser Mechanismus entfernt — der Footer bleibt einfach inline am unteren Rand, und native Autoscroll scrollt die Liste so, dass der Footer mit Input sichtbar bleibt.
 
-2. **Reaktive Updates**:
-   - Subscriben auf `OfflineQueueService.subscribe(...)` (wie der Banner-Hook), damit beim Draining frisch eingefügte Pending-Dokumente sofort in der Review-Liste auftauchen.
-   - Zusätzlich auf `window.addEventListener('online', refetch)` und `visibilitychange` (User wechselt aus Hintergrund zurück) re-fetchen.
-   - Optional: Supabase Realtime-Channel auf `uploaded_documents` mit Filter `user_id=eq.<userId>` für Insert/Update → re-fetch.
+## Änderungen
 
-3. **Diagnose-Log**: Bei jedem Load einmalig `console.info('[DocumentsReview] loaded', { userId, docs: docs.length, filers: filers.length })` ausgeben, damit wir beim nächsten Auftreten sofort sehen, was Supabase wirklich liefert.
+### 1. `src/lib/despiaKeyboard.ts`
+- `initDespiaKeyboardHandling()` ruft **kein** `preventdefault://autoscroll?enabled=false` mehr auf. Funktion wird zu einem No-op (zurück lassen für API-Kompatibilität, mit Kommentar warum). Optional Default-Aktivierung `preventdefault://autoscroll?enabled=true` explizit senden, falls Despia einen vorherigen Disable-State speichert.
 
-### `src/hooks/usePendingAssignmentCount.ts`
+### 2. `src/main.tsx`
+- Aufruf bleibt, ist aber jetzt no-op. Kein Code-Move nötig.
 
-- Zusätzlich `visibilitychange` als Trigger aufnehmen, damit Banner und Review konsistent re-fetchen.
+### 3. `src/pages/Chat.tsx`
+- `keyboardOffset` + `translateY`-Logik aus dem Composer-Wrapper entfernen (Zeile 128, 438–440). Wrapper wird einfach:
+  ```tsx
+  <div className="flex-shrink-0 border-t border-border/60 bg-background">
+    <ChatComposer ... />
+  </div>
+  ```
+- `useKeyboardDetection`-Import + Destructuring entfernen, falls nicht mehr genutzt.
+- Der Container `fixed inset-0 flex flex-col` bleibt — Despia scrollt den fokussierten Composer-Input automatisch über die Tastatur.
 
-### Keine Schema-Änderung
+### 4. `src/components/chat/ChatComposer.tsx`
+- Unverändert. `padding-bottom: env(safe-area-inset-bottom)` bleibt für den Home-Indicator.
 
-Migration `20260531125400_*.sql` ist korrekt; RLS-Policies auf `uploaded_documents` decken `SELECT` per `user_id = auth.uid()` korrekt ab (geprüft). Es braucht keine SQL-Änderung.
+## Erwartetes Verhalten in Despia
 
-## Verifikation
-
-1. Im Flugmodus eine Datei hochladen → Banner-Count steigt nach Online-Sync.
-2. `/documents/review` öffnen → die hochgeladene Datei erscheint mit Person/Jahr-Selects.
-3. Wenn ein Fehler auftritt, zeigt der Toast jetzt die Supabase-Fehlermeldung (nicht mehr generisch).
-4. Während OfflineQueue draint die Review-Seite offen halten → Liste füllt sich live ohne Reload.
-
-## Geänderte Dateien
-
-- `src/pages/DocumentsReview.tsx` — Loader-Refactor, Subscriptions, Diagnose-Log.
-- `src/hooks/usePendingAssignmentCount.ts` — `visibilitychange`-Trigger.
+- **Welcome, Auth, Profile, Forms, Tickets, Feedback usw.**: Tastatur erscheint → Despia hebt den fokussierten Input automatisch über die Tastatur. Keine Codeänderung pro Seite nötig.
+- **Chat**: Composer ist Teil des Layouts; bei Fokus auf das Textarea scrollt Despia den Composer über die Tastatur. Kein weißer Gap, kein verdeckter Input mehr.
+- **Browser/Lovable-Preview**: Verhalten unverändert (visualViewport regelt das selbst).
