@@ -128,7 +128,8 @@ const Chat: React.FC = () => {
   
 
   return (
-    <div className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full">
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background md:h-full md:flex-none md:min-h-0">
+
 
       {/* Header */}
       <div
