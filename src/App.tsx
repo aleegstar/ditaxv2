@@ -1,5 +1,6 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient, initQueryPersistence } from "@/lib/reactQueryPersist";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
 import { lazyWithRetry } from "@/utils/lazyWithRetry";
@@ -90,14 +91,11 @@ import TaxFilerGate from "@/components/guards/TaxFilerGate";
 import { useVaulCleanup } from "@/hooks/useVaulCleanup";
 
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+// QueryClient + IndexedDB persistence is initialized in src/lib/reactQueryPersist.ts.
+// Kick off persistence rehydration as early as possible (module-eval time) so the
+// cached snapshot is available before any component subscribes to its first query.
+initQueryPersistence();
+
 
 // Global tour component that only renders within OnboardingTourProvider
 const OnboardingTourGlobal = () => {
