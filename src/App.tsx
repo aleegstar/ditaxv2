@@ -262,6 +262,11 @@ const AuthenticatedApp = () => {
                     <DocumentsUpload />
                   </ProtectedRoute>
                 } />
+                <Route path="/documents/review" element={
+                  <ProtectedRoute>
+                    <DocumentsReview />
+                  </ProtectedRoute>
+                } />
                 <Route path="/documents/bulk" element={
                   <ProtectedRoute>
                     <BulkDocumentUpload />
