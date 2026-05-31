@@ -34,7 +34,7 @@ export async function runDocumentUploadJob(job: DocumentUploadJob): Promise<void
   // accumulating orphaned encrypted blobs.
   const { error: dbError } = await supabase
     .from('uploaded_documents')
-    .insert(dbRow);
+    .insert(dbRow as never);
 
   if (dbError) {
     // Conflict on the primary key means a previous drain pass already
