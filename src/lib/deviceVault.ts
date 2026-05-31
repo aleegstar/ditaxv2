@@ -97,3 +97,38 @@ export async function buildDeviceHeaders(): Promise<Record<string, string>> {
   const id = await getOrCreateDeviceId().catch(() => null);
   return id ? { 'x-device-id': id } : {};
 }
+
+/**
+ * Read/write the Supabase user.id of an anonymous session.
+ * Used to detect that we already created an anonymous account on this device,
+ * so a fresh app start with an expired session does not silently create a 2nd one.
+ */
+export async function readAnonUid(): Promise<string | null> {
+  if (!isDespiaNative()) return null;
+  try {
+    const data: any = await despia(`readvault://?key=${ANON_UID_KEY}`, [ANON_UID_KEY]);
+    const value = data?.[ANON_UID_KEY];
+    return isUuid(value) ? value : null;
+  } catch (e) {
+    console.warn('[deviceVault] anon read failed', e);
+    return null;
+  }
+}
+
+export async function writeAnonUid(value: string): Promise<void> {
+  if (!isDespiaNative()) return;
+  try {
+    await despia(`setvault://?key=${ANON_UID_KEY}&value=${encodeURIComponent(value)}&locked=false`);
+  } catch (e) {
+    console.warn('[deviceVault] anon write failed', e);
+  }
+}
+
+export async function clearAnonUid(): Promise<void> {
+  if (!isDespiaNative()) return;
+  try {
+    await despia(`setvault://?key=${ANON_UID_KEY}&value=&locked=false`);
+  } catch (e) {
+    console.warn('[deviceVault] anon clear failed', e);
+  }
+}
