@@ -1,7 +1,8 @@
 
 #root {
   background: transparent;
-  min-height: 100vh;
+  min-height: 100vh; /* fallback */
+  min-height: 100dvh;
 }
 
 .logo {

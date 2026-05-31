@@ -98,9 +98,9 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
     <div
       className="px-4 pt-2 sm:px-5"
       style={{
-        // Despia safe-area pattern: runtime var → env() fallback → 12px floor.
+        // Despia safe-area + Live-Tastatur-Inset (PWA/Browser).
         paddingBottom:
-          'calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
+          'calc(12px + var(--keyboard-inset, 0px) + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
       }}
     >
       <div className="mx-auto max-w-[680px]">

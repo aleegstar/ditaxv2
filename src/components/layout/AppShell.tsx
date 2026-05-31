@@ -21,7 +21,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   if (hideSidebar) {
     return (
       <OfflineGate>
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen min-h-[100dvh] flex flex-col bg-white">
           <OfflineBanner />
           <PendingAssignmentBanner />
           {children}
