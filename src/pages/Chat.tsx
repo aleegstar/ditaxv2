@@ -214,7 +214,6 @@ const Chat: React.FC = () => {
       <div
         ref={scrollRef}
         className="flex-1 min-h-0 overflow-y-auto"
-        style={{ paddingBottom: keyboardOffset }}
       >
 
         <motion.div
