@@ -4,6 +4,7 @@ import CryptoService from './CryptoService';
 import KeyManagementService from './KeyManagementService';
 import { v4 as uuidv4 } from 'uuid';
 import { validateStoragePath } from '@/utils/fileValidation';
+import { OfflineQueueService } from './OfflineQueueService';
 
 export interface DocumentMetadata {
   id: string;
@@ -103,63 +104,133 @@ class EncryptedDocumentService {
       
       const fileId = uuidv4();
       const filePath = `${userId}/${checklistItemId}/${fileId}`;
-      
-      log('Uploading to storage: ' + filePath);
       if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(filePath, new Blob([encryptedData]), {
-          contentType: 'application/octet-stream'
-        });
-      
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      log('STORAGE OK');
-      
-      const displayFileName = checklistItemTitle 
+
+      const displayFileName = checklistItemTitle
         ? `${checklistItemTitle} - ${file.name}`
         : file.name;
-      
+
+      const dbRow = {
+        id: fileId,
+        user_id: userId,
+        tax_filer_id: taxFilerId || null,
+        checklist_item_id: checklistItemId,
+        file_name: displayFileName,
+        file_type: file.type,
+        file_path: filePath,
+        tax_year: taxYear,
+        is_assigned_to_checklist: !!checklistItemId,
+        assigned_date: checklistItemId ? new Date().toISOString() : null,
+        metadata: {
+          encrypted: true,
+          iv: iv,
+          encryptedMetadata: encryptedMetadata,
+          metadataIv: metadataIv,
+          integrity_hash: integrityHash,
+          original_size: file.size,
+          encrypted_size: encryptedData.byteLength,
+          encryption_version: 1,
+        },
+      };
+
+      const encryptedBlob = new Blob([encryptedData], {
+        type: 'application/octet-stream',
+      });
+
+      // Offline path: hand the already-encrypted payload to the queue.
+      // The drainer will replay the storage upload + DB insert when the
+      // network returns. We never store unencrypted bytes anywhere.
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        log('OFFLINE detected → enqueueing upload job');
+        await OfflineQueueService.enqueue('document.upload', {
+          taxFilerId: taxFilerId || null,
+          userId,
+          label: displayFileName,
+          payload: {
+            fileId,
+            filePath,
+            encryptedData: encryptedBlob,
+            dbRow,
+          },
+        });
+        log('QUEUED - DONE (offline)');
+        return;
+      }
+
+      log('Uploading to storage: ' + filePath);
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, encryptedBlob, {
+          contentType: 'application/octet-stream',
+        });
+
+      if (uploadError) {
+        // Network-shaped failure → degrade to queue rather than dropping
+        // the user's work. Anything else (auth, storage policy) bubbles up.
+        if (this.isNetworkError(uploadError)) {
+          log('Network upload error → enqueueing');
+          await OfflineQueueService.enqueue('document.upload', {
+            taxFilerId: taxFilerId || null,
+            userId,
+            label: displayFileName,
+            payload: {
+              fileId,
+              filePath,
+              encryptedData: encryptedBlob,
+              dbRow,
+            },
+          });
+          return;
+        }
+        throw uploadError;
+      }
+
+      log('STORAGE OK');
+
       log('Saving metadata to DB');
-      if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
       const { error: dbError } = await supabase
         .from('uploaded_documents')
-        .insert({
-          id: fileId,
-          user_id: userId,
-          tax_filer_id: taxFilerId || null,
-          checklist_item_id: checklistItemId,
-          file_name: displayFileName,
-          file_type: file.type,
-          file_path: filePath,
-          tax_year: taxYear,
-          is_assigned_to_checklist: !!checklistItemId,
-          assigned_date: checklistItemId ? new Date().toISOString() : null,
-          metadata: {
-            encrypted: true,
-            iv: iv,
-            encryptedMetadata: encryptedMetadata,
-            metadataIv: metadataIv,
-            integrity_hash: integrityHash,
-            original_size: file.size,
-            encrypted_size: encryptedData.byteLength,
-            encryption_version: 1
-          }
-        });
-      
+        .insert(dbRow);
+
       if (dbError) {
+        if (this.isNetworkError(dbError)) {
+          log('Network DB error → enqueueing replay');
+          // Storage already wrote — handler uses upsert, so a replay is safe.
+          await OfflineQueueService.enqueue('document.upload', {
+            taxFilerId: taxFilerId || null,
+            userId,
+            label: displayFileName,
+            payload: {
+              fileId,
+              filePath,
+              encryptedData: encryptedBlob,
+              dbRow,
+            },
+          });
+          return;
+        }
         await supabase.storage.from('documents').remove([filePath]);
         throw dbError;
       }
-      
+
       log('DB OK - DONE');
-      
+
     } catch (error: any) {
       console.error('❌ Error uploading encrypted document:', error);
       throw new Error(`Fehler beim Hochladen des Dokuments: ${error?.message || error}`);
     }
+  }
+
+  /** Coarse heuristic for transient connectivity errors. */
+  private isNetworkError(err: unknown): boolean {
+    const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+    return (
+      msg.includes('failed to fetch') ||
+      msg.includes('network') ||
+      msg.includes('load failed') ||
+      msg.includes('timeout') ||
+      msg.includes('offline')
+    );
   }
   
   /**

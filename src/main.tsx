@@ -11,6 +11,7 @@ import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { isDespiaNative, isDespiaIOS, isDespiaAndroid } from '@/lib/despia';
 import { initDespiaKeyboardHandling } from '@/lib/despiaKeyboard';
+import { OfflineQueueService } from '@/services/OfflineQueueService';
 
 // Initialize security and monitoring systems
 EnhancedSecurityService.applySecurity().catch(console.error);
@@ -36,6 +37,10 @@ if (isDespiaNative()) {
 // Disable native keyboard auto-scroll in Despia so keyboard-aware views can
 // position fixed footers with visualViewport-driven JS logic.
 initDespiaKeyboardHandling();
+
+// Bring the offline write-queue online: hydrates any pending jobs from
+// IndexedDB and wires online/visibility/auth triggers for auto-drain.
+OfflineQueueService.start();
 
 createRoot(document.getElementById("root")!).render(
   <>
