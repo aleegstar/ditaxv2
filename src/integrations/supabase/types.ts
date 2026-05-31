@@ -3478,6 +3478,7 @@ export type Database = {
           id: string
           is_assigned_to_checklist: boolean | null
           metadata: Json | null
+          pending_assignment: boolean
           status: string
           tax_filer_id: string | null
           tax_year: string | null
@@ -3494,6 +3495,7 @@ export type Database = {
           id?: string
           is_assigned_to_checklist?: boolean | null
           metadata?: Json | null
+          pending_assignment?: boolean
           status?: string
           tax_filer_id?: string | null
           tax_year?: string | null
@@ -3510,6 +3512,7 @@ export type Database = {
           id?: string
           is_assigned_to_checklist?: boolean | null
           metadata?: Json | null
+          pending_assignment?: boolean
           status?: string
           tax_filer_id?: string | null
           tax_year?: string | null

@@ -221,6 +221,71 @@ class EncryptedDocumentService {
     }
   }
 
+  /**
+   * Offline "inbox" upload: encrypts a file locally and queues it with
+   * `pending_assignment = true`, without any tax filer / year / checklist
+   * binding. The user assigns or deletes it later on `/documents/review`
+   * once back online.
+   *
+   * - Storage path: `${userId}/_pending/${fileId}` (RLS scopes by first folder).
+   * - Always enqueues — even if currently online — so the queue UI gives a
+   *   single, consistent surface for offline-collected docs.
+   */
+  async uploadPendingDocument(file: File, userId: string): Promise<void> {
+    const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
+    const originalBuffer = await file.arrayBuffer();
+    const integrityHash = await this.cryptoService.generateIntegrityHash(originalBuffer);
+    const { encryptedData, iv } = await this.cryptoService.encryptBuffer(originalBuffer, encryptionKey);
+
+    const metadata = {
+      original_name: file.name,
+      original_type: file.type,
+      original_size: file.size,
+      upload_timestamp: new Date().toISOString(),
+    };
+    const { encryptedMetadata, iv: metadataIv } = await this.cryptoService.encryptMetadata(
+      metadata,
+      encryptionKey,
+    );
+
+    const fileId = uuidv4();
+    const filePath = `${userId}/_pending/${fileId}`;
+    if (!validateStoragePath(filePath)) throw new Error('Unsicherer Speicherpfad');
+
+    const dbRow = {
+      id: fileId,
+      user_id: userId,
+      tax_filer_id: null,
+      checklist_item_id: null,
+      file_name: file.name,
+      file_type: file.type,
+      file_path: filePath,
+      tax_year: null,
+      is_assigned_to_checklist: false,
+      assigned_date: null,
+      pending_assignment: true,
+      metadata: {
+        encrypted: true,
+        iv,
+        encryptedMetadata,
+        metadataIv,
+        integrity_hash: integrityHash,
+        original_size: file.size,
+        encrypted_size: encryptedData.byteLength,
+        encryption_version: 1,
+      },
+    };
+
+    const encryptedBlob = new Blob([encryptedData], { type: 'application/octet-stream' });
+
+    await OfflineQueueService.enqueue('document.upload', {
+      taxFilerId: null,
+      userId,
+      label: file.name,
+      payload: { fileId, filePath, encryptedData: encryptedBlob, dbRow },
+    });
+  }
+
   /** Coarse heuristic for transient connectivity errors. */
   private isNetworkError(err: unknown): boolean {
     const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();

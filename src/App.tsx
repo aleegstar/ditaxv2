@@ -40,6 +40,8 @@ const PaymentPage = lazyWithRetry(() => import("./pages/Payment"));
 const DocumentUploadPage = lazyWithRetry(() => import("./pages/DocumentUploadPage"));
 const Documents = lazyWithRetry(() => import("./pages/Documents"));
 const DocumentsUpload = lazyWithRetry(() => import("./pages/DocumentsUpload"));
+const DocumentsReview = lazyWithRetry(() => import("./pages/DocumentsReview"));
+const OfflineUpload = lazyWithRetry(() => import("./pages/OfflineUpload"));
 const BulkDocumentUpload = lazyWithRetry(() => import("./pages/BulkDocumentUpload"));
 const Tickets = lazyWithRetry(() => import("./pages/Tickets"));
 const MissingItems = lazyWithRetry(() => import("./pages/MissingItems"));
@@ -258,6 +260,11 @@ const AuthenticatedApp = () => {
                 <Route path="/documents/upload" element={
                   <ProtectedRoute>
                     <DocumentsUpload />
+                  </ProtectedRoute>
+                } />
+                <Route path="/documents/review" element={
+                  <ProtectedRoute>
+                    <DocumentsReview />
                   </ProtectedRoute>
                 } />
                 <Route path="/documents/bulk" element={
@@ -518,6 +525,10 @@ const AppRoutes = () => {
 
           {/* payment-success is top-level: bypasses AuthenticatedApp, TaxFilerGate, and onboarding checks */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
+
+          {/* Offline-only inbox surface — reachable without auth refresh */}
+          <Route path="/offline-upload" element={<OfflineUpload />} />
+          
           
           {/* Public legal pages */}
           <Route path="/datenschutzrichtlinie" element={<Privacy />} />
