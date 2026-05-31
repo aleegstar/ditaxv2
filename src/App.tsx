@@ -44,6 +44,7 @@ const BulkDocumentUpload = lazyWithRetry(() => import("./pages/BulkDocumentUploa
 const Tickets = lazyWithRetry(() => import("./pages/Tickets"));
 const MissingItems = lazyWithRetry(() => import("./pages/MissingItems"));
 const Welcome = lazyWithRetry(() => import("./pages/Welcome"));
+const Start = lazyWithRetry(() => import("./pages/Start"));
 const InviteFriends = lazyWithRetry(() => import("./pages/InviteFriends"));
 const CreateTicket = lazyWithRetry(() => import("./pages/CreateTicket"));
 const AndroidDebug = lazyWithRetry(() => import("./pages/AndroidDebug"));
@@ -89,6 +90,8 @@ import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import TaxFilerGate from "@/components/guards/TaxFilerGate";
 import { useVaulCleanup } from "@/hooks/useVaulCleanup";
+import { AnonymousUpgradeProvider } from "@/contexts/AnonymousUpgradeContext";
+import { isDespiaNative } from "@/lib/despia";
 
 
 // QueryClient + IndexedDB persistence is initialized in src/lib/reactQueryPersist.ts.
