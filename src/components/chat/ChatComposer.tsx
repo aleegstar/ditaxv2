@@ -100,7 +100,7 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
       style={{
         // Despia safe-area + Live-Tastatur-Inset (PWA/Browser).
         paddingBottom:
-          'calc(12px + var(--keyboard-inset, 0px) + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
+          'calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
       }}
     >
       <div className="mx-auto max-w-[680px]">
