@@ -33,6 +33,7 @@ import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
 import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 import { YearPillSelector } from '@/components/dashboard/YearPillSelector';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useAnonymousUpgrade } from '@/contexts/AnonymousUpgradeContext';
 import { getAvailableTaxYears } from '@/config/availableTaxYears';
 
 // Separate content component that uses FormContext
