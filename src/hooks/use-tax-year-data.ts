@@ -62,11 +62,29 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
       return;
     }
     if (loadingRef.current) return; // Prevent concurrent loads
-    
+
     loadingRef.current = true;
 
-    try {
+    const snapshotKey = `tax-year-data:${userId}:${taxFilerId}`;
+
+    // Hydrate from local snapshot first for instant offline rendering.
+    const cached = await readSnapshot<TaxYearData>(snapshotKey);
+    if (cached && mountedRef.current) {
+      setData({ ...cached, loading: false, error: null });
+    }
+
+    // If we're offline, don't even attempt the network call — the
+    // cached snapshot above is the best we can do until reconnect.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       if (mountedRef.current) {
+        setData((prev) => ({ ...prev, loading: false, error: null }));
+      }
+      loadingRef.current = false;
+      return;
+    }
+
+    try {
+      if (mountedRef.current && !cached) {
         setData(prev => ({ ...prev, loading: true, error: null }));
       }
 
