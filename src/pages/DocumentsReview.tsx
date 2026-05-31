@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { OfflineQueueService } from '@/services/OfflineQueueService';
 import { toast } from 'sonner';
 import { getAvailableTaxYears } from '@/config/availableTaxYears';
 import {
