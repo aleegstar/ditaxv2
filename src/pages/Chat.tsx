@@ -16,7 +16,7 @@ import {
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useChatMessages } from '@/hooks/useChatMessages';
-import { useKeyboardDetection } from '@/hooks/useKeyboardDetection';
+
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import assistantAvatar from '@/assets/ditax-logo-icon.png';
@@ -44,7 +44,7 @@ const Chat: React.FC = () => {
   const [showEscalation, setShowEscalation] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { bottomInset, isKeyboardOpen } = useKeyboardDetection();
+  
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, clearMessages } =
     useChatMessages(userId || '');
 
@@ -125,7 +125,7 @@ const Chat: React.FC = () => {
   const filerLabel = activeTaxFiler
     ? [activeTaxFiler.first_name, activeTaxFiler.last_name].filter(Boolean).join(' ')
     : null;
-  const keyboardOffset = isKeyboardOpen ? bottomInset : 0;
+  
 
   return (
     <div className="fixed inset-0 z-[40] flex flex-col overflow-hidden bg-background md:static md:inset-auto md:z-auto md:h-full">
@@ -434,11 +434,8 @@ const Chat: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Composer (Despia fixed-frame footer — sits above the keyboard) */}
-      <div
-        className="flex-shrink-0 border-t border-border/60 bg-background transition-transform duration-200 ease-out"
-        style={{ transform: keyboardOffset > 0 ? `translateY(-${keyboardOffset}px)` : 'translateY(0px)' }}
-      >
+      {/* Composer — native Despia autoscroll lifts the focused input above the keyboard */}
+      <div className="flex-shrink-0 border-t border-border/60 bg-background">
         <ChatComposer
           value={inputValue}
           onChange={setInputValue}
