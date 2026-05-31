@@ -43,6 +43,13 @@ initDespiaKeyboardHandling();
 // IndexedDB and wires online/visibility/auth triggers for auto-drain.
 OfflineQueueService.start();
 
+// Phase 4: Register the offline service worker for static-asset caching.
+// Hard-guarded to Despia native + localhost; auto-unregisters elsewhere
+// (e.g. Lovable preview, published web). HTML/Supabase stay NetworkOnly.
+initOfflineServiceWorker().catch((err) =>
+  console.warn('[offline-sw] init failed', err)
+);
+
 createRoot(document.getElementById("root")!).render(
   <>
     <App />
