@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { CloudOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { QueueStatusBadge } from './QueueStatusBadge';
 
 /**
  * Global offline indicator. Mounted once at the top of the app shell.
@@ -26,24 +27,28 @@ export const OfflineBanner = () => {
     }
   }, [online]);
 
-  if (online) return null;
-
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="sticky top-0 z-40 w-full bg-muted text-foreground border-b border-border"
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
-    >
-      <div className="flex items-center justify-center gap-2 px-4 py-2 text-sm">
-        <CloudOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-        <span>
-          Du bist offline – Änderungen werden gespeichert und später
-          synchronisiert.
-        </span>
-      </div>
-    </div>
+    <>
+      {!online && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="sticky top-0 z-40 w-full bg-muted text-foreground border-b border-border"
+          style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+        >
+          <div className="flex items-center justify-center gap-2 px-4 py-2 text-sm">
+            <CloudOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <span>
+              Du bist offline – Änderungen werden gespeichert und später
+              synchronisiert.
+            </span>
+          </div>
+        </div>
+      )}
+      <QueueStatusBadge />
+    </>
   );
 };
 
 export default OfflineBanner;
+
