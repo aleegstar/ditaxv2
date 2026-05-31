@@ -21,6 +21,7 @@ import { getDocumentProfile } from '@/config/documentProfiles';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { isMobileAppContext } from '@/utils/platform';
+import { isDespiaNative, despiaActionSheet } from '@/lib/despia';
 import documentScanImg from '@/assets/document-scan.webp';
 import uploadHeroCouple from '@/assets/upload-hero-couple.webp';
 
@@ -229,6 +230,45 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
 
   const dismissible = phase === 'select' || phase === 'error' || phase === 'success';
 
+  // Trigger native iOS/Android action sheet in Despia instead of web bottom sheet
+  const nativeSheetTriggered = useRef(false);
+  useEffect(() => {
+    if (!open || phase !== 'select') {
+      nativeSheetTriggered.current = false;
+      return;
+    }
+    if (!isDespiaNative() || nativeSheetTriggered.current) return;
+    nativeSheetTriggered.current = true;
+
+    despiaActionSheet({
+      title: item?.title || 'Dokument hochladen',
+      items: [
+        { label: 'Fotos hochladen', value: 'photo', iconIos: 'photo.on.rectangle', iconAndroid: 'photo_library' },
+        { label: 'Dokument scannen', value: 'scan', iconIos: 'doc.text.viewfinder', iconAndroid: 'document_scanner' },
+        { label: 'Dateien (PDF, Docs…)', value: 'file', iconIos: 'folder', iconAndroid: 'folder_open' },
+      ],
+    }).then((value) => {
+      if (value === 'photo') {
+        photoInputRef.current?.click();
+      } else if (value === 'scan') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) handleFileSelected(file);
+        };
+        input.click();
+      } else if (value === 'file') {
+        fileInputRef.current?.click();
+      } else {
+        // User cancelled native sheet → close
+        handleClose();
+      }
+    });
+  }, [open, phase, item, handleFileSelected, handleClose]);
+
   // Result screen helpers
   const getResultNotification = () => {
     if (!validationResult) return null;
@@ -263,10 +303,22 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     info: { bg: 'bg-blue-50', border: 'border-blue-200', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
   };
 
+  // In Despia native + select phase, suppress the web bottom sheet
+  // (native action sheet handles the choice). Render only hidden inputs.
+  if (open && phase === 'select' && isDespiaNative()) {
+    return (
+      <>
+        <input ref={photoInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,image/heic" capture="environment" onChange={handleInputChange} />
+        <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
+      </>
+    );
+  }
+
   return (
     <Drawer open={open} onOpenChange={(o) => { if (!o) handleClose(); }} dismissible={dismissible}>
       <DrawerContent variant="bottom-sheet">
         <div className="px-5 pt-3 pb-5">
+
 
           {/* Phase: Select file source */}
           {phase === 'select' && (
