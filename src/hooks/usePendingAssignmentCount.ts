@@ -34,10 +34,15 @@ export function usePendingAssignmentCount(): { count: number; refetch: () => voi
     void refetch();
     if (typeof window === 'undefined') return;
     const onOnline = () => void refetch();
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void refetch();
+    };
     window.addEventListener('online', onOnline);
+    document.addEventListener('visibilitychange', onVisible);
     const unsub = OfflineQueueService.subscribe(() => void refetch());
     return () => {
       window.removeEventListener('online', onOnline);
+      document.removeEventListener('visibilitychange', onVisible);
       unsub();
     };
   }, [refetch]);
