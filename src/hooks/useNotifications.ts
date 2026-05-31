@@ -213,6 +213,10 @@ export const useNotifications = () => {
   // Initialize
   useEffect(() => {
     fetchNotifications();
+    if (typeof window === 'undefined') return;
+    const onOnline = () => { void fetchNotifications(); };
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
   }, [userId, isValid]);
 
   // Set up real-time subscription
