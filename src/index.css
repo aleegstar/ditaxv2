@@ -257,11 +257,23 @@
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -.01em;
     line-height: 1.6;
-    min-height: 100vh;
+    min-height: 100vh; /* fallback */
+    min-height: 100dvh;
     overscroll-behavior: contain;
     position: relative;
     margin: 0;
     padding: 0;
+  }
+
+  /* Live-Tastatur-Inset, gesetzt von useVisualViewportInset (PWA / Browser).
+     In Despia-Native bleibt der Wert 0 — native Autoscroll regelt das. */
+  :root {
+    --keyboard-inset: 0px;
+  }
+
+  /* Utility: fixe Footer/Bottom-Nav bekommen unteren Abstand inkl. Tastatur. */
+  .kb-safe-bottom {
+    padding-bottom: calc(var(--keyboard-inset) + env(safe-area-inset-bottom, 0px));
   }
 
   /* Hide sidebar during onboarding - only on mobile */
