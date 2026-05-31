@@ -30,7 +30,16 @@ export class KeyManagementService {
     if (this.userKeyCache.has(userId)) {
       return this.userKeyCache.get(userId)!;
     }
-    
+
+    // Offline shortcut: the key is purely derived from userId, no network
+    // needed. The metadata marker in `user_encryption_keys` is best-effort
+    // bookkeeping and gets created on the next online call.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      const userKey = await this.cryptoService.generateLocalUserKey(userId);
+      this.userKeyCache.set(userId, userKey);
+      return userKey;
+    }
+
     try {
       // Try to get existing key metadata from database
       const { data, error } = await supabase
@@ -38,22 +47,38 @@ export class KeyManagementService {
         .select('encrypted_key, key_salt, key_source')
         .eq('user_id', userId)
         .single();
-      
+
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
-      
+
       // Generate local user key (no master key needed)
       const userKey = await this.cryptoService.generateLocalUserKey(userId);
-      
+
       // Store key metadata if not exists
       if (!data) {
-        await this.storeKeyMetadata(userId, 'local');
+        try {
+          await this.storeKeyMetadata(userId, 'local');
+        } catch (metaErr) {
+          // Bookkeeping only — don't fail key retrieval if insert hiccups.
+          console.warn('Could not store key metadata:', metaErr);
+        }
       }
-      
+
       this.userKeyCache.set(userId, userKey);
       return userKey;
     } catch (error) {
+      // Transient network errors (DNS, fetch failure) shouldn't block
+      // encryption — the derivation is fully local.
+      const msg = error instanceof Error ? error.message.toLowerCase() : '';
+      const isNetwork =
+        /failed to fetch|network|load failed|timeout|offline/.test(msg) ||
+        (typeof navigator !== 'undefined' && navigator.onLine === false);
+      if (isNetwork) {
+        const userKey = await this.cryptoService.generateLocalUserKey(userId);
+        this.userKeyCache.set(userId, userKey);
+        return userKey;
+      }
       console.error('Error getting user encryption key:', error);
       throw new Error('Fehler beim Abrufen des Verschlüsselungsschlüssels');
     }
