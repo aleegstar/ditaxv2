@@ -487,7 +487,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-white sm:bg-[#FAFAF8]">
+  return <div className="min-h-screen min-h-[100dvh] text-foreground antialiased sm:overflow-hidden relative bg-white sm:bg-[#FAFAF8]">
 
       {/* Minimal neutral background with extremely subtle grain */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
@@ -501,7 +501,7 @@ const Auth = () => {
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-8">
+      <div className="relative z-10 flex min-h-screen min-h-[100dvh] flex-col items-stretch justify-start sm:items-center sm:justify-center p-0 sm:p-8 overflow-y-auto sm:overflow-visible">
 
         {/* Card */}
         <motion.div

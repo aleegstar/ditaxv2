@@ -92,6 +92,8 @@ import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import TaxFilerGate from "@/components/guards/TaxFilerGate";
 import { useVaulCleanup } from "@/hooks/useVaulCleanup";
+import { useVisualViewportInset } from "@/hooks/useVisualViewportInset";
+import { useFocusScrollIntoView } from "@/hooks/useFocusScrollIntoView";
 
 import { isDespiaNative } from "@/lib/despia";
 
@@ -134,6 +136,8 @@ const AuthenticatedApp = () => {
   const location = useLocation();
   const navigate = useNavigate();
   useVaulCleanup(); // Global drawer overlay cleanup on route change
+  useVisualViewportInset(); // schreibt --keyboard-inset (PWA/Browser)
+  useFocusScrollIntoView(); // scrollt fokussierte Inputs bei Tastatur in den Sichtbereich
   const isAdminRoute = location.pathname.startsWith('/admin');
   const { idleState, extendSession } = useAuthValidation();
   const { userId, email } = useAuth();
