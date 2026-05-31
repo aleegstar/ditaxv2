@@ -51,11 +51,13 @@ function findScrollableAncestor(el: HTMLElement | null): HTMLElement | null {
 
 function applyKeyboardOffset(el: HTMLElement) {
   const root = document.documentElement;
+  const body = document.body;
   const rawInset = root.style.getPropertyValue('--keyboard-inset').trim();
   const inset = Number.parseFloat(rawInset || '0');
 
   if (!Number.isFinite(inset) || inset <= 0) {
     root.style.removeProperty('--keyboard-focus-offset');
+    body.classList.remove('keyboard-focus-adjust');
     return;
   }
 
@@ -65,6 +67,7 @@ function applyKeyboardOffset(el: HTMLElement) {
   const overlap = rect.bottom + margin - visibleBottom;
 
   root.style.setProperty('--keyboard-focus-offset', `${Math.max(0, Math.ceil(overlap))}px`);
+  body.classList.toggle('keyboard-focus-adjust', overlap > 0);
 }
 
 function getVisibleBottom(): number {
@@ -143,6 +146,7 @@ export function useFocusScrollIntoView(): void {
         const active = document.activeElement as HTMLElement | null;
         if (!active || !isEditable(active)) {
           document.documentElement.style.removeProperty('--keyboard-focus-offset');
+          document.body.classList.remove('keyboard-focus-adjust');
         }
       }, 0);
     };
@@ -166,6 +170,7 @@ export function useFocusScrollIntoView(): void {
       document.removeEventListener('focusout', onFocusOut, true);
       vv?.removeEventListener('resize', onViewportResize);
       document.documentElement.style.removeProperty('--keyboard-focus-offset');
+      document.body.classList.remove('keyboard-focus-adjust');
     };
   }, []);
 }
