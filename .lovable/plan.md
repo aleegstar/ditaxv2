@@ -1,69 +1,89 @@
-# Mobile-Webapp: Tastatur überdeckt Inputs in PWA / Standalone
+# Plan: Despia-konformer Keyboard-Fix
 
-## Diagnose
+## Was die Despia-Doku hier klar sagt
+- `/best-practices/frontend/structure`: Die App soll mobil als **fixed root frame** aufgebaut sein (`position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden`). Dann bleibt der mittlere Bereich scrollbar und die App passt sich der Tastatur korrekt an.
+- `/best-practices/frontend/structure#virtual-keyboard-adaptation`: Mit dieser **fixed frame structure** passt sich die App bei der Tastatur **automatisch** an.
+- `/native-features/prevent-autoscroll`: `enabled=false` ist nur richtig, wenn **JavaScript die Keyboard-Avoidance vollständig selbst übernimmt**. `enabled=true` stellt das native Verhalten wieder her.
 
-- `index.html` setzt bereits `viewport-fit=cover, interactive-widget=resizes-content` — gut für Chrome, aber iOS Safari (PWA/Standalone) ignoriert `interactive-widget` und resized das Layout-Viewport bei Tastatur nicht.
-- `src/App.css` und `src/index.css` setzen `min-height: 100vh` auf `#root` bzw. `body`. `100vh` ist auf iOS die Höhe **ohne** Tastatur-Berücksichtigung → Inputs am Seitenende verschwinden hinter der Tastatur.
-- `src/components/layout/AppShell.tsx` nutzt `md:h-screen md:overflow-hidden` (Desktop ok) und `min-h-screen` mobil.
-- `src/pages/Auth.tsx` baut auf `min-h-screen` + `flex` und scrollt nicht — Inputs unten werden verdeckt.
-- `src/pages/Chat.tsx` ist die einzige Seite mit eigener Tastatur-Behandlung; reicht aber nicht für PWA, weil der Composer-Footer im Layout-Viewport bleibt.
-- Despia-Doku ([Structure](https://setup.despia.com/best-practices/frontend/structure), [Prevent Autoscroll](https://setup.despia.com/native-features/prevent-autoscroll)) empfiehlt eine **Root-Frame-Architektur** (`position: fixed; top/left/right/bottom:0; display:flex; flex-direction:column; overflow:hidden`) statt `100vh`. Innerhalb läuft Content-Bereich mit `flex:1; overflow-y:auto`. PWA-Fallback: `env(safe-area-inset-*)`.
-- Despia-Native lässt die WebView Inputs automatisch hochschieben (Autoscroll bleibt `enabled=true`, wie zuletzt gefixt). PWA/Browser hat das nicht → wir brauchen `visualViewport`-basiertes JS-Avoidance + `scrollIntoView` beim Fokus.
+## Aktuelle Ursache im Projekt
+Die App mischt gerade zwei Strategien:
+- **Native Despia-Autoscroll ist aktiv** (`enabled=true`) – das ist ok.
+- Aber die Layout-Struktur folgt **nicht** durchgehend dem Despia-Root-Frame-Muster:
+  - `src/App.tsx` nutzt mobil noch einen normalen `min-h-screen`-Wrapper statt eines festen App-Frames.
+  - `src/components/layout/AppShell.tsx` nutzt mobil ebenfalls `min-h-screen min-h-[100dvh]` statt `fixed inset-0 overflow-hidden`.
+  - `src/pages/Chat.tsx` baut zusätzlich einen eigenen `fixed inset-0`-Frame innerhalb der Shell.
+  - `src/pages/Auth.tsx` und `src/components/welcome/WelcomeFlow.tsx` arbeiten mobil weiter mit `min-h-screen`/zentrierten Cards.
+- Ergebnis: Die native Keyboard-Anpassung arbeitet gegen uneinheitliche Page-Layouts; dadurch bleiben Inputs in Despia trotzdem verdeckt.
 
-## Änderungen
+## Umsetzungsplan
 
-### 1. `src/App.css` und `src/index.css` — dvh statt vh
-- Ersetze `min-height: 100vh` auf `#root` (App.css Zeile 4) und auf `body` (index.css Zeile 260) durch `min-height: 100dvh`.
-- Zusätzlich `html, body { min-height: 100dvh; }` und keine `height: 100vh` mehr in globalen Styles.
+### 1. Eine einzige mobile Root-Frame-Architektur einführen
+- Mobil den obersten App-Container in `src/App.tsx` auf Despia-konformes Muster umstellen:
+  - `fixed inset-0 flex flex-col overflow-hidden`
+  - Desktop-Verhalten unverändert lassen.
+- Ziel: Es gibt auf Mobile **einen** klaren Viewport-Rahmen, nicht mehrere konkurrierende `min-h-screen`-Layouts.
 
-### 2. Globale CSS-Variable für Keyboard-Inset (`src/index.css`)
-- Neue CSS-Var `--keyboard-inset: 0px` auf `:root`. Wird vom neuen JS-Hook (siehe 5.) bei Tastatur live gesetzt.
-- Utility-Klasse `.kb-safe-bottom { padding-bottom: calc(var(--keyboard-inset) + env(safe-area-inset-bottom, 0px)); }` für fixe Footer/Bottom-Nav.
+### 2. `AppShell` auf Despia-Frame-Struktur umstellen
+- `src/components/layout/AppShell.tsx` so umbauen, dass mobil:
+  - Header/Banner `flex-shrink-0` bleiben,
+  - Content-Zone `flex-1 min-h-0 overflow-y-auto` erhält,
+  - keine `min-h-screen`-Logik mehr den Viewport simuliert.
+- Desktop-Zweig bleibt wie bisher.
 
-### 3. AppShell auf Despia-Frame-Architektur umstellen (`src/components/layout/AppShell.tsx`)
-- Mobiler Wrapper (Zeile 24): `min-h-screen` → `min-h-[100dvh] flex flex-col` (keine festen Höhen, scrollt natürlich).
-- Desktop-Branch (`md:h-screen md:overflow-hidden`) **unverändert** lassen → keine Desktop-Regression.
+### 3. Chat an die Shell anpassen statt eigenen Vollbild-Frame zu erzwingen
+- `src/pages/Chat.tsx` den mobilen `fixed inset-0`-Container entfernen.
+- Chat stattdessen als normales `h-full min-h-0 flex flex-col` innerhalb der globalen Shell rendern.
+- Nachrichtenliste bleibt die einzige Scroll-Zone, Composer bleibt Footer-Zone.
+- So arbeitet Despia mit einem konsistenten Frame statt mit verschachtelten Fixed-Containern.
 
-### 4. Fixed-Footer / Bottom-Nav prüfen und mit Keyboard-Inset versehen
-- Suche nach Komponenten mit `fixed bottom-0` / Bottom-Nav / `ChatComposer`-ähnlichen Footern. Diese erhalten `style={{ paddingBottom: 'calc(var(--keyboard-inset) + env(safe-area-inset-bottom, 0px))' }}` **oder** werden während Tastatur via `translateY(calc(-1 * var(--keyboard-inset)))` angehoben.
-- Konkret betroffen: `src/components/layout/MobileBottomNav.tsx` (falls vorhanden), `src/components/chat/ChatComposer.tsx` (padding-bottom-Berechnung erweitern um `--keyboard-inset`).
+### 4. Auth und Welcome auf denselben Mobile-Frame umstellen
+- `src/pages/Auth.tsx` und `src/components/welcome/WelcomeFlow.tsx` mobil von `min-h-screen`/zentrierter Vollhöhe auf das gleiche Frame-Muster umstellen:
+  - äußerer Frame fix,
+  - Inhalt in einer scrollbaren Middle-Zone,
+  - keine mobilen `justify-center`-Layouts, die beim Keyboard kollidieren.
+- Optik bleibt gleich; nur die Struktur wird keyboard-sicher.
 
-### 5. Neuer globaler Hook + Mount (`src/hooks/useVisualViewportInset.ts`, in `src/main.tsx` oder `App.tsx` einmalig)
-- Liest `window.visualViewport.height/offsetTop` mit `requestAnimationFrame`-Throttling.
-- Berechnet `bottomInset = max(0, window.innerHeight - (vv.height + vv.offsetTop))`.
-- Schreibt das Ergebnis in `document.documentElement.style.setProperty('--keyboard-inset', bottomInset + 'px')`.
-- In Despia-Native: Hook bleibt aktiv, aber `bottomInset` bleibt 0 (native Autoscroll macht den Job, `visualViewport` meldet nichts) → keine Doppellogik nötig.
-- Cleanup auf `visualViewport.removeEventListener('resize'|'scroll')`.
+### 5. Weitere Formularseiten auf dieselbe Struktur angleichen
+- Die bereits identifizierten formularlastigen Seiten prüfen und nur dort anpassen, wo noch problematische Mobile-Muster vorkommen:
+  - `PersonalInfo`
+  - `CreateTicket`
+  - `Tickets`
+  - `Feedback`
+  - `MultiStepContactForm`
+  - `MultiStepYesNoForm`
+  - `SubmissionForm`
+- Fokus: `min-h-screen`, `overflow-hidden`, `justify-center`, feste Footer und zusätzliche Fullscreen-Wrapper.
 
-### 6. Auto-`scrollIntoView` beim Input-Fokus (`src/hooks/useFocusScrollIntoView.ts`, einmalig gemountet)
-- Globaler `focusin`-Listener prüft, ob `event.target` ein editierbares Element ist (`INPUT`, `TEXTAREA`, `[contenteditable]`).
-- Nach ~150 ms (damit `visualViewport` Zeit hat zu resizen) ruft `target.scrollIntoView({ block: 'center', behavior: 'smooth' })` — aber nur, wenn `bottomInset > 0` (also Tastatur offen) und Element nicht bereits im sichtbaren Bereich liegt.
-- Wird in Despia-Native früh aus dem Listener heraus skippt (`isDespiaNative()` → return), weil dort die native Autoscroll-Logik greift.
+### 6. Browser/PWA-Fallback behalten, aber sauber abgrenzen
+- `useVisualViewportInset` und `useFocusScrollIntoView` nur als **Browser/PWA-Fallback** weiterverwenden.
+- In Despia bleibt die Hauptlösung: **native Autoscroll + fixed frame structure**.
+- Kein zusätzlicher Despia-spezifischer JS-Workaround, solange die Doku-konforme Struktur aktiv ist.
 
-### 7. Auth-Seite scrollbar machen (`src/pages/Auth.tsx`)
-- Zeile 504: `min-h-screen flex flex-col items-center justify-center` ist auf Mobile bei offener Tastatur ein Problem (Inhalt zentriert, statt zu scrollen).
-- Ergänzung Mobile: `overflow-y-auto`, `justify-start` mobil (Desktop bleibt `sm:justify-center`). Der äußere `overflow-hidden` (Zeile 490) wird auf Mobile entfernt: `overflow-hidden` → `sm:overflow-hidden`.
+### 7. `despiaKeyboard.ts` konsistent halten
+- `enabled=true` beibehalten, weil wir in Despia nicht vollständig auf JS-Keyboard-Handling setzen wollen.
+- Nur falls ein einzelner Sonderfall später zwingend JS-only braucht, würde man `enabled=false` dort gezielt und temporär einsetzen — nicht global.
 
-### 8. Welcome-Flow / weitere Form-Seiten kurz prüfen
-- `src/components/welcome/WelcomeFlow.tsx`, `src/pages/PersonalInfo.tsx`, `src/pages/CreateTicket.tsx`, `src/pages/Tickets.tsx`, `src/pages/Feedback.tsx`, `src/components/forms/MultiStepContactForm.tsx`, `MultiStepYesNoForm.tsx`, `SubmissionForm.tsx`: wo `min-h-screen` ohne `overflow-y-auto` auf einem Flex-Wrapper sitzt, denselben Fix (`overflow-y-auto`, `justify-start` mobil, dvh statt vh) anwenden. Keine Designänderungen.
+## Technische Details
+```text
+Mobile root
+└─ fixed app frame
+   ├─ safe area / banners / header (shrink-0)
+   ├─ scroll content (flex-1 min-h-0 overflow-y-auto)
+   └─ footer / composer / nav (shrink-0)
+```
 
-### 9. Despia-Verhalten unangetastet lassen
-- `src/lib/despiaKeyboard.ts` bleibt wie zuletzt (sendet `autoscroll?enabled=true`). Hook aus Punkt 5/6 sind PWA-/Browser-only-wirksam: in Despia liefert `visualViewport` keine Keyboard-Höhe → `--keyboard-inset` bleibt 0, `scrollIntoView` greift nicht.
+## Validierung nach der Umsetzung
+- Testen auf mobilen Formularseiten mit Fokus auf untere Inputs.
+- Speziell prüfen:
+  1. `/chat`
+  2. `/auth`
+  3. `/welcome`
+  4. mindestens eine weitere Formularseite
+- Erwartung:
+  - Input bleibt in Despia sichtbar
+  - kein Layout-Sprung
+  - Browser/PWA bleibt intakt
+  - Desktop bleibt unverändert
 
-## Akzeptanzkriterien-Mapping
-
-1. **Tastatur überdeckt keine Inputs**: `visualViewport`-Inset + `scrollIntoView` (PWA/Browser) + native Despia-Autoscroll (App).
-2. **Layout springt nicht**: `dvh` + `flex-col` + globaler `--keyboard-inset` (kontinuierlich) statt diskreter Sprünge.
-3. **Browser + installierte Web-App**: `dvh` (modern) + `visualViewport` (PWA-fähig) decken beide ab.
-4. **Keine Desktop-Regression**: Desktop-Branches (`md:*`, `sm:*`) und Desktop-Layouts in AppShell/Auth bleiben strukturell unverändert; neue Hooks sind no-op ohne Tastatur.
-
-## Dateien (geplant)
-
-- `src/App.css`, `src/index.css` — vh → dvh, `--keyboard-inset`, `.kb-safe-bottom`.
-- `src/components/layout/AppShell.tsx` — Mobile-Wrapper auf `min-h-[100dvh] flex flex-col`.
-- `src/components/chat/ChatComposer.tsx` — padding-bottom-Formel um `--keyboard-inset` erweitern.
-- `src/pages/Auth.tsx` — mobile `overflow-y-auto` / `justify-start`.
-- `src/hooks/useVisualViewportInset.ts` (neu).
-- `src/hooks/useFocusScrollIntoView.ts` (neu).
-- `src/App.tsx` — beide Hooks einmalig im Root mounten.
-- Kleinere Anpassungen in den unter Punkt 8 genannten Form-Seiten.
+## Ergebnis
+Statt weitere Keyboard-Hacks zu stapeln, wird die App auf die von Despia dokumentierte Struktur gebracht. Das ist sehr wahrscheinlich der fehlende Teil, warum es trotz `enabled=true` noch nicht zuverlässig funktioniert.
