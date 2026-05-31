@@ -29,8 +29,11 @@ import type {
   QueueSnapshot,
 } from './queue/types';
 
-const DB_NAME = 'ditax-cache';
-const STORE_NAME = 'offline-queue';
+// Own DB — must NOT share `ditax-cache` with reactQueryPersist, because
+// idb-keyval.createStore opens a DB with a single object store and the
+// second caller would inherit a schema without its store (NotFoundError).
+const DB_NAME = 'ditax-offline-queue';
+const STORE_NAME = 'jobs';
 const QUEUE_KEY = 'jobs-v1';
 const MAX_ATTEMPTS = 6;
 const BACKOFF_MS = [1_000, 5_000, 15_000, 30_000, 60_000, 60_000];
