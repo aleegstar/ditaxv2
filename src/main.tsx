@@ -12,6 +12,7 @@ import { isAndroidEnvironment } from '@/utils/platform';
 import { isDespiaNative, isDespiaIOS, isDespiaAndroid } from '@/lib/despia';
 import { initDespiaKeyboardHandling } from '@/lib/despiaKeyboard';
 import { OfflineQueueService } from '@/services/OfflineQueueService';
+import { initOfflineServiceWorker } from '@/lib/offlineServiceWorker';
 
 // Initialize security and monitoring systems
 EnhancedSecurityService.applySecurity().catch(console.error);
