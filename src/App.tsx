@@ -520,6 +520,10 @@ const AppRoutes = () => {
 
           {/* payment-success is top-level: bypasses AuthenticatedApp, TaxFilerGate, and onboarding checks */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
+
+          {/* Offline-only inbox surface — reachable without auth refresh */}
+          <Route path="/offline-upload" element={<OfflineUpload />} />
+          
           
           {/* Public legal pages */}
           <Route path="/datenschutzrichtlinie" element={<Privacy />} />
