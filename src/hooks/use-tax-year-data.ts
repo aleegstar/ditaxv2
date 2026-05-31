@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { isNetworkError, readSnapshot, writeSnapshot } from '@/lib/offlineSnapshot';
 
 interface TaxYearData {
   taxReturns: any[];
