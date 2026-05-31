@@ -268,11 +268,16 @@
      In Despia-Native bleibt der Wert 0 — native Autoscroll regelt das. */
   :root {
     --keyboard-inset: 0px;
+    --keyboard-focus-offset: 0px;
   }
 
   /* Utility: fixe Footer/Bottom-Nav bekommen unteren Abstand inkl. Tastatur. */
   .kb-safe-bottom {
     padding-bottom: calc(var(--keyboard-inset) + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.keyboard-focus-adjust {
+    padding-bottom: var(--keyboard-focus-offset);
   }
 
   /* Hide sidebar during onboarding - only on mobile */
